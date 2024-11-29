@@ -6,6 +6,8 @@ import Login from "./components/Login";
 import Header from './components/Header';
 import { useSelector } from 'react-redux';
 import ManageStudents from './components/ManageStudents';
+import Finance from './components/Finance';
+import Academics from './components/Academics';
 
 
 function App() {
@@ -25,6 +27,9 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/students" element={<ManageStudents />} />
+                <Route path="/finance" element={<Finance />} />
+                <Route path="/academics" element={<Academics />} />
+
               </Routes>
             </div>
           </main>

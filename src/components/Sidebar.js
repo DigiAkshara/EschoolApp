@@ -21,7 +21,9 @@ const navigation = [
   { name: 'Staff', href: '/test', icon: UsersIcon, current: false },
   { name: 'Students', href: '/students', icon: FolderIcon, current: false },
   { name: 'Attendance', href: '#', icon: CalendarIcon, current: false },
-  { name: 'Academics', href: '#', icon: DocumentDuplicateIcon, current: false },
+  { name: 'Academics', href: '/academics', icon: DocumentDuplicateIcon, current: false },
+  { name: 'Finance', href: '/finance', icon: DocumentDuplicateIcon, current: false },
+
   { name: 'Reports and Analytics', href: '#', icon: ChartPieIcon, current: false },
   { name: 'Transportation', href: '#', icon: ChartPieIcon, current: false },
   { name: 'Hostel Management', href: '#', icon: ChartPieIcon, current: false },
