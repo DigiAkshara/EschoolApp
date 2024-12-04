@@ -1,14 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
-import BasicInfo from "./StudentBasicInfo";
-import SchoolDetailsTab from "./StudentAcademicDetails";
-import FeeDetailsTab from "./StudentFeeDetails";
-import { useDispatch, useSelector } from "react-redux";
-import { setFormData } from "../app/reducers/appConfigSlice";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
+import SchoolDetailsTab from "./StudentAcademicDetails";
+import BasicInfo from "./StudentBasicInfo";
+import FeeDetailsTab from "./StudentFeeDetails";
 
 function Student({ onClose }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -42,6 +40,16 @@ function Student({ onClose }) {
     permanentState: "",
     permanentPincode: "",
     uploadParentID: null,
+    academicYear: "",
+    DOA: null,
+    admissionNbr: "",
+    class: "",
+    section: "",
+    yearOfStudy: "",
+    schoolName: "",
+    className: "",
+    totalMarks: "",
+    certificateUpload: null
   });
 
   useEffect(() => {
@@ -115,10 +123,36 @@ function Student({ onClose }) {
         ),
     }),
     Yup.object({
-      age: Yup.number()
-        .typeError("Age must be a number")
-        .required("Age is required"),
-      gender: Yup.string().required("Gender is required"),
+      academicYear: Yup.string().required("Academic year is required"),
+      // DOA: Yup.date()
+      //   .nullable()
+      //   .required("Date of Admission is required"),
+        // .typeError("Invalid date format"),
+      admissionNbr: Yup.string()
+        .required("Admission number is required")
+        .matches(/^[0-9]+$/, "Admission number must be numeric"),
+      class: Yup.string().required("Class is required"),
+      section: Yup.string().required("Section is required"),
+      yearOfStudy: Yup.string().required("Year of study is required"),
+      schoolName: Yup.string().required("School name is required"),
+      className: Yup.string().required("Class is required"),
+      totalMarks: Yup.number()
+        .required("Total marks are required")
+        .positive("Marks must be positive")
+        .integer("Marks must be an integer"),
+        certificateUpload: Yup.mixed()
+        .required("File upload is required")
+        .test(
+          "fileType",
+          "Only PNG or JPG files are allowed",
+          (value) =>
+            !value || (value && ["image/png", "image/jpeg"].includes(value.type))
+        )
+        .test(
+          "fileSize",
+          "File size must be less than 10MB",
+          (value) => !value || (value && value.size <= 10 * 1024 * 1024)
+        ),
     }),
     Yup.object({
       comments: Yup.string().required("Comments are required"),

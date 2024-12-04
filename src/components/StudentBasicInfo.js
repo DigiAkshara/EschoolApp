@@ -1,20 +1,13 @@
+import { UserCircleIcon } from "@heroicons/react/24/solid";
 import React, { useState } from "react";
-import Datepicker from "react-tailwindcss-datepicker";
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomSelect from "../commonComponent/CustomSelect";
-import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useDispatch, useSelector } from "react-redux";
-import CustomRadio from "../commonComponent/CustomRadio";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomFileUploader from "../commonComponent/CustomFileUploader";
+import CustomInput from "../commonComponent/CustomInput";
+import CustomRadio from "../commonComponent/CustomRadio";
+import CustomSelect from "../commonComponent/CustomSelect";
 
 function BasicInfo() {
-  const dispatch = useDispatch();
-  const { formData } = useSelector((state) => state.appConfig);
-  const [value, setValue] = useState({});
-  const [file, setFile] = useState(null);
-  const [parentID, setParentID] = useState(null);
 
   const notificationMethods = ["Male", "Female", "Other"];
 
@@ -379,43 +372,11 @@ function BasicInfo() {
               </div>
 
               <div className="sm:col-span-4">
-                <label
-                  htmlFor="uploadParentID"
-                  className="block text-sm/6 font-regular text-gray-900"
-                >
-                  Upload Parents ID Proofs
-                  <span className="pl-1 text-red-500">*</span>
-                </label>
-                <div className="mt-2 flex justify-center rounded-lg bg-gray-50 border border-dashed border-gray-900/25 px-4 py-4">
-                  <div className="flex items-center">
-                    <PhotoIcon
-                      aria-hidden="true"
-                      className="mx-auto size-12 text-gray-300"
-                    />
-                    <div className="ml-4">
-                      <div className="flex text-sm/6 text-gray-600">
-                        <label
-                          htmlFor="uploadParentID"
-                          className="relative cursor-pointer rounded-md bg-white font-semibold text-purple-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-purple-600 focus-within:ring-offset-2 hover:text-purple-500"
-                        >
-                          <span>Upload a file</span>
-                          <input
-                            id="uploadParentID"
-                            name="uploadParentID"
-                            type="file"
-                            className="sr-only"
-                            // onChange={handleParentIDFileChange}
-                          />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="text-xs/5 text-gray-600">
-                        PNG, JPG, up to 10MB
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
+                <CustomFileUploader
+                  name="uploadParentID" 
+                  label="Upload Parents ID Proofs"
+                  required={true}
+                />                
               </div>
             </div> 
           </div> 

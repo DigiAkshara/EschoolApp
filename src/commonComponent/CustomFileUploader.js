@@ -1,7 +1,7 @@
-import { ErrorMessage, Field, useField, useFormikContext } from "formik";
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { PhotoIcon } from "@heroicons/react/24/solid";
+import { ErrorMessage, Field } from "formik";
 export default function CustomFileUploader(props) {
-  const { name, placeholder, label, icon: Icon, required = false } = props;
+  const { name, label, required = false } = props;
 
   return (
     <>
@@ -25,12 +25,12 @@ export default function CustomFileUploader(props) {
                     <div className="ml-4">
                       <div className="flex text-sm/6 text-gray-600">
                         <label
-                          htmlFor="file-upload"
+                          htmlFor={name}
                           className="relative cursor-pointer rounded-md bg-white font-semibold text-purple-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-purple-600 focus-within:ring-offset-2 hover:text-purple-500"
                         >
                           <span>Upload a file </span>
                           <input
-                            id="file-upload"
+                            id={name}
                             name={name}
                             type="file"
                             className="sr-only"
