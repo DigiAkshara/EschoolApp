@@ -8,6 +8,8 @@ import { useSelector } from 'react-redux';
 import ManageStudents from './components/ManageStudents';
 import Finance from './components/Finance';
 import Academics from './components/Academics';
+import ManageStaff from './components/ManageStaff';
+import ManageAttendance from './components/ManageAttendance';
 
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
                 <Route path="/students" element={<ManageStudents />} />
                 <Route path="/finance" element={<Finance />} />
                 <Route path="/academics" element={<Academics />} />
+                <Route path="/staff" element={<ManageStaff />} />
+                <Route path="/attendance" element={<ManageAttendance />} />
 
               </Routes>
             </div>

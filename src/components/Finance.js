@@ -128,6 +128,9 @@ export default function Example() {
       setAnimal(value);
   };
 
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   return (
     
     
@@ -502,7 +505,7 @@ export default function Example() {
 <Dialog open={open} onClose={setOpen} className="relative z-50">
       <div className="fixed inset-0" />
 
-        <FeeCreation/>
+        <FeeCreation onClose={handleClose}/>
     </Dialog>
 
 

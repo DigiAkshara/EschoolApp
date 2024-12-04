@@ -8,12 +8,19 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../commonComponent/CustomInput";
 
-function FeeCreation() {
+function FeeCreation({ onClose }) {
   const [open, setOpen] = useState(false);
   const [animal, setAnimal] = useState(null);
   const [value, setValue] = useState({});
   const checkbox = useRef();
   const [checked, setChecked] = useState(false);
+
+  const classData = [
+    { id: 1, className: "LKG", fees: "" },
+    { id: 2, className: "UKG", fees: "" },
+    { id: 3, className: "Grade 1", fees: "" },
+  ];
+
 
   const formik = useFormik({
     initialValues: {
@@ -24,7 +31,7 @@ function FeeCreation() {
       firstInstallment: null,
       secInstallment: null,
       discount: "",
-      fees: [{ className: "LKG", fee: "" }],
+      fees: classData.map((item) => ({ className: item.className, fee: item.fees }))
     },
     validationSchema: Yup.object({
       academicYear: Yup.string().required("Academic year is required"),
@@ -32,17 +39,21 @@ function FeeCreation() {
       feeTitle: Yup.string().required("Fee Title is required"),
       feeDuration: Yup.string().required("Fee Duration is required"),
       discount: Yup.string().required("Discount is required"),
-      fees: Yup.array().of(
+      fees: Yup.array()
+      .of(
         Yup.object({
-          className: Yup.string().required("Class is required"),
+          className: Yup.string().required(),
           fee: Yup.number()
+            .min(0, "Fee must be at least 0")
             .required("Fee is required")
-            .min(0, "Fee must be positive"),
         })
-      ),
+      )
+      .test("at-least-one-selected", "Please select class", (fees) =>
+        fees.some((fee) => fee.fee)
+      )
     }),
     onSubmit: (values) => {
-      console.log("Form values", values);
+      console.log("Fees form values are :", values);
     },
   });
 
@@ -58,15 +69,44 @@ function FeeCreation() {
     { value: "3 Installments", label: "3 Installments" },
   ];
 
-  const classData = [
-    { id: 1, className: "LKG", fees: "" },
-    { id: 2, className: "UKG", fees: "" },
-    { id: 3, className: "Grade 1", fees: "" },
-  ];
 
   const handleChange = (value) => {
     console.log("value:", value);
     setAnimal(value);
+  };
+
+  const toggleClassSelection = (className) => {
+    const updatedFees = formik.values.fees.some((fee) => fee.className === className)
+      ? formik.values.fees.filter((fee) => fee.className !== className)
+      : [...formik.values.fees, { className, fee: "" }];
+    formik.setFieldValue("fees", updatedFees);
+  };
+
+  //   const toggleClassSelection = (className) => {
+  //   const fees = formik.values.fees;
+  //   const isSelected = fees.some((fee) => fee.className === className);
+  
+  //   if (isSelected) {
+  //     // Remove class from fees
+  //     formik.setFieldValue(
+  //       "fees",
+  //       fees.filter((fee) => fee.className !== className)
+  //     );
+  //   } else {
+  //     // Add class to fees
+  //     formik.setFieldValue("fees", [...fees, { className, fee: "" }]);
+  //   }
+  // };
+  
+
+  const toggleAllClasses = () => {
+    if (checked) {
+      formik.setFieldValue("fees", []);
+    } else {
+      const allFees = classData.map((item) => ({ className: item.className, fee: "" }));
+      formik.setFieldValue("fees", allFees);
+    }
+    setChecked(!checked);
   };
 
   return (
@@ -88,7 +128,7 @@ function FeeCreation() {
                       <div className="ml-3 flex h-7 items-center">
                         <button
                           type="button"
-                          onClick={() => setOpen(false)}
+                          onClick={onClose}
                           className="relative rounded-md text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
                           <span className="absolute -inset-2.5" />
@@ -306,7 +346,10 @@ function FeeCreation() {
                               </div>
                             </div>
                           </div>
-
+                          
+                          {formik.errors.fees && formik.touched.fees && (
+    <p className="text-red-500 text-sm mt-2">{formik.errors.fees}</p>
+  )}
                           <table className="mt-4 min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
                             <thead className="bg-purple-100">
                               <tr>
@@ -319,7 +362,7 @@ function FeeCreation() {
                                     className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
                                     ref={checkbox}
                                     checked={checked}
-                                    //   onChange={toggleAll}
+                                      onChange={toggleAllClasses}
                                   />
                                 </th>
                                 <th
@@ -342,29 +385,44 @@ function FeeCreation() {
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
-                            {classData.map((item) => (
-      <tr key={item.id}>
-        <td className="relative px-7 sm:w-12 sm:px-6">
-          <input
-            type="checkbox"
-            className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-            value=""
-            checked=""
-            onChange=""
-          />
-        </td>
-        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-          {item.className}
-        </td>
-        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
-          <input
-            type="text"
-            placeholder="Enter"
-            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-          />
-        </td>
-      </tr>
-    ))}
+                              {classData.map((item) => (
+                                <tr key={item.id}>
+                                  <td className="relative px-7 sm:w-12 sm:px-6">
+                                    <input
+                                      type="checkbox"
+                                      className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                                      value=""
+                                      checked={formik.values.fees.some((fee) => fee.className === item.className)}
+                                      onChange={() => toggleClassSelection(item.className)}
+                                    />
+                                  </td>
+                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                                    {item.className}
+                                  </td>
+                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
+                                    <input
+                                      type="number"
+                                      placeholder="Enter"
+                                      value={
+                                        formik.values.fees.find((fee) => fee.className === item.className)?.fee || ""
+                                      }
+                                      onChange={(e) =>
+                                        formik.setFieldValue(
+                                          "fees",
+                                          formik.values.fees.map((fee) =>
+                                            fee.className === item.className
+                                              ? { ...fee, fee: e.target.value }
+                                              : fee
+                                          )
+                                        )
+                                      }
+                                      disabled={!formik.values.fees.some((fee) => fee.className === item.className)}
+                                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
+                                    />
+                                  </td>
+                                </tr>
+                              ))}
+                              
                               <tr>
                                 <td className="relative px-7 sm:w-12 sm:px-6">
                                   <input
@@ -401,6 +459,7 @@ function FeeCreation() {
                             </tbody>
                           </table>
                         </div>
+                        <button className="bg-purple-600 px-3 py-2" type="submit">save</button>
                       </form>
                     </div>
                   </div>
@@ -408,7 +467,7 @@ function FeeCreation() {
                 <div className="flex shrink-0 justify-between px-4 py-4">
                   <button
                     type="button"
-                    onClick={() => setOpen(false)}
+                    onClick={onClose}
                     className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
                   >
                     Cancel
@@ -416,17 +475,10 @@ function FeeCreation() {
 
                   <div>
                     <button
-                      type="button"
-                      onClick={() => setOpen(false)}
-                      className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                    >
-                      Back
-                    </button>
-                    <button
                       type="submit"
                       className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                     >
-                      Next
+                      Save
                     </button>
                   </div>
                 </div>
