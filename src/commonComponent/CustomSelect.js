@@ -1,4 +1,4 @@
-import React from 'react';
+import { ErrorMessage, Field } from "formik";
 
 export default function CustomSelect({
   label,
@@ -12,7 +12,7 @@ export default function CustomSelect({
   required = false
 }) {
   return (
-    <div>
+    <>
       <label htmlFor={name} className="block text-sm/6 font-regular text-gray-900">
         {label}{required&&<span className="pl-1 text-red-500">*</span>}
       </label>
@@ -22,8 +22,8 @@ export default function CustomSelect({
             <Icon aria-hidden="true" className="size-5 text-gray-400" />
           </div>
         )}
-        <select
-          id={id}
+        <Field
+          as="select"
           name={name}
           value={value} // Controlled value
           onChange={onChange} // Pass formik's handler
@@ -35,8 +35,9 @@ export default function CustomSelect({
               {option.label}
             </option>
           ))}
-        </select>
+        </Field>
       </div>
-    </div>
+      <ErrorMessage name={name} component="div" className="text-red-500" />
+    </>
   );
 }
