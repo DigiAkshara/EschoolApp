@@ -1,17 +1,20 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import Select from "react-tailwindcss-select";
-import Datepicker from "react-tailwindcss-datepicker";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { useFormik } from "formik";
+import { Form, Formik, useFormik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../commonComponent/CustomInput";
+import CustomDate from "../commonComponent/CustomDate";
+import { applyFees, feeduration, getAcademicYears, getFeeGroups } from "../commonComponent/CommonFunctions";
+import CustomRadio from '../commonComponent/CustomRadio';
+import { GET_CLASSES } from "../app/url";
+import { getData } from '../app/api';
 
 function FeeCreation({ onClose }) {
-  const [open, setOpen] = useState(false);
-  const [animal, setAnimal] = useState(null);
-  const [value, setValue] = useState({});
+  const [academicYears, setAcademicYears] = useState(getAcademicYears());
+  const [feeGroup, setFeeGroup] = useState(getFeeGroups);
+  const [applyFee, setApplyFee] = useState(applyFees);
   const checkbox = useRef();
   const [checked, setChecked] = useState(false);
 
@@ -21,71 +24,70 @@ function FeeCreation({ onClose }) {
     { id: 3, className: "Grade 1", fees: "" },
   ];
 
+  const initialValues = {
+    academicYear: "",
+    feeGroup: "",
+    feeTitle: "",
+    feeDuration: "",
+    feeApplicable: "",
+      // firstInstallment: null,
+      // secInstallment: null,
+      // discount: "",
+      // fees: classData.map((item) => ({
+      //   className: item.className,
+      //   fee: item.fees,
+      // })),
+    }
 
-  const formik = useFormik({
-    initialValues: {
-      academicYear: "",
-      feeGroup: "",
-      feeTitle: "",
-      feeDuration: "",
-      firstInstallment: null,
-      secInstallment: null,
-      discount: "",
-      fees: classData.map((item) => ({ className: item.className, fee: item.fees }))
-    },
-    validationSchema: Yup.object({
+    const validationSchemas = Yup.object({
       academicYear: Yup.string().required("Academic year is required"),
       feeGroup: Yup.string().required("Fee Group is required"),
       feeTitle: Yup.string().required("Fee Title is required"),
       feeDuration: Yup.string().required("Fee Duration is required"),
-      discount: Yup.string().required("Discount is required"),
-      fees: Yup.array()
-      .of(
-        Yup.object({
-          className: Yup.string().required(),
-          fee: Yup.number()
-            .min(0, "Fee must be at least 0")
-            .required("Fee is required")
-        })
-      )
-      .test("at-least-one-selected", "Please select class", (fees) =>
-        fees.some((fee) => fee.fee)
-      )
-    }),
-    onSubmit: (values) => {
-      console.log("Fees form values are :", values);
-    },
-  });
+      feeApplicable: Yup.string().required("who to apply fee is required"),
+      // discount: Yup.string().required("Discount is required"),
+      // fees: Yup.array()
+      //   .of(
+      //     Yup.object({
+      //       className: Yup.string().required(),
+      //       fee: Yup.number()
+      //         .min(0, "Fee must be at least 0")
+      //         .required("Fee is required"),
+      //     })
+      //   )
+      //   .test("at-least-one-selected", "Please select class", (fees) =>
+      //     fees.some((fee) => fee.fee)
+      //   ),
+    })
 
-  const notificationMethods = [
-    { id: "All", title: "All" },
-    { id: "Old Students", title: "Old Students" },
-    { id: "New Students", title: "New Students" },
-  ];
-
-  const feeduration = [
-    { value: "One Time", label: "One Time" },
-    { value: "2 Installments", label: "2 Installments" },
-    { value: "3 Installments", label: "3 Installments" },
-  ];
-
-
-  const handleChange = (value) => {
-    console.log("value:", value);
-    setAnimal(value);
+  const handleSubmit = (values) => {
+    const finalData = values;
+    console.log("Final Data: ", finalData);
+    alert("Form submitted successfully!");
   };
 
-  const toggleClassSelection = (className) => {
-    const updatedFees = formik.values.fees.some((fee) => fee.className === className)
-      ? formik.values.fees.filter((fee) => fee.className !== className)
-      : [...formik.values.fees, { className, fee: "" }];
-    formik.setFieldValue("fees", updatedFees);
-  };
+  useEffect(() => {
+    getClass();
+  }, [])
+
+  const getClass = async () => {
+    const res= await getData(GET_CLASSES);
+    console.log(res);
+  }
+
+  // const toggleClassSelection = (className) => {
+  //   const updatedFees = formik.values.fees.some(
+  //     (fee) => fee.className === className
+  //   )
+  //     ? formik.values.fees.filter((fee) => fee.className !== className)
+  //     : [...formik.values.fees, { className, fee: "" }];
+  //   formik.setFieldValue("fees", updatedFees);
+  // };
 
   //   const toggleClassSelection = (className) => {
   //   const fees = formik.values.fees;
   //   const isSelected = fees.some((fee) => fee.className === className);
-  
+
   //   if (isSelected) {
   //     // Remove class from fees
   //     formik.setFieldValue(
@@ -97,20 +99,29 @@ function FeeCreation({ onClose }) {
   //     formik.setFieldValue("fees", [...fees, { className, fee: "" }]);
   //   }
   // };
-  
 
-  const toggleAllClasses = () => {
-    if (checked) {
-      formik.setFieldValue("fees", []);
-    } else {
-      const allFees = classData.map((item) => ({ className: item.className, fee: "" }));
-      formik.setFieldValue("fees", allFees);
-    }
-    setChecked(!checked);
-  };
+  // const toggleAllClasses = () => {
+  //   if (checked) {
+  //     formik.setFieldValue("fees", []);
+  //   } else {
+  //     const allFees = classData.map((item) => ({
+  //       className: item.className,
+  //       fee: "",
+  //     }));
+  //     formik.setFieldValue("fees", allFees);
+  //   }
+  //   setChecked(!checked);
+  // };
 
   return (
     <>
+    <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchemas}
+        onSubmit= {handleSubmit }
+      >
+        {({ values }) => (
+          <Form>
       <div className="fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
@@ -141,59 +152,25 @@ function FeeCreation({ onClose }) {
                   <div className="relative flex-1 px-6 py-6 sm:px-6 overflow-y-auto">
                     <div className="form-content">
                       {/* Basic details form */}
-                      <form onSubmit={formik.handleSubmit}>
                         <div className="">
                           <div className="pb-4 mb-4">
                             <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                               <div className="sm:col-span-1">
                                 <CustomSelect
-                                  id="academicYear"
                                   name="academicYear"
                                   label="Academic year"
                                   required={true}
-                                  options={[
-                                    { value: "2023", label: "2023" },
-                                    { value: "2024", label: "2024" },
-                                    { value: "2025", label: "2025" },
-                                  ]}
-                                  {...formik.getFieldProps("academicYear")}
+                                  options={academicYears}
                                 />
-                                {formik.touched.academicYear &&
-                                  formik.errors.academicYear && (
-                                    <div className="text-red-500">
-                                      {formik.errors.academicYear}
-                                    </div>
-                                  )}
                               </div>
 
                               <div className="sm:col-span-1">
                                 <CustomSelect
-                                  id="feeGroup"
                                   name="feeGroup"
                                   label="Fee Group"
                                   required={true}
-                                  options={[
-                                    {
-                                      value: "feeGroup1",
-                                      label: "Fee Group 1",
-                                    },
-                                    {
-                                      value: "feeGroup2",
-                                      label: "Fee Group 2",
-                                    },
-                                    {
-                                      value: "feeGroup3",
-                                      label: "Fee Group 3",
-                                    },
-                                  ]}
-                                  {...formik.getFieldProps("feeGroup")}
+                                  options={feeGroup}
                                 />
-                                {formik.touched.feeGroup &&
-                                  formik.errors.feeGroup && (
-                                    <div className="text-red-500">
-                                      {formik.errors.feeGroup}
-                                    </div>
-                                  )}
                               </div>
 
                               <div className="sm:col-span-1">
@@ -201,132 +178,46 @@ function FeeCreation({ onClose }) {
                                   name="feeTitle"
                                   label="Fee Title"
                                   placeholder="Enter Fee Title"
-                                  type="text"
                                   required={true}
-                                  {...formik.getFieldProps("feeTitle")}
                                 />
-                                {formik.touched.feeTitle &&
-                                  formik.errors.feeTitle && (
-                                    <div className="text-red-500">
-                                      {formik.errors.feeTitle}
-                                    </div>
-                                  )}
                               </div>
 
                               <div className="sm:col-span-1">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Apply this fees to Students{" "}
-                                  <span className="pl-1 text-red-500">*</span>
-                                </label>
-                                <div className="mt-2">
-                                  <div className="space-y-6 sm:flex sm:items-center sm:space-x-4 sm:space-y-0">
-                                    {notificationMethods.map(
-                                      (notificationMethod) => (
-                                        <div
-                                          key={notificationMethod.id}
-                                          className="flex items-center"
-                                        >
-                                          <input
-                                            defaultChecked={
-                                              notificationMethod.id === "email"
-                                            }
-                                            id={notificationMethod.id}
-                                            name="notification-method"
-                                            type="radio"
-                                            className="size-4 border-gray-300 text-purple-600 focus:ring-purple-600"
-                                          />
-                                          <label
-                                            htmlFor={notificationMethod.id}
-                                            className="ml-3 block text-sm/6 font-regular text-gray-900"
-                                          >
-                                            {notificationMethod.title}
-                                          </label>
-                                        </div>
-                                      )
-                                    )}
-                                  </div>
-                                </div>
+                                <CustomRadio
+                                  name="feeApplicable"
+                                  label="Apply this fees to Students"
+                                  required={true}
+                                  options= {applyFee}
+                                />
                               </div>
 
                               <div className="sm:col-span-1">
                                 <CustomSelect
-                                  id="feeDuration"
                                   name="feeDuration"
                                   label="Fee Duration"
                                   required={true}
                                   options={feeduration}
-                                  {...formik.getFieldProps("feeDuration")}
                                 />
-                                {formik.touched.feeDuration &&
-                                  formik.errors.feeDuration && (
-                                    <div className="text-red-500">
-                                      {formik.errors.feeDuration}
-                                    </div>
-                                  )}
                               </div>
 
                               <div className="sm:col-span-1">
-                                <label
-                                  htmlFor="firstInstallment"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  1st Installment Due Date
-                                  <span className="pl-1 text-red-500">*</span>
-                                </label>
-                                <div className="mt-2">
-                                  <Datepicker
-                                    inputClassName="inline-block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                    primaryColor="purple"
-                                    useRange={false}
-                                    asSingle={true}
-                                    value={formik.values.firstInstallment}
-                                    onChange={(newValue) =>
-                                      formik.setFieldValue(
-                                        "firstInstallment",
-                                        newValue
-                                      )
-                                    }
-                                  />
-                                  {/* {formik.touched.firstInstallment && formik.errors.firstInstallment && (
-                <div className="text-red-500 mt-1">{formik.errors.firstInstallment}</div>
-              )} */}
-                                </div>
+                                <CustomDate
+                                  name="firstInstallment"
+                                  label="1st Installment Due Date"
+                                  required={true}
+                                />
                               </div>
 
                               <div className="sm:col-span-1">
-                                <label
-                                  htmlFor="secInstallment"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  2nd Installment Due Date
-                                  <span className="pl-1 text-red-500">*</span>
-                                </label>
-                                <div className="mt-2">
-                                  <Datepicker
-                                    inputClassName="inline-block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                    primaryColor="purple"
-                                    useRange={false}
-                                    asSingle={true}
-                                    value={formik.values.secInstallment}
-                                    onChange={(newValue) =>
-                                      formik.setFieldValue(
-                                        "secInstallment",
-                                        newValue
-                                      )
-                                    }
-                                  />
-                                  {/* {formik.touched.secInstallment && formik.errors.secInstallment && (
-                <div className="text-red-500">{formik.errors.secInstallment}</div>
-              )} */}
-                                </div>
+                                <CustomDate
+                                  name="secondInstallment"
+                                  label="2nd Installment Due Date"
+                                  required={true}
+                                />
                               </div>
 
                               <div className="sm:col-span-1">
                                 <CustomSelect
-                                  id="discount"
                                   name="discount"
                                   label="One Time Discount Percentage"
                                   required={true}
@@ -335,21 +226,11 @@ function FeeCreation({ onClose }) {
                                     { value: "discount2", label: "20%" },
                                     { value: "discount3", label: "30%" },
                                   ]}
-                                  {...formik.getFieldProps("discount")}
                                 />
-                                {formik.touched.discount &&
-                                  formik.errors.discount && (
-                                    <div className="text-red-500">
-                                      {formik.errors.discount}
-                                    </div>
-                                  )}
                               </div>
                             </div>
                           </div>
-                          
-                          {formik.errors.fees && formik.touched.fees && (
-    <p className="text-red-500 text-sm mt-2">{formik.errors.fees}</p>
-  )}
+
                           <table className="mt-4 min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
                             <thead className="bg-purple-100">
                               <tr>
@@ -362,7 +243,7 @@ function FeeCreation({ onClose }) {
                                     className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
                                     ref={checkbox}
                                     checked={checked}
-                                      onChange={toggleAllClasses}
+                                    // onChange={toggleAllClasses}
                                   />
                                 </th>
                                 <th
@@ -392,8 +273,13 @@ function FeeCreation({ onClose }) {
                                       type="checkbox"
                                       className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
                                       value=""
-                                      checked={formik.values.fees.some((fee) => fee.className === item.className)}
-                                      onChange={() => toggleClassSelection(item.className)}
+                                      // checked={formik.values.fees.some(
+                                      //   (fee) =>
+                                      //     fee.className === item.className
+                                      // )}
+                                      // onChange={() =>
+                                      //   toggleClassSelection(item.className)
+                                      // }
                                     />
                                   </td>
                                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
@@ -403,26 +289,34 @@ function FeeCreation({ onClose }) {
                                     <input
                                       type="number"
                                       placeholder="Enter"
-                                      value={
-                                        formik.values.fees.find((fee) => fee.className === item.className)?.fee || ""
-                                      }
-                                      onChange={(e) =>
-                                        formik.setFieldValue(
-                                          "fees",
-                                          formik.values.fees.map((fee) =>
-                                            fee.className === item.className
-                                              ? { ...fee, fee: e.target.value }
-                                              : fee
-                                          )
-                                        )
-                                      }
-                                      disabled={!formik.values.fees.some((fee) => fee.className === item.className)}
+                                      // value={
+                                      //   formik.values.fees.find(
+                                      //     (fee) =>
+                                      //       fee.className === item.className
+                                      //   )?.fee || ""
+                                      // }
+                                      // onChange={(e) =>
+                                      //   formik.setFieldValue(
+                                      //     "fees",
+                                      //     formik.values.fees.map((fee) =>
+                                      //       fee.className === item.className
+                                      //         ? { ...fee, fee: e.target.value }
+                                      //         : fee
+                                      //     )
+                                      //   )
+                                      // }
+                                      // disabled={
+                                      //   !formik.values.fees.some(
+                                      //     (fee) =>
+                                      //       fee.className === item.className
+                                      //   )
+                                      // }
                                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
                                     />
                                   </td>
                                 </tr>
                               ))}
-                              
+
                               <tr>
                                 <td className="relative px-7 sm:w-12 sm:px-6">
                                   <input
@@ -453,21 +347,19 @@ function FeeCreation({ onClose }) {
 
                                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                                 <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 max-w-10">
-                                  500
+                                  
                                 </td>
                               </tr>
                             </tbody>
                           </table>
-                        </div>
-                        <button className="bg-purple-600 px-3 py-2" type="submit">save</button>
-                      </form>
+                        </div>                      
                     </div>
                   </div>
                 </div>
                 <div className="flex shrink-0 justify-between px-4 py-4">
                   <button
                     type="button"
-                    onClick={onClose}
+                    // onClick={onClose}
                     className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
                   >
                     Cancel
@@ -487,6 +379,9 @@ function FeeCreation({ onClose }) {
           </div>
         </div>
       </div>
+      </Form>
+        )}
+      </Formik>
     </>
   );
 }

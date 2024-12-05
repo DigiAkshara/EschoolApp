@@ -1,4 +1,4 @@
-export const LOGIN = '/user/login'
+export const LOGIN = '/login'
 export const CREATE_TENANT = "/tenant"
 export const PROFILE = "/user"
 export const ROLES = "/user/roles"
@@ -7,7 +7,7 @@ export const CREATE_PARENT = "/user/createParent"
 export const GET_PARENTS = "/user/getParents"
 export const GET_STUDENT = "/user/students"
 export const CREATE_CLASS = "/global/createClass"
-export const GET_CLASSES = "/global/getClasses"
+export const GET_CLASSES = "/classes"
 export const CREATE_SECTION = "/global/createSection"
 export const GET_SECTIONS = "/global/getSections"
 export const GET_FEES_BY_CLASS = "/fee/feesByClass";

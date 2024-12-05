@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import Home from "./components/Home";
 import Sidebar from "./components/Sidebar";
 import Login from "./components/Login";
@@ -10,19 +10,30 @@ import Finance from './components/Finance';
 import Academics from './components/Academics';
 import ManageStaff from './components/ManageStaff';
 import ManageAttendance from './components/ManageAttendance';
+import { useDispatch } from 'react-redux';
+import { setUser } from './app/reducers/appConfigSlice';
+import { jwtDecode } from 'jwt-decode';
 
 
 function App() {
   const {user} = useSelector((state) => state.appConfig);
   const [sidebarOpen, setSidebarOpen] = useState(false)
+ 
+  const dispatch = useDispatch(); 
+  useEffect(()=>{
+    if(!user){
+      const token  = localStorage.getItem("studentManagment");
+      if(token) dispatch(setUser(jwtDecode(token)));
+    }
+  },[])
   return (
     <BrowserRouter>
       <div>
       {/* {user && <Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} />} */}
-      <Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} />
+      {user&&<Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} />}
       <div className="lg:pl-72">
-        {/* {user && <Header updateSideBar={(val)=>{setSidebarOpen(val)}} /> } */}
-        <Header updateSideBar={(val)=>{setSidebarOpen(val)}} />
+        {user && <Header updateSideBar={(val)=>{setSidebarOpen(val)}} /> }
+        {/* <Header updateSideBar={(val)=>{setSidebarOpen(val)}} /> */}
           <main className="">
             <div className="px-4 sm:px-4 lg:px-6">
               <Routes>
