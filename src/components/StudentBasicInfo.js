@@ -6,10 +6,9 @@ import CustomFileUploader from "../commonComponent/CustomFileUploader";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomRadio from "../commonComponent/CustomRadio";
 import CustomSelect from "../commonComponent/CustomSelect";
+import { gender } from "../commonComponent/CommonFunctions";
 
 function BasicInfo() {
-
-  const notificationMethods = ["Male", "Female", "Other"];
 
   return (
     <>
@@ -70,7 +69,7 @@ function BasicInfo() {
                   name="gender"
                   label="Gender"
                   required={true}
-                  options={notificationMethods}
+                  options={gender}
                   />
               </div>
 

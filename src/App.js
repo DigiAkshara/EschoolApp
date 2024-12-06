@@ -13,6 +13,7 @@ import ManageAttendance from './components/ManageAttendance';
 import { useDispatch } from 'react-redux';
 import { setUser } from './app/reducers/appConfigSlice';
 import { jwtDecode } from 'jwt-decode';
+import ProtectedRoute from './commonComponent/ProtectedRoutes';
 
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
   useEffect(()=>{
     if(!user){
       const token  = localStorage.getItem("studentManagment");
-      if(token) dispatch(setUser(jwtDecode(token)));
+      if(token) dispatch(setUser(jwtDecode(token)))
     }
   },[])
   return (
@@ -39,11 +40,11 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/students" element={<ManageStudents />} />
-                <Route path="/finance" element={<Finance />} />
-                <Route path="/academics" element={<Academics />} />
-                <Route path="/staff" element={<ManageStaff />} />
-                <Route path="/attendance" element={<ManageAttendance />} />
+                <Route path="/students" element={<ProtectedRoute><ManageStudents /></ProtectedRoute>} />
+                <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+                <Route path="/academics" element={<ProtectedRoute><Academics /></ProtectedRoute>} />
+                <Route path="/staff" element={<ProtectedRoute><ManageStaff /></ProtectedRoute>} />
+                <Route path="/attendance" element={<ProtectedRoute><ManageAttendance /></ProtectedRoute>} />
 
               </Routes>
             </div>

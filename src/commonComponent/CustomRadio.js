@@ -10,16 +10,16 @@ export default function CustomRadio(props) {
       </label>
       <div className="mt-2">
         <div className="space-y-6 sm:flex sm:items-center sm:space-x-4 sm:space-y-0">
-          {options.map((option) => (
-            <div key={option} className="flex items-center">
+          {options.map((option, index) => (
+            <div key={index} className="flex items-center">
               <Field
                 name={name}
                 type="radio"
-                value={option}
+                value={option.value}
                 className="size-4 border-gray-300 text-purple-600 focus:ring-purple-600"
               />
               <label htmlFor={option} className="ml-3 block text-sm/6 font-regular text-gray-900">
-                {option}
+                {option.label}
               </label>
             </div>
           ))}
