@@ -64,7 +64,6 @@ function ManageClass({ onClose }) {
                                   id="board"
                                   name="board"
                                   label="Board"
-                                  defaultValue="Select Board"
                                   options={[
                                     { value: "cbse", label: "CBSE" },
                                     { value: "state", label: "State" },
@@ -79,7 +78,6 @@ function ManageClass({ onClose }) {
                                   id="classCategory"
                                   name="classCategory"
                                   label="Class Category"
-                                  defaultValue={{ value: 'value', label: 'Select category' }}
                                   options={[
                                     { value: 'KINDERGARTEN', label: 'KINDERGARTEN' },
                                     { value: 'Primary', label: 'Primary – Classes 1 to 5' },
@@ -95,7 +93,6 @@ function ManageClass({ onClose }) {
                                   id="class"
                                   name="class"
                                   label="Class "
-                                  defaultValue={{ value: 'value', label: 'Select class' }}
                                   options={[
                                     { value: 'Nursery', label: 'Nursery' },
                                     { value: 'UKG', label: 'UKG' },
@@ -110,7 +107,6 @@ function ManageClass({ onClose }) {
                                   id="section"
                                   name="section"
                                   label="Section "
-                                  defaultValue={{ value: 'value', label: 'Select section' }}
                                   options={[
                                     { value: 'A', label: 'A' },
                                     { value: 'B', label: 'B' },
@@ -125,7 +121,6 @@ function ManageClass({ onClose }) {
                                   id="classTeacher"
                                   name="classTeacher"
                                   label="Class Teacher "
-                                  defaultValue={{ value: 'value', label: 'Select option' }}
                                   options={[
                                     { value: 'Rama Krishna', label: 'Rama Krishna' },
                                     { value: 'Radha Devi', label: 'Radha Devi' },

@@ -119,37 +119,9 @@ function StudentAcademicDetails() {
           <CustomFileUploader
             name="certificateUpload"
             label="Upload Transfer / Study Certificate"
+            required={true}
           />
-          {/* <div className="mt-2 flex justify-center rounded-lg bg-gray-50 border border-dashed border-gray-900/25 px-4 py-4">
-            <div className="flex items-center">
-              <PhotoIcon
-                aria-hidden="true"
-                className="mx-auto size-12 text-gray-300"
-              />
-              <div className="ml-4">
-                <div className="flex text-sm/6 leading-6 text-gray-600">
-                  <label
-                    htmlFor="file-upload"
-                    className="font-semibold text-purple-600 hover:text-purple-500 cursor-pointer"
-                  >
-                    Choose File
-                    <input
-                      id="file-upload"
-                      type="file"
-                      name="certificateUpload"
-                      accept=".png, .jpg, .jpeg"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                </div>
-                <p className="text-xs/5 leading-5 text-gray-600 mt-1">
-                  PNG or JPG files only. Max 10MB.
-                </p>
-               
-              </div>
-            </div>
-          </div> */}
+        
         </div>
        
       </div>

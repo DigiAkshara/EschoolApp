@@ -328,7 +328,7 @@ function Student({ onClose }) {
                                               <span className="shrink-0">
                                                 <span className="flex size-6 items-center justify-center rounded-full border-2 border-gray-300">
                                                   <span className="text-gray-500">
-                                                  {stepIdx}
+                                                  {stepIdx + 1}
                                                   </span>
                                                 </span>
                                               </span>

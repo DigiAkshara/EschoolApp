@@ -73,13 +73,7 @@ const tabs = [
   { name: 'Classes', href: '#', current: true },
   { name: 'Exams', href: '#', current: false },
   { name: 'Certificates', href: '#', current: false },
-  
-
 ]
-
-
-
-
 
 export default function Academics() {
   const [open, setOpen] = useState(false)

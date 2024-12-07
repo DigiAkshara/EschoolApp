@@ -30,11 +30,11 @@ function App() {
   return (
     <BrowserRouter>
       <div>
-      {/* {user && <Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} />} */}
-      {user&&<Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} />}
+      <Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} />
+      {/* {user&&<Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} />}siva given */}
       <div className="lg:pl-72">
-        {user && <Header updateSideBar={(val)=>{setSidebarOpen(val)}} /> }
-        {/* <Header updateSideBar={(val)=>{setSidebarOpen(val)}} /> */}
+        {/* {user && <Header updateSideBar={(val)=>{setSidebarOpen(val)}} /> } */}
+        <Header updateSideBar={(val)=>{setSidebarOpen(val)}} />
           <main className="">
             <div className="px-4 sm:px-4 lg:px-6">
               <Routes>
