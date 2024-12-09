@@ -14,6 +14,8 @@ import { useDispatch } from 'react-redux';
 import { setUser } from './app/reducers/appConfigSlice';
 import { jwtDecode } from 'jwt-decode';
 import ProtectedRoute from './commonComponent/ProtectedRoutes';
+import ManageExams from './components/ManageExams';
+import Class from './components/Class';
 
 
 function App() {
@@ -45,6 +47,9 @@ function App() {
                 <Route path="/academics" element={<ProtectedRoute><Academics /></ProtectedRoute>} />
                 <Route path="/staff" element={<ProtectedRoute><ManageStaff /></ProtectedRoute>} />
                 <Route path="/attendance" element={<ProtectedRoute><ManageAttendance /></ProtectedRoute>} />
+                <Route path="/academics/classesNew" element={<ProtectedRoute><Class /></ProtectedRoute>} />
+                <Route path="/academics/exams" element={<ProtectedRoute><ManageExams /></ProtectedRoute>} />
+
 
               </Routes>
             </div>

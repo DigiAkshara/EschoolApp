@@ -7,8 +7,13 @@ import * as Yup from "yup";
 import StaffInfo from "./StaffInfo";
 import StaffPersonalDetails from "./StaffPersonalDetails";
 import StaffCTCDetails from "./StaffCTCDetails";
+import { STAFF } from "../app/url";
+import { postData } from "../app/api";
+import { useDispatch } from "react-redux";
+import { clearFormData } from "../app/reducers/appConfigSlice";
 
 function Staff({ onClose }) {
+  const dispatch= useDispatch()
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
       firstName: "",
@@ -18,6 +23,7 @@ function Staff({ onClose }) {
       workEmail: "",
       designation: "",
       subjects: "",
+      fileUpload:"",
       email:"",
       guardian:"",
       gender:"",
@@ -49,19 +55,35 @@ function Staff({ onClose }) {
   // Validation schemas for each step
   const validationSchemas = [
     Yup.object({
-      firstName: Yup.string().required("firstName year is required"),
-      lastName: Yup.string().required("lastName is required"),
+      firstName: Yup.string()
+                .required("First Name is required")
+                .min(3, "First name should be at least 3 letters"),
+      lastName: Yup.string()
+                .required("Last Name is required")
+                .min(3, "Last name should be at least 3 letters"),
       empId: Yup.string().required("empId is required"),
-      workEmail: Yup.string().required("workEmail is required"),
-      designation: Yup.string().required("designation is required"),
-      subjects: Yup.string().required("subjects is required"),
+      workEmail: Yup.string()
+                .required("Work Email is required")
+                .email("Enter a valid email address"),
+      designation: Yup.string().required("Designation is required"),
+      subjects: Yup.string().required("Subjects is required"),
       // DOJ: Yup.date()
       //   .nullable()
       //   .required("Date of Joining is required"), 
      
     }),
     Yup.object({
-      email:Yup.string().required("Email is required"),
+      // fileUpload: Yup.mixed()
+      // .required("Passport size photo is required")
+      // .test("fileSize", "File size is too large", (value) =>
+      //   value ? value.size <= 2 * 1024 * 1024 : true // 2MB limit
+      // )
+      // .test("fileType", "Unsupported file format", (value) =>
+      //   value
+      //     ? ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
+      //     : true
+      // ),
+      email:Yup.string().required("Email is required").email("Enter a valid email address"),
       guardian:Yup.string().required(" Guardian is required"),
       gender:Yup.string().required("Gender is required"),
       area:Yup.string().required("Area is required"),
@@ -120,10 +142,23 @@ function Staff({ onClose }) {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const handleSubmit = (values) => {
-    const finalData = { ...formData, ...values };
-    console.log("Final Data: ", finalData);
-    alert("Form submitted successfully!");
+
+  const handleSubmit = async (values) => {
+    try {
+      const finalData = { ...formData, ...values };
+      console.log("Final Data: ", finalData);
+      alert('Student added successfully!');
+      let response = await postData(STAFF, finalData);
+      if (response.status === 200) {
+        dispatch(clearFormData());
+        alert('Student added successfully!');
+        // props.goNext('login') if you want to navigate after adding student
+      } else {
+        alert(response.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const stepContent = [
@@ -334,6 +369,7 @@ function Staff({ onClose }) {
                           >
                             Cancel
                           </button>
+                          <div> 
                           {currentStep > 1 && (
                             <button
                               type="button"
@@ -349,6 +385,7 @@ function Staff({ onClose }) {
                           >
                             {currentStep === 3 ? "Submit" : "Next"}
                           </button>
+                          </div>
                         </div>
                       </div>
                     </div>

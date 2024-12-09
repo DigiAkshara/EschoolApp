@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useLayoutEffect, useRef, useState } from 'react'
@@ -75,7 +76,7 @@ const tabs = [
   { name: 'Certificates',  path: '/certificates' },
 ]
 
-export default function OldClass() {
+export default function Class() {
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
   const navigate = useNavigate()
@@ -130,54 +131,8 @@ export default function OldClass() {
   };
 
   return (
-    
-    
-      
-      <div className="flow-root">
-        {/* Primary Tabs */}
-        <div>
-            <div className="sm:hidden">
-              <label htmlFor="tabs" className="sr-only">
-                Select a tab
-              </label>
-              {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-              <select
-                id="tabs"
-                name="tabs"
-                onChange={handleTabChange}
-                defaultValue={tabs.find((tab) => location.pathname === tab.path)?.name || tabs[0].name}
-                className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-purple-500 focus:outline-none focus:ring-purple-500 sm:text-sm"
-              >
-                {tabs.map((tab) => (
-                  <option key={tab.name}>{tab.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="hidden sm:block">
-              <div className="border-b border-gray-200">
-                <nav aria-label="Tabs" className="-mb-px flex space-x-8">
-                  {tabs.map((item) => (
-                    <a
-                      key={item.name}
-                     
-                      onClick={() => handleTabClick(item.path)}
-                        className={classNames(
-                          location.pathname === item.path
-                            ? 'border-purple-500 text-purple-600'
-                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium',
-                        )}
-                     
-                    >
-                      {item.name}
-                    </a>
-                  ))}
-                </nav>
-              </div>
-            </div>
-        </div>
-         
-         <div className='mt-4 flex justify-between'>
+    <>
+    <div className='mt-4 flex justify-between'>
            <div className='text-lg text-gray-900 font-medium'>Classes</div>   
           
            <div className='right-btns-blk space-x-4'>
@@ -1231,11 +1186,14 @@ export default function OldClass() {
           </div>
         </div>
       </div>
-    </Dialog>                
+    </Dialog>
 
-   
-
-  </div>
+    </>
+    
     
   )
 }
+
+
+
+

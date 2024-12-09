@@ -17,27 +17,28 @@ function BasicInfo() {
               Personal Details
             </h2>
             <div className=" grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
-              <div className="col-span-full">
-                <label
-                  htmlFor="first-name"
-                  className="block text-sm/6 font-regular text-gray-900"
-                >
-                  Passport Size Photo
-                  <span className="pl-1 text-red-500">*</span>
-                </label>
-                <div className="mt-2 flex items-center gap-x-3">
-                  <UserCircleIcon
-                    aria-hidden="true"
-                    className="size-12 text-gray-300"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                  >
-                    Change
-                  </button>
-                </div>
-              </div>
+            <div className="col-span-full">
+                              <label htmlFor="first-name" className="block text-sm/6 font-regular text-gray-900">
+                              Passport Size Photo<span className='pl-1 text-red-500'>*</span>
+                              </label>
+                              <div className="mt-2 flex items-center gap-x-3">
+                                  <img
+                                      alt=""
+                                      src={'/LoginImage.jpg'}
+                                      className="w-12 h-12 object-cover rounded-full"
+                                    />
+                                
+                                <label htmlFor="file-upload"
+                                  type="button"
+                                  className="cursor-pointer rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                                >
+                                  <span>Change</span>
+                                  <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                                </label>
+
+                               
+                              </div>
+                            </div>
 
               <div className="sm:col-span-2">
                 <CustomInput 
