@@ -67,22 +67,23 @@ function Staff({ onClose }) {
                 .email("Enter a valid email address"),
       designation: Yup.string().required("Designation is required"),
       subjects: Yup.string().required("Subjects is required"),
-      // DOJ: Yup.date()
-      //   .nullable()
-      //   .required("Date of Joining is required"), 
+      DOJ: Yup.date()
+        .nullable()
+        .required("Date of Joining is required"), 
      
     }),
     Yup.object({
-      // fileUpload: Yup.mixed()
-      // .required("Passport size photo is required")
-      // .test("fileSize", "File size is too large", (value) =>
-      //   value ? value.size <= 2 * 1024 * 1024 : true // 2MB limit
-      // )
-      // .test("fileType", "Unsupported file format", (value) =>
-      //   value
-      //     ? ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
-      //     : true
-      // ),
+      profilePic: Yup.mixed()
+      .required("Aadhar card file is required")
+      .test("fileSize", "File size too large", (value) => {
+        return value && value.size <= 10485760; // Max 10 MB
+      })
+      .test("fileType", "Invalid file type", (value) => {
+        return (
+          value &&
+          ["image/jpeg", "image/png", "application/pdf"].includes(value.type)
+        );
+      }),
       email:Yup.string().required("Email is required").email("Enter a valid email address"),
       guardian:Yup.string().required(" Guardian is required"),
       gender:Yup.string().required("Gender is required"),
@@ -147,11 +148,11 @@ function Staff({ onClose }) {
     try {
       const finalData = { ...formData, ...values };
       console.log("Final Data: ", finalData);
-      alert('Student added successfully!');
+      alert('Staff added successfully!');
       let response = await postData(STAFF, finalData);
       if (response.status === 200) {
         dispatch(clearFormData());
-        alert('Student added successfully!');
+        alert('Staff added successfully!');
         // props.goNext('login') if you want to navigate after adding student
       } else {
         alert(response.message);

@@ -1,18 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
 import { useDispatch, useSelector } from "react-redux";
 import CustomDate from "../commonComponent/CustomDate";
+import { SUBJECTS } from "../app/url";
+import { getData } from "../app/api";
 
 
-function StaffInfo({ goNext, onPrevious, setFormRef }) {
-  const dispatch = useDispatch();
+function StaffInfo() {
+
+  const [subjects, setSubjects] = useState()
+
+  useEffect(() => {
+    getSubjects();
+  }, []);
   
-
-
-
-  
+  const getSubjects = async () => {
+    const res = await getData(SUBJECTS);
+    console.log("comming subject data is:",res.data );
+    
+     const classData = res.data.map((item) => {
+      return {
+        label: item.name, // Displayed text in the dropdown
+        value: item._id, 
+      }
+    })
+    setSubjects(classData);
+  };
 
   return (
     <form >
@@ -100,11 +115,7 @@ function StaffInfo({ goNext, onPrevious, setFormRef }) {
                   id="subjects"
                   name="subjects"
                   label="Dealing Subjects"
-                  options={[
-                    { value: "subjects1", label: "Subjects 1" },
-                    { value: "subjects2", label: "Subjects 2" },
-                    { value: "subjects3", label: "Subjects 3" },
-                  ]}
+                  options={subjects}
                   required={true}
                 />
               

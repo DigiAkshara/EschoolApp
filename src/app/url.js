@@ -1,6 +1,7 @@
 export const LOGIN = '/login'
 export const GET_CLASSES = "/classes"
 export const STAFF= "/staff"
+export const SUBJECTS= "/subjects"
 
 export const CREATE_TENANT = "/tenant"
 export const PROFILE = "/user"

@@ -9,8 +9,32 @@ import CustomDate from "../commonComponent/CustomDate";
 import CustomRadio from "../commonComponent/CustomRadio";
 import CustomFileUploader from "../commonComponent/CustomFileUploader";
 import { gender } from "../commonComponent/CommonFunctions";
+import { Field, useFormikContext } from "formik";
+
 
 function StaffPersonalDetails() {
+  const { values, setFieldValue } = useFormikContext(); // Access Formik context
+  const [sameAsPresent, setSameAsPresent] = useState(false);
+
+  const handleCheckboxChange = (e) => {
+    const checked = e.target.checked;
+    setSameAsPresent(checked);
+
+    if (checked) {
+      // Copy present address fields to permanent address fields
+      setFieldValue("permanentArea", values.area);
+      setFieldValue("permanentCity", values.city);
+      setFieldValue("permanentState", values.state);
+      setFieldValue("permanentPincode", values.pincode);
+    } else {
+      // Clear permanent address fields
+      setFieldValue("permanentArea", "");
+      setFieldValue("permanentCity", "");
+      setFieldValue("permanentState", "");
+      setFieldValue("permanentPincode", "");
+    }
+  };
+
 
   return (
     <form>
@@ -21,33 +45,12 @@ function StaffPersonalDetails() {
           </h2>
           <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
             <div className="col-span-full">
-              <label
-                htmlFor="first-name"
-                className="block text-sm/6 font-regular text-gray-900"
-              >
-                Passport Size Photo<span className="pl-1 text-red-500">*</span>
-              </label>
-              <div className="mt-2 flex items-center gap-x-3">
-                <img
-                  alt=""
-                  src={"/LoginImage.jpg"}
-                  className="w-12 h-12 object-cover rounded-full"
-                />
-
-                <label
-                  htmlFor="file-upload"
-                  type="button"
-                  className="cursor-pointer rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                >
-                  <span>Change</span>
-                  <input
-                    id="file-upload"
-                    name="file-upload"
-                    type="file"
-                    className="sr-only"
-                  />
-                </label>
-              </div>
+            <CustomFileUploader
+                label="Passport Size Photo"
+                name="profilePic"
+                required={true}
+                isProfile={true}
+              />
             </div>
 
             <div className="sm:col-span-2">
@@ -142,6 +145,8 @@ function StaffPersonalDetails() {
                 type="checkbox"
                 aria-describedby="sameAsPresent-description"
                 className="size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                checked={sameAsPresent}
+            onChange={handleCheckboxChange}
               />
             </div>
             <div className="ml-3 text-sm/6">
@@ -161,6 +166,7 @@ function StaffPersonalDetails() {
                 label="Area"
                 placeholder="Enter Area"
                 required={true}
+                disabled={sameAsPresent}
               />
             </div>
 
@@ -170,6 +176,7 @@ function StaffPersonalDetails() {
                 label="City"
                 placeholder="Enter City"
                 required={true}
+                disabled={sameAsPresent}
               />
             </div>
 
@@ -184,6 +191,7 @@ function StaffPersonalDetails() {
                   { value: "tamil_nadu", label: "Tamil Nadu" },
                 ]}
                 required={true}
+                disabled={sameAsPresent}
               />
             </div>
 
@@ -194,6 +202,7 @@ function StaffPersonalDetails() {
                 label="Pincode"
                 placeholder="Enter Pincode"
                 required={true}
+                disabled={sameAsPresent}
               />
             </div>
           </div>

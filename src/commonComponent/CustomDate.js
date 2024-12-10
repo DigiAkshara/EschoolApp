@@ -30,7 +30,7 @@ export default function CustomDate(props) {
             useRange={false}
             required={false}
             displayFormat="DD/MM/YYYY"
-            maxDate={MAX_DATE}
+            // maxDate={MAX_DATE}
           />
         );
       }}

@@ -111,27 +111,27 @@ export default function ManageStaff() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const getStudentData = async () => {
-    const response = await getData(STAFF);
-    if (response.status === 200) {
-      console.log("comming values are:", response.data);
+  // const getStaffData = async () => {
+  //   const response = await getData(STAFF);
+  //   if (response.status === 200) {
+  //     console.log("comming values are:", response.data);
 
-      let data = response.data.map((item, index) => ({
-        // id: index + 1,
-        // name: item.firstName + " " + item.lastName,
-        // admissionNumber: item.admission, // Include admission number from the response
-        // mobile: item.mobile,
-        // class: item.class.name,
-        // section: item.section.section,
-        // academicYear: item.academicYear,
-      }));
-      setStaffData(data);
-    }
-  };
+  //     let data = response.data.map((item, index) => ({
+  //       // id: index + 1,
+  //       // name: item.firstName + " " + item.lastName,
+  //       // admissionNumber: item.admission, // Include admission number from the response
+  //       // mobile: item.mobile,
+  //       // class: item.class.name,
+  //       // section: item.section.section,
+  //       // academicYear: item.academicYear,
+  //     }));
+  //     setStaffData(data);
+  //   }
+  // };
 
-  useEffect(() => {
-    getStudentData();
-  }, []);
+  // useEffect(() => {
+  //   getStaffData();
+  // }, []);
 
   return (
     

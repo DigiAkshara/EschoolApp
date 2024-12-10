@@ -1,7 +1,9 @@
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { ErrorMessage, Field } from "formik";
+import { useState } from "react";
 export default function CustomFileUploader(props) {
-  const { name, label, required = false } = props;
+  const { name, label, required = false, isProfile = false } = props;
+  const [preview, setPreview] = useState("/LoginImage.jpg");
 
   return (
     <>
@@ -15,6 +17,45 @@ export default function CustomFileUploader(props) {
         {({ field, meta, form: { setFieldValue } }) => {
           return (
             <>
+            {isProfile ? (
+              <div>
+                <label
+                htmlFor="first-name"
+                className="block text-sm/6 font-regular text-gray-900"
+              >
+              </label>
+              <div className="mt-2 flex items-center gap-x-3">
+                <img
+                  alt=""
+                  src={preview}
+                  className="w-12 h-12 object-cover rounded-full"
+                />
+
+                <label
+                  htmlFor={name}
+                  type="button"
+                  className="cursor-pointer rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                >
+                  <span>Change</span>
+                  <input
+                     id={name}
+                     name={name}
+                     type="file"
+                     className="sr-only"
+                    //  onChange={(file)=>setFieldValue(name, file.target.files[0])}
+                     accept=".jpg,.jpeg,.png,.pdf"
+                     onChange={(event) => {
+                      const file = event.target.files[0];
+                      if (file) {
+                        setFieldValue(name, file); // Update Formik field value
+                        setPreview(URL.createObjectURL(file)); // Update preview
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+              </div> 
+            ): (
               <div className="mt-2">
                 <div className="mt-2 flex justify-center rounded-lg bg-gray-50 border border-dashed border-gray-900/25 px-4 py-4">
                   <div className="flex items-center">
@@ -47,6 +88,8 @@ export default function CustomFileUploader(props) {
                   </div>
                 </div>
               </div>
+            )}
+              
               {field.value && (
                 <div className="text-sm text-gray-700 mt-2">{field.value.name}</div>
               )}

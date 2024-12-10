@@ -178,12 +178,12 @@ export default function Academics() {
         </div>
         <div>
         <Routes>
-          <Route path="/academics/daily-timetable" element={<ManageDailyTimeTable />} />
-          <Route path="/academics/classes" element={<Class />} />
-          <Route path="/academics/exams" element={<ManageExams />} />
-          <Route path="/academics/certificates" element={<ManageCertificates />} />
-          {/* Default Route */}
-          <Route path="/academics" element={<ManageDailyTimeTable />} />
+          <Route path="/daily-timetable" element={<ManageDailyTimeTable />} />
+          <Route path="/classes" element={<Class />} />
+          <Route path="/exams" element={<ManageExams />} />
+          <Route path="/certificates" element={<ManageCertificates />} />
+          {/* Redirect Default Route */}
+          <Route path="/" element={<ManageDailyTimeTable />} />
         </Routes>
         </div>
     
