@@ -47,8 +47,10 @@ function App() {
                 <Route path="/academics" element={<ProtectedRoute><Academics /></ProtectedRoute>} />
                 <Route path="/staff" element={<ProtectedRoute><ManageStaff /></ProtectedRoute>} />
                 <Route path="/attendance" element={<ProtectedRoute><ManageAttendance /></ProtectedRoute>} />
-                {/* <Route path="/academics/classesNew" element={<ProtectedRoute><Class /></ProtectedRoute>} />
-                <Route path="/academics/exams" element={<ProtectedRoute><ManageExams /></ProtectedRoute>} /> */}
+                
+                <Route path="/academics-class" element={<ProtectedRoute><Class /></ProtectedRoute>} />
+                <Route path="/academics-exams" element={<ProtectedRoute><ManageExams /></ProtectedRoute>} />
+                
 
 
               </Routes>

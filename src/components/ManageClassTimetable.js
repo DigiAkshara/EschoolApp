@@ -16,6 +16,7 @@ function ManageClassTimetable() {
     },
   ]);
 
+  // Add a new row for a new period
   const addRow = () => {
     setRows([
       ...rows,
@@ -32,6 +33,13 @@ function ManageClassTimetable() {
     ]);
   };
 
+  // Remove a row (period) from the timetable
+  const removeRow = (index) => {
+    const updatedRows = rows.filter((_, i) => i !== index);
+    setRows(updatedRows);
+  };
+
+  // Handle changes in time or subject/teacher data
   const handleChange = (index, day, field, value) => {
     const updatedRows = [...rows];
     updatedRows[index][day][field] = value;

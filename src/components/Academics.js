@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useLayoutEffect, useRef, useState } from 'react'
@@ -34,10 +33,7 @@ import Datepicker from "react-tailwindcss-datepicker";
 import React, { PureComponent } from 'react';
 import Select from "react-tailwindcss-select";
 import ManageClass from './ManageClass'
-import { useLocation, useNavigate ,Routes, Route } from 'react-router-dom'
-import Class from './Class'
-import ManageExams from './ManageExams'
-import ManageCertificates from './ManageCertificates'
+import { useLocation, useNavigate } from 'react-router-dom'
 import ManageDailyTimeTable from './ManageDailyTimeTable'
 
 const subjects = [
@@ -74,13 +70,13 @@ function classNames(...classes) {
 }
 
 const tabs = [
-  { name: 'Daily Time table', path: '/academics/daily-timetable'},
-  { name: 'Classes', path: '/academics/classesNew'},
-  { name: 'Exams',  path: '/academics/exams' },
-  { name: 'Certificates',  path: '/academics/certificates' },
+  { name: 'Daily Time table',href: "/academics" },
+  { name: 'Classes', href: "/academics-class"},
+  { name: 'Exams',  href: "/academics-exams" },
+  { name: 'Certificates',  href: "/academics-ertificates" },
 ]
 
-export default function Academics() {
+export default function Class() {
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
   const navigate = useNavigate()
@@ -102,7 +98,12 @@ export default function Academics() {
  
 });
 
-
+  // useLayoutEffect(() => {
+  //   const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < people.length
+  //   setChecked(selectedPeople.length === people.length)
+  //   setIndeterminate(isIndeterminate)
+  //   checkbox.current.indeterminate = isIndeterminate
+  // }, [selectedPeople])
 
   function toggleAll() {
     setSelectedPeople(checked || indeterminate ? [] : people)
@@ -144,8 +145,7 @@ export default function Academics() {
               <select
                 id="tabs"
                 name="tabs"
-                onChange={handleTabChange}
-                defaultValue={tabs.find((tab) => location.pathname === tab.path)?.name || tabs[0].name}
+                defaultValue={tabs.find((tab) => location.pathname === tab.href)?.name || tabs[0].name}
                 className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-purple-500 focus:outline-none focus:ring-purple-500 sm:text-sm"
               >
                 {tabs.map((tab) => (
@@ -156,42 +156,35 @@ export default function Academics() {
             <div className="hidden sm:block">
               <div className="border-b border-gray-200">
                 <nav aria-label="Tabs" className="-mb-px flex space-x-8">
-                  {tabs.map((item) => (
+                  {tabs.map((tab) => (
                     <a
-                      key={item.name}
+                      key={tab.name}
+                      href={tab.href}
                      
-                      onClick={() => handleTabClick(item.path)}
-                        className={classNames(
-                          location.pathname === item.path
-                            ? 'border-purple-500 text-purple-600'
-                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                      onClick={() => navigate(tab.href)}
+                      className={classNames(
+                        location.pathname === tab.href
+                          ? 'border-purple-500 text-purple-600'
+                          :'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
                         'whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium',
-                        )}
-                     
+                      )}
+                      
                     >
-                      {item.name}
+                      {tab.name}
                     </a>
                   ))}
                 </nav>
               </div>
             </div>
         </div>
-        <div>
-        <Routes>
-          <Route path="/daily-timetable" element={<ManageDailyTimeTable />} />
-          <Route path="/classes" element={<Class />} />
-          <Route path="/exams" element={<ManageExams />} />
-          <Route path="/certificates" element={<ManageCertificates />} />
-          {/* Redirect Default Route */}
-          <Route path="/" element={<ManageDailyTimeTable />} />
-        </Routes>
-        </div>
-    
+        <ManageDailyTimeTable/>
+         
+         
+
+        
+   
+
   </div>
     
   )
 }
-
-
-
-

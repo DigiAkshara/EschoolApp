@@ -58,3 +58,16 @@ export const gender = [
   { value: "female", label: "Female"},
   { value: "other", label: "Other"}
 ];
+
+export const board = [
+  { value: "cbse", label: "CBSE" },
+  { value: "state", label: "State" },
+  { value: "icse", label: "ICSE" },
+]
+
+export const classCategory = [
+  { value: "KINDERGARTEN", label: "KINDERGARTEN" },
+      { value: "Primary – Classes 1 to 5", label: "Primary – Classes 1 to 5" },
+      { value: "Lower Secondary – Classes 6 to 8", label: "Lower Secondary – Classes 6 to 8" },
+      { value: "Secondary – Classes 9 & 10", label: "Secondary – Classes 9 & 10" },
+]
