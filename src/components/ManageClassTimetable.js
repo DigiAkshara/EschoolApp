@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
+import CustomSelect from "../commonComponent/CustomSelect";
+import { Field, ErrorMessage } from "formik";
 
 function ManageClassTimetable() {
   const [rows, setRows] = useState([
@@ -38,7 +40,6 @@ function ManageClassTimetable() {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
   };
-
   // Handle changes in time or subject/teacher data
   const handleChange = (index, day, field, value) => {
     const updatedRows = [...rows];
@@ -140,160 +141,219 @@ function ManageClassTimetable() {
               <td className="relative px-7 sm:w-12 sm:px-6">{row.period}</td>
 
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <input
-                  id="time"
-                  name="time"
-                  type="text"
+                <Field
+                  name="startTime"
                   placeholder="Enter Time"
-                  value={row.time}
-                  onChange={(e) => handleTimeChange(index, e.target.value)}
-                  className="block w-full  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
+                  type="text"
+                  className="mb-2 block w-full  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
+                />
+                <ErrorMessage
+                  name="time"
+                  component="div"
+                  className="text-red-500"
                 />
               </td>
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <select
-                  id="subject"
+                <Field
                   name="subject"
-                  defaultValue="Subject"
-                  value={row.monday.subject}
-                  onChange={(e) =>
-                    handleChange(index, "monday", "subject", e.target.value)
-                  }
+                  as="select"
                   className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
                 >
-                  <option>English</option>
-                  <option>Telugu</option>
-                  <option>Social</option>
-                </select>
-                <select
-                  id="teacher"
+                  <option value="" label="Select Subject" />
+                  <option value="math" label="Math" />
+                  <option value="science" label="Science" />
+                  <option value="english" label="English" />
+                </Field>
+                <ErrorMessage
+                  name="subject"
+                  component="div"
+                  className="text-red-500"
+                />
+                <Field
                   name="teacher"
-                  defaultValue="Teacher"
-                  value={row.monday.teacher}
-                  onChange={(e) =>
-                    handleChange(index, "monday", "teacher", e.target.value)
-                  }
-                  className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
                 >
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                </select>
+                  <option value="" label="Select Teacher" />
+                  <option value="rama" label="Rama Krishna" />
+                  <option value="teacher2" label="Teacher 2" />
+                  <option value="teacher3" label="Teacher 3" />
+                </Field>
+                <ErrorMessage
+                  name="teacher"
+                  component="div"
+                  className="text-red-500"
+                />
               </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <Field
+                  name="subject"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Subject" />
+                  <option value="math" label="Math" />
+                  <option value="science" label="Science" />
+                  <option value="english" label="English" />
+                </Field>
+                <ErrorMessage
+                  name="subject"
+                  component="div"
+                  className="text-red-500"
+                />
+                <Field
+                  name="teacher"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Teacher" />
+                  <option value="rama" label="Rama Krishna" />
+                  <option value="teacher2" label="Teacher 2" />
+                  <option value="teacher3" label="Teacher 3" />
+                </Field>
+                <ErrorMessage
+                  name="teacher"
+                  component="div"
+                  className="text-red-500"
+                />
+              </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <Field
+                  name="subject"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Subject" />
+                  <option value="math" label="Math" />
+                  <option value="science" label="Science" />
+                  <option value="english" label="English" />
+                </Field>
+                <ErrorMessage
+                  name="subject"
+                  component="div"
+                  className="text-red-500"
+                />
+                <Field
+                  name="teacher"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Teacher" />
+                  <option value="rama" label="Rama Krishna" />
+                  <option value="teacher2" label="Teacher 2" />
+                  <option value="teacher3" label="Teacher 3" />
+                </Field>
+                <ErrorMessage
+                  name="teacher"
+                  component="div"
+                  className="text-red-500"
+                />
+              </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <Field
+                  name="subject"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Subject" />
+                  <option value="math" label="Math" />
+                  <option value="science" label="Science" />
+                  <option value="english" label="English" />
+                </Field>
+                <ErrorMessage
+                  name="subject"
+                  component="div"
+                  className="text-red-500"
+                />
+                <Field
+                  name="teacher"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Teacher" />
+                  <option value="rama" label="Rama Krishna" />
+                  <option value="teacher2" label="Teacher 2" />
+                  <option value="teacher3" label="Teacher 3" />
+                </Field>
+                <ErrorMessage
+                  name="teacher"
+                  component="div"
+                  className="text-red-500"
+                />
+              </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <Field
+                  name="subject"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Subject" />
+                  <option value="math" label="Math" />
+                  <option value="science" label="Science" />
+                  <option value="english" label="English" />
+                </Field>
+                <ErrorMessage
+                  name="subject"
+                  component="div"
+                  className="text-red-500"
+                />
+                <Field
+                  name="teacher"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Teacher" />
+                  <option value="rama" label="Rama Krishna" />
+                  <option value="teacher2" label="Teacher 2" />
+                  <option value="teacher3" label="Teacher 3" />
+                </Field>
+                <ErrorMessage
+                  name="teacher"
+                  component="div"
+                  className="text-red-500"
+                />
+              </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <Field
+                  name="subject"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Subject" />
+                  <option value="math" label="Math" />
+                  <option value="science" label="Science" />
+                  <option value="english" label="English" />
+                </Field>
+                <ErrorMessage
+                  name="subject"
+                  component="div"
+                  className="text-red-500"
+                />
+                <Field
+                  name="teacher"
+                  as="select"
+                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                >
+                  <option value="" label="Select Teacher" />
+                  <option value="rama" label="Rama Krishna" />
+                  <option value="teacher2" label="Teacher 2" />
+                  <option value="teacher3" label="Teacher 3" />
+                </Field>
+                <ErrorMessage
+                  name="teacher"
+                  component="div"
+                  className="text-red-500"
+                />
+              </td>
+              
 
+              
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Subject"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>English</option>
-                  <option>Telugu</option>
-                  <option>Social</option>
-                </select>
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Teacher"
-                  className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                </select>
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Subject"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>English</option>
-                  <option>Telugu</option>
-                  <option>Social</option>
-                </select>
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Teacher"
-                  className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                </select>
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Subject"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>English</option>
-                  <option>Telugu</option>
-                  <option>Social</option>
-                </select>
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Teacher"
-                  className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                </select>
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Subject"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>English</option>
-                  <option>Telugu</option>
-                  <option>Social</option>
-                </select>
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Teacher"
-                  className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                </select>
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Subject"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>English</option>
-                  <option>Telugu</option>
-                  <option>Social</option>
-                </select>
-                <select
-                  id="location"
-                  name="location"
-                  defaultValue="Teacher"
-                  className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                  <option>Rama Krishna</option>
-                </select>
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
+                                        <button onClick={() => removeRow(index)}><XMarkIcon aria-hidden="true" className="text-red-500 size-5" /></button>
+                                    </td>
             </tr>
           ))}
+
         </tbody>
       </table>
 

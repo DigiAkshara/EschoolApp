@@ -19,6 +19,12 @@ function ManageClass({ onClose }) {
     class: "",
     section:"",
     classTeacher:"",
+    timetable: {
+      subject: "",
+      day: "",
+      time: "",
+    },
+   
   };
 
   const validationSchema = Yup.object({
@@ -27,6 +33,11 @@ function ManageClass({ onClose }) {
     class: Yup.string().required("Class is required"),
     section: Yup.string().required("Section is required"),
     classTeacher: Yup.string().required("Class teacher is required"),
+    timetable: Yup.object({
+      subject: Yup.string().required("Subject is required"),
+      day: Yup.string().required("Day is required"),
+      time: Yup.string().required("Time is required"),
+    }),
   });
 
   const handleSubmit = (values) => {
@@ -159,193 +170,7 @@ function ManageClass({ onClose }) {
                               </div>
                             </div>
                           </div>
-                          <div className="border-b border-gray-900/10 pb-4 mb-4">
-                          <h2 className="text-base/7 font-semibold text-gray-900 mb-2">Add Theory Subjects</h2>
-                          <p className='text-base font-regular text-gray-900'>Please review the theory subjects listed below and suggest any additions or removals relevant to this class and section.</p>
-                          <div className="flex items-center mt-4 gap-4">
-                            
-                            <div className='filter-badges-blk flex flex-wrap gap-4'>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              English
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Telugu
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Hindi
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Maths
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Social
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                            </div>
-                            
-                            <div className='flex add-sub-input-blk'>
-                                <input
-                                  id="email"
-                                  name="email"
-                                  type="text"
-                                  placeholder='Add New Subject'
-                                  className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                />
-                                <button
-                                  type="submit"
-                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                                >
-                                  Add
-                                </button>
-
-
-                            </div>
-
-                          </div>
-                        </div>
-                        <div className="border-b border-gray-900/10 pb-4 mb-4">
-                          <h2 className="text-base/7 font-semibold text-gray-900 mb-2">Add Lab Subjects</h2>
-                          <p className='text-base font-regular text-gray-900'>Please review the Lab subjects listed below and suggest any additions or removals relevant to this class and section.</p>
-                          <div className="flex items-center mt-4 gap-4">
-                            
-                            <div className='filter-badges-blk flex flex-wrap gap-4'>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Computer
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Science
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              
-                            </div>
-                            
-                            <div className='flex add-sub-input-blk'>
-                                <input
-                                  id="email"
-                                  name="email"
-                                  type="text"
-                                  placeholder='Add New Lab'
-                                  className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                />
-                                <button
-                                  type="submit"
-                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                                >
-                                  Add
-                                </button>
-
-
-                            </div>
-
-                          </div>
-                        </div>
-
-                        <div className="border-b border-gray-900/10 pb-4 mb-4">
-                          <h2 className="text-base/7 font-semibold text-gray-900 mb-2">Extracurricular Activities</h2>
-                          <p className='text-base font-regular text-gray-900'>Please review the Extracurricular Activities listed below and suggest any additions or removals relevant to this class and section.</p>
-                          <div className="flex items-center mt-4 gap-4">
-                            
-                            <div className='filter-badges-blk flex flex-wrap gap-4'>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Dance
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Art
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                              Sports
-                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
-                                  <span className="sr-only">Remove</span>
-                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
-                                    <path d="M4 4l6 6m0-6l-6 6" />
-                                  </svg>
-                                  <span className="absolute -inset-1" />
-                                </button>
-                              </span>
-                              
-                            </div>
-                            
-                            <div className='flex add-sub-input-blk'>
-                                <input
-                                  id="email"
-                                  name="email"
-                                  type="text"
-                                  placeholder='Add New'
-                                  className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                />
-                                <button
-                                  type="submit"
-                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                                >
-                                  Add
-                                </button>
-
-
-                            </div>
-
-                          </div>
-                        </div>
+                         
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
                             <ManageClassTimetable />
                           </div>
