@@ -1,4 +1,4 @@
-export const getAcademicYears = ()=> {
+export const getAcademicYears = () => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
@@ -15,21 +15,21 @@ export const getAcademicYears = ()=> {
     });
   }
   return acadamicYears;
-}
+};
 
-export const getFeeGroups =  [
-  {value: '1', label: 'Primary'},
-  {value: '2', label: 'Secondary'},
-  {value: '3', label: 'Tertiary'},
-  {value: '4', label: 'Quaternary'},
-  {value: '5',label: 'Quinary'}
-]
+export const getFeeGroups = [
+  { value: "1", label: "Primary" },
+  { value: "2", label: "Secondary" },
+  { value: "3", label: "Tertiary" },
+  { value: "4", label: "Quaternary" },
+  { value: "5", label: "Quinary" },
+];
 
 export const applyFees = [
-  {value: 'all', label: 'All'}, 
-  {value: 'old', label: 'Old Students'},
-  {value: 'new', label: 'New Students'}
-]
+  { value: "all", label: "All" },
+  { value: "old", label: "Old Students" },
+  { value: "new", label: "New Students" },
+];
 
 export const feeduration = [
   { value: "1", label: "One Time" },
@@ -41,7 +41,7 @@ export const roles = [
   { value: "staff", label: "Staff" },
   { value: "student", label: "student" },
   { value: "other", label: "other" },
-]
+];
 
 export const feeDiscount = [
   { value: "0", label: "0%" },
@@ -51,23 +51,73 @@ export const feeDiscount = [
   { value: "20", label: "20%" },
   { value: "25", label: "25%" },
   { value: "30", label: "30%" },
-]
+];
 
 export const gender = [
-  { value: "male", label: "Male"},
-  { value: "female", label: "Female"},
-  { value: "other", label: "Other"}
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" },
 ];
 
 export const board = [
   { value: "cbse", label: "CBSE" },
   { value: "state", label: "State" },
   { value: "icse", label: "ICSE" },
-]
+];
 
 export const classCategory = [
   { value: "KINDERGARTEN", label: "KINDERGARTEN" },
-      { value: "Primary – Classes 1 to 5", label: "Primary – Classes 1 to 5" },
-      { value: "Lower Secondary – Classes 6 to 8", label: "Lower Secondary – Classes 6 to 8" },
-      { value: "Secondary – Classes 9 & 10", label: "Secondary – Classes 9 & 10" },
+  { value: "Primary – Classes 1 to 5", label: "Primary – Classes 1 to 5" },
+  {
+    value: "Lower Secondary – Classes 6 to 8",
+    label: "Lower Secondary – Classes 6 to 8",
+  },
+  { value: "Secondary – Classes 9 & 10", label: "Secondary – Classes 9 & 10" },
+];
+
+export const nationality = [
+  { value: "indian", label: "Indian" },
+  { value: "foreign", label: "Foreign" },
+];
+
+export const caste = [
+  { value: "general", label: "General" },
+  { value: "obc", label: "OBC" },
+  { value: "sc", label: "SC" },
+  { value: "st", label: "ST" },
+];
+
+export const religion = [
+  { value: "hindu", label: "Hindu" },
+  { value: "muslim", label: "Muslim" },
+  { value: "christian", label: "Christian" },
+  { value: "sikh", label: "Sikh" },
+  { value: "jain", label: "Jain" },
+  { value: "buddhist", label: "Buddhist" },
+  { value: "jewish", label: "Jewish" },
+  { value: "other", label: "Other" },
+];
+
+export const bloodGroup = [
+  { value: "a", label: "A+" },
+  { value: "b", label: "B+" },
+  { value: "ab", label: "AB+" },
+  { value: "o", label: "O+" },
+  { value: "aMinus", label: "A-" },
+  { value: "bMinus", label: "B-" },
+  { value: "abMinus", label: "AB-" },
+  { value: "oMinus", label: "O-" },
 ]
+
+export const occupation = [
+  { value: "student", label: "Student" },
+  { value: "teacher", label: "Teacher" },
+  { value: "other", label: "Other" },
+]
+
+export const capitalizeWords = (str) => {
+  return str
+    .split(' ') // Split the string into words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter
+    .join(' '); // Join the words back into a string
+};

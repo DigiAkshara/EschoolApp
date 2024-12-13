@@ -20,7 +20,7 @@ function StaffInfo() {
     const res = await getData(SUBJECTS);
     console.log("comming subject data is:",res.data );
     
-     const classData = res.data.map((item) => {
+     const classData = res.data.data.map((item) => {
       return {
         label: item.name, // Displayed text in the dropdown
         value: item._id, 

@@ -2,7 +2,7 @@ import { backendAPI } from "./baseAPI";
 
 export const getData = async (url) => {
     const response = await backendAPI.get(url);
-    return response.data;
+    return response;
 }
 
 export const postData = async (url, payload) => {

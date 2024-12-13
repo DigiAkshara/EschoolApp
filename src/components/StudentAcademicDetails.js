@@ -1,11 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomFileUploader from "../commonComponent/CustomFileUploader";
+import { getAcademicYears } from "../commonComponent/CommonFunctions";
+import { getData } from "../app/api";
+import { CLASSES } from "../app/url";
 
 
 function StudentAcademicDetails() {
+  const [classes, setClasses] = useState([]);
+  useEffect(() => {
+    getClasses();
+  }, []);
+  const getClasses = async () => {
+    const res = await getData(CLASSES);
+     const classData = res.data.data.map((item) => {
+      return {
+        label: item.name, // Displayed text in the dropdown
+        value: item._id, 
+      }
+    })
+    setClasses(classData);
+  }
   return (
       <div className="">
         <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -17,11 +34,7 @@ function StudentAcademicDetails() {
               <CustomSelect
                 name="academicYear"
                 label="Academic year"
-                options={[
-                  { value: "2023", label: "2023" },
-                  { value: "2024", label: "2024" },
-                  { value: "2025", label: "2025" },
-                ]}
+                options={getAcademicYears()}
                 required={true}
               />
             </div>
@@ -48,12 +61,7 @@ function StudentAcademicDetails() {
                 name="class"
                 label="Class"
                 required={true}
-                options={[
-                  { value: "", label: "Select Class" },
-                  { value: "1", label: "Class 1" },
-                  { value: "2", label: "Class 2" },
-                  { value: "3", label: "Class 3" },
-                ]}
+                options={classes}
               />
             </div>
 
@@ -82,12 +90,7 @@ function StudentAcademicDetails() {
                 id="yearOfStudy"
                 name="yearOfStudy"
                 label="Year of study"
-                options={[
-                  { value: "", label: "Select Year" },
-                  { value: "2020", label: "2020" },
-                  { value: "2021", label: "2021" },
-                  { value: "2022", label: "2022" },
-                ]}
+                options={getAcademicYears()}
               />
             </div>
 

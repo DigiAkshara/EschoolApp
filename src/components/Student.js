@@ -42,19 +42,18 @@ function Student({ onClose }) {
     uploadParentID: null,
     academicYear: "",
     DOA: null,
-    admissionNbr: "",
+    admissionNumber: "",
     class: "",
     section: "",
     yearOfStudy: "",
     schoolName: "",
     className: "",
     totalMarks: "",
-    certificateUpload: null
+    certificateUpload: null,
+    feesData:[]
   });
 
-  useEffect(() => {
-    // Initialize the form data in Redux store
-  }, []);
+  
 
   // Validation schemas for each step
   const validationSchemas = [
@@ -128,34 +127,26 @@ function Student({ onClose }) {
       //   .nullable()
       //   .required("Date of Admission is required"),
         // .typeError("Invalid date format"),
-      admissionNbr: Yup.string()
-        .required("Admission number is required")
-        .matches(/^[0-9]+$/, "Admission number must be numeric"),
+      admissionNumber: Yup.string()
+        .required("Admission number is required"),
       class: Yup.string().required("Class is required"),
       section: Yup.string().required("Section is required"),
-      yearOfStudy: Yup.string().required("Year of study is required"),
-      schoolName: Yup.string().required("School name is required"),
-      className: Yup.string().required("Class is required"),
-      totalMarks: Yup.number()
-        .required("Total marks are required")
-        .positive("Marks must be positive")
-        .integer("Marks must be an integer"),
-        certificateUpload: Yup.mixed()
-        .required("File upload is required")
-        .test(
-          "fileType",
-          "Only PNG or JPG files are allowed",
-          (value) =>
-            !value || (value && ["image/png", "image/jpeg"].includes(value.type))
-        )
-        .test(
-          "fileSize",
-          "File size must be less than 10MB",
-          (value) => !value || (value && value.size <= 10 * 1024 * 1024)
-        ),
+      yearOfStudy: Yup.string(),
+      schoolName: Yup.string(),
+      className: Yup.string(),
+      totalMarks: Yup.number(),
+      certificateUpload: Yup.string(),
     }),
     Yup.object({
-      comments: Yup.string().required("Comments are required"),
+      feesData: Yup.array().of(
+        Yup.object({
+          feeName: Yup.string().required("Fee name is required"),
+          duration: Yup.string().required("Duration is required"),
+          discount: Yup.string().required("Discount is required"),
+          installmentAmount: Yup.number().required("Installment amount is required"),
+          totalFee: Yup.number().required("Total fee is required"),
+        })
+      )
     }),
   ];
 
@@ -175,9 +166,7 @@ function Student({ onClose }) {
   };
 
   const stepContent = [
-    <BasicInfo key={1} />,
-    <SchoolDetailsTab key={2} />,
-    <FeeDetailsTab key={3} />,
+    1,2,3,
   ];
 
   // const [open, setOpen] = useState(false);
@@ -192,7 +181,7 @@ function Student({ onClose }) {
         validationSchema={validationSchemas[currentStep - 1]}
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
-        {({ values }) => (
+        {({ values , setFieldValue}) => (
           <Form>
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
@@ -371,7 +360,16 @@ function Student({ onClose }) {
                             </nav>
                           </div>
                           <div className="form-content mt-4">
-                            {stepContent[currentStep - 1]}
+                            {currentStep === 1 && (
+                              <BasicInfo/>
+                            )}
+                            {currentStep === 2 && (
+                              <SchoolDetailsTab />
+                            )}
+                            {currentStep === 3 && (
+                              <FeeDetailsTab values={values}  setFieldValue={setFieldValue}/>
+                            )}
+                             
                           </div>
                         </div>
                         <div className="flex shrink-0 justify-between px-4 py-4">

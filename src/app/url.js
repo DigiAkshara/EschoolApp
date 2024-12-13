@@ -1,7 +1,8 @@
 export const LOGIN = '/login'
-export const GET_CLASSES = "/classes"
+export const CLASSES = "/classes"
 export const STAFF= "/staff"
 export const SUBJECTS= "/subjects"
+export const FEES = "/fee"
 
 export const CREATE_TENANT = "/tenant"
 export const PROFILE = "/user"
@@ -19,7 +20,6 @@ export const CREATE_DEPARTMENT = "/global/createDepartment"
 export const GET_DEPARTMENTS = "/global/getDepartments"
 export const GET_DESIGNATIONS = "/global/getDesignations"
 export const CREATE_DESIGNATION = "/global/createDesignation"
-export const CREATE_FEES = "/fee"
 export const GET_FEE = "/fee"
 export const GET_STAFF = "/user/getStaffs"
 export const CREATE_STAFF = "/user/createStaff"
