@@ -6,7 +6,8 @@ import CustomFileUploader from "../commonComponent/CustomFileUploader";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomRadio from "../commonComponent/CustomRadio";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { bloodGroup, caste, gender, nationality, occupation, religion } from "../commonComponent/CommonFunctions";
+import { bloodGroup, caste, gender, nationality, occupation, religion, states } from "../commonComponent/CommonFunctions";
+import CustomCheckBox from "../commonComponent/CustomCheckBox";
 
 function BasicInfo() {
   return (
@@ -23,7 +24,8 @@ function BasicInfo() {
             >
               Passport Size Photo<span className="pl-1 text-red-500">*</span>
             </label>
-            <div className="mt-2 flex items-center gap-x-3">
+            <CustomFileUploader isProfile={true} name="profilePic" />
+            {/* <div className="mt-2 flex items-center gap-x-3">
               <img
                 alt=""
                 src={"/LoginImage.jpg"}
@@ -43,7 +45,7 @@ function BasicInfo() {
                   className="sr-only"
                 />
               </label>
-            </div>
+            </div> */}
           </div>
 
           <div className="sm:col-span-2">
@@ -147,7 +149,7 @@ function BasicInfo() {
         <div className=" grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
           <div className="sm:col-span-2">
             <CustomInput
-              name="fatherName"
+              name="fatherDetails.name"
               label="Father Full Name"
               placeholder="Enter Name"
               required={true}
@@ -156,7 +158,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="fatherMobileNumber"
+              name="fatherDetails.mobileNumber"
               label="Mobile Number"
               placeholder="Enter mobile"
               required={true}
@@ -165,7 +167,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomSelect
-              name="fatherOccupation"
+              name="fatherDetails.occupation"
               label="Occupation"
               options={occupation}
               required={true}
@@ -174,7 +176,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="fatherEmail"
+              name="fatherDetails.email"
               label="Father Email"
               placeholder="Enter email"
               required={true}
@@ -189,7 +191,7 @@ function BasicInfo() {
         <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
           <div className="sm:col-span-2">
             <CustomInput
-              name="motherName"
+              name="motherDetails.name"
               label="Mother Full Name"
               placeholder="Enter Name"
               required={true}
@@ -198,7 +200,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="motherMobileNumber"
+              name="motherDetails.mobileNumber"
               label="Mobile Number"
               placeholder="Enter mobile"
               required={true}
@@ -207,7 +209,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomSelect
-              name="motherOccupation"
+              name="motherDetails.occupation"
               label="Occupation"
               options={occupation}
               required={true}
@@ -216,7 +218,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="motherEmail"
+              name="motherDetails.email"
               label="Mother Email"
               placeholder="Enter email"
               required={true}
@@ -230,9 +232,9 @@ function BasicInfo() {
           Present Address Details
         </h2>
         <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
-          <div className="sm:col-span-2">
+          <div className="sm:col-span-2"> 
             <CustomInput
-              name="area"
+              name="presentAdress.area"
               label="Area"
               placeholder="Enter Area"
               required={true}
@@ -241,7 +243,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="city"
+              name="presentAdress.city"
               label="City"
               placeholder="Enter City"
               required={true}
@@ -250,21 +252,16 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomSelect
-              name="state"
+              name="presentAdress.state"
               label="State"
-              options={[
-                { value: "", label: "Select State" },
-                { value: "andhra_pradesh", label: "Andhra Pradesh" },
-                { value: "telangana", label: "Telangana" },
-                { value: "tamil_nadu", label: "Tamil Nadu" },
-              ]}
+              options={states}
               required={true}
             />
           </div>
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="pincode"
+              name="presentAdress.pincode"
               label="Pincode"
               placeholder="Enter Pincode"
               required={true}
@@ -278,29 +275,13 @@ function BasicInfo() {
           Permanent Address Details
         </h2>
         <div className="relative flex items-start mb-4">
-          <div className="flex h-6 items-center">
-            <input
-              id="sameAsPresent"
-              name="sameAsPresent"
-              type="checkbox"
-              aria-describedby="sameAsPresent-description"
-              className="size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-            />
-          </div>
-          <div className="ml-3 text-sm/6">
-            <label
-              htmlFor="sameAsPresent"
-              className="font-regular text-gray-900"
-            >
-              Same as Present Address
-            </label>
-          </div>
+          <CustomCheckBox name="isSameAsPresent" label="Same as Present Address" />
         </div>
 
         <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
           <div className="sm:col-span-2">
             <CustomInput
-              name="permanentArea"
+              name="permanentAddress.area"
               label="Area"
               placeholder="Enter Area"
               required={true}
@@ -309,7 +290,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="permanentCity"
+              name="permanentAddress.city"
               label="City"
               placeholder="Enter City"
               required={true}
@@ -318,21 +299,16 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomSelect
-              name="permanentState"
+              name="permanentAddress.state"
               label="State"
-              options={[
-                { value: "", label: "Select State" },
-                { value: "andhra_pradesh", label: "Andhra Pradesh" },
-                { value: "telangana", label: "Telangana" },
-                { value: "tamil_nadu", label: "Tamil Nadu" },
-              ]}
+              options={states}
               required={true}
             />
           </div>
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="permanentPincode"
+              name="permanentAddress.pincode"
               label="Pincode"
               placeholder="Enter Pincode"
               required={true}

@@ -3,6 +3,7 @@ export const CLASSES = "/classes"
 export const STAFF= "/staff"
 export const SUBJECTS= "/subjects"
 export const FEES = "/fee"
+export const STUDENT = "/student"
 
 export const CREATE_TENANT = "/tenant"
 export const PROFILE = "/user"
@@ -15,7 +16,7 @@ export const CREATE_CLASS = "/global/createClass"
 export const CREATE_SECTION = "/global/createSection"
 export const GET_SECTIONS = "/global/getSections"
 export const GET_FEES_BY_CLASS = "/fee/feesByClass";
-export const CREATE_STUDENT = "/user/createStudent"
+
 export const CREATE_DEPARTMENT = "/global/createDepartment"
 export const GET_DEPARTMENTS = "/global/getDepartments"
 export const GET_DESIGNATIONS = "/global/getDesignations"

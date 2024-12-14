@@ -16,36 +16,42 @@ function StudentFeeDetails({ values, setFieldValue }) {
   const [checked, setChecked] = useState(false);
   const [fees, setFees] = useState([]);
 
-  const handleDiscountChange = (id, discount) => {
-    setFees((prevFees) =>
-      prevFees.map((fee) => {
-        if (fee.id === id) {
-          const discountedAmount =
-            fee.totalAmount - (fee.totalAmount * discount) / 100;
-          return { ...fee, discount, totalAmount: discountedAmount };
-        }
-        return fee;
-      })
-    );
+  const handleFeeChange = (e, index) => {
+    let dumpLIst = values.feesData
+    if (e.target.name.includes("duration")) {
+      let calAmount = calculateFees(e.target.value*1, values.feesData[index].discount*1, values.feesData[index].totalFee*1)
+      dumpLIst[index].duration = e.target.value*1
+      dumpLIst[index].installmentAmount = calAmount/e.target.value*1
+    }else{
+      let calAmount = calculateFees(values.feesData[index].duration*1, e.target.value*1, values.feesData[index].totalFee*1)
+      dumpLIst[index].discount = e.target.value*1
+      dumpLIst[index].installmentAmount = Math.round(calAmount/values.feesData[index].duration*1)
+    }
+    setFieldValue("feesData", dumpLIst)
   };
 
   useEffect(() => {
     getfees();
   }, []);
 
+  const calculateFees = (duration, discount,FeeAmount) => {
+    return FeeAmount - (duration === 1 ? (FeeAmount * discount)/100 : 0)
+  };
+
   const getfees = async () => {
     const res = await getData(FEES + "/" + values.class);
     let dumpList = []
     res.data.forEach(item => {
       dumpList.push({
-        feeName: item.name ,
-          duration:  item.feeInstallment,
-          discount: item.disCount ,
-          installmentAmount: "",
-          totalFee: item.amount
+          id: item._id,
+          isChecked: false,
+          feeName: item.name ,
+          duration:  item.feeInstallment*1,
+          discount: item.disCount*1 ,
+          installmentAmount: calculateFees(item.feeInstallment*1, item.disCount*1, item.amount*1), //installment fee
+          totalFee: item.amount*1 //total fee
       })
     });
-    console.log("comming fee data is:", res.data);
     setFieldValue("feesData", dumpList);
     setFees(res.data)
   };
@@ -131,9 +137,9 @@ function StudentFeeDetails({ values, setFieldValue }) {
               <FieldArray name="feesData">
                 {() =>
                   values.feesData.map((item, index) => (
-                    <tr key={index}>
+                    <tr key={item.id}>
                       <td className="relative px-7 sm:w-12 sm:px-6">
-                        <CustomCheckBox name={item.feeName} />
+                        <CustomCheckBox name={item.feeName} checked={item.isChecked}/>
                       </td>
 
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
@@ -144,6 +150,8 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           name={`feesData.${index}.duration`}
                           options={feeduration}
                           value={item.duration}
+                          onChange={(e) => handleFeeChange(e, index)}
+                          // disabled = {!item.isChecked}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -151,7 +159,8 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           name={`feesData.${index}.discount`}
                           options={feeDiscount}
                           value={item.discount}
-                          
+                          onChange={(e) => handleFeeChange(e, index)}
+                          // disabled = {!item.isChecked}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -159,7 +168,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           name={`feesData.${index}.installmentAmount`}
                           type="number"
                           value={item.installmentAmount}
-                          disabled
+                          // disabled
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -168,6 +177,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           placeholder="Enter Total Fee"
                           type="number"
                           value={item.amount}
+                          // disabled
                         />
                       </td>
                     </tr>

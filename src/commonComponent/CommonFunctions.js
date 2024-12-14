@@ -115,6 +115,12 @@ export const occupation = [
   { value: "other", label: "Other" },
 ]
 
+export const states = [
+  { value: "andhrapradesh", label: "Andhra Pradesh" },
+  { value: "telangana", label: "Telangana" },
+  { value: "tamilnadu", label: "Tamil Nadu" },
+]
+
 export const capitalizeWords = (str) => {
   return str
     .split(' ') // Split the string into words
