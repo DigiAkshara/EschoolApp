@@ -18,17 +18,17 @@ function CreateExam({ onClose }) {
     { label: "LKG", value: "lkg" },
   ];
 
-  const initialValues = {
-    board: "",
-    category: "",
-    class: "",
-    section: "",
-    examName: "",
-    ESD: "",
-    EED: "",
-    timetable: []
-
-    
+  const getInitialValues = () => {
+    return {
+      board: "",
+      category: "",
+      class: "",
+      section: "",
+      examName: "",
+      ESD: "",
+      EED: "",
+      timetable: [],
+    };
   };
 
   // const validationSchema = Yup.object({
@@ -51,34 +51,28 @@ function CreateExam({ onClose }) {
   //     .min(1, "At least one subject must be added"),
   // });
 
-    const validationSchema = [
-      Yup.object({
+  const getValidationSchema = () => {
+    return Yup.object({
       board: Yup.string().required("Board is required"),
       category: Yup.string().required("Class category is required"),
       class: Yup.string().required("Class is required"),
       section: Yup.string().required("Section is required"),
       classTeacher: Yup.string().required("Class teacher is required"),
       examName: Yup.string().required("Exam Name is required"),
-      ESD: Yup.date()
-      .nullable()
-      .required("Exam Start Date  is required"),
-      EED: Yup.date()
-      .nullable()
-      .required("Exam End Date  is required"),
-    }),
-    Yup.object({
+      ESD: Yup.date().nullable().required("Exam Start Date  is required"),
+      EED: Yup.date().nullable().required("Exam End Date  is required"),
       timetable: Yup.array().of(
         Yup.object({
-            date: Yup.date().required("Date is required"),
-            startTime: Yup.string().required("Start time is required"),
-            endTime: Yup.string().required("End time is required"),
-            passmark: Yup.string().required("Pass mark is required"),
-            totalMark: Yup.string().required("Total Mark is required"),
-            syllabus: Yup.string().required("Syllabusis required"),
+          date: Yup.date().required("Date is required"),
+          startTime: Yup.string().required("Start time is required"),
+          endTime: Yup.string().required("End time is required"),
+          passmark: Yup.string().required("Pass mark is required"),
+          totalMark: Yup.string().required("Total Mark is required"),
+          syllabus: Yup.string().required("Syllabusis required"),
         })
-      )
-    }),
-  ]
+      ),
+    });
+  };
 
   const handleSubmit = (values) => {
     alert("Form submitted successfully!");
@@ -91,12 +85,13 @@ function CreateExam({ onClose }) {
   return (
     <>
       <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
+        initialValues={getInitialValues()}
+        validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({ values, setFieldValue }) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
+            {console.log(errors)}
             <div className="fixed inset-0" />
 
             <div className="fixed inset-0 overflow-hidden">
@@ -202,7 +197,10 @@ function CreateExam({ onClose }) {
                               </div>
 
                               <div className="border-b border-gray-900/10 pb-4 mb-4">
-                                <ExamTimeTable values={values}  setFieldValue={setFieldValue}/>
+                                <ExamTimeTable
+                                  values={values}
+                                  setFieldValue={setFieldValue}
+                                />
                               </div>
 
                               <div className="border-b border-gray-900/10 pb-4 mb-4">

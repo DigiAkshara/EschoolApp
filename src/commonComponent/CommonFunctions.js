@@ -67,12 +67,12 @@ export const board = [
 
 export const classCategory = [
   { value: "KINDERGARTEN", label: "KINDERGARTEN" },
-  { value: "Primary – Classes 1 to 5", label: "Primary – Classes 1 to 5" },
+  { value: "primary", label: "Primary – Classes 1 to 5" },
   {
-    value: "Lower Secondary – Classes 6 to 8",
+    value: "lower",
     label: "Lower Secondary – Classes 6 to 8",
   },
-  { value: "Secondary – Classes 9 & 10", label: "Secondary – Classes 9 & 10" },
+  { value: "s econdary", label: "Secondary – Classes 9 & 10" },
 ];
 
 export const nationality = [
