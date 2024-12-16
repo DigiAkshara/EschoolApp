@@ -24,7 +24,7 @@ function ExamTimeTable({ values, setFieldValue }) {
         syllabus: "",
       });
     });
-    console.log("comming fee data is:", res.data);
+    console.log("comming data is:", res.data);
     setFieldValue("timetable", dumpList);
     setSubjects(res.data);
   };

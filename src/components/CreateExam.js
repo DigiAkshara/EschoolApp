@@ -57,17 +57,16 @@ function CreateExam({ onClose }) {
       category: Yup.string().required("Class category is required"),
       class: Yup.string().required("Class is required"),
       section: Yup.string().required("Section is required"),
-      classTeacher: Yup.string().required("Class teacher is required"),
       examName: Yup.string().required("Exam Name is required"),
       ESD: Yup.date().nullable().required("Exam Start Date  is required"),
       EED: Yup.date().nullable().required("Exam End Date  is required"),
       timetable: Yup.array().of(
         Yup.object({
-          date: Yup.date().required("Date is required"),
+          examDate: Yup.date().required("Date is required"),
           startTime: Yup.string().required("Start time is required"),
           endTime: Yup.string().required("End time is required"),
-          passmark: Yup.string().required("Pass mark is required"),
-          totalMark: Yup.string().required("Total Mark is required"),
+          passMarks: Yup.string().required("Pass mark is required"),
+          totalMarks: Yup.string().required("Total Mark is required"),
           syllabus: Yup.string().required("Syllabusis required"),
         })
       ),

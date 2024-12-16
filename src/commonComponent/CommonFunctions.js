@@ -66,20 +66,10 @@ export const board = [
 ];
 
 export const classCategory = [
-<<<<<<< Updated upstream
-  { value: "KINDERGARTEN", label: "KINDERGARTEN" },
-  { value: "primary", label: "Primary – Classes 1 to 5" },
-  {
-    value: "lower",
-    label: "Lower Secondary – Classes 6 to 8",
-  },
-  { value: "s econdary", label: "Secondary – Classes 9 & 10" },
-=======
   { value: "kindergarten", label: "KINDERGARTEN" },
   { value: "primary", label: "Primary – Classes 1 to 5" },
   { value: "lower",label: "Lower Secondary – Classes 6 to 8",},
   { value: "secondary", label: "Secondary – Classes 9 & 10" },
->>>>>>> Stashed changes
 ];
 
 export const nationality = [
