@@ -139,7 +139,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                   values.feesData.map((item, index) => (
                     <tr key={item.id}>
                       <td className="relative px-7 sm:w-12 sm:px-6">
-                        <CustomCheckBox name={item.feeName} checked={item.isChecked}/>
+                        <CustomCheckBox name={item.feeName} />
                       </td>
 
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">

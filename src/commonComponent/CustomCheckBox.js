@@ -1,15 +1,15 @@
 import { ErrorMessage, Field } from "formik";
 
 export default function CustomCheckBox(props) {
-  const {name, label, required = false, options, onChange} = props
+  const {name, label, required = false, options} = props
 
   return (
     <>
       <div className="flex h-6 items-center">
         <Field
+          {...props}
           name={name}
           type="checkbox"
-          onChange={onChange}
           className= {label ? "size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600" : "absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600" }
         />
       </div>
