@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Datepicker from "react-tailwindcss-datepicker";
@@ -10,13 +10,12 @@ import CustomSelect from "../commonComponent/CustomSelect";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomDate from "../commonComponent/CustomDate";
 import ExamTimeTable from "./ExamTimeTable";
+import { CLASSES } from "../app/url";
+import { getData } from "../app/api";
 
 function CreateExam({ onClose }) {
-  const classOptions = [
-    { label: "Nursery", value: "nursery" },
-    { label: "UKG", value: "ukg" },
-    { label: "LKG", value: "lkg" },
-  ];
+  const [classData, setClassData] = useState()
+
 
   const getInitialValues = () => {
     return {
@@ -73,6 +72,23 @@ function CreateExam({ onClose }) {
     });
   };
 
+  useEffect(() => {
+    getClass();
+  }, []);
+
+  const getClass = async () => {
+    const res = await getData(CLASSES);
+    console.log("comming class data is:", res.data);
+
+    const classData = res.data.data.map((item) => {
+      return {
+        label: item.name, // Displayed text in the dropdown
+        value: item._id,
+      };
+    });
+    setClassData(classData);
+  };
+
   const handleSubmit = (values) => {
     alert("Form submitted successfully!");
     console.log("Form submitted with values:", values);
@@ -88,7 +104,7 @@ function CreateExam({ onClose }) {
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({ values, setFieldValue, errors }) => (
+        {({ values, setFieldValue, errors, touched }) => (
           <Form>
             {console.log(errors)}
             <div className="fixed inset-0" />
@@ -155,16 +171,15 @@ function CreateExam({ onClose }) {
                                     <CustomSelect
                                       label="Class"
                                       name="class"
-                                      options={classOptions}
+                                      options={classData}
                                       required
                                     />
                                   </div>
 
                                   <div className="sm:col-span-1">
-                                    <CustomSelect
+                                    <CustomInput
                                       label="Section"
                                       name="section"
-                                      options={classOptions}
                                       required
                                     />
                                   </div>
@@ -199,6 +214,8 @@ function CreateExam({ onClose }) {
                                 <ExamTimeTable
                                   values={values}
                                   setFieldValue={setFieldValue}
+                                  errors={errors}
+                                  touched={touched}
                                 />
                               </div>
 

@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { Field, ErrorMessage } from "formik";
 import { SUBJECTS } from "../app/url";
 import { getData } from "../app/api";
 import CustomInput from "../commonComponent/CustomInput";
+import { FieldArray } from "formik";
 
-function ManageClassTimetable() {
+
+
+function ManageClassTimetable({ values, setFieldValue }) {
   const daysOfWeek = [
     "monday",
     "tuesday",
@@ -47,6 +49,7 @@ function ManageClassTimetable() {
     },
   ]);
 
+
   // Add a new row for a new period
   const addRow = () => {
     setRows([
@@ -54,12 +57,13 @@ function ManageClassTimetable() {
       {
         period: rows.length + 1,
         time: "",
-        monday: { subject: "", teacher: "" },
-        tuesday: { subject: "", teacher: "" },
-        wednesday: { subject: "", teacher: "" },
-        thursday: { subject: "", teacher: "" },
-        friday: { subject: "", teacher: "" },
-        saturday: { subject: "", teacher: "" },
+        days: daysOfWeek.reduce(
+          (acc, day) => ({
+            ...acc,
+            [day]: { subject: "", teacher: "" },
+          }),
+          {}
+        ),
       },
     ]);
   };
@@ -108,54 +112,19 @@ function ManageClassTimetable() {
                 Period Time
               </a>
             </th>
+            {daysOfWeek.map((day) => (
             <th
+            key={day}
               scope="col"
               className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
             >
               <a href="#" className="group inline-flex">
-                Monday
+              {day.charAt(0).toUpperCase() + day.slice(1)}
               </a>
             </th>
-            <th
-              scope="col"
-              className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
-            >
-              <a href="#" className="group inline-flex">
-                Tuesday
-              </a>
-            </th>
-            <th
-              scope="col"
-              className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
-            >
-              <a href="#" className="group inline-flex">
-                Wednesday
-              </a>
-            </th>
-            <th
-              scope="col"
-              className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
-            >
-              <a href="#" className="group inline-flex">
-                Thursday
-              </a>
-            </th>
-            <th
-              scope="col"
-              className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
-            >
-              <a href="#" className="group inline-flex">
-                Friday
-              </a>
-            </th>
-            <th
-              scope="col"
-              className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
-            >
-              <a href="#" className="group inline-flex">
-                Saturday
-              </a>
-            </th>
+            ))}
+                                   
+            
             <th
               scope="col"
               className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-12"
@@ -172,37 +141,14 @@ function ManageClassTimetable() {
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                 <CustomInput name={`time-${index}`} type="time" />
               </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomSelect name="subject"  options={subjects} />
+              {daysOfWeek.map((day) => (
+              <td key={day} className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <CustomSelect name={`subject-${day}-${index}`}  options={subjects} />
 
-                <CustomSelect name="teacher" options={subjects} />
+                <CustomSelect name={`teacher-${day}-${index}`} options={subjects} />
               </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomSelect name="subject" options={subjects} />
-
-                <CustomSelect name="teacher" options={subjects} />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomSelect name="subject" options={subjects} />
-
-                <CustomSelect name="teacher" options={subjects} />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomSelect name="subject" options={subjects} />
-
-                <CustomSelect name="teacher" options={subjects} />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomSelect name="subject" options={subjects} />
-
-                <CustomSelect name="teacher" options={subjects} />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomSelect name="subject" options={subjects} />
-
-                <CustomSelect name="teacher" options={subjects} />
-              </td>
-
+              ))}
+              
               {row.period !== 1 && (
                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                   <button onClick={() => removeRow(index)}>
