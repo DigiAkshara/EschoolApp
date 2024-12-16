@@ -13,21 +13,33 @@ import { board, classCategory } from "../commonComponent/CommonFunctions";
 function ManageClass({ onClose }) {
   const [subjects, setSubjects] = useState()
 
-  const initialValues = {
-    board: "",
+  
+  const getInitialValues = () => {
+    return {
+      board: "",
     category: "",
     class: "",
     section:"",
     classTeacher:"",
-    timetable: [
-      {
-        day: "",
-        subject: "",
-        startTime: "",
-        teacher: "",
-      },
-    ],
-       
+    timetable: [],
+    };
+  };
+
+  const getValidationSchema = () => {
+    return Yup.object({
+      board: Yup.string().required("Board is required"),
+      category: Yup.string().required("Class category is required"),
+      class: Yup.string().required("Class is required"),
+      section: Yup.string().required("Section is required"),
+      classTeacher: Yup.string().required("Class teacher is required"),
+      timetable: Yup.array().of(
+        Yup.object({
+          subject: Yup.string().required("Subject is required"),
+          startTime: Yup.string().required("Start time is required"),
+          teacher: Yup.string().required("Teacher is required"),
+        })
+      ).min(1, "At least one timetable entry is required"),
+    });
   };
 
   const validationSchema = Yup.object({
@@ -38,16 +50,16 @@ function ManageClass({ onClose }) {
     classTeacher: Yup.string().required("Class teacher is required"),
     timetable: Yup.array().of(
       Yup.object({
-        day: Yup.string().required("Day is required"),
         subject: Yup.string().required("Subject is required"),
         startTime: Yup.string().required("Start time is required"),
-        endTime: Yup.string().required("End time is required"),
+        teacher: Yup.string().required("Teacher is required"),
       })
-    ).min(1, "At least one timetable entry is required"),
+    )
   });
 
   const handleSubmit = (values) => {
     console.log("Form submitted with values:", values);
+    alert("Form submitted successfully!");
     onClose(); // Close the modal after form submission
   };
 
@@ -62,15 +74,15 @@ function ManageClass({ onClose }) {
     { label: "Sita Devi", value: "sita_devi" },
   ];
 
-  // useEffect(() => {
-  //   getSubjects();
-  // }, []);
+  useEffect(() => {
+    getSubjects();
+  }, []);
   
   const getSubjects = async () => {
     const res = await getData(SUBJECTS);
     console.log("comming subject data is:",res.data );
     
-     const subData = res.data.map((item) => {
+     const subData = res.data.data.map((item) => {
       return {
         label: item.name, // Displayed text in the dropdown
         value: item._id, 
@@ -112,12 +124,13 @@ function ManageClass({ onClose }) {
                   </div>
                   <div className="relative flex-1 px-6 py-6 sm:px-6 overflow-y-auto">
                     <Formik
-                      initialValues={initialValues}
-                      validationSchema={validationSchema}
+                      initialValues={getInitialValues()}
+                      validationSchema={getValidationSchema()}
                       onSubmit={handleSubmit}
                     >
-                      {({ values, setFieldValue }) => (
+                      {({ values, setFieldValue, errors }) => (
                         <Form>
+                        {console.log(errors)}
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
                             <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
                               Add New Class
@@ -179,8 +192,10 @@ function ManageClass({ onClose }) {
                          
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
                             <ManageClassTimetable 
-                            timetable={values.timetable}
-                            setFieldValue={setFieldValue} />
+                            values={values}
+                            setFieldValue={setFieldValue}
+                            
+                               />
                           </div>
                           <div className="pb-4 mb-4">
                             <ManageClassSyllabus />
