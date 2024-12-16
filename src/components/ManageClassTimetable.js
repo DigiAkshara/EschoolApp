@@ -68,23 +68,12 @@ function ManageClassTimetable({ values, setFieldValue }) {
     ]);
   };
 
-  // Remove a row (period) from the timetable
   const removeRow = (index) => {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
   };
-  // Handle changes in time or subject/teacher data
-  const handleChange = (index, day, field, value) => {
-    const updatedRows = [...rows];
-    updatedRows[index][day][field] = value;
-    setRows(updatedRows);
-  };
+  
 
-  const handleTimeChange = (index, value) => {
-    const updatedRows = [...rows];
-    updatedRows[index].time = value;
-    setRows(updatedRows);
-  };
 
   return (
     <>
@@ -139,7 +128,12 @@ function ManageClassTimetable({ values, setFieldValue }) {
               <td className="relative px-7 sm:w-12 sm:px-6">{row.period}</td>
 
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomInput name={`time-${index}`} type="time" />
+                <CustomInput
+                      // name={item.passMarks}
+                      name={`time-${index}`}
+                      placeholder="9:00-10:00 "
+                      
+                    />
               </td>
               {daysOfWeek.map((day) => (
               <td key={day} className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
