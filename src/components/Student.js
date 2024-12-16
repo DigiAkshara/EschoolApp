@@ -37,7 +37,7 @@ function Student({ onClose }) {
       occupation: "",
       email: "",
     },
-    presentAdress: {
+    presentAddress: {
       area: "",
       city: "",
       state: "",
@@ -50,17 +50,21 @@ function Student({ onClose }) {
       state: "",
       pincode: "",
     },
-    uploadParentID: null,
-    academicYear: "",
-    DOA: null,
+    parentIdProof: null,
+    acadamicDetails: {
+      acadamicYear: "",
+      class: "",
+      section: "",
+    },
     admissionNumber: "",
-    class: "",
-    section: "",
-    yearOfStudy: "",
-    schoolName: "",
-    className: "",
-    totalMarks: "",
-    certificateUpload: null,
+    admissionDate: "",
+    previousSchool: {
+      schoolName: "",
+      yearOfStudy: "",
+      totalMarks: "",
+      classStudied: "",
+      studyProof: null,
+    },
     feesData: [],
   });
 
@@ -95,7 +99,7 @@ function Student({ onClose }) {
         occupation: Yup.string().required("Mother's Occupation is required"),
         email: Yup.string().required("Mother's email is required"),
       }),
-      presentAdress: Yup.object({
+      presentAddress: Yup.object({
         area: Yup.string().required("Area is required"),
         city: Yup.string().required("City is required"),
         state: Yup.string().required("State is required"),
@@ -113,45 +117,24 @@ function Student({ onClose }) {
         .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
         .required("Aadhar number is required"),
       DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
-      aadharPic: Yup.mixed()
-        .required("Aadhar card file is required")
-        .test("fileSize", "File size too large", (value) => {
-          return value && value.size <= 10485760; // Max 10 MB
-        })
-        .test("fileType", "Invalid file type", (value) => {
-          return (
-            value &&
-            ["image/jpeg", "image/png", "application/pdf"].includes(value.type)
-          );
-        }),
-      uploadParentID: Yup.mixed()
-        .required("Parent ID proof is required")
-        .test(
-          "fileSize",
-          "File is too large",
-          (value) => value && value.size <= 10 * 1024 * 1024
-        ) // Max 10MB
-        .test(
-          "fileType",
-          "Only PNG and JPG files are allowed",
-          (value) =>
-            value && (value.type === "image/png" || value.type === "image/jpeg")
-        ),
+      aadharPic: Yup.string().required("Aadhar card file is required"),
+      parentIdProof: Yup.string().required("Parent ID proof is required"),
     }),
     Yup.object({
-      academicYear: Yup.string().required("Academic year is required"),
-      // DOA: Yup.date()
-      //   .nullable()
-      //   .required("Date of Admission is required"),
-      // .typeError("Invalid date format"),
+      acadamicDetails: Yup.object({
+        acadamicYear: Yup.string().required("Academic year is required"),
+        class: Yup.string().required("Class is required"),
+        section: Yup.string().required("Section is required"),
+      }),
       admissionNumber: Yup.string().required("Admission number is required"),
-      class: Yup.string().required("Class is required"),
-      section: Yup.string().required("Section is required"),
-      yearOfStudy: Yup.string(),
-      schoolName: Yup.string(),
-      className: Yup.string(),
-      totalMarks: Yup.number(),
-      certificateUpload: Yup.string(),
+      admissionDate: Yup.date().nullable().required("Admission date is required"),
+      previousSchool: Yup.object({
+        schoolName: Yup.string(),
+        yearOfStudy: Yup.string(),
+        totalMarks: Yup.number(),
+        classStudied: Yup.string(),
+        studyProof: Yup.string(),
+      })
     }),
     Yup.object({
       feesData: Yup.array().of(
@@ -205,8 +188,8 @@ function Student({ onClose }) {
         validationSchema={validationSchemas[currentStep - 1]}
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
-        {({ values, setFieldValue }) => (
-          console.log(values),
+        {({ values, setFieldValue, errors }) => (
+          console.log(errors),
           (
             <Form>
               <div className="fixed inset-0 overflow-hidden">
@@ -392,14 +375,20 @@ function Student({ onClose }) {
                               </nav>
                             </div>
                             <div className="form-content mt-4">
-                              {currentStep === 1 && <BasicInfo />}
-                              {currentStep === 2 && <SchoolDetailsTab />}
-                              {currentStep === 3 && (
+                              {currentStep === 1 && <BasicInfo  
+                                values={values}
+                                setFieldValue={setFieldValue}
+                                />}
+                              {currentStep === 2 && <SchoolDetailsTab 
+                                values={values}
+                                setFieldValue={setFieldValue}
+                                />}
+                              {currentStep === 3 && 
                                 <FeeDetailsTab
                                   values={values}
                                   setFieldValue={setFieldValue}
                                 />
-                              )}
+                              }
                             </div>
                           </div>
                           <div className="flex shrink-0 justify-between px-4 py-4">

@@ -2,7 +2,7 @@ import { PhotoIcon } from "@heroicons/react/24/solid";
 import { ErrorMessage, Field } from "formik";
 import { useState } from "react";
 export default function CustomFileUploader(props) {
-  const { name, label, required = false, isProfile = false } = props;
+  const { name, label, required = false, isProfile = false, onChange } = props;
   const [preview, setPreview] = useState("/LoginImage.jpg");
 
   return (
@@ -42,15 +42,8 @@ export default function CustomFileUploader(props) {
                      name={name}
                      type="file"
                      className="sr-only"
-                    //  onChange={(file)=>setFieldValue(name, file.target.files[0])}
                      accept=".jpg,.jpeg,.png,.pdf"
-                     onChange={(event) => {
-                      const file = event.target.files[0];
-                      if (file) {
-                        setFieldValue(name, file); // Update Formik field value
-                        setPreview(URL.createObjectURL(file)); // Update preview
-                      }
-                    }}
+                     onChange={onChange}
                   />
                 </label>
               </div>
@@ -75,8 +68,8 @@ export default function CustomFileUploader(props) {
                             name={name}
                             type="file"
                             className="sr-only"
-                            onChange={(file)=>setFieldValue(name, file.target.files[0])}
                             accept=".jpg,.jpeg,.png,.pdf"
+                            onChange={onChange}
                           />
                         </label>
                         <p className="pl-1">or drag and drop</p>

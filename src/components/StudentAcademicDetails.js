@@ -3,12 +3,12 @@ import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomFileUploader from "../commonComponent/CustomFileUploader";
-import { getAcademicYears } from "../commonComponent/CommonFunctions";
-import { getData } from "../app/api";
-import { CLASSES } from "../app/url";
+import { getAcademicYears, sections } from "../commonComponent/CommonFunctions";
+import { getData, postData } from "../app/api";
+import { CLASSES, UPLOAD } from "../app/url";
 
 
-function StudentAcademicDetails() {
+function StudentAcademicDetails({values, setFieldValue}) {
   const [classes, setClasses] = useState([]);
   useEffect(() => {
     getClasses();
@@ -23,6 +23,22 @@ function StudentAcademicDetails() {
     })
     setClasses(classData);
   }
+  const handleFileChange = async (e) => {
+      try {
+        const formData = new FormData();
+        formData.append('file', e.target.files[0]);
+        let response = await postData(UPLOAD, formData, {headers: {
+          'Content-Type': 'multipart/form-data',
+        }});
+        if (response.status === 200 || response.status === 201) {
+          setFieldValue(e.target.name, response.data?.Location);
+        } else {
+          alert(response.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
   return (
       <div className="">
         <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -32,7 +48,7 @@ function StudentAcademicDetails() {
           <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
             <div className="sm:col-span-2">
               <CustomSelect
-                name="academicYear"
+                name="acadamicDetails.acadamicYear"
                 label="Academic year"
                 options={getAcademicYears()}
                 required={true}
@@ -58,7 +74,7 @@ function StudentAcademicDetails() {
 
             <div className="sm:col-span-1">
               <CustomSelect
-                name="class"
+                name="acadamicDetails.class"
                 label="Class"
                 required={true}
                 options={classes}
@@ -67,14 +83,10 @@ function StudentAcademicDetails() {
 
             <div className="sm:col-span-1">
               <CustomSelect
-                name="section"
+                name="acadamicDetails.section"
                 label="Section"
                 required={true}
-                options={[
-                  { value: "A", label: "Section A" },
-                  { value: "B", label: "Section B" },
-                  { value: "C", label: "Section C" },
-                ]}
+                options={sections}
               />
             </div>
           </div>
@@ -87,8 +99,7 @@ function StudentAcademicDetails() {
           <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
             <div className="sm:col-span-2">
               <CustomSelect
-                id="yearOfStudy"
-                name="yearOfStudy"
+                name="previousSchool.yearOfStudy"
                 label="Year of study"
                 options={getAcademicYears()}
               />
@@ -96,7 +107,7 @@ function StudentAcademicDetails() {
 
             <div className="sm:col-span-2">
               <CustomInput
-                name="schoolName"
+                name="previousSchool.schoolName"
                 label="School Name"
                 placeholder="Enter"
               />
@@ -104,7 +115,7 @@ function StudentAcademicDetails() {
 
             <div className="sm:col-span-2">
               <CustomInput
-                name="className"
+                name="previousSchool.classStudied"
                 label="Class"
                 placeholder="Enter Class"
               />
@@ -112,7 +123,7 @@ function StudentAcademicDetails() {
 
             <div className="sm:col-span-2">
               <CustomInput
-                name="totalMarks"
+                name="previousSchool.totalMarks"
                 label="Total Marks Scored"
                 placeholder="Enter"
               />
@@ -120,9 +131,9 @@ function StudentAcademicDetails() {
             <div className="sm:col-span-4">
         <div className="mt-2">
           <CustomFileUploader
-            name="certificateUpload"
+            name="previousSchool.studyProof"
             label="Upload Transfer / Study Certificate"
-            required={true}
+            onChange={handleFileChange}
           />
         
         </div>

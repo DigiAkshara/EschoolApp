@@ -127,3 +127,11 @@ export const capitalizeWords = (str) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter
     .join(' '); // Join the words back into a string
 };
+
+export const sections = [
+  { value: "a", label: "A" },
+  { value: "b", label: "B" },
+  { value: "c", label: "C" },
+  { value: "d", label: "D" },
+  { value: "e", label: "E" },
+]

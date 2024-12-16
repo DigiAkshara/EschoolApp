@@ -8,8 +8,31 @@ import CustomRadio from "../commonComponent/CustomRadio";
 import CustomSelect from "../commonComponent/CustomSelect";
 import { bloodGroup, caste, gender, nationality, occupation, religion, states } from "../commonComponent/CommonFunctions";
 import CustomCheckBox from "../commonComponent/CustomCheckBox";
+import { postData } from "../app/api";
+import { UPLOAD } from "../app/url";
 
-function BasicInfo() {
+function BasicInfo({values, setFieldValue}) {
+  const handlechecked = (e) => {
+    setFieldValue("permanentAddress", {...values.presentAddress});
+    setFieldValue("isSameAsPresent", e.target.checked);
+  }
+
+  const handleFileChange = async (e) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', e.target.files[0]);
+      let response = await postData(UPLOAD, formData, {headers: {
+        'Content-Type': 'multipart/form-data',
+      }});
+      if (response.status === 200 || response.status === 201) {
+        setFieldValue(e.target.name, response.data?.Location);
+      } else {
+        alert(response.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <>
       <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -24,28 +47,7 @@ function BasicInfo() {
             >
               Passport Size Photo<span className="pl-1 text-red-500">*</span>
             </label>
-            <CustomFileUploader isProfile={true} name="profilePic" />
-            {/* <div className="mt-2 flex items-center gap-x-3">
-              <img
-                alt=""
-                src={"/LoginImage.jpg"}
-                className="w-12 h-12 object-cover rounded-full"
-              />
-
-              <label
-                htmlFor="file-upload"
-                type="button"
-                className="cursor-pointer rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-              >
-                <span>Change</span>
-                <input
-                  id="file-upload"
-                  name="file-upload"
-                  type="file"
-                  className="sr-only"
-                />
-              </label>
-            </div> */}
+            <CustomFileUploader isProfile={true} name="profilePic" onChange={handleFileChange}/>
           </div>
 
           <div className="sm:col-span-2">
@@ -137,6 +139,7 @@ function BasicInfo() {
               label="Upload Student Aadhar Card"
               name="aadharPic"
               required={true}
+              onChange={handleFileChange}
             />
           </div>
         </div>
@@ -234,7 +237,7 @@ function BasicInfo() {
         <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
           <div className="sm:col-span-2"> 
             <CustomInput
-              name="presentAdress.area"
+              name="presentAddress.area"
               label="Area"
               placeholder="Enter Area"
               required={true}
@@ -243,7 +246,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="presentAdress.city"
+              name="presentAddress.city"
               label="City"
               placeholder="Enter City"
               required={true}
@@ -252,7 +255,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomSelect
-              name="presentAdress.state"
+              name="presentAddress.state"
               label="State"
               options={states}
               required={true}
@@ -261,7 +264,7 @@ function BasicInfo() {
 
           <div className="sm:col-span-2">
             <CustomInput
-              name="presentAdress.pincode"
+              name="presentAddress.pincode"
               label="Pincode"
               placeholder="Enter Pincode"
               required={true}
@@ -275,7 +278,7 @@ function BasicInfo() {
           Permanent Address Details
         </h2>
         <div className="relative flex items-start mb-4">
-          <CustomCheckBox name="isSameAsPresent" label="Same as Present Address" />
+          <CustomCheckBox name="isSameAsPresent" label="Same as Present Address" onChange={handlechecked} />
         </div>
 
         <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
@@ -317,9 +320,10 @@ function BasicInfo() {
 
           <div className="sm:col-span-4">
             <CustomFileUploader
-              name="uploadParentID"
-              label="Upload Parents ID Proofs"
+              name="parentIdProof"
+              label="Upload Parents ID Proof"
               required={true}
+              onChange={handleFileChange}
             />
           </div>
         </div>
