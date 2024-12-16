@@ -19,12 +19,15 @@ function ManageClass({ onClose }) {
     class: "",
     section:"",
     classTeacher:"",
-    timetable: {
-      subject: "",
-      day: "",
-      time: "",
-    },
-   
+    timetable: [
+      {
+        day: "",
+        subject: "",
+        startTime: "",
+        teacher: "",
+      },
+    ],
+       
   };
 
   const validationSchema = Yup.object({
@@ -33,11 +36,14 @@ function ManageClass({ onClose }) {
     class: Yup.string().required("Class is required"),
     section: Yup.string().required("Section is required"),
     classTeacher: Yup.string().required("Class teacher is required"),
-    timetable: Yup.object({
-      subject: Yup.string().required("Subject is required"),
-      day: Yup.string().required("Day is required"),
-      time: Yup.string().required("Time is required"),
-    }),
+    timetable: Yup.array().of(
+      Yup.object({
+        day: Yup.string().required("Day is required"),
+        subject: Yup.string().required("Subject is required"),
+        startTime: Yup.string().required("Start time is required"),
+        endTime: Yup.string().required("End time is required"),
+      })
+    ).min(1, "At least one timetable entry is required"),
   });
 
   const handleSubmit = (values) => {
@@ -110,7 +116,7 @@ function ManageClass({ onClose }) {
                       validationSchema={validationSchema}
                       onSubmit={handleSubmit}
                     >
-                      {() => (
+                      {({ values, setFieldValue }) => (
                         <Form>
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
                             <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
@@ -172,7 +178,9 @@ function ManageClass({ onClose }) {
                           </div>
                          
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
-                            <ManageClassTimetable />
+                            <ManageClassTimetable 
+                            timetable={values.timetable}
+                            setFieldValue={setFieldValue} />
                           </div>
                           <div className="pb-4 mb-4">
                             <ManageClassSyllabus />

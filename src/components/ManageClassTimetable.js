@@ -1,10 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import CustomSelect from "../commonComponent/CustomSelect";
 import { Field, ErrorMessage } from "formik";
+import { SUBJECTS } from "../app/url";
+import { getData } from "../app/api";
+import CustomInput from "../commonComponent/CustomInput";
 
 function ManageClassTimetable() {
+  const daysOfWeek = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
+  const [subjects, setSubjects] = useState();
+
+  useEffect(() => {
+    getSubjects();
+  }, []);
+
+  const getSubjects = async () => {
+    const res = await getData(SUBJECTS);
+    console.log("comming subject data is:", res.data);
+
+    const subData = res.data.data.map((item) => {
+      return {
+        label: item.name, // Displayed text in the dropdown
+        value: item._id,
+      };
+    });
+    setSubjects(subData);
+  };
   const [rows, setRows] = useState([
     {
       period: 1,
@@ -141,219 +170,51 @@ function ManageClassTimetable() {
               <td className="relative px-7 sm:w-12 sm:px-6">{row.period}</td>
 
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <Field
-                  name="startTime"
-                  placeholder="Enter Time"
-                  type="text"
-                  className="mb-2 block w-full  rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                />
-                <ErrorMessage
-                  name="time"
-                  component="div"
-                  className="text-red-500"
-                />
+                <CustomInput name={`time-${index}`} type="time" />
               </td>
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <Field
-                  name="subject"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Subject" />
-                  <option value="math" label="Math" />
-                  <option value="science" label="Science" />
-                  <option value="english" label="English" />
-                </Field>
-                <ErrorMessage
-                  name="subject"
-                  component="div"
-                  className="text-red-500"
-                />
-                <Field
-                  name="teacher"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Teacher" />
-                  <option value="rama" label="Rama Krishna" />
-                  <option value="teacher2" label="Teacher 2" />
-                  <option value="teacher3" label="Teacher 3" />
-                </Field>
-                <ErrorMessage
-                  name="teacher"
-                  component="div"
-                  className="text-red-500"
-                />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <Field
-                  name="subject"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Subject" />
-                  <option value="math" label="Math" />
-                  <option value="science" label="Science" />
-                  <option value="english" label="English" />
-                </Field>
-                <ErrorMessage
-                  name="subject"
-                  component="div"
-                  className="text-red-500"
-                />
-                <Field
-                  name="teacher"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Teacher" />
-                  <option value="rama" label="Rama Krishna" />
-                  <option value="teacher2" label="Teacher 2" />
-                  <option value="teacher3" label="Teacher 3" />
-                </Field>
-                <ErrorMessage
-                  name="teacher"
-                  component="div"
-                  className="text-red-500"
-                />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <Field
-                  name="subject"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Subject" />
-                  <option value="math" label="Math" />
-                  <option value="science" label="Science" />
-                  <option value="english" label="English" />
-                </Field>
-                <ErrorMessage
-                  name="subject"
-                  component="div"
-                  className="text-red-500"
-                />
-                <Field
-                  name="teacher"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Teacher" />
-                  <option value="rama" label="Rama Krishna" />
-                  <option value="teacher2" label="Teacher 2" />
-                  <option value="teacher3" label="Teacher 3" />
-                </Field>
-                <ErrorMessage
-                  name="teacher"
-                  component="div"
-                  className="text-red-500"
-                />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <Field
-                  name="subject"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Subject" />
-                  <option value="math" label="Math" />
-                  <option value="science" label="Science" />
-                  <option value="english" label="English" />
-                </Field>
-                <ErrorMessage
-                  name="subject"
-                  component="div"
-                  className="text-red-500"
-                />
-                <Field
-                  name="teacher"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Teacher" />
-                  <option value="rama" label="Rama Krishna" />
-                  <option value="teacher2" label="Teacher 2" />
-                  <option value="teacher3" label="Teacher 3" />
-                </Field>
-                <ErrorMessage
-                  name="teacher"
-                  component="div"
-                  className="text-red-500"
-                />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <Field
-                  name="subject"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Subject" />
-                  <option value="math" label="Math" />
-                  <option value="science" label="Science" />
-                  <option value="english" label="English" />
-                </Field>
-                <ErrorMessage
-                  name="subject"
-                  component="div"
-                  className="text-red-500"
-                />
-                <Field
-                  name="teacher"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Teacher" />
-                  <option value="rama" label="Rama Krishna" />
-                  <option value="teacher2" label="Teacher 2" />
-                  <option value="teacher3" label="Teacher 3" />
-                </Field>
-                <ErrorMessage
-                  name="teacher"
-                  component="div"
-                  className="text-red-500"
-                />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <Field
-                  name="subject"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Subject" />
-                  <option value="math" label="Math" />
-                  <option value="science" label="Science" />
-                  <option value="english" label="English" />
-                </Field>
-                <ErrorMessage
-                  name="subject"
-                  component="div"
-                  className="text-red-500"
-                />
-                <Field
-                  name="teacher"
-                  as="select"
-                  className="mb-2 block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                >
-                  <option value="" label="Select Teacher" />
-                  <option value="rama" label="Rama Krishna" />
-                  <option value="teacher2" label="Teacher 2" />
-                  <option value="teacher3" label="Teacher 3" />
-                </Field>
-                <ErrorMessage
-                  name="teacher"
-                  component="div"
-                  className="text-red-500"
-                />
-              </td>
-              
+                <CustomSelect name="subject"  options={subjects} />
 
-              
+                <CustomSelect name="teacher" options={subjects} />
+              </td>
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                        <button onClick={() => removeRow(index)}><XMarkIcon aria-hidden="true" className="text-red-500 size-5" /></button>
-                                    </td>
+                <CustomSelect name="subject" options={subjects} />
+
+                <CustomSelect name="teacher" options={subjects} />
+              </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <CustomSelect name="subject" options={subjects} />
+
+                <CustomSelect name="teacher" options={subjects} />
+              </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <CustomSelect name="subject" options={subjects} />
+
+                <CustomSelect name="teacher" options={subjects} />
+              </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <CustomSelect name="subject" options={subjects} />
+
+                <CustomSelect name="teacher" options={subjects} />
+              </td>
+              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                <CustomSelect name="subject" options={subjects} />
+
+                <CustomSelect name="teacher" options={subjects} />
+              </td>
+
+              {row.period !== 1 && (
+                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                  <button onClick={() => removeRow(index)}>
+                    <XMarkIcon
+                      aria-hidden="true"
+                      className="text-red-500 size-5"
+                    />
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
-
         </tbody>
       </table>
 
