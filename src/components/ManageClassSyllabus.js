@@ -1,8 +1,70 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { getData } from "../app/api";
+import { SUBJECTS } from "../app/url";
+import { FieldArray } from "formik";
+import CustomSelect from "../commonComponent/CustomSelect";
+import { getAcademicYears } from "../commonComponent/CommonFunctions";
 
-function ManageClassSyllabus() {
+function ManageClassSyllabus({ values, setFieldValue, touched,errors }) {
+
+  const [subjects, setSubjects] = useState();
+
+  console.log("values are :",values);
+
+  useEffect(() => {
+    getSubjects();
+    setFieldValue("syllabus",[
+      {
+        id: 1,
+        academicYear: "2023-2024",
+        subject: "Englisha",
+        syllabusPic : null
+      },
+    ])
+  }, []);
+
+  const getSubjects = async () => {
+    const res = await getData(SUBJECTS);
+    console.log("comming subject data is:", res.data);
+
+    const subData = res.data.data.map((item) => {
+      return {
+        label: item.name, // Displayed text in the dropdown
+        value: item._id,
+      };
+    });
+    setSubjects(subData);
+  };
+  
+
+  const [rows, setRows] = useState([
+    {
+      id: 1,
+      academicYear: "2023-2024",
+      subject: "Englisha",
+    },
+  ]);
+
+  const addRow = () => {
+    let dummyList = [
+      ...rows,
+      {
+        id: rows.length + 1, // Incrementing the ID for each new row
+        academicYear: "2023-2024",
+        subject: "Englisha",
+      },
+    ]
+    setRows(dummyList);
+    setFieldValue("syllabus",dummyList)
+  };
+
+
+  
+  
+
+
   return (
     <>
       <h2 className="text-base/7 font-semibold text-gray-900 mb-2">Syllabus</h2>
@@ -38,6 +100,7 @@ function ManageClassSyllabus() {
             <th
               scope="col"
               className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
+              
             >
               <a href="#" className="group inline-flex">
                 Upload Syllabus
@@ -50,30 +113,20 @@ function ManageClassSyllabus() {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          <tr>
-            <td className="relative px-7 sm:w-12 sm:px-6">1</td>
+        <FieldArray name="syllabus">
+        {({ remove }) =>
+        
+          values.syllabus.map((item, index) => (
+          <tr key={item.id}>
+            <td className="relative px-7 sm:w-12 sm:px-6">{index + 1}</td>
 
             <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-              <select
-                id="location"
-                name="location"
-                defaultValue="Academic Year"
-                className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-              >
-                <option>2023-2024</option>
-              </select>
+            <CustomSelect name={`syllabus.${index}.acadamicYear`} options={getAcademicYears()}/>
+
             </td>
             <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-              <select
-                id="location"
-                name="location"
-                defaultValue="Subject"
-                className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-              >
-                <option>Englisha</option>
-                <option>Telugu</option>
-                <option>Social</option>
-              </select>
+            <CustomSelect name={`syllabus.${index}.syllabusSubject`} options={subjects}/>
+             
             </td>
             <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 text-right">
               <div className="flex items-center">
@@ -82,81 +135,62 @@ function ManageClassSyllabus() {
                   className="text-purple-500 size-5"
                 />
                 <label
-                  htmlFor="file-upload"
+                  htmlFor={`syllabus.${index}.syllabusPic`}
                   className="relative cursor-pointer rounded-md bg-white font-semibold text-purple-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-purple-600 focus-within:ring-offset-2 hover:text-purple-500"
                 >
                   <span>Choose a file </span>
                   <input
-                    id="file-upload"
-                    name="file-upload"
+                    id={`syllabus.${index}.syllabusPic`}
+                    name={`syllabus.${index}.syllabusPic`}
                     type="file"
                     className="sr-only"
+                    onChange={(event) =>
+                      setFieldValue(
+                        `syllabus.${index}.syllabusPic`,
+                        event.currentTarget.files[0]
+                      )
+                    }
                   />
                 </label>
+                 {/* Error Message */}
+            {errors.syllabus &&
+              errors.syllabus[index] &&
+              errors.syllabus[index].syllabusPic &&
+              touched.syllabus &&
+              touched.syllabus[index] &&
+              touched.syllabus[index].syllabusPic && (
+                <div className="text-red-500 text-xs mt-1">
+                  {errors.syllabus[index].syllabusPic}
+                </div>
+              )}
               </div>
             </td>
+            {index !== 0 && (
+                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                  <button onClick={() => remove(index)}>
+                    <XMarkIcon
+                      aria-hidden="true"
+                      className="text-red-500 size-5"
+                    />
+                  </button>
+                </td>
+              )}
           </tr>
-          <tr>
-            <td className="relative px-7 sm:w-12 sm:px-6">1</td>
-
-            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-              <select
-                id="location"
-                name="location"
-                defaultValue="Academic Year"
-                className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-              >
-                <option>2023-2024</option>
-              </select>
-            </td>
-            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-              <select
-                id="location"
-                name="location"
-                defaultValue="Subject"
-                className="block w-36 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-              >
-                <option>Englisha</option>
-                <option>Telugu</option>
-                <option>Social</option>
-              </select>
-            </td>
-            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 text-right">
-              <div className="flex items-center">
-                <PlusIcon
-                  aria-hidden="true"
-                  className="text-purple-500 size-5"
-                />
-                <label
-                  htmlFor="file-upload"
-                  className="relative cursor-pointer rounded-md bg-white font-semibold text-purple-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-purple-600 focus-within:ring-offset-2 hover:text-purple-500"
-                >
-                  <span>Choose a file </span>
-                  <input
-                    id="file-upload"
-                    name="file-upload"
-                    type="file"
-                    className="sr-only"
-                  />
-                </label>
-              </div>
-            </td>
-            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-              <a href="#">
-                <XMarkIcon aria-hidden="true" className="text-red-500 size-5" />
-              </a>
-            </td>
-          </tr>
+           ))
+          }
+        </FieldArray>
         </tbody>
       </table>
       <div className="flex items-center mt-2 w-full justify-end">
         <PlusIcon aria-hidden="true" className="text-purple-500 size-5" />
-        <a
-          href="#"
+        <button
+          onClick={addRow}
           className="text-purple-600 font-medium hover:text-purple-900"
         >
-          Add Another Subject <span className="sr-only">add new period</span>
-        </a>
+          Add Another Subject <span className="sr-only">add new subject</span>
+        
+        
+          </button>
       </div>
     </>
   );

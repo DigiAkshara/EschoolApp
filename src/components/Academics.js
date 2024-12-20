@@ -35,6 +35,9 @@ import Select from "react-tailwindcss-select";
 import ManageClass from './ManageClass'
 import { useLocation, useNavigate } from 'react-router-dom'
 import ManageDailyTimeTable from './ManageDailyTimeTable'
+import Class from './Class'
+import ManageExams from './ManageExams'
+import ManageCertificates from './ManageCertificates'
 
 const subjects = [
     { value: "English", label: "English" },
@@ -69,25 +72,26 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const tabs = [
-  { name: 'Daily Time table',href: "/academics" },
-  { name: 'Classes', href: "/academics-class"},
-  { name: 'Exams',  href: "/academics-exams" },
-  { name: 'Certificates',  href: "/academics-ertificates" },
-]
+const tabs = ['Daily Time table','Classes','Exams','Certificates']
+  
 
-export default function Class() {
+// const tabs = [
+//   { name: 'Daily Time table', href: '/academics', component: ManageDailyTimeTable },
+//   { name: 'Classes', href: '/academics-class', component: ManageClass },
+//   { name: 'Exams', href: '/academics-exams', component: () => <div>Exams Component</div> },
+//   { name: 'Certificates', href: '/academics-certificates', component: () => <div>Certificates Component</div> },
+// ]
+
+export default function Academics() {
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
   const navigate = useNavigate()
   const location = useLocation();
-
-
   const checkbox = useRef()
   const [checked, setChecked] = useState(false)
   const [indeterminate, setIndeterminate] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
-
+  const [activeTab, setActiveTab] = useState(tabs[0]);
   const notificationMethods = [
     { id: 'All', title: 'All' },
     { id: 'Old Students', title: 'Old Students' },
@@ -119,14 +123,30 @@ export default function Class() {
   };
   const handleClose = () =>setOpen(false)
 
-  const handleTabClick = (path) => {
-    navigate(path);
-  };
+  // const handleTabClick = (path) => {
+  //   navigate(path);
+  // };
 
   const handleTabChange = (event) => {
     const selectedTab = tabs.find((tab) => tab.name === event.target.value);
     if (selectedTab) {
       navigate(selectedTab.path);
+    }
+  };
+
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "Daily Time table":
+        return <ManageDailyTimeTable />;
+      case "Classes":
+        return <Class />;
+      case "Exams":
+        return <ManageExams />;
+      case "Certificates":
+        return <ManageCertificates />;
+      default:
+        return <h2>No Content Available</h2>;
     }
   };
 
@@ -145,11 +165,12 @@ export default function Class() {
               <select
                 id="tabs"
                 name="tabs"
-                defaultValue={tabs.find((tab) => location.pathname === tab.href)?.name || tabs[0].name}
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
                 className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-purple-500 focus:outline-none focus:ring-purple-500 sm:text-sm"
               >
                 {tabs.map((tab) => (
-                  <option key={tab.name}>{tab.name}</option>
+                  <option key={tab} value={tab}>{tab}</option>
                 ))}
               </select>
             </div>
@@ -157,33 +178,25 @@ export default function Class() {
               <div className="border-b border-gray-200">
                 <nav aria-label="Tabs" className="-mb-px flex space-x-8">
                   {tabs.map((tab) => (
-                    <a
-                      key={tab.name}
-                      href={tab.href}
-                     
-                      onClick={() => navigate(tab.href)}
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
                       className={classNames(
-                        location.pathname === tab.href
+                        activeTab === tab
                           ? 'border-purple-500 text-purple-600'
                           :'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
                         'whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium',
                       )}
                       
                     >
-                      {tab.name}
-                    </a>
+                      {tab}
+                    </button>
                   ))}
                 </nav>
               </div>
             </div>
         </div>
-        <ManageDailyTimeTable/>
-         
-         
-
-        
-   
-
+        {renderTabContent()}
   </div>
     
   )

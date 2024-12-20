@@ -6,66 +6,49 @@ import { IdentificationIcon } from "@heroicons/react/24/outline";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { board, classCategory } from "../commonComponent/CommonFunctions";
+import { useNavigate } from 'react-router-dom';
 import CustomSelect from "../commonComponent/CustomSelect";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomDate from "../commonComponent/CustomDate";
 import ExamTimeTable from "./ExamTimeTable";
-import { CLASSES } from "../app/url";
-import { getData } from "../app/api";
+import { CLASSES, EXAM } from "../app/url";
+import { getData, postData } from "../app/api";
 
 function CreateExam({ onClose }) {
   const [classData, setClassData] = useState()
-
+  const navigate = useNavigate();
 
   const getInitialValues = () => {
     return {
       board: "",
-      category: "",
+      classCategory: "",
       class: "",
       section: "",
-      examName: "",
-      ESD: "",
-      EED: "",
-      timetable: [],
+      name: "",
+      startDate: "",
+      endDate: "",
+      timeTable: [],
     };
   };
 
-  // const validationSchema = Yup.object({
-  //   board: Yup.string().required("Board is required"),
-  //   category: Yup.string().required("Class category is required"),
-  //   class: Yup.string().required("Class is required"),
-  //   section: Yup.string().required("Section is required"),
-  //   examName: Yup.string().required("Exam Name is required"),
-  //   ESD: Yup.date().nullable().required("Exam Start Date is required"),
-  //   EED: Yup.date().nullable().required("Exam End Date is required"),
-  //   timetable: Yup.array()
-  //     .of(
-  //       Yup.object({
-  //         subject: Yup.string().required("Subject is required"),
-  //         date: Yup.date().required("Date is required"),
-  //         startTime: Yup.string().required("Start time is required"),
-  //         endTime: Yup.string().required("End time is required"),
-  //       })
-  //     )
-  //     .min(1, "At least one subject must be added"),
-  // });
 
   const getValidationSchema = () => {
     return Yup.object({
       board: Yup.string().required("Board is required"),
-      category: Yup.string().required("Class category is required"),
+      classCategory: Yup.string().required("Class category is required"),
       class: Yup.string().required("Class is required"),
       section: Yup.string().required("Section is required"),
-      examName: Yup.string().required("Exam Name is required"),
-      ESD: Yup.date().nullable().required("Exam Start Date  is required"),
-      EED: Yup.date().nullable().required("Exam End Date  is required"),
-      timetable: Yup.array().of(
+      name: Yup.string().required("Exam Name is required"),
+      startDate: Yup.date().nullable().required("Exam Start Date  is required"),
+      endDate: Yup.date().nullable().required("Exam End Date  is required"),
+      timeTable: Yup.array().of(
         Yup.object({
+          subject: Yup.string(),
           examDate: Yup.date().required("Date is required"),
           startTime: Yup.string().required("Start time is required"),
           endTime: Yup.string().required("End time is required"),
-          passMarks: Yup.string().required("Pass mark is required"),
-          totalMarks: Yup.string().required("Total Mark is required"),
+          passMark: Yup.string().required("Pass mark is required"),
+          totalMark: Yup.string().required("Total Mark is required"),
           syllabus: Yup.string().required("Syllabusis required"),
         })
       ),
@@ -89,12 +72,31 @@ function CreateExam({ onClose }) {
     setClassData(classData);
   };
 
-  const handleSubmit = (values) => {
-    alert("Form submitted successfully!");
-    console.log("Form submitted with values:", values);
+  const handleSubmit = async (values) => {
+    console.log("Exam values:",values);
+    try {
+      let response = await postData(EXAM, values);
+      console.log("respose is:", response);
+      if (response.status === 201) {
+        console.log("Exam added successfully!");
+        navigate('/academics-exams')
+        alert(response.statusText);
 
-    onClose(); // Close the modal after form submission
+        onClose()
+      } else {
+        alert(response.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  // const handleSubmit = (values) => {
+  //   alert("Form submitted successfully!");
+  //   console.log("Form submitted with values:", values);
+
+  //   onClose(); // Close the modal after form submission
+  // };
 
   const [value, setValue] = useState({});
   return (
@@ -161,7 +163,7 @@ function CreateExam({ onClose }) {
                                   <div className="sm:col-span-1">
                                     <CustomSelect
                                       label="Class Category"
-                                      name="category"
+                                      name="classCategory"
                                       options={classCategory}
                                       required
                                     />
@@ -186,8 +188,8 @@ function CreateExam({ onClose }) {
 
                                   <div className="sm:col-span-1">
                                     <CustomInput
-                                      id="examName"
-                                      name="examName"
+                                      id="name"
+                                      name="name"
                                       label="Exam Name"
                                       placeholder="Enter Exam name"
                                       required={true}
@@ -195,14 +197,14 @@ function CreateExam({ onClose }) {
                                   </div>
                                   <div className="sm:col-span-1">
                                     <CustomDate
-                                      name="ESD"
+                                      name="startDate"
                                       label="Exam Start Date"
                                       required={true}
                                     />
                                   </div>
                                   <div className="sm:col-span-1">
                                     <CustomDate
-                                      name="EED"
+                                      name="endDate"
                                       label="Exam End Date"
                                       required={true}
                                     />

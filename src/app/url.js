@@ -5,6 +5,10 @@ export const SUBJECTS= "/subjects"
 export const FEES = "/fee"
 export const STUDENT = "/student"
 export const UPLOAD = "/upload"
+export const EXAM = "/exam"
+export const CLASS = "/class"
+
+
 
 export const CREATE_TENANT = "/tenant"
 export const PROFILE = "/user"

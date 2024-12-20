@@ -132,3 +132,10 @@ export const sections = [
   { value: "d", label: "D" },
   { value: "e", label: "E" },
 ]
+
+export const teacher = [
+  { value: "teacher1", label: "Teacher 1" },
+  { value: "teacher2", label: "Teacher 2" },
+  { value: "teacher3", label: "Teacher 3" },
+  { value: "teacher4", label: "Teacher 4" },
+]

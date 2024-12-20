@@ -6,12 +6,15 @@ import * as Yup from "yup";
 import CustomSelect from "../commonComponent/CustomSelect";
 import ManageClassTimetable from "./ManageClassTimetable";
 import ManageClassSyllabus from "./ManageClassSyllabus";
-import { getData } from "../app/api";
-import { SUBJECTS } from "../app/url";
+import { getData, postData } from "../app/api";
+import { CLASS, SUBJECTS } from "../app/url";
 import { board, classCategory } from "../commonComponent/CommonFunctions";
+import CustomInput from "../commonComponent/CustomInput";
+import { useNavigate } from "react-router-dom";
 
 function ManageClass({ onClose }) {
   const [subjects, setSubjects] = useState()
+  const navigate = useNavigate();
 
   
   const getInitialValues = () => {
@@ -21,9 +24,14 @@ function ManageClass({ onClose }) {
     class: "",
     section:"",
     classTeacher:"",
+    theorySubject:"",
+    labSubject:"",
+    extracurricular :"",
     timetable: [],
+    syllabus : []
     };
   };
+
 
   const getValidationSchema = () => {
     return Yup.object({
@@ -32,35 +40,83 @@ function ManageClass({ onClose }) {
       class: Yup.string().required("Class is required"),
       section: Yup.string().required("Section is required"),
       classTeacher: Yup.string().required("Class teacher is required"),
-      timetable: Yup.array().of(
-        Yup.object({
-          subject: Yup.string().required("Subject is required"),
-          startTime: Yup.string().required("Start time is required"),
-          teacher: Yup.string().required("Teacher is required"),
-        })
-      ).min(1, "At least one timetable entry is required"),
+      theorySubject: Yup.string().required("Theory Subjects is required"),
+      labSubject: Yup.string().required("Lab Subjects is required"),
+      extracurricular : Yup.string().required("Extracurricular Activities is required"),
+
+      timetable: Yup.array()
+        .of(
+          Yup.object({
+            period: Yup.number()
+              .required("Period is required")
+              .positive("Period must be positive")
+              .integer("Period must be an integer"),
+            time: Yup.string().required("Time is required"),
+            days: Yup.object({
+              monday: Yup.object({
+                subject: Yup.string().required("Subject is required"),
+                teacher: Yup.string().required("Teacher is required"),
+              }),
+              tuesday: Yup.object({
+                subject: Yup.string().required("Subject is required"),
+                teacher: Yup.string().required("Teacher is required"),
+              }),
+              wednesday: Yup.object({
+                subject: Yup.string().required("Subject is required"),
+                teacher: Yup.string().required("Teacher is required"),
+              }),
+              thursday: Yup.object({
+                subject: Yup.string().required("Subject is required"),
+                teacher: Yup.string().required("Teacher is required"),
+              }),
+              friday: Yup.object({
+                subject: Yup.string().required("Subject is required"),
+                teacher: Yup.string().required("Teacher is required"),
+              }),
+              saturday: Yup.object({
+                subject: Yup.string().required("Subject is required"),
+                teacher: Yup.string().required("Teacher is required"),
+              }),
+            }),
+          })
+        )
+        .min(1, "At least one timetable entry is required"),
+        syllabus: Yup.array().of(
+          Yup.object({
+            syllabusSubject: Yup.string().required("Subject is required"),
+            acadamicYear: Yup.string().required("Academic year is required"),
+            syllabusPic: Yup.string().required("Syllabus file is required"),
+          })
+        )
     });
+
   };
+  
 
-  const validationSchema = Yup.object({
-    board: Yup.string().required("Board is required"),
-    category: Yup.string().required("Class category is required"),
-    class: Yup.string().required("Class is required"),
-    section: Yup.string().required("Section is required"),
-    classTeacher: Yup.string().required("Class teacher is required"),
-    timetable: Yup.array().of(
-      Yup.object({
-        subject: Yup.string().required("Subject is required"),
-        startTime: Yup.string().required("Start time is required"),
-        teacher: Yup.string().required("Teacher is required"),
-      })
-    )
-  });
 
-  const handleSubmit = (values) => {
+  // const handleSubmit = (values) => {
+  //   console.log("Form submitted with values:", values);
+  //   alert("Form submitted successfully!");
+  //   onClose(); // Close the modal after form submission
+  // };
+
+  const handleSubmit = async (values) => {
     console.log("Form submitted with values:", values);
-    alert("Form submitted successfully!");
-    onClose(); // Close the modal after form submission
+    try {
+      let response = await postData(CLASS, values);
+      console.log("respose is:", response);
+      if (response.status === 201) {
+        console.log("Class added successfully!");
+        navigate('/academics-class')
+        alert(response.statusText);
+
+        onClose()
+      } else {
+        alert(response.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const classOptions = [
@@ -128,7 +184,7 @@ function ManageClass({ onClose }) {
                       validationSchema={getValidationSchema()}
                       onSubmit={handleSubmit}
                     >
-                      {({ values, setFieldValue, errors }) => (
+                      {({ values, setFieldValue, errors, touched }) => (
                         <Form>
                         {console.log(errors)}
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -162,21 +218,14 @@ function ManageClass({ onClose }) {
                               </div>
 
                               <div className="sm:col-span-1">
-                                <label
-                                  htmlFor="section"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Section <span className="pl-1 text-red-500">*</span>
-                                </label>
-                                <div className="mt-2">
-                                  <Field
-                                    name="section"
-                                    type="text"
-                                    placeholder="Enter Section Name"
-                                    className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                  />
-                                  <ErrorMessage name="section" component="div" className="text-red-500" />
-                                </div>
+                              <CustomInput
+                                  name="section"
+                                  label="Section"
+                                  placeholder="Enter Section"
+                                  required={true}
+                                />
+                              
+                               
                               </div>
 
                               <div className="sm:col-span-1">
@@ -189,6 +238,205 @@ function ManageClass({ onClose }) {
                               </div>
                             </div>
                           </div>
+
+                          <div className="border-b border-gray-900/10 pb-4 mb-4">
+                          <h2 className="text-base/7 font-semibold text-gray-900 mb-2">Add Theory Subjects</h2>
+                          <p className='text-base font-regular text-gray-900'>Please review the theory subjects listed below and suggest any additions or removals relevant to this class and section.</p>
+                          <div className="flex items-center mt-4 gap-4">
+                            
+                            <div className='filter-badges-blk flex flex-wrap gap-4'>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              English
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Telugu
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Hindi
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Maths
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Social
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                            </div>
+                            
+                            <div className='flex add-sub-input-blk'>
+                              <div className="">
+                              <Field
+                                    name="theorySubject"
+                                    type="text"
+                                    placeholder="Add New Subject"
+                                    className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
+                                    />
+                                  <ErrorMessage name="theorySubject" component="div" className="text-red-500" />
+                              </div>
+                               
+                               
+                                <button
+                                  type="submit"
+                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                                >
+                                  Add
+                                </button>
+
+
+                            </div>
+
+                          </div>
+                        </div>
+                        <div className="border-b border-gray-900/10 pb-4 mb-4">
+                          <h2 className="text-base/7 font-semibold text-gray-900 mb-2">Add Lab Subjects</h2>
+                          <p className='text-base font-regular text-gray-900'>Please review the Lab subjects listed below and suggest any additions or removals relevant to this class and section.</p>
+                          <div className="flex items-center mt-4 gap-4">
+                            
+                            <div className='filter-badges-blk flex flex-wrap gap-4'>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Computer
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Science
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              
+                            </div>
+                            
+                            <div className='flex add-sub-input-blk'>
+                            <div className="">
+                              <Field
+                                    name="labSubject"
+                                    type="text"
+                                    placeholder="Add New Lab"
+                                    className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
+                                    />
+                                  <ErrorMessage name="labSubject" component="div" className="text-red-500" />
+                              </div>
+
+                               
+                                <button
+                                  type="submit"
+                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                                >
+                                  Add
+                                </button>
+
+
+                            </div>
+
+                          </div>
+                        </div>
+
+                        <div className="border-b border-gray-900/10 pb-4 mb-4">
+                          <h2 className="text-base/7 font-semibold text-gray-900 mb-2">Extracurricular Activities</h2>
+                          <p className='text-base font-regular text-gray-900'>Please review the Extracurricular Activities listed below and suggest any additions or removals relevant to this class and section.</p>
+                          <div className="flex items-center mt-4 gap-4">
+                            
+                            <div className='filter-badges-blk flex flex-wrap gap-4'>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Dance
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Art
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                              Sports
+                                <button type="button" className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20">
+                                  <span className="sr-only">Remove</span>
+                                  <svg viewBox="0 0 14 14" className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                                    <path d="M4 4l6 6m0-6l-6 6" />
+                                  </svg>
+                                  <span className="absolute -inset-1" />
+                                </button>
+                              </span>
+                              
+                            </div>
+                            
+                            <div className='flex add-sub-input-blk'>
+                            <div className="">
+                              <Field
+                                    name="extracurricular"
+                                    type="text"
+                                    placeholder="Add New "
+                                    className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
+                                    />
+                                  <ErrorMessage name="extracurricular" component="div" className="text-red-500" />
+                              </div>
+                               
+                                <button
+                                  type="submit"
+                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                                >
+                                  Add
+                                </button>
+
+
+                            </div>
+
+                          </div>
+                        </div>
                          
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
                             <ManageClassTimetable 
@@ -198,7 +446,12 @@ function ManageClass({ onClose }) {
                                />
                           </div>
                           <div className="pb-4 mb-4">
-                            <ManageClassSyllabus />
+                            <ManageClassSyllabus
+                            values={values}
+                            setFieldValue={setFieldValue}
+                            errors={errors}
+                            touched={touched} 
+                            />
                           </div>
 
                           <div className="flex justify-end bg-gray-100 px-4 py-4">

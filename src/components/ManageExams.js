@@ -1,9 +1,7 @@
 
 'use client'
 
-import { useLayoutEffect, useRef, useState } from 'react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { CheckCircleIcon } from '@heroicons/react/20/solid'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
@@ -20,22 +18,7 @@ import { PhoneIcon } from '@heroicons/react/24/outline'
 
 
 import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { LinkIcon, QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
-import { CheckIcon } from '@heroicons/react/20/solid'
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
-import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline'
-import { ArrowLongUpIcon } from '@heroicons/react/24/outline'
-import { ArrowLeftStartOnRectangleIcon } from '@heroicons/react/24/outline'
-import { PencilIcon } from '@heroicons/react/24/outline'
-import { TrashIcon } from '@heroicons/react/24/outline'
-import { ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline'
-import { ArrowUpRightIcon } from '@heroicons/react/24/outline'
-import { DocumentArrowDownIcon} from '@heroicons/react/24/outline'
-import { EyeIcon} from '@heroicons/react/24/outline'
-import { IdentificationIcon} from '@heroicons/react/24/outline'
 
 
 import Datepicker from "react-tailwindcss-datepicker";
@@ -43,17 +26,11 @@ import React, { PureComponent } from 'react';
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Sector, Cell, ResponsiveContainer, Legend, Label, legendType } from 'recharts';
 import Select from "react-tailwindcss-select";
 import CreateExam from './CreateExam'
-
-
-
-
-
-
-const subjects = [
-    { value: "English", label: "English" },
-    { value: "Telugu", label: "Telugu" },
-    { value: "Social", label: "Social" }
-];
+import { getData } from '../app/api'
+import { EXAM } from '../app/url'
+import ExamDetailsPage from './ExamDetailsPage'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectExam, setExams } from '../app/reducers/examSlice'
 
 
 const people = [
@@ -66,30 +43,11 @@ const people = [
   // More people...
 ]
 
-const people2 = [
-  {
-    name: 'Janet Baker',
-    title: '12345678 | 1A',
-    email: 'janecooper@example.com',
-    telephone: '+1-202-555-0170',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-  },
-  // More people...
-]
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-const tabs = [
-  { name: 'Daily Time table', href: '#', current: false },
-  { name: 'Classes', href: '#', current: false },
-  { name: 'Exams', href: '#', current: true },
-  { name: 'Certificates', href: '#', current: false },
-  
-
-]
 
 const tabs2 = [
   { name: 'Exams Schedules', href: '#',  current: true },
@@ -99,6 +57,7 @@ const tabs2 = [
 
 
 export default function ManageExams() {
+
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
 
@@ -106,16 +65,63 @@ export default function ManageExams() {
   const [checked, setChecked] = useState(false)
   const [indeterminate, setIndeterminate] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
+  const [examData , setExamData] = useState([])
+  const dispatch = useDispatch()
+  const exams = useSelector((state) => state.exams.exams);
 
-  const notificationMethods = [
-    { id: 'All', title: 'All' },
-    { id: 'Old Students', title: 'Old Students' },
-    { id: 'New Students', title: 'New Students' },
-  ]
 
-  const [value, setValue] = useState({
- 
-});
+useEffect(()=>{
+  getExamData()
+},[])
+
+
+const getExamData = async () => {
+  try {
+    const response = await getData(EXAM);
+    console.log("response is:", response.data);
+    
+    if (response.status === 200) {
+      const formatter = new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+      const data = response.data.data.map((item, index) => {
+        // Formatting the timeTable data
+        const timeTableFormatted = item.timeTable.map(t => ({
+          subject: t.subject,
+          examDate: formatter.format(new Date(t.examDate)),
+          startTime: t.startTime,
+          endTime: t.endTime,
+          passMark: t.passMark,
+          totalMark: t.totalMark,
+          syllabus : t.syllabus
+        }));
+      
+        return {
+          id: index + 1,
+          name: item.name,
+          section: item.section,
+          examDates: `${formatter.format(new Date(item.startDate))} - ${formatter.format(new Date(item.endDate))}`,
+          board: item.board,
+          classCategory: item.classCategory,
+          timeTable: timeTableFormatted // Add the formatted timeTable data
+        };
+      });
+      setExamData(data);
+      dispatch(setExams(data));
+    }
+  } catch (error) {
+    console.error('Error fetching exam data:', error);
+  }
+};
+
+const handleViewDetails = (exam) => {
+  dispatch(selectExam(exam)); 
+  setOpen2(true); 
+};
+
+
 
   useLayoutEffect(() => {
     const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < people.length
@@ -138,6 +144,7 @@ export default function ManageExams() {
   };
 
   const handleClose = () =>setOpen(false)
+  const handleClose2 = () => setOpen2(false)
 
 
   return (
@@ -146,46 +153,7 @@ export default function ManageExams() {
       
       <div className="flow-root">
         {/* Primary Tabs */}
-        <div>
-            <div className="sm:hidden">
-              <label htmlFor="tabs" className="sr-only">
-                Select a tab
-              </label>
-              {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-              <select
-                id="tabs"
-                name="tabs"
-                defaultValue={tabs.find((tab) => tab.current).name}
-                className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-purple-500 focus:outline-none focus:ring-purple-500 sm:text-sm"
-              >
-                {tabs.map((tab) => (
-                  <option key={tab.name}>{tab.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="hidden sm:block">
-              <div className="border-b border-gray-200">
-                <nav aria-label="Tabs" className="-mb-px flex space-x-8">
-                  {tabs.map((tab) => (
-                    <a
-                      key={tab.name}
-                      href={tab.href}
-                      aria-current={tab.current ? 'page' : undefined}
-                      className={classNames(
-                        tab.current
-                          ? 'border-purple-500 text-purple-600'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
-                        'whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium',
-                      )}
-                    >
-                      {tab.name}
-                    </a>
-                  ))}
-                </nav>
-              </div>
-            </div>
-        </div>
-         
+                 
          <div className='mt-4 flex justify-between'>
            <div className='text-lg text-gray-900 font-medium'>
             
@@ -514,33 +482,33 @@ export default function ManageExams() {
                   <tbody className="divide-y divide-gray-200 bg-white z-1">
                    
 
-                    {people.map((person) => (
-                      <tr key={person.email} className={selectedPeople.includes(person) ? 'bg-gray-50' : undefined}>
+                    {examData.map((data) => (
+                      <tr key={data.email} className={selectedPeople.includes(data) ? 'bg-gray-50' : undefined}>
                         <td className="relative px-7 sm:w-12 sm:px-6" >
-                          {selectedPeople.includes(person) && (
+                          {selectedPeople.includes(data) && (
                             <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
                           )}
                           <input
                             type="checkbox"
                             className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                            value={person.email}
-                            checked={selectedPeople.includes(person)}
+                            value={data.email}
+                            checked={selectedPeople.includes(data)}
                             onChange={(e) =>
                               setSelectedPeople(
                                 e.target.checked
-                                  ? [...selectedPeople, person]
-                                  : selectedPeople.filter((p) => p !== person),
+                                  ? [...selectedPeople, data]
+                                  : selectedPeople.filter((p) => p !== data),
                               )
                             }
                           />
                         </td>
                        
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Unit 1</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Class 1</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">A</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">22-10-2024 - 26-10-2024</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{data.name}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{data.section}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{data.examDates}</td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">5</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#' onClick={() => setOpen2(true)}>View</a></td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#' onClick={() => handleViewDetails(data)}>View</a></td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#' onClick={() => setOpen2(true)}>View</a></td>
 
                         <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
@@ -582,142 +550,7 @@ export default function ManageExams() {
                       </tr>
                       
                     ))}
-                    {people.map((person) => (
-                      <tr key={person.email} className={selectedPeople.includes(person) ? 'bg-gray-50' : undefined}>
-                        <td className="relative px-7 sm:w-12 sm:px-6" >
-                          {selectedPeople.includes(person) && (
-                            <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
-                          )}
-                          <input
-                            type="checkbox"
-                            className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                            value={person.email}
-                            checked={selectedPeople.includes(person)}
-                            onChange={(e) =>
-                              setSelectedPeople(
-                                e.target.checked
-                                  ? [...selectedPeople, person]
-                                  : selectedPeople.filter((p) => p !== person),
-                              )
-                            }
-                          />
-                        </td>
-                       
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Unit 1</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Class 2</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">A</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">22-10-2024 - 26-10-2024</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">5</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#' onClick={() => setOpen2(true)}>View</a></td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#' onClick={() => setOpen2(true)}>View</a></td>
-
-                        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                          <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                              <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                                <span className="sr-only">Open options</span>
-                                <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
-                              </MenuButton>
-                            </div>
-
-                            <MenuItems
-                              transition
-                              className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                            >
-                              <div className="py-1">
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Edit
-                                  </a>
-                                </MenuItem>
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Delete
-                                  </a>
-                                </MenuItem>
-                                
-                                
-                              </div>
-                            </MenuItems>
-                          </Menu>
-                        </td>
-                      </tr>
-                      
-                    ))}
-                    {people.map((person) => (
-                      <tr key={person.email} className={selectedPeople.includes(person) ? 'bg-gray-50' : undefined}>
-                        <td className="relative px-7 sm:w-12 sm:px-6" >
-                          {selectedPeople.includes(person) && (
-                            <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
-                          )}
-                          <input
-                            type="checkbox"
-                            className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                            value={person.email}
-                            checked={selectedPeople.includes(person)}
-                            onChange={(e) =>
-                              setSelectedPeople(
-                                e.target.checked
-                                  ? [...selectedPeople, person]
-                                  : selectedPeople.filter((p) => p !== person),
-                              )
-                            }
-                          />
-                        </td>
-                       
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Unit 1</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Class 3</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">A</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">22-10-2024 - 26-10-2024</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">5</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#' onClick={() => setOpen2(true)}>View</a></td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#' onClick={() => setOpen2(true)}>View</a></td>
-
-                        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                          <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                              <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                                <span className="sr-only">Open options</span>
-                                <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
-                              </MenuButton>
-                            </div>
-
-                            <MenuItems
-                              transition
-                              className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                            >
-                              <div className="py-1">
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Edit
-                                  </a>
-                                </MenuItem>
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Delete
-                                  </a>
-                                </MenuItem>
-                                
-                                
-                              </div>
-                            </MenuItems>
-                          </Menu>
-                        </td>
-                      </tr>
-                      
-                    ))}
+                    
 
 
                    
@@ -826,258 +659,7 @@ export default function ManageExams() {
     </Dialog>
 
     <Dialog open={open2} onClose={setOpen2} className="relative z-50">
-      <div className="fixed inset-0" />
-
-      <div className="fixed inset-0 overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-            <DialogPanel
-              transition
-              className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
-            >
-              <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
-                <div className="flex min-h-0 flex-1 flex-col">
-                  <div className="bg-purple-900 px-3 py-3 sm:px-6">
-                    <div className="flex items-start justify-between">
-                      <DialogTitle className=" text-base font-semibold text-white">View Exams Info</DialogTitle>
-                      <div className="ml-3 flex h-7 items-center">
-                        <button
-                          type="button"
-                          onClick={() => setOpen2(false)}
-                          className="relative rounded-md text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        >
-                          <span className="absolute -inset-2.5" />
-                          <span className="sr-only">Close panel</span>
-                          <XMarkIcon aria-hidden="true" className="size-6" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="relative flex-1 px-6 py-6 sm:px-6 overflow-y-auto">
-                    
-
-                    <div className='form-content'>
-                    
-                          <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
-                              
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white'>
-                                        <UserCircleIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="text-lg pl-4 font-medium text-gray-900">Class Details</div>
-                                  </div>
-                                </div>
-
-                                <div className="px-4 py-4 text-sm/6">
-                                  
-                                    <dl className="grid auto-cols-auto grid-cols-4 gap-4 w-full">
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Board</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">CBSE</dd>
-                                      </div>
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Class Category</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">KINDERGARTEN</dd>
-                                      </div>
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Class</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">Class 1</dd>
-                                      </div>
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Section</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">A</dd>
-                                      </div>
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Exam Name </dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">Unit 1</dd>
-                                      </div>
-                                      
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Exam Dates</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">22-10-2024 - 26-10-2024</dd>
-                                      </div>
-                                      
-                                      
-                                    </dl>
-                                  
-                                </div>
-                              </li>
-
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white'>
-                                        <UserCircleIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="text-lg pl-4 font-medium text-gray-900"> Exam Time Table</div>
-                                  </div>
-                                </div>
-
-                                <div className="px-4 py-4 text-sm/6">
-                                  
-                                <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
-                                  <thead className="bg-purple-100">
-                                    <tr>
-                                      
-                                      
-                                                                          
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Subject Name
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Exam Date
-                                        </a>
-                                      </th>
-                                                                          
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Exam Start and End Time
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Pass Marks
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Total Marks
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Syllabus
-                                        </a>
-                                      </th>
-                                     
-                                      
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-gray-200 bg-white">
-                                      <tr>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">English</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">22-10-2024</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 AM - 11:00 AM</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">35</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">100</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Chapter 1,2,3</td>
-                                      </tr>
-                                      <tr>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">Telugu</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">22-10-2024</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 AM - 11:00 AM</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">35</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">100</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Chapter 1,2,3</td>
-                                      </tr>
-                                      <tr>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">Social</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">22-10-2024</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 AM - 11:00 AM</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">35</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">100</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Chapter 1,2,3</td>
-                                      </tr>
-                                      
-                                      
-                                     
-                                      
-                                      
-                                      
-                                  
-                                    
-                                    
-                                  </tbody>
-                                </table>
-                                  
-                                </div>
-                              </li>
-
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white'>
-                                        <UserCircleIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="text-lg pl-4 font-medium text-gray-900">Hall Tickets</div>
-                                  </div>
-                                </div>
-
-                                <div className="px-4 py-4 text-sm/6">
-                                  
-                                <ul role="list" className="grid grid-cols-4 gap-x-6 gap-y-8">
-                                    <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                      <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                        <div className='flex items-center item-title-blk'>
-                                            <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                              <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                            </div>
-                                            <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                              <span>Unit 1 - Class 1A</span>
-                                            </div>
-                                        </div>
-                                        <a href='#' className='text-gray-400'>
-                                          <EyeIcon aria-hidden="true" className="size-5" />
-                                        </a>
-                                      </div>
-                                    </li>
-                                   
-
-
-
-                                 </ul>     
-                                      
-                                      
-                                   
-                                  
-                                </div>
-                              </li>
-                              
-
-                          </ul>
-
-                    </div>
-
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center justify-between px-4 py-4 bg-gray-100">
-                 
-                      <div>
-                        <p className="text-sm text-gray-700">
-                          Showing <span className="font-medium">1</span> out of <span className="font-medium">122</span> results
-                        </p>
-                      </div>
-                      <div>
-                        <nav aria-label="Pagination" className="isolate inline-flex -space-x-px rounded-md shadow-sm">
-                          <a
-                            href="#"
-                            className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                          >
-                            <span className="sr-only">Previous</span>
-                            <ChevronLeftIcon aria-hidden="true" className="size-5" />
-                          </a>
-                          
-                          <a
-                            href="#"
-                            className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                          >
-                            <span className="sr-only">Next</span>
-                            <ChevronRightIcon aria-hidden="true" className="size-5" />
-                          </a>
-                        </nav>
-                      </div>
-                    
-                </div>
-              </div>
-            </DialogPanel>
-          </div>
-        </div>
-      </div>
+      {/* <ExamDetailsPage onClose2={handleClose2} /> */}
     </Dialog>                
 
    
@@ -1086,7 +668,6 @@ export default function ManageExams() {
     
   )
 }
-
 
 
 

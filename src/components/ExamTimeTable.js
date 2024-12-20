@@ -20,13 +20,13 @@ function ExamTimeTable({ values, setFieldValue }) {
         examDate: "",
         startTime: "",
         endTime: "",
-        passMarks: "",
-        totalMarks: "",
+        passMark: "",
+        totalMark: "",
         syllabus: "",
       });
     });
     console.log("comming data is:", res.data);
-    setFieldValue("timetable", dumpList);
+    setFieldValue("timeTable", dumpList);
     setSubjects(res.data);
   };
 
@@ -103,53 +103,49 @@ function ExamTimeTable({ values, setFieldValue }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          <FieldArray name="timetable">
+          <FieldArray name="timeTable">
             {() =>
-              values.timetable.map((item, index) => (
+              values.timeTable.map((item, index) => (
                 <tr key={index}>
                   <td className="relative px-7 sm:w-12 sm:px-6">
                     {item.subject}
                   </td>
 
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    <CustomDate name={`timetable.${index}.examDate`} />
+                    <CustomDate name={`timeTable.${index}.examDate`} />
                   </td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     <CustomInput
                       id={item.startTime}
-                      name={`timetable.${index}.startTime`}
+                      name={`timeTable.${index}.startTime`}
                       type="time"
                     />
                   </td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     <CustomInput
-                      // id={item.endTime}
-                      // name={item.endTime}
-                      name={`timetable.${index}.endTime`}
+                      
+                      name={`timeTable.${index}.endTime`}
                       type="time"
                     />
                   </td>
 
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     <CustomInput
-                      // name={item.passMarks}
-                      name={`timetable.${index}.passMarks`}
+                      name={`timeTable.${index}.passMark`}
                       placeholder="Pass Marks"
                     />
                   </td>
 
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     <CustomInput
-                      // name={item.totalMarks}
-                      name={`timetable.${index}.totalMarks`}
+                      name={`timeTable.${index}.totalMark`}
                       placeholder="Total Marks"
                     />
                   </td>
 
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     <CustomInput
-                      // name={item.syllabus}
-                      name={`timetable.${index}.syllabus`}
+                      name={`timeTable.${index}.syllabus`}
                       placeholder="Syllabus"
                     />
                   </td>

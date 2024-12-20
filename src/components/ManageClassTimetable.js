@@ -6,10 +6,16 @@ import { SUBJECTS } from "../app/url";
 import { getData } from "../app/api";
 import CustomInput from "../commonComponent/CustomInput";
 import { FieldArray } from "formik";
+import { teacher } from "../commonComponent/CommonFunctions";
 
 
 
 function ManageClassTimetable({ values, setFieldValue }) {
+
+  const [subjects, setSubjects] = useState();
+
+  console.log("values are :",values);
+  
   const daysOfWeek = [
     "monday",
     "tuesday",
@@ -18,10 +24,16 @@ function ManageClassTimetable({ values, setFieldValue }) {
     "friday",
     "saturday",
   ];
-  const [subjects, setSubjects] = useState();
 
   useEffect(() => {
     getSubjects();
+    setFieldValue("timetable",[
+      {
+        period: 1,
+        time: "",
+        days: daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: { subject: "", teacher: "" } }), {}),
+      },
+    ])
   }, []);
 
   const getSubjects = async () => {
@@ -36,41 +48,37 @@ function ManageClassTimetable({ values, setFieldValue }) {
     });
     setSubjects(subData);
   };
+  
   const [rows, setRows] = useState([
     {
       period: 1,
       time: "",
-      monday: { subject: "", teacher: "" },
-      tuesday: { subject: "", teacher: "" },
-      wednesday: { subject: "", teacher: "" },
-      thursday: { subject: "", teacher: "" },
-      friday: { subject: "", teacher: "" },
-      saturday: { subject: "", teacher: "" },
+      days: daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: { subject: "", teacher: "" } }), {}),
     },
   ]);
 
+  
+
 
   // Add a new row for a new period
+
   const addRow = () => {
-    setRows([
-      ...rows,
+    let dummyList = [...rows,
       {
         period: rows.length + 1,
         time: "",
-        days: daysOfWeek.reduce(
-          (acc, day) => ({
-            ...acc,
-            [day]: { subject: "", teacher: "" },
-          }),
-          {}
-        ),
-      },
-    ]);
+        days: daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: { subject: "", teacher: "" } }), {}),
+      },]
+    setRows(dummyList);
+    setFieldValue("timetable",dummyList)
   };
+
 
   const removeRow = (index) => {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
+    setFieldValue("timetable",updatedRows)
+
   };
   
 
@@ -95,7 +103,7 @@ function ManageClassTimetable({ values, setFieldValue }) {
 
             <th
               scope="col"
-              className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
+              className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900"
             >
               <a href="#" className="group inline-flex">
                 Period Time
@@ -123,27 +131,29 @@ function ManageClassTimetable({ values, setFieldValue }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-          {rows.map((row, index) => (
+        <FieldArray name="timetable">
+        {() =>
+          values.timetable.map((item, index) => (
             <tr key={index}>
-              <td className="relative px-7 sm:w-12 sm:px-6">{row.period}</td>
+              <td className="relative px-7 sm:w-12 sm:px-6">{item.period}</td>
 
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                 <CustomInput
                       // name={item.passMarks}
-                      name={`time-${index}`}
+                      name={`timetable.${index}.time`}
                       placeholder="9:00-10:00 "
                       
                     />
               </td>
               {daysOfWeek.map((day) => (
               <td key={day} className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomSelect name={`subject-${day}-${index}`}  options={subjects} />
+                <CustomSelect  name={`timetable.${index}.days.${day}.subject`}  options={subjects} />
 
-                <CustomSelect name={`teacher-${day}-${index}`} options={subjects} />
+                <CustomSelect name={`timetable.${index}.days.${day}.teacher`} options={teacher} />
               </td>
               ))}
               
-              {row.period !== 1 && (
+              {item.period !== 1 && (
                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                   <button onClick={() => removeRow(index)}>
                     <XMarkIcon
@@ -154,7 +164,9 @@ function ManageClassTimetable({ values, setFieldValue }) {
                 </td>
               )}
             </tr>
-          ))}
+          ))
+        }
+      </FieldArray>
         </tbody>
       </table>
 
