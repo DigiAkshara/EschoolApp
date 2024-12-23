@@ -659,7 +659,7 @@ const handleViewDetails = (exam) => {
     </Dialog>
 
     <Dialog open={open2} onClose={setOpen2} className="relative z-50">
-      {/* <ExamDetailsPage onClose2={handleClose2} /> */}
+      <ExamDetailsPage onClose2={handleClose2} />
     </Dialog>                
 
    

@@ -7,14 +7,33 @@ import CustomSelect from "../commonComponent/CustomSelect";
 import ManageClassTimetable from "./ManageClassTimetable";
 import ManageClassSyllabus from "./ManageClassSyllabus";
 import { getData, postData } from "../app/api";
-import { CLASS, SUBJECTS } from "../app/url";
+import { CLASS, CLASSES, SUBJECTS } from "../app/url";
 import { board, classCategory } from "../commonComponent/CommonFunctions";
 import CustomInput from "../commonComponent/CustomInput";
 import { useNavigate } from "react-router-dom";
 
 function ManageClass({ onClose }) {
   const [subjects, setSubjects] = useState()
+  const [classData, setClassData] = useState()
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    getClass();
+  }, []);
+
+  const getClass = async () => {
+    const res = await getData(CLASSES);
+    console.log("comming class data is:", res.data);
+
+    const classData = res.data.data.map((item) => {
+      return {
+        label: item.name, // Displayed text in the dropdown
+        value: item._id,
+      };
+    });
+    setClassData(classData);
+  };
 
   
   const getInitialValues = () => {
@@ -212,7 +231,7 @@ function ManageClass({ onClose }) {
                                 <CustomSelect
                                   label="Class"
                                   name="class"
-                                  options={classOptions}
+                                  options={classData}
                                   required
                                 />
                               </div>

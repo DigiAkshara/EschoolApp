@@ -488,66 +488,18 @@ function ManageFeeCollection() {
                         </div>
                         </a>
                       </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">12345678</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">1</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">A</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9123456789</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">1-A</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">100000</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">50000</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Pending</td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">10-01-2018</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">543333445566</td>
-                        
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9123456789</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"><button type="button"
+                  className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600">Send</button></td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"><button type="button"
+                  className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600">Collect Fees</button></td>
 
-                        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                          <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                              <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                                <span className="sr-only">Open options</span>
-                                <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
-                              </MenuButton>
-                            </div>
-
-                            <MenuItems
-                              transition
-                              className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                            >
-                              <div className="py-1">
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Edit
-                                  </a>
-                                </MenuItem>
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Delete
-                                  </a>
-                                </MenuItem>
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                  Promote
-                                  </a>
-                                </MenuItem>
-                                <form action="#" method="POST">
-                                  <MenuItem>
-                                    <button
-                                      type="submit"
-                                      className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                    >
-                                      Exit
-                                    </button>
-                                  </MenuItem>
-                                </form>
-                              </div>
-                            </MenuItems>
-                          </Menu>
-                        </td>
+                     
                       </tr>
                     ))}
                     
