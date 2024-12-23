@@ -31,7 +31,7 @@ function StudentAcademicDetails({values, setFieldValue}) {
           'Content-Type': 'multipart/form-data',
         }});
         if (response.status === 200 || response.status === 201) {
-          setFieldValue(e.target.name, response.data?.Location);
+          setFieldValue(e.target.name, response.data);
         } else {
           alert(response.message);
         }

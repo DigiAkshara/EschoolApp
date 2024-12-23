@@ -83,10 +83,10 @@ function StudentFeeDetails({ values, setFieldValue }) {
             <thead className="bg-purple-100">
               <tr>
                 <th scope="col" className="relative px-7 sm:w-12 sm:px-6">
-                  <input
+                  <CustomCheckBox
                     type="checkbox"
                     className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                    checked={checked}
+                    name="selectAll"
                     // onChange={toggleAll}
                   />
                 </th>

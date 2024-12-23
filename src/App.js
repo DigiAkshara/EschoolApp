@@ -36,11 +36,11 @@ function App() {
       <div>
       {/* <Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} /> */}
       {user&&<Sidebar sidebarOpen={sidebarOpen} updateSideBar={(val)=>{setSidebarOpen(val)}} />}
-      <div className="lg:pl-72">
+      <div className={user?"lg:pl-72":""}>
         {user && <Header updateSideBar={(val)=>{setSidebarOpen(val)}} /> }
         {/* <Header updateSideBar={(val)=>{setSidebarOpen(val)}} /> */}
           <main className="">
-            <div className="px-4 sm:px-4 lg:px-6">
+            <div className={user?"px-4 sm:px-4 lg:px-6":""}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />

@@ -117,8 +117,8 @@ function Student({ onClose }) {
         .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
         .required("Aadhar number is required"),
       DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
-      aadharPic: Yup.string().required("Aadhar card file is required"),
-      parentIdProof: Yup.string().required("Parent ID proof is required"),
+      aadharPic: Yup.object().required("Aadhar card file is required"),
+      parentIdProof: Yup.object().required("Parent ID proof is required"),
     }),
     Yup.object({
       acadamicDetails: Yup.object({
@@ -133,7 +133,7 @@ function Student({ onClose }) {
         yearOfStudy: Yup.string(),
         totalMarks: Yup.number(),
         classStudied: Yup.string(),
-        studyProof: Yup.string(),
+        studyProof: Yup.object(),
       })
     }),
     Yup.object({

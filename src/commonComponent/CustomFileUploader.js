@@ -4,7 +4,7 @@ import { useState } from "react";
 export default function CustomFileUploader(props) {
   const { name, label, required = false, isProfile = false, onChange } = props;
   const [preview, setPreview] = useState("/LoginImage.jpg");
-
+  // console.log(props)
   return (
     <>
       <label
@@ -15,6 +15,7 @@ export default function CustomFileUploader(props) {
       </label>
       <Field name={name}>
         {({ field, meta, form: { setFieldValue } }) => {
+          console.log(field)
           return (
             <>
             {isProfile ? (
@@ -27,7 +28,7 @@ export default function CustomFileUploader(props) {
               <div className="mt-2 flex items-center gap-x-3">
                 <img
                   alt=""
-                  src={preview}
+                  src={field.value?.Location||preview}
                   className="w-12 h-12 object-cover rounded-full"
                 />
 
@@ -42,7 +43,7 @@ export default function CustomFileUploader(props) {
                      name={name}
                      type="file"
                      className="sr-only"
-                     accept=".jpg,.jpeg,.png,.pdf"
+                     accept=".jpg,.jpeg,.png"
                      onChange={onChange}
                   />
                 </label>
@@ -54,8 +55,8 @@ export default function CustomFileUploader(props) {
                   <div className="flex items-center">
                     <PhotoIcon
                       aria-hidden="true"
-                      className="mx-auto size-12 text-gray-300"
-                    />
+                      className="mx-auto size-12 text-gray-300">
+                    </PhotoIcon>
                     <div className="ml-4">
                       <div className="flex text-sm/6 text-gray-600">
                         <label
@@ -68,7 +69,7 @@ export default function CustomFileUploader(props) {
                             name={name}
                             type="file"
                             className="sr-only"
-                            accept=".jpg,.jpeg,.png,.pdf"
+                            accept=".jpg,.jpeg,.png"
                             onChange={onChange}
                           />
                         </label>
@@ -84,7 +85,7 @@ export default function CustomFileUploader(props) {
             )}
               
               {field.value && (
-                <div className="text-sm text-gray-700 mt-2">{field.value.name}</div>
+                <div className="text-sm text-gray-700 mt-2">{field.value.key}</div>
               )}
             </>
           );

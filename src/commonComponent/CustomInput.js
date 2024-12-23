@@ -2,7 +2,7 @@ import { ErrorMessage, Field } from "formik";
 
 export default function CustomInput(props) {
   const { value = "",name, placeholder, type, label, icon: Icon, required = false, disabled = false} = props
-
+  const cls = `block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6 ${Icon ? "pl-10" : ""}`
   return (
     <div>
       <label htmlFor={name} className="block text-sm/6 font-regular text-gray-900">
@@ -19,7 +19,7 @@ export default function CustomInput(props) {
           type={type ? type : "text"}
           placeholder={placeholder}
           disabled={disabled}
-          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
+          className={cls}
         />
       </div>
       <ErrorMessage name={name} component="div" className="text-red-500" />

@@ -2,8 +2,10 @@ import { ErrorMessage, Field } from "formik";
 
 export default function CustomSelect(props) {
   const { label, icon: Icon, name, options = [], required = false } = props;
+  const cls = `mt-2 block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-purple-600 sm:text-sm/6 ${Icon ? "pl-10" : "pl-3"}`
+  
   return (
-    <>
+    <div>
       <label
         htmlFor={name}
         className="block text-sm/6 font-regular text-gray-900"
@@ -22,7 +24,7 @@ export default function CustomSelect(props) {
           required={false}
           as="select"
           name={name}
-          className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+          className={cls}
         >
           <option value="">Select {label}</option>
           {options.map((option, index) => (
@@ -33,6 +35,6 @@ export default function CustomSelect(props) {
         </Field>
       </div>
       <ErrorMessage name={name} component="div" className="text-red-500" />
-    </>
+    </div>
   );
 }
