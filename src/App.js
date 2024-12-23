@@ -6,7 +6,7 @@ import Login from "./components/Login";
 import Header from './components/Header';
 import { useSelector } from 'react-redux';
 import ManageStudents from './components/ManageStudents';
-import Finance from './components/Finance';
+import Finance from './components/ManageFeesStructure';
 import Academics from './components/Academics';
 import ManageStaff from './components/ManageStaff';
 import ManageAttendance from './components/ManageAttendance';
@@ -16,6 +16,8 @@ import { jwtDecode } from 'jwt-decode';
 import ProtectedRoute from './commonComponent/ProtectedRoutes';
 import ManageExams from './components/ManageExams';
 import Class from './components/Class';
+import FeesOverview from './components/ManageFeesOverview';
+import ManageFinance from './components/ManageFinance';
 
 
 function App() {
@@ -43,13 +45,15 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/students" element={<ProtectedRoute><ManageStudents /></ProtectedRoute>} />
-                <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+                {/* <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} /> */}
                 <Route path="/academics" element={<ProtectedRoute><Academics /></ProtectedRoute>} />
                 <Route path="/staff" element={<ProtectedRoute><ManageStaff /></ProtectedRoute>} />
                 <Route path="/attendance" element={<ProtectedRoute><ManageAttendance /></ProtectedRoute>} />
                 
                 <Route path="/academics-class" element={<ProtectedRoute><Class /></ProtectedRoute>} />
                 <Route path="/academics-exams" element={<ProtectedRoute><ManageExams /></ProtectedRoute>} />
+                <Route path="/finance" element={<ProtectedRoute><ManageFinance /></ProtectedRoute>} />
+
                 
 
 
