@@ -11,7 +11,10 @@ import { ArrowsUpDownIcon } from '@heroicons/react/24/outline'
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
 import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { PhoneIcon } from '@heroicons/react/24/outline'
+import Staff from './Staff'
+import FinanceCollectFees from './FinanceCollectFees'
 
 
 function classNames(...classes) {
@@ -52,6 +55,8 @@ function ManageFeeCollection() {
 
     const [selectedPeople, setSelectedPeople] = useState([])
     const [open, setOpen] = useState(false)
+    const [openN, setOpenN] = useState(false)
+
     const checkbox = useRef()
     const [checked, setChecked] = useState(false)
     const [indeterminate, setIndeterminate] = useState(false)
@@ -61,6 +66,9 @@ function ManageFeeCollection() {
         setChecked(!checked && !indeterminate)
         setIndeterminate(false)
       }
+
+      const handleOpen = () => setOpenN(true);
+      const handleClose = () => setOpenN(false);
 
 
   return (
@@ -496,7 +504,7 @@ function ManageFeeCollection() {
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9123456789</td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"><button type="button"
                   className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600">Send</button></td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"><button type="button"
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"><button type="button" onClick={handleOpen}
                   className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600">Collect Fees</button></td>
 
                      
@@ -639,6 +647,11 @@ function ManageFeeCollection() {
               </div>
             </div>
           </div>
+          <Dialog open={openN} onClose={setOpenN} className="relative z-50">
+      <div className="fixed inset-0" />
+
+                    <FinanceCollectFees onClose={handleClose} />
+    </Dialog>
         </div>
 
         
