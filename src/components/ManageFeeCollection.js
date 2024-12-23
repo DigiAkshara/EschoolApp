@@ -152,7 +152,7 @@ function ManageFeeCollection() {
                 
                 <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                  
-                    <div>
+                    <div className="flex items-center gap-4">
                       <div className="relative rounded-md  inline-block  ">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                           <MagnifyingGlassIcon aria-hidden="true" className="size-4 text-gray-400" />
