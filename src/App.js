@@ -54,9 +54,6 @@ function App() {
                 <Route path="/academics-exams" element={<ProtectedRoute><ManageExams /></ProtectedRoute>} />
                 <Route path="/finance" element={<ProtectedRoute><ManageFinance /></ProtectedRoute>} />
 
-                
-
-
               </Routes>
             </div>
           </main>
