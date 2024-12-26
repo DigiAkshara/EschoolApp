@@ -21,6 +21,8 @@ import { STUDENT } from "../app/url";
 import TableComponent from "../commonComponent/TableComponent";
 import { getData } from "../app/api";
 import { gender } from "../commonComponent/CommonFunctions";
+import { useDispatch, useSelector } from "react-redux";
+import { selectStudent, setStudents } from "../app/reducers/studentSlice";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -37,60 +39,124 @@ const tabs2 = [
 ];
 
 export default function ManageStudents() {
+  const dispatch = useDispatch();
+  const {students} = useSelector((state) => state.students);
   const [studentList, setStudentList] = useState([]);
-  const [open, setOpen] = useState(false);
-  console.log(open, "sample text");
+  const [open, setOpen] = useState(false); 
 
   const checkbox = useRef();
   const [checked, setChecked] = useState(false);
   const [indeterminate, setIndeterminate] = useState(false);
   const [selectedPeople, setSelectedPeople] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
   useEffect(() => {
     getStudents();
   }, []);
 
-  const labels = [
-    { name: "Student Name", key: "name" },
-    { name: "Admission Number", key: "admissionNo" },
-    { name: "Class", key: "class" },
-    { name: "Section", key: "section" },
-    { name: "Phone Number", key: "phoneNumber" },
-    { name: "DOB", key: "date" },
-    { name: "Aadhar No", key: "aadharNo" },
-    { name: "Gender", key: "gender" },
-    { name: "Actions", key: "actions" },
+  const columns = [
+    { title: "Student Name", key: "name" },
+    { title: "Admission Number", key: "admissionNo" },
+    { title: "Class", key: "class" },
+    { title: "Section", key: "section" },
+    { title: "Phone Number", key: "phoneNumber" },
+    { title: "DOB", key: "date" },
+    { title: "Aadhar No", key: "aadharNo" },
+    { title: "Gender", key: "gender" },
+    { title: "Actions", key: "actions" },
   ];
 
   const getStudents = async () => {
-    const res = await getData(STUDENT);
-    const studentData = res.data.data.map((item) => {
-      return {
-        _id: item._id,
-        pic: item.profilePic,
-        name: item.firstName + " " + item.lastName,
-        admissionNo: item.admissionNumber,
-        class: item.class,
-        section: item.section,
-        phoneNumber: item.fatherDetails.mobileNumber,
-        date: item.DOB,
-        aadharNo: item.aadharNumber,
-        gender: () => gender().find((i) => i.value === item.gender).label,
-        actions: ["Edit", "Delete", "Promote", "Exit"],
-      };
-    });
-    setStudentList(studentData);
+    try {
+      const res = await getData(STUDENT);
+      if (res.status === 200 || res.status === 201) {
+        dispatch(setStudents(res.data.data));
+        const studentData = res.data.data.map((item) => {
+          return {
+            _id: item._id,
+            pic: item.profilePic?.Location,
+            name: item.firstName + " " + item.lastName,
+            admissionNo: item.admissionNumber,
+            class: item.class,
+            section: item.section,
+            phoneNumber: item.fatherDetails.mobileNumber,
+            date: item.DOB,
+            aadharNo: item.aadharNumber,
+            gender: gender.find((gender) => gender.value === item.gender).label,
+            actions: [{label:"Edit", actionHandler:onHandleEdit}, {label:"Delete", actionHandler:onDelete}],
+          };
+        });
+        setStudentList(studentData);
+        setFilteredData(studentData);
+      } else {
+        throw new Error(res.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  // useLayoutEffect(() => {
-  //   const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < people.length
-  //   setChecked(selectedPeople.length === people.length)
-  //   // setIndeterminate(isIndeterminate)
-  //   // checkbox.current.indeterminate = isIndeterminate
-  // }, [selectedPeople])
+  const onHandleEdit = (Id) => {
+    const data = students.find((item) => item._id === Id);
+    dispatch(selectStudent(data));
+    handleOpen()
+  };
+ 
+  const onDelete = () => {console.log("delete")};
+  const onPromote = () => {console.log("promote")};
+  const onExit = () => {console.log("exit")};  
+ 
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+ 
+
+  const filters = [
+    {
+      key: 'age',
+      label: 'Age Filter',
+      options: [
+        { value: '20-30', label: '20-30' },
+        { value: '30-40', label: '30-40' },
+      ],
+    },
+  ];
+
+  const handleSearch = (term) => {
+    const filtered = studentList.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key])
+          .toLowerCase().includes(term.toLowerCase())
+    ));
+    setFilteredData(filtered);
+  };
+
+  const handleFilter = (key, value) => {
+    let filtered = studentList;
+    if (key === 'age'&& value) {
+      const [min, max] = value.split('-');
+      filtered = studentList.filter(
+        (item) => item.age >= parseInt(min) && item.age <= parseInt(max)
+      );
+    }
+    setFilteredData(filtered);
+  };
+
+  const handleAction = {
+    edit: (item) => console.log('Edit:', item),
+    delete: (item) => console.log('Delete:', item),
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   return (
     <div className="flow-root">
@@ -205,7 +271,7 @@ export default function ManageStudents() {
       <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
-            {selectedPeople.length > 0 && (
+            {/* {selectedPeople.length > 0 && (
               <div className="absolute left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
                 <button
                   type="button"
@@ -226,13 +292,24 @@ export default function ManageStudents() {
                   Delete
                 </button>
               </div>
-            )}
+            )} */}
             <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
-              
-
               <div className="table-container-main overflow-y-auto max-h-[56vh]">
                 {/* Table View */}
-                <TableComponent labels={labels} studentList={studentList} />
+                <TableComponent columns={columns}
+        data={paginatedData}
+        filters={filters}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        onAction={[
+          { label: 'Edit', handler: handleAction.edit },
+          { label: 'Delete', handler: handleAction.delete },
+        ]}
+        pagination={{
+          currentPage,
+          totalPages: Math.ceil(filteredData.length / rowsPerPage),
+          onPageChange: handlePageChange,
+        }} />
 
                 {/* Cards View */}
                 {/* <div className='cards-view-blk px-4 py-4 hidden'>

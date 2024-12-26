@@ -1,6 +1,4 @@
-import { UserCircleIcon } from "@heroicons/react/24/solid";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomFileUploader from "../commonComponent/CustomFileUploader";
 import CustomInput from "../commonComponent/CustomInput";

@@ -9,8 +9,10 @@ import BasicInfo from "./StudentBasicInfo";
 import FeeDetailsTab from "./StudentFeeDetails";
 import { postData } from "../app/api";
 import { STUDENT } from "../app/url";
+import { useSelector } from "react-redux";
 
 function Student({ onClose }) {
+  const {selectedStudent} = useSelector(state => state.students) 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     profilePic: null,
@@ -66,6 +68,7 @@ function Student({ onClose }) {
       studyProof: null,
     },
     feesData: [],
+    ...(selectedStudent&&selectedStudent),
   });
 
   // Validation schemas for each step

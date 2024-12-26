@@ -2,7 +2,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ListBulletIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { ArrowDownTrayIcon, FunnelIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 
-const FilterComponent = ({ setSearch }) => {
+const FilterComponent = ({ onSearch }) => {
   return (
     <div className="relative table-tool-bar z-30">
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
@@ -19,7 +19,7 @@ const FilterComponent = ({ setSearch }) => {
                 name="search"
                 type="text"
                 placeholder="Search"
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={onSearch}
                 className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
               />
             </div>

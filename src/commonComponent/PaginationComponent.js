@@ -1,6 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 
-const PaginationComponent = ({ currentPage, totalPages, pageSize, setCurrentPage }) => {
+const PaginationComponent = ({ currentPage, totalPages, pageSize, onPageChange }) => {
   return (
     <>
       <div className="pagination">
@@ -49,7 +49,7 @@ const PaginationComponent = ({ currentPage, totalPages, pageSize, setCurrentPage
                       page === currentPage
                         ? "bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
                         : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0"} px-4 py-2 text-sm font-semibold`}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => onPageChange(page)}
                   >
                     {page}
                   </a>
@@ -57,7 +57,7 @@ const PaginationComponent = ({ currentPage, totalPages, pageSize, setCurrentPage
                 <a
                   href="#"
                   className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                  disabled={currentPage === totalPages} onClick={() => setCurrentPage(currentPage + 1)} >
+                  disabled={currentPage === totalPages} onClick={() => onPageChange(currentPage + 1)} >
                   <span className="sr-only">Next</span>
                   <ChevronRightIcon aria-hidden="true" className="size-5" />
                 </a>

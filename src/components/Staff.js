@@ -20,23 +20,30 @@ function Staff({ onClose }) {
       lastName: "",
       empId: "",
       DOJ: null,
+      mobileNumber: "",
       workEmail: "",
       designation: "",
       subjects: "",
       fileUpload:"",
+      DOB: "",
       email:"",
       guardian:"",
       gender:"",
-      area:"",
-      city:"",
-      state:"",
-      pincode:"",
-      permanentArea:"",
-      permanentCity:"",
-      permanentState:"",
-      permanentPincode:"",
-      aadhar:"",
-      panNo:"",
+      presentAddress:{
+        area:"",
+        city:"",
+        state:"",
+        pincode:""
+      },
+      isSameAsPresent: false,
+      permanentAddress:{
+        area:"",
+        city:"",
+        state:"",
+        pincode:""
+      },
+      aadharNumber:"",
+      panNumber:"",
       aadharPic:"",
       panCardPic:"",
       accountNumber:"",
@@ -69,72 +76,53 @@ function Staff({ onClose }) {
       subjects: Yup.string().required("Subjects is required"),
       DOJ: Yup.date()
         .nullable()
-        .required("Date of Joining is required"), 
-     
+        .required("Date of Joining is required"),
+      mobileNumber: Yup.string().required("Mobile Number is required"),     
     }),
     Yup.object({
-      profilePic: Yup.mixed()
-      .required("Aadhar card file is required")
-      .test("fileSize", "File size too large", (value) => {
-        return value && value.size <= 10485760; // Max 10 MB
-      })
-      .test("fileType", "Invalid file type", (value) => {
-        return (
-          value &&
-          ["image/jpeg", "image/png", "application/pdf"].includes(value.type)
-        );
-      }),
+      profilePic: Yup.object().required("Aadhar card file is required"),
       email:Yup.string().required("Email is required").email("Enter a valid email address"),
       guardian:Yup.string().required(" Guardian is required"),
       gender:Yup.string().required("Gender is required"),
-      area:Yup.string().required("Area is required"),
-      city:Yup.string().required(" City is required"),
-      state:Yup.string().required("Sate is required"),
-      pincode:Yup.string().required(" pincode is required"),
-      permanentArea:Yup.string().required("Permanen tArea  is required"),
-      permanentCity:Yup.string().required("Permanent City is required"),
-      permanentState:Yup.string().required("Permanent State is required"),
-      permanentPincode:Yup.string().required("Permanent Pincode is required"),
-      aadhar:Yup.string()
+      DOB: Yup.date().nullable().required("Date of Birth is required"),
+      presentAddress: Yup.object({
+        area:Yup.string().required("Area is required"),
+        city:Yup.string().required(" City is required"),
+        state:Yup.string().required("Sate is required"),
+        pincode:Yup.string().required(" pincode is required"),
+      }),
+      permanentAddress: Yup.object({
+        area:Yup.string().required("Area is required"),
+        city:Yup.string().required(" City is required"),
+        state:Yup.string().required("Sate is required"),
+        pincode:Yup.string().required(" pincode is required"),
+      }),
+      aadharNumber:Yup.string()
       .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
       .required("Aadhar number is required"),
-      panNo:Yup.string().required("Pan number is required"),
-      aadharPic: Yup.mixed()
-      .required("Aadhar card file is required")
-      .test("fileSize", "File size too large", (value) => {
-        return value && value.size <= 10485760; // Max 10 MB
-      })
-      .test("fileType", "Invalid file type", (value) => {
-        return (
-          value &&
-          ["image/jpeg", "image/png", "application/pdf"].includes(value.type)
-        );
-      }),
-      panCardPic: Yup.mixed()
-      .required("Pan card file is required")
-      .test("fileSize", "File size too large", (value) => {
-        return value && value.size <= 10485760; // Max 10 MB
-      })
-      .test("fileType", "Invalid file type", (value) => {
-        return (
-          value &&
-          ["image/jpeg", "image/png", "application/pdf"].includes(value.type)
-        );
-      }),
+      panNumber:Yup.string().required("Pan number is required"),
+      aadharPic: Yup.object().required("Aadhar card file is required"),
+      panCardPic: Yup.object().required("Pan card file is required"),
       
     }),
     Yup.object({
-      accountNumber:Yup.string().required("Account Number is required"),
-      reAccountNumber:Yup.string().required("Re-Account Number is required"),
-      ifscCode:Yup.string().required("Ifsc Code is required"),
-      bankName:Yup.string().required("Bank Name is required"),
-      passBookPic:Yup.string().required("Pass BookPic is required"),
-      payroll:Yup.string().required("Payroll is required"),
+      bankDetails: Yup.object({
+        accountNumber:Yup.string().required("Account Number is required"),
+        reAccountNumber:Yup.string()
+        .oneOf([Yup.ref('accountNumber'), null], 'accountNumbers must match')
+        .required('confirm accountNumber is required'),
+        ifscCode:Yup.string().required("Ifsc Code is required"),
+        bankName:Yup.string().required("Bank Name is required"),
+        passBookPic:Yup.object().required("Pass BookPic is required"),
+      }),
+      amount:Yup.string().required("Paackage amount is required"),
 
     }),
   ];
 
   const handleNext = (values) => {
+    alert("handle next")
+    console.log("handle next");
     setFormData((prev) => ({ ...prev, ...values }));
     setCurrentStep((prev) => prev + 1);
   };
@@ -145,6 +133,8 @@ function Staff({ onClose }) {
 
 
   const handleSubmit = async (values) => {
+    alert("handle submit")
+    console.log("Submit clicked");
     try {
       const finalData = { ...formData, ...values };
       console.log("Final Data: ", finalData);
@@ -163,9 +153,7 @@ function Staff({ onClose }) {
   };
 
   const stepContent = [
-    <StaffInfo key={1} />,
-    <StaffPersonalDetails key={2} />,
-    <StaffCTCDetails key={3} />,
+   1, 2, 3
   ];
 
   // const [open, setOpen] = useState(false);
@@ -180,8 +168,9 @@ function Staff({ onClose }) {
         validationSchema={validationSchemas[currentStep - 1]}
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
-        {({ values }) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
+            {console.log("Errors: ", errors)}
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
@@ -359,7 +348,9 @@ function Staff({ onClose }) {
                             </nav>
                           </div>
                           <div className="form-content mt-4">
-                            {stepContent[currentStep - 1]}
+                            {currentStep === 1 && <StaffInfo  />}
+                            {currentStep === 2 && <StaffPersonalDetails values={values} setFieldValue={setFieldValue} />}
+                            {currentStep === 3 && <StaffCTCDetails values={values} setFieldValue={setFieldValue} />}
                           </div>
                         </div>
                         <div className="flex shrink-0 justify-between px-4 py-4">

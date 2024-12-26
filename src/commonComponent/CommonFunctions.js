@@ -139,3 +139,34 @@ export const teacher = [
   { value: "teacher3", label: "Teacher 3" },
   { value: "teacher4", label: "Teacher 4" },
 ]
+
+export const banks = [
+  { value: "hdfc", label: "HDFC" },
+  { value: "indusind", label: "Indusind" },
+  { value: "sbi", label: "SBI" },
+  { value: "icici", label: "ICICI" },
+  { value: "axis", label: "AXIS" },
+  { value: "canara", label: "CANARA" },
+  { value: "kotak", label: "KOTAK" },
+  { value: "yesbank", label: "YESBANK" },
+  { value: "pnb", label: "PNB" },
+  { value: "unionbank", label: "UNIONBANK" },
+  { value: "other", label: "Other" },
+]
+
+export const designations = [
+  { value: "principal", label: "Principal" },
+  { value: "viceprincipal", label: "Vice Principal" },
+  { value: "teacher", label: "Teacher" },
+  { value: "librarian", label: "Librarian" },
+  { value: "accountant", label: "Accountant" },
+  { value: "secretary", label: "Secretary" },
+  { value: "manager", label: "Manager" },
+  { value: "clerk", label: "Clerk" },
+  { value: "cashier", label: "Cashier" },
+  { value: "driver", label: "Driver" },
+  { value: "labour", label: "Labour" },
+  { value: "cleaner", label: "Cleaner" },
+  { value: "cook", label: "Cook" },
+  { value: "other", label: "Other" },
+]
