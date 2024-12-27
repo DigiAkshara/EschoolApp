@@ -49,15 +49,12 @@ export default function Login() {
    
   
   useEffect(()=>{
-    checkSession();
-  },[])
-  
-  const checkSession = () => {
     const token  = localStorage.getItem("studentManagment");
     if(token){
       navigate("/");
     }
-  }
+  },[navigate])
+  
 
   return (
     <Formik
