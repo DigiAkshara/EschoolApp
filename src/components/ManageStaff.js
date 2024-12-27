@@ -1,37 +1,15 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { CheckCircleIcon } from "@heroicons/react/20/solid";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
-import { PlusIcon } from "@heroicons/react/20/solid";
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
-import { ListBulletIcon } from "@heroicons/react/20/solid";
-import { Squares2X2Icon } from "@heroicons/react/24/outline";
-import { FunnelIcon } from "@heroicons/react/24/outline";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
-import { ArrowsUpDownIcon } from "@heroicons/react/24/outline";
-import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { EnvelopeIcon } from "@heroicons/react/24/outline";
-import { PhoneIcon } from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { useEffect, useRef, useState } from "react";
 
-import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { LinkIcon, QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
-import { CheckIcon } from "@heroicons/react/20/solid";
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
-import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
+import { Dialog } from "@headlessui/react";
 
-import Datepicker from "react-tailwindcss-datepicker";
-import Staff from "./Staff";
 import { getData } from "../app/api";
 import { STAFF } from "../app/url";
-import TableComponent from "../commonComponent/TableComponent";
 import { designations } from "../commonComponent/CommonFunctions";
+import TableComponent from "../commonComponent/TableComponent";
+import Staff from "./Staff";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");

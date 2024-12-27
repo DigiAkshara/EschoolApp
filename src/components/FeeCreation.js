@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import CustomSelect from "../commonComponent/CustomSelect";
-import { FieldArray, Form, Formik, useFormik, Field } from "formik";
+import { FieldArray, Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomDate from "../commonComponent/CustomDate";
+import { getData, postData } from "../app/api";
+import { CLASSES, FEES } from "../app/url";
 import {
   applyFees,
   feeDiscount,
@@ -13,10 +12,11 @@ import {
   getAcademicYears,
   getFeeGroups,
 } from "../commonComponent/CommonFunctions";
-import CustomRadio from "../commonComponent/CustomRadio";
-import { CLASSES, FEES } from "../app/url";
-import { getData, postData } from "../app/api";
 import CustomCheckBox from "../commonComponent/CustomCheckBox";
+import CustomDate from "../commonComponent/CustomDate";
+import CustomInput from "../commonComponent/CustomInput";
+import CustomRadio from "../commonComponent/CustomRadio";
+import CustomSelect from "../commonComponent/CustomSelect";
 
 function FeeCreation({ onClose }) {
   const [feeDetails, setFeeDetails] = useState([]);

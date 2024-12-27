@@ -1,13 +1,11 @@
-import React, { useState } from "react";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomSelect from "../commonComponent/CustomSelect";
-import CustomDate from "../commonComponent/CustomDate";
-import CustomRadio from "../commonComponent/CustomRadio";
-import CustomFileUploader from "../commonComponent/CustomFileUploader";
+import React from "react";
 import { gender, states, uploadFile } from "../commonComponent/CommonFunctions";
-import { postData } from "../app/api";
-import { UPLOAD } from "../app/url";
 import CustomCheckBox from "../commonComponent/CustomCheckBox";
+import CustomDate from "../commonComponent/CustomDate";
+import CustomFileUploader from "../commonComponent/CustomFileUploader";
+import CustomInput from "../commonComponent/CustomInput";
+import CustomRadio from "../commonComponent/CustomRadio";
+import CustomSelect from "../commonComponent/CustomSelect";
 
 
 function StaffPersonalDetails({ values, setFieldValue }) {

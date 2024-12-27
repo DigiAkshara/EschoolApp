@@ -1,11 +1,9 @@
 'use client'
 import { DialogPanel, DialogTitle } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import {  UserCircleIcon } from '@heroicons/react/24/solid'
-import { DocumentArrowDownIcon} from '@heroicons/react/24/outline'
-import { EyeIcon} from '@heroicons/react/24/outline'
-import React, { PureComponent } from 'react';
-import { useSelector } from 'react-redux';
+import { DocumentArrowDownIcon, EyeIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { UserCircleIcon } from '@heroicons/react/24/solid'
+import React from 'react'
+import { useSelector } from 'react-redux'
 
 
 

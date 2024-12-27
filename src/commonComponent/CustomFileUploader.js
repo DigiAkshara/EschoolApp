@@ -14,8 +14,7 @@ export default function CustomFileUploader(props) {
         {label} {required && <span className="pl-1 text-red-500">*</span>}
       </label>
       <Field name={name}>
-        {({ field, meta, form: { setFieldValue } }) => {
-          console.log(field)
+        {({ field, form: { setFieldValue } }) => {
           return (
             <>
             {isProfile ? (

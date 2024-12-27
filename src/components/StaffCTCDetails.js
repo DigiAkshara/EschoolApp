@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomSelect from "../commonComponent/CustomSelect";
-import CustomFileUploader from "../commonComponent/CustomFileUploader";
+import React from "react";
 import { postData } from "../app/api";
 import { UPLOAD } from "../app/url";
 import { banks } from "../commonComponent/CommonFunctions";
+import CustomFileUploader from "../commonComponent/CustomFileUploader";
+import CustomInput from "../commonComponent/CustomInput";
+import CustomSelect from "../commonComponent/CustomSelect";
 
 function StaffCTCDetails({ values, setFieldValue }) {
 

@@ -1,9 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { setUser } from '../app/reducers/appConfigSlice';
-import { useDispatch } from "react-redux";
-import { jwtDecode } from "jwt-decode";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 function Home() {
   const {user} = useSelector((state) => state.appConfig); 
   const navigate = useNavigate();

@@ -1,10 +1,8 @@
-import React from "react";
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
-import { DocumentArrowDownIcon } from "@heroicons/react/24/outline";
-import { EyeIcon } from "@heroicons/react/24/outline";
+import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
+import { DocumentArrowDownIcon, EyeIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { UserCircleIcon } from "@heroicons/react/24/solid";
+import React from "react";
 import { useSelector } from "react-redux";
 
 

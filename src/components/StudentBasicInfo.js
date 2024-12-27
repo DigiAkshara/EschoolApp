@@ -1,13 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
+import { bloodGroup, caste, gender, nationality, occupation, religion, states, uploadFile } from "../commonComponent/CommonFunctions";
+import CustomCheckBox from "../commonComponent/CustomCheckBox";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomFileUploader from "../commonComponent/CustomFileUploader";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomRadio from "../commonComponent/CustomRadio";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { bloodGroup, caste, gender, nationality, occupation, religion, states, uploadFile } from "../commonComponent/CommonFunctions";
-import CustomCheckBox from "../commonComponent/CustomCheckBox";
-import { postData } from "../app/api";
-import { UPLOAD } from "../app/url";
 
 function BasicInfo({values, setFieldValue}) {
   const handlechecked = (e) => {

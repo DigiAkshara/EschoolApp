@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
-import CustomSelect from "../commonComponent/CustomSelect";
-import { SUBJECTS } from "../app/url";
-import { getData } from "../app/api";
-import CustomInput from "../commonComponent/CustomInput";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FieldArray } from "formik";
+import React, { useEffect, useState } from "react";
+import { getData } from "../app/api";
+import { SUBJECTS } from "../app/url";
 import { teacher } from "../commonComponent/CommonFunctions";
+import CustomInput from "../commonComponent/CustomInput";
+import CustomSelect from "../commonComponent/CustomSelect";
 
 
 

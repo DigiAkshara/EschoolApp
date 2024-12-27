@@ -1,20 +1,19 @@
 import {
-    Dialog,
-    DialogBackdrop,
-    DialogPanel,
-    TransitionChild
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  TransitionChild
 } from '@headlessui/react'
 import {
-    CalendarIcon,
-    ChartPieIcon,
-    Cog6ToothIcon,
-    DocumentDuplicateIcon,
-    FolderIcon,
-    HomeIcon,
-    UsersIcon,
-    XMarkIcon
+  CalendarIcon,
+  ChartPieIcon,
+  Cog6ToothIcon,
+  DocumentDuplicateIcon,
+  FolderIcon,
+  HomeIcon,
+  UsersIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline'
-import { useState } from 'react'
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: HomeIcon, current: true },

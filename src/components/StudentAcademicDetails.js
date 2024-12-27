@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomSelect from "../commonComponent/CustomSelect";
-import CustomDate from "../commonComponent/CustomDate";
-import CustomFileUploader from "../commonComponent/CustomFileUploader";
-import { getAcademicYears, sections } from "../commonComponent/CommonFunctions";
 import { getData, postData } from "../app/api";
 import { CLASSES, UPLOAD } from "../app/url";
+import { getAcademicYears, sections } from "../commonComponent/CommonFunctions";
+import CustomDate from "../commonComponent/CustomDate";
+import CustomFileUploader from "../commonComponent/CustomFileUploader";
+import CustomInput from "../commonComponent/CustomInput";
+import CustomSelect from "../commonComponent/CustomSelect";
 
 
 function StudentAcademicDetails({values, setFieldValue}) {

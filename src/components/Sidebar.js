@@ -7,14 +7,12 @@ import {
 import {
   CalendarIcon,
   ChartPieIcon,
-  Cog6ToothIcon,
   DocumentDuplicateIcon,
   FolderIcon,
   HomeIcon,
   UsersIcon,
-  XMarkIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const navigation = [

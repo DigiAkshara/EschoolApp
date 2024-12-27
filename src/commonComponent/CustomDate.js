@@ -1,8 +1,8 @@
-import { ErrorMessage, Field, useField, useFormikContext } from "formik";
+import { ErrorMessage, Field } from "formik";
 import Datepicker from "react-tailwindcss-datepicker";
 
 export default function CustomDate(props) {
-  const { name, placeholder, label, icon: Icon, required = false } = props;
+  const { name, label, icon: Icon, required = false } = props;
   const MAX_DATE = new Date();
   MAX_DATE.setDate(MAX_DATE.getDate() - 4);
   return (

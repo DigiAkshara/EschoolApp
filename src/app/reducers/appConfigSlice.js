@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-// import navData from "../../assets/json/permissions.json"
+
 const AppConfigSlice = createSlice({
   name: "AppConfig",
   initialState: {

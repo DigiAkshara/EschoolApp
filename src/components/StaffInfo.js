@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Datepicker from "react-tailwindcss-datepicker";
+import { getData } from "../app/api";
+import { SUBJECTS } from "../app/url";
+import { designations } from "../commonComponent/CommonFunctions";
+import CustomDate from "../commonComponent/CustomDate";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { useDispatch, useSelector } from "react-redux";
-import CustomDate from "../commonComponent/CustomDate";
-import { SUBJECTS } from "../app/url";
-import { getData } from "../app/api";
-import { designations } from "../commonComponent/CommonFunctions";
 
 function StaffInfo() {
   const [subjects, setSubjects] = useState();

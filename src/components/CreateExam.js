@@ -1,21 +1,19 @@
+import { DialogPanel, DialogTitle } from "@headlessui/react";
+import { IdentificationIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import Datepicker from "react-tailwindcss-datepicker";
-import { IdentificationIcon } from "@heroicons/react/24/outline";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import { board, classCategory } from "../commonComponent/CommonFunctions";
-import { useNavigate } from 'react-router-dom';
-import CustomSelect from "../commonComponent/CustomSelect";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomDate from "../commonComponent/CustomDate";
-import ExamTimeTable from "./ExamTimeTable";
-import { CLASSES, EXAM } from "../app/url";
 import { getData, postData } from "../app/api";
+import { CLASSES, EXAM } from "../app/url";
+import { board, classCategory } from "../commonComponent/CommonFunctions";
+import CustomDate from "../commonComponent/CustomDate";
+import CustomInput from "../commonComponent/CustomInput";
+import CustomSelect from "../commonComponent/CustomSelect";
+import ExamTimeTable from "./ExamTimeTable";
 
 function CreateExam({ onClose }) {
-  const [classData, setClassData] = useState()
+  const [classData, setClassData] = useState();
   const navigate = useNavigate();
 
   const getInitialValues = () => {
@@ -30,7 +28,6 @@ function CreateExam({ onClose }) {
       timeTable: [],
     };
   };
-
 
   const getValidationSchema = () => {
     return Yup.object({
@@ -73,16 +70,16 @@ function CreateExam({ onClose }) {
   };
 
   const handleSubmit = async (values) => {
-    console.log("Exam values:",values);
+    console.log("Exam values:", values);
     try {
       let response = await postData(EXAM, values);
       console.log("respose is:", response);
       if (response.status === 201) {
         console.log("Exam added successfully!");
-        navigate('/academics-exams')
+        navigate("/academics-exams");
         alert(response.statusText);
 
-        onClose()
+        onClose();
       } else {
         alert(response.message);
       }

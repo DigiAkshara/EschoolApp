@@ -3,14 +3,14 @@ import { CheckIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import * as Yup from "yup";
+import { postData } from "../app/api";
+import { clearFormData } from "../app/reducers/appConfigSlice";
+import { STAFF } from "../app/url";
+import StaffCTCDetails from "./StaffCTCDetails";
 import StaffInfo from "./StaffInfo";
 import StaffPersonalDetails from "./StaffPersonalDetails";
-import StaffCTCDetails from "./StaffCTCDetails";
-import { STAFF } from "../app/url";
-import { postData } from "../app/api";
-import { useDispatch } from "react-redux";
-import { clearFormData } from "../app/reducers/appConfigSlice";
 
 function Staff({ onClose }) {
   const dispatch= useDispatch()

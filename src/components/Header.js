@@ -15,14 +15,14 @@ const userNavigation = [
 ];
 
 function Header({ updateSideBar }) {
-  const {user, tenantId} = useSelector((state)=>state.appConfig)
+  const { user, tenantId } = useSelector((state) => state.appConfig);
   const navigate = useNavigate();
-  const dispatch = useDispatch()
-  const logOut = () =>{
-    localStorage.removeItem("studentManagment")
-    dispatch(clearSession())
-    navigate('/login');
-  }
+  const dispatch = useDispatch();
+  const logOut = () => {
+    localStorage.removeItem("studentManagment");
+    dispatch(clearSession());
+    navigate("/login");
+  };
   return (
     <>
       <div className="sticky top-0 z- flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -100,15 +100,13 @@ function Header({ updateSideBar }) {
                 className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
               >
                 <MenuItem>
-                  <span
-                    className="block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none cursor-pointer"
-                   >Your Profile
+                  <span className="block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none cursor-pointer">
+                    Your Profile
                   </span>
                 </MenuItem>
                 <MenuItem onClick={logOut}>
-                  <span
-                    className="block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none cursor-pointer"
-                  >Sign out
+                  <span className="block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none cursor-pointer">
+                    Sign out
                   </span>
                 </MenuItem>
               </MenuItems>

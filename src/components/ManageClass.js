@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
-import CustomSelect from "../commonComponent/CustomSelect";
-import ManageClassTimetable from "./ManageClassTimetable";
-import ManageClassSyllabus from "./ManageClassSyllabus";
 import { getData, postData } from "../app/api";
-import { CLASS, CLASSES, NEWCLASS, SUBJECTS } from "../app/url";
+import { CLASSES, NEWCLASS, SUBJECTS } from "../app/url";
 import { board, classCategory } from "../commonComponent/CommonFunctions";
 import CustomInput from "../commonComponent/CustomInput";
-import { useNavigate } from "react-router-dom";
+import CustomSelect from "../commonComponent/CustomSelect";
+import ManageClassSyllabus from "./ManageClassSyllabus";
+import ManageClassTimetable from "./ManageClassTimetable";
 
 function ManageClass({ onClose }) {
   const [subjects, setSubjects] = useState([]);

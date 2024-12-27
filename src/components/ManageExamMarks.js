@@ -1,18 +1,14 @@
+import { DialogPanel, DialogTitle } from "@headlessui/react";
+import { IdentificationIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import Datepicker from "react-tailwindcss-datepicker";
-import { IdentificationIcon } from "@heroicons/react/24/outline";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import { board, classCategory } from "../commonComponent/CommonFunctions";
 import { useNavigate } from 'react-router-dom';
-import CustomSelect from "../commonComponent/CustomSelect";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomDate from "../commonComponent/CustomDate";
-import ExamTimeTable from "./ExamTimeTable";
-import { CLASSES, EXAM } from "../app/url";
+import * as Yup from "yup";
 import { getData, postData } from "../app/api";
+import { CLASSES, EXAM } from "../app/url";
+import { board, classCategory } from "../commonComponent/CommonFunctions";
+import CustomInput from "../commonComponent/CustomInput";
+import CustomSelect from "../commonComponent/CustomSelect";
 import ManageAddMarks from "./ManageAddMarks";
 
 function ManageExamMarks({ onClose }) {

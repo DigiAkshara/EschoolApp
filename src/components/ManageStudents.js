@@ -1,28 +1,18 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import {
-  PlusIcon,
-  MagnifyingGlassIcon,
-  ArrowUpTrayIcon,
-  ListBulletIcon,
-} from "@heroicons/react/20/solid";
-import {
-  FunnelIcon,
-  ArrowDownTrayIcon,
-  PhoneIcon,
-  ChatBubbleBottomCenterTextIcon,
-  Squares2X2Icon,
-} from "@heroicons/react/24/outline";
 import { Dialog } from "@headlessui/react";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import Student from "./Student";
-import { STUDENT } from "../app/url";
-import TableComponent from "../commonComponent/TableComponent";
-import { getData } from "../app/api";
-import { gender } from "../commonComponent/CommonFunctions";
+import {
+  ArrowUpTrayIcon,
+  PlusIcon
+} from "@heroicons/react/20/solid";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getData } from "../app/api";
 import { selectStudent, setStudents } from "../app/reducers/studentSlice";
+import { STUDENT } from "../app/url";
+import { gender } from "../commonComponent/CommonFunctions";
+import TableComponent from "../commonComponent/TableComponent";
+import Student from "./Student";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");

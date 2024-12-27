@@ -1,47 +1,11 @@
 
 'use client'
 
-import { useLayoutEffect, useRef, useState } from 'react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { CheckCircleIcon } from '@heroicons/react/20/solid'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
-import { PlusIcon } from '@heroicons/react/20/solid'
-import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
-import { ArrowUpTrayIcon } from '@heroicons/react/20/solid'
-import { ListBulletIcon } from '@heroicons/react/20/solid'
-import { Squares2X2Icon } from '@heroicons/react/24/outline'
-import { FunnelIcon } from '@heroicons/react/24/outline'
-import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
-import { ArrowsUpDownIcon } from '@heroicons/react/24/outline'
-import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
-import { InformationCircleIcon } from '@heroicons/react/24/outline'
-import { EnvelopeIcon } from '@heroicons/react/24/outline'
-import { PhoneIcon } from '@heroicons/react/24/outline'
+import React, { useRef, useState } from 'react'
 
-
-import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { LinkIcon, QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
-import { CheckIcon } from '@heroicons/react/20/solid'
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { EllipsisVerticalIcon } from '@heroicons/react/20/solid'
-import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline'
-import { ArrowLongUpIcon } from '@heroicons/react/24/outline'
-import { ArrowLeftStartOnRectangleIcon } from '@heroicons/react/24/outline'
-import { PencilIcon } from '@heroicons/react/24/outline'
-import { TrashIcon } from '@heroicons/react/24/outline'
-import { ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline'
-import { ArrowUpRightIcon } from '@heroicons/react/24/outline'
-
-
-import Datepicker from "react-tailwindcss-datepicker";
-import React, { PureComponent } from 'react';
-import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Sector, Cell, ResponsiveContainer, Legend, Label, legendType } from 'recharts';
-import Select from "react-tailwindcss-select";
 import ManageFeeCollection from './ManageFeeCollection'
-import FinanceFeesStructure from './ManageFeesStructure'
 import ManageFeesOverview from './ManageFeesOverview'
+import FinanceFeesStructure from './ManageFeesStructure'
 
 const feeduration = [
     { value: "One Time", label: "One Time" },

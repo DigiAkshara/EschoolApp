@@ -1,14 +1,7 @@
-import React, { useState } from "react";
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/24/outline";
-import { PhoneIcon } from "@heroicons/react/24/outline";
-import { ArrowLongUpIcon } from "@heroicons/react/24/outline";
-import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/outline";
-import { PencilIcon } from "@heroicons/react/24/outline";
-import { TrashIcon } from "@heroicons/react/24/outline";
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ChatBubbleBottomCenterTextIcon, PhoneIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import React, { useState } from "react";
 import FinancCollectFeesDetails from "./FinancCollectFeesDetails";
 import FinanceCollectFeeHistory from "./FinanceCollectFeeHistory";
 

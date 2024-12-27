@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { FieldArray } from "formik";
+import React, { useEffect, useState } from "react";
 import { getData } from "../app/api";
 import { SUBJECTS } from "../app/url";
-import { FieldArray } from "formik";
-import CustomSelect from "../commonComponent/CustomSelect";
 import { getAcademicYears } from "../commonComponent/CommonFunctions";
+import CustomSelect from "../commonComponent/CustomSelect";
 
 function ManageClassSyllabus({ values, setFieldValue, touched,errors }) {
 

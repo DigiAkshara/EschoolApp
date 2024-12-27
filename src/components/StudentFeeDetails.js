@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import CustomSelect from "../commonComponent/CustomSelect";
+import { FieldArray } from "formik";
+import React, { useEffect, useState } from "react";
 import { getData } from "../app/api";
 import { FEES } from "../app/url";
-import CustomCheckBox from "../commonComponent/CustomCheckBox";
 import {
   capitalizeWords,
   feeDiscount,
   feeduration,
 } from "../commonComponent/CommonFunctions";
+import CustomCheckBox from "../commonComponent/CustomCheckBox";
 import CustomInput from "../commonComponent/CustomInput";
-import { FieldArray } from "formik";
+import CustomSelect from "../commonComponent/CustomSelect";
 
 function StudentFeeDetails({ values, setFieldValue }) {
   const [checked, setChecked] = useState(false);

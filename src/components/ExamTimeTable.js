@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { FieldArray } from "formik";
 import { PlusIcon } from "@heroicons/react/20/solid";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { FieldArray } from "formik";
+import React, { useEffect, useState } from "react";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { XMarkIcon } from "@heroicons/react/24/outline";
 
 
 import { getData } from "../app/api";

@@ -1,8 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Datepicker from "react-tailwindcss-datepicker";
-import CustomDate from "../commonComponent/CustomDate";
-import CustomInput from "../commonComponent/CustomInput";
-import { FieldArray } from "formik";
 import { getData } from "../app/api";
 import { SUBJECTS } from "../app/url";
 

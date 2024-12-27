@@ -1,19 +1,17 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { Menu, MenuButton, MenuItems } from "@headlessui/react";
 import {
   ArrowsUpDownIcon,
   EllipsisHorizontalIcon,
 } from "@heroicons/react/24/outline";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import moment from "moment";
 import PaginationComponent from "./PaginationComponent";
 import FilterComponent from "./FilterComponent";
 const TableComponent = ({
   columns,
   data,
-  filters,
   onSearch,
   onFilter,
-  onAction,
   pagination,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
