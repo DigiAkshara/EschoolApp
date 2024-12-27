@@ -85,7 +85,7 @@ export default function CustomFileUploader(props) {
             )}
               
               {field.value && (
-                <div className="text-sm text-gray-700 mt-2">{field.value.key}</div>
+                <div className="text-sm text-gray-700 mt-2">{field.value.name || field.value.key}</div>
               )}
             </>
           );

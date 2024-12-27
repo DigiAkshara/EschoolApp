@@ -4,7 +4,7 @@ import CustomFileUploader from "../commonComponent/CustomFileUploader";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomRadio from "../commonComponent/CustomRadio";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { bloodGroup, caste, gender, nationality, occupation, religion, states } from "../commonComponent/CommonFunctions";
+import { bloodGroup, caste, gender, nationality, occupation, religion, states, uploadFile } from "../commonComponent/CommonFunctions";
 import CustomCheckBox from "../commonComponent/CustomCheckBox";
 import { postData } from "../app/api";
 import { UPLOAD } from "../app/url";
@@ -17,16 +17,8 @@ function BasicInfo({values, setFieldValue}) {
 
   const handleFileChange = async (e) => {
     try {
-      const formData = new FormData();
-      formData.append('file', e.target.files[0]);
-      let response = await postData(UPLOAD, formData, {headers: {
-        'Content-Type': 'multipart/form-data',
-      }});
-      if (response.status === 200 || response.status === 201) {
-        setFieldValue(e.target.name, response.data);
-      } else {
-        alert(response.message);
-      }
+      const fileResponse = await uploadFile(e.target.files[0]);
+      setFieldValue(e.target.name, fileResponse);
     } catch (error) {
       console.log(error);
     }

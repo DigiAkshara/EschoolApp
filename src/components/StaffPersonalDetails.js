@@ -4,7 +4,7 @@ import CustomSelect from "../commonComponent/CustomSelect";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomRadio from "../commonComponent/CustomRadio";
 import CustomFileUploader from "../commonComponent/CustomFileUploader";
-import { gender, states } from "../commonComponent/CommonFunctions";
+import { gender, states, uploadFile } from "../commonComponent/CommonFunctions";
 import { postData } from "../app/api";
 import { UPLOAD } from "../app/url";
 import CustomCheckBox from "../commonComponent/CustomCheckBox";
@@ -19,16 +19,8 @@ function StaffPersonalDetails({ values, setFieldValue }) {
 
   const handleFileChange = async (e) => {
       try {
-        const formData = new FormData();
-        formData.append('file', e.target.files[0]);
-        let response = await postData(UPLOAD, formData, {headers: {
-          'Content-Type': 'multipart/form-data',
-        }});
-        if (response.status === 200 || response.status === 201) {
-          setFieldValue(e.target.name, response.data);
-        } else {
-          alert(response.message);
-        }
+        const fileResponse = await uploadFile(e.target.files[0]);
+        setFieldValue(e.target.name, fileResponse);
       } catch (error) {
         console.log(error);
       }

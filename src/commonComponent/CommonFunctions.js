@@ -1,3 +1,6 @@
+import { postData } from "../app/api";
+import { UPLOAD } from "../app/url";
+
 export const getAcademicYears = () => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -170,3 +173,22 @@ export const designations = [
   { value: "cook", label: "Cook" },
   { value: "other", label: "Other" },
 ]
+
+export const uploadFile = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const fileName = file.name
+      let response = await postData(UPLOAD, formData, {headers: {
+        'Content-Type': 'multipart/form-data',
+      }});
+      if (response.status === 200 || response.status === 201) {
+        response.data.name = fileName
+        return response.data
+      } else {
+        alert(response.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }

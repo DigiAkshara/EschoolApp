@@ -12,7 +12,7 @@ import { STUDENT } from "../app/url";
 import { useSelector } from "react-redux";
 
 function Student({ onClose }) {
-  const {selectedStudent} = useSelector(state => state.students) 
+  const { selectedStudent } = useSelector((state) => state.students);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     profilePic: null,
@@ -68,7 +68,7 @@ function Student({ onClose }) {
       studyProof: null,
     },
     feesData: [],
-    ...(selectedStudent&&selectedStudent),
+    ...(selectedStudent && selectedStudent),
   });
 
   // Validation schemas for each step
@@ -112,9 +112,7 @@ function Student({ onClose }) {
         area: Yup.string().required("Permanent Area is required"),
         city: Yup.string().required("Permanent city is required"),
         state: Yup.string().required("Permanent state is required"),
-        pincode: Yup.string().required(
-          "Permanent Pincode is required"
-        ),
+        pincode: Yup.string().required("Permanent Pincode is required"),
       }),
       aadharNumber: Yup.string()
         .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
@@ -130,14 +128,16 @@ function Student({ onClose }) {
         section: Yup.string().required("Section is required"),
       }),
       admissionNumber: Yup.string().required("Admission number is required"),
-      admissionDate: Yup.date().nullable().required("Admission date is required"),
+      admissionDate: Yup.date()
+        .nullable()
+        .required("Admission date is required"),
       previousSchool: Yup.object({
         schoolName: Yup.string(),
         yearOfStudy: Yup.string(),
         totalMarks: Yup.number(),
         classStudied: Yup.string(),
         studyProof: Yup.object(),
-      })
+      }),
     }),
     Yup.object({
       feesData: Yup.array().of(
@@ -177,7 +177,11 @@ function Student({ onClose }) {
     }
   };
 
-  const stepContent = [1, 2, 3];
+  const stepContent = [
+    { id: "01", name: "Basic Info", href: "#", status: "current" },
+    { id: "02", name: "Academic Details", href: "#", status: "upcoming" },
+    { id: "03", name: "Fee details", href: "#", status: "upcoming" },
+  ];
 
   // const [open, setOpen] = useState(false);
   function classNames(...classes) {
@@ -237,12 +241,12 @@ function Student({ onClose }) {
                                 >
                                   {stepContent.map((step, stepIdx) => (
                                     <li
-                                      key={stepIdx}
+                                      key={step.id}
                                       className="relative overflow-hidden lg:flex-1"
                                     >
                                       <div
                                         className={classNames(
-                                          currentStep === 1
+                                          stepIdx === 0
                                             ? "rounded-t-md border-b-0"
                                             : "",
                                           stepIdx === stepContent.length - 1
@@ -251,126 +255,111 @@ function Student({ onClose }) {
                                           "overflow-hidden border border-gray-200 lg:border-0"
                                         )}
                                       >
-                                        <button
-                                          type="button"
-                                          // onClick={() =>
-                                          //   setActiveStep(parseInt(stepIdx, 10))
-                                          // }
-                                          className="group w-full"
-                                        >
-                                          {step.status === "complete" ? (
-                                            <a href={"#"} className="group">
-                                              <span
-                                                aria-hidden="true"
-                                                className="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-                                              />
-                                              <span
-                                                className={classNames(
-                                                  stepIdx !== 0
-                                                    ? "lg:pl-9"
-                                                    : "",
-                                                  "flex items-center px-4 py-2 text-sm font-medium"
-                                                )}
-                                              >
-                                                <span className="shrink-0">
-                                                  <span className="flex size-6 items-center justify-center rounded-full bg-purple-600">
-                                                    <CheckIcon
-                                                      aria-hidden="true"
-                                                      className="size-4 text-white"
-                                                    />
-                                                  </span>
-                                                </span>
-                                                <span className="ml-4 flex min-w-0 flex-col">
-                                                  <span className="text-sm font-medium">
-                                                    'step'
-                                                  </span>
-                                                </span>
-                                              </span>
-                                            </a>
-                                          ) : step.status === "current" ? (
-                                            <a
-                                              href={step.href}
-                                              aria-current="step"
+                                        {step.status === "complete" ? (
+                                          <a href={step.href} className="group">
+                                            <span
+                                              aria-hidden="true"
+                                              className="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+                                            />
+                                            <span
+                                              className={classNames(
+                                                stepIdx !== 0 ? "lg:pl-9" : "",
+                                                "flex items-center px-4 py-2 text-sm font-medium"
+                                              )}
                                             >
-                                              <span
-                                                aria-hidden="true"
-                                                className="absolute left-0 top-0 h-full w-1 bg-purple-600 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-                                              />
-                                              <span
-                                                className={classNames(
-                                                  stepIdx !== 0
-                                                    ? "lg:pl-9"
-                                                    : "",
-                                                  "flex items-center px-4 py-2 text-xs font-medium"
-                                                )}
-                                              >
-                                                <span className="shrink-0">
-                                                  <span className="flex size-6 items-center justify-center rounded-full border-2 border-purple-600">
-                                                    <span className="text-purple-600">
-                                                      {step.id}
-                                                    </span>
-                                                  </span>
-                                                </span>
-                                                <span className="ml-4 flex min-w-0 flex-col">
-                                                  <span className="text-sm font-medium text-purple-600">
-                                                    {step.name}
-                                                  </span>
-                                                </span>
-                                              </span>
-                                            </a>
-                                          ) : (
-                                            <a href={"#"} className="group">
-                                              <span
-                                                aria-hidden="true"
-                                                className="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-                                              />
-                                              <span
-                                                className={classNames(
-                                                  stepIdx !== 0
-                                                    ? "lg:pl-9"
-                                                    : "",
-                                                  "flex items-center px-4 py-2 text-xs font-medium"
-                                                )}
-                                              >
-                                                <span className="shrink-0">
-                                                  <span className="flex size-6 items-center justify-center rounded-full border-2 border-gray-300">
-                                                    <span className="text-gray-500">
-                                                      {stepIdx + 1}
-                                                    </span>
-                                                  </span>
-                                                </span>
-                                                <span className="ml-4 flex min-w-0 flex-col">
-                                                  <span className="text-sm font-medium text-gray-500">
-                                                    stepName
-                                                  </span>
-                                                </span>
-                                              </span>
-                                            </a>
-                                          )}
-
-                                          {stepIdx !== 0 ? (
-                                            <>
-                                              {/* Separator */}
-                                              <div
-                                                aria-hidden="true"
-                                                className="absolute inset-0 left-0 top-0 hidden w-3 lg:block"
-                                              >
-                                                <svg
-                                                  fill="none"
-                                                  viewBox="0 0 12 82"
-                                                  preserveAspectRatio="none"
-                                                  className="size-full text-gray-300"
-                                                >
-                                                  <path
-                                                    d="M0.5 0V31L10.5 41L0.5 51V82"
-                                                    stroke="currentcolor"
-                                                    vectorEffect="non-scaling-stroke"
+                                              <span className="shrink-0">
+                                                <span className="flex size-6 items-center justify-center rounded-full bg-purple-600">
+                                                  <CheckIcon
+                                                    aria-hidden="true"
+                                                    className="size-4 text-white"
                                                   />
-                                                </svg>
-                                              </div>
-                                            </>
-                                          ) : null}
-                                        </button>
+                                                </span>
+                                              </span>
+                                              <span className="ml-4 flex min-w-0 flex-col">
+                                                <span className="text-sm font-medium">
+                                                  {step.name}
+                                                </span>
+                                              </span>
+                                            </span>
+                                          </a>
+                                        ) : step.status === "current" ? (
+                                          <a
+                                            href={step.href}
+                                            aria-current="step"
+                                          >
+                                            <span
+                                              aria-hidden="true"
+                                              className="absolute left-0 top-0 h-full w-1 bg-purple-600 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+                                            />
+                                            <span
+                                              className={classNames(
+                                                stepIdx !== 0 ? "lg:pl-9" : "",
+                                                "flex items-center px-4 py-2 text-xs font-medium"
+                                              )}
+                                            >
+                                              <span className="shrink-0">
+                                                <span className="flex size-6 items-center justify-center rounded-full border-2 border-purple-600">
+                                                  <span className="text-purple-600">
+                                                    {step.id}
+                                                  </span>
+                                                </span>
+                                              </span>
+                                              <span className="ml-4 flex min-w-0 flex-col">
+                                                <span className="text-sm font-medium text-purple-600">
+                                                  {step.name}
+                                                </span>
+                                              </span>
+                                            </span>
+                                          </a>
+                                        ) : (
+                                          <a href={step.href} className="group">
+                                            <span
+                                              aria-hidden="true"
+                                              className="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
+                                            />
+                                            <span
+                                              className={classNames(
+                                                stepIdx !== 0 ? "lg:pl-9" : "",
+                                                "flex items-center px-4 py-2 text-xs font-medium"
+                                              )}
+                                            >
+                                              <span className="shrink-0">
+                                                <span className="flex size-6 items-center justify-center rounded-full border-2 border-gray-300">
+                                                  <span className="text-gray-500">
+                                                    {step.id}
+                                                  </span>
+                                                </span>
+                                              </span>
+                                              <span className="ml-4 flex min-w-0 flex-col">
+                                                <span className="text-sm font-medium text-gray-500">
+                                                  {step.name}
+                                                </span>
+                                              </span>
+                                            </span>
+                                          </a>
+                                        )}
+                                        {stepIdx !== 0 ? (
+                                          <>
+                                            {/* Separator */}
+                                            <div
+                                              aria-hidden="true"
+                                              className="absolute inset-0 left-0 top-0 hidden w-3 lg:block"
+                                            >
+                                              <svg
+                                                fill="none"
+                                                viewBox="0 0 12 82"
+                                                preserveAspectRatio="none"
+                                                className="size-full text-gray-300"
+                                              >
+                                                <path
+                                                  d="M0.5 0V31L10.5 41L0.5 51V82"
+                                                  stroke="currentcolor"
+                                                  vectorEffect="non-scaling-stroke"
+                                                />
+                                              </svg>
+                                            </div>
+                                          </>
+                                        ) : null}
                                       </div>
                                     </li>
                                   ))}
@@ -378,20 +367,24 @@ function Student({ onClose }) {
                               </nav>
                             </div>
                             <div className="form-content mt-4">
-                              {currentStep === 1 && <BasicInfo  
-                                values={values}
-                                setFieldValue={setFieldValue}
-                                />}
-                              {currentStep === 2 && <SchoolDetailsTab 
-                                values={values}
-                                setFieldValue={setFieldValue}
-                                />}
-                              {currentStep === 3 && 
+                              {currentStep === 1 && (
+                                <BasicInfo
+                                  values={values}
+                                  setFieldValue={setFieldValue}
+                                />
+                              )}
+                              {currentStep === 2 && (
+                                <SchoolDetailsTab
+                                  values={values}
+                                  setFieldValue={setFieldValue}
+                                />
+                              )}
+                              {currentStep === 3 && (
                                 <FeeDetailsTab
                                   values={values}
                                   setFieldValue={setFieldValue}
                                 />
-                              }
+                              )}
                             </div>
                           </div>
                           <div className="flex shrink-0 justify-between px-4 py-4">

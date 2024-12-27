@@ -43,11 +43,6 @@ export default function ManageStudents() {
   const {students} = useSelector((state) => state.students);
   const [studentList, setStudentList] = useState([]);
   const [open, setOpen] = useState(false); 
-
-  const checkbox = useRef();
-  const [checked, setChecked] = useState(false);
-  const [indeterminate, setIndeterminate] = useState(false);
-  const [selectedPeople, setSelectedPeople] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
