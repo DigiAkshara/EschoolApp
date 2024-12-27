@@ -13,13 +13,19 @@ import CustomInput from "../commonComponent/CustomInput";
 import { useNavigate } from "react-router-dom";
 
 function ManageClass({ onClose }) {
-  const [subjects, setSubjects] = useState();
+  const [subjects, setSubjects] = useState([]);
+  const [theorySubject, setTheorySubject] = useState([]);
+  const [labSubject, setLabSubject] = useState([]);
+  const [extraCurricular, setExtraCurricular] = useState([]);
   const [classData, setClassData] = useState();
   const navigate = useNavigate();
 
   useEffect(() => {
     getClass();
+    getSubjects();
   }, []);
+
+  console.log("after seting DB subject:&&&&&&&&&&&&&:", subjects);
 
   const getClass = async () => {
     const res = await getData(CLASSES);
@@ -32,6 +38,40 @@ function ManageClass({ onClose }) {
       };
     });
     setClassData(classData);
+  };
+
+  const getSubjects = async () => {
+    try {
+      const res = await getData(SUBJECTS);
+      console.log("comming subject data is:", res.data);
+      const fetchedSubjects = res.data.data;
+      const subData = fetchedSubjects.map((item) => {
+        return {
+          label: item.name,
+          value: item._id,
+          isDefault: item.isDefault,
+          category: item.category,
+        };
+      });
+      setSubjects(subData);
+      const defaultSubjects = subData.filter((subject) => subject.isDefault);
+      const theorySubjects = defaultSubjects.filter(
+        (subject) => subject.category === "theory"
+      );
+      const labSubjects = defaultSubjects.filter(
+        (subject) => subject.category === "lab"
+      );
+      const extracurricularSubjects = defaultSubjects.filter(
+        (subject) => subject.category === "extraCurricular"
+      );
+
+      // Set state for categorized subjects
+      setTheorySubject(theorySubjects);
+      setLabSubject(labSubjects);
+      setExtraCurricular(extracurricularSubjects);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    }
   };
 
   const getInitialValues = () => {
@@ -55,72 +95,65 @@ function ManageClass({ onClose }) {
       category: Yup.string().required("Class category is required"),
       class: Yup.string().required("Class is required"),
       section: Yup.string().required("Section is required"),
-      classTeacher: Yup.string().required("Class teacher is required"),
-      theorySubject: Yup.string().required("Theory Subjects is required"),
-      labSubject: Yup.string().required("Lab Subjects is required"),
-      extracurricular: Yup.string().required(
-        "Extracurricular Activities is required"
-      ),
+      classTeacher: Yup.string(),
+      theorySubject: Yup.string(),
+      labSubject: Yup.string(),
+      extracurricular: Yup.string(),
 
-      timetable: Yup.array()
-        .of(
-          Yup.object({
-            period: Yup.number()
-              .required("Period is required")
-              .positive("Period must be positive")
-              .integer("Period must be an integer"),
-            time: Yup.string().required("Time is required"),
-            days: Yup.object({
-              monday: Yup.object({
-                subject: Yup.string().required("Subject is required"),
-                teacher: Yup.string().required("Teacher is required"),
-              }),
-              tuesday: Yup.object({
-                subject: Yup.string().required("Subject is required"),
-                teacher: Yup.string().required("Teacher is required"),
-              }),
-              wednesday: Yup.object({
-                subject: Yup.string().required("Subject is required"),
-                teacher: Yup.string().required("Teacher is required"),
-              }),
-              thursday: Yup.object({
-                subject: Yup.string().required("Subject is required"),
-                teacher: Yup.string().required("Teacher is required"),
-              }),
-              friday: Yup.object({
-                subject: Yup.string().required("Subject is required"),
-                teacher: Yup.string().required("Teacher is required"),
-              }),
-              saturday: Yup.object({
-                subject: Yup.string().required("Subject is required"),
-                teacher: Yup.string().required("Teacher is required"),
-              }),
+      timetable: Yup.array().of(
+        Yup.object({
+          period: Yup.number(),
+          time: Yup.string(),
+          days: Yup.object({
+            monday: Yup.object({
+              subject: Yup.string(),
+              teacher: Yup.string(),
             }),
-          })
-        )
-        .min(1, "At least one timetable entry is required"),
+            tuesday: Yup.object({
+              subject: Yup.string(),
+              teacher: Yup.string(),
+            }),
+            wednesday: Yup.object({
+              subject: Yup.string(),
+              teacher: Yup.string(),
+            }),
+            thursday: Yup.object({
+              subject: Yup.string(),
+              teacher: Yup.string(),
+            }),
+            friday: Yup.object({
+              subject: Yup.string(),
+              teacher: Yup.string(),
+            }),
+            saturday: Yup.object({
+              subject: Yup.string(),
+              teacher: Yup.string(),
+            }),
+          }),
+        })
+      ),
       syllabus: Yup.array().of(
         Yup.object({
-          syllabusSubject: Yup.string().required("Subject is required"),
-          acadamicYear: Yup.string().required("Academic year is required"),
-          syllabusPic: Yup.string().required("Syllabus file is required"),
+          syllabusSubject: Yup.string(),
+          acadamicYear: Yup.string(),
+          syllabusPic: Yup.string().nullable(),
         })
       ),
     });
   };
 
-  // const handleSubmit = (values) => {
-  //   console.log("Form submitted with values:", values);
-  //   alert("Form submitted successfully!");
-  //   onClose(); // Close the modal after form submission
-  // };
-
   const handleSubmit = async (values) => {
     console.log("Handle submit");
-    
-    console.log("Form submitted with values:", values);
+    const processedValues = {
+      ...values,
+      theorySubject: theorySubject.length > 0 ? theorySubject : "",
+      extracurricular: extraCurricular.length > 0 ? extraCurricular : "",
+      labSubject: labSubject.length > 0 ? labSubject : "",
+    };
+
+    console.log("Form submitted with values:", processedValues);
     try {
-      let response = await postData(NEWCLASS, values);
+      let response = await postData(NEWCLASS, processedValues);
       console.log("respose is:", response);
       if (response.status === 201) {
         console.log("Class added successfully!");
@@ -147,21 +180,124 @@ function ManageClass({ onClose }) {
     { label: "Sita Devi", value: "sita_devi" },
   ];
 
-  useEffect(() => {
-    getSubjects();
-  }, []);
+  const handleRemoveTheorySubject = (subjectId) => {
+    setTheorySubject((prevSubjects) =>
+      prevSubjects.filter((subject) => subject.value !== subjectId)
+    );
+  };
 
-  const getSubjects = async () => {
-    const res = await getData(SUBJECTS);
-    console.log("comming subject data is:", res.data);
+  const handleRemoveLabSubject = (subjectId) => {
+    setLabSubject((prevSubjects) =>
+      prevSubjects.filter((subject) => subject.value !== subjectId)
+    );
+  };
 
-    const subData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-      };
-    });
-    setSubjects(subData);
+  const handleRemoveExtraSubject = (subjectId) => {
+    setExtraCurricular((prevSubjects) =>
+      prevSubjects.filter((subject) => subject.value !== subjectId)
+    );
+  };
+
+  const handleAddTeorySubject = async (e, values) => {
+    e.preventDefault();
+    const subjectName = values.theorySubject.trim();
+    const isSubjectPresent = subjects.some(
+      (subject) => subject.label === subjectName
+    );
+    if (isSubjectPresent) {
+      console.log("Subject already exists in the subjects array.");
+      setTheorySubject((prev) => [...prev, { label: subjectName }]);
+    } else {
+      console.log("Subject does not exist in the subjects array.");
+      try {
+        const response = await postData(SUBJECTS, {
+          name: subjectName,
+          category: "theory",
+        });
+        console.log("respose after adding backend is:", response.data);
+        if (response.status === 200 || response.status === 201) {
+          const newTheorySubject = {
+            label: response.data.data.name, // Adjust this based on the response
+            category: response.data.data.category,
+            value: response.data.data._id,
+            isDefault: response.data.data.isDefault,
+          };
+          setTheorySubject((prev) => [...prev, newTheorySubject]);
+        } else {
+          console.error("Unexpected response status:", response.status);
+        }
+      } catch (error) {
+        console.error("Error adding subject to backend:", error);
+      }
+    }
+  };
+
+  const handleAddLabSubject = async (e, values) => {
+    e.preventDefault();
+    const subjectName = values.labSubject.trim();
+    const isSubjectPresent = subjects.some(
+      (subject) => subject.label === subjectName
+    );
+    if (isSubjectPresent) {
+      console.log("Subject already exists in the subjects array.");
+      setLabSubject((prev) => [...prev, { label: subjectName }]);
+    } else {
+      console.log("Subject does not exist in the subjects array.");
+      try {
+        const response = await postData(SUBJECTS, {
+          name: subjectName,
+          category: "lab",
+        });
+        console.log("respose after adding backend is:", response.data);
+        if (response.status === 200 || response.status === 201) {
+          const newLabSubject = {
+            label: response.data.data.name, // Adjust this based on the response
+            category: response.data.data.category,
+            value: response.data.data._id,
+            isDefault: response.data.data.isDefault,
+          };
+          setLabSubject((prev) => [...prev, newLabSubject]);
+        } else {
+          console.error("Unexpected response status:", response.status);
+        }
+      } catch (error) {
+        console.error("Error adding subject to backend:", error);
+      }
+    }
+  };
+
+  const handleAddExtraSubject = async (e, values) => {
+    e.preventDefault();
+    const subjectName = values.extracurricular.trim();
+    const isSubjectPresent = subjects.some(
+      (subject) => subject.label === subjectName
+    );
+    if (isSubjectPresent) {
+      console.log("Subject already exists in the subjects array.");
+      setExtraCurricular((prev) => [...prev, { label: subjectName }]);
+    } else {
+      console.log("Subject does not exist in the subjects array.");
+      try {
+        const response = await postData(SUBJECTS, {
+          name: subjectName,
+          category: "extraCurricular",
+        });
+        console.log("respose after adding backend is:", response.data);
+        if (response.status === 200 || response.status === 201) {
+          const newLabSubject = {
+            label: response.data.data.name, // Adjust this based on the response
+            category: response.data.data.category,
+            value: response.data.data._id,
+            isDefault: response.data.data.isDefault,
+          };
+          setExtraCurricular((prev) => [...prev, newLabSubject]);
+        } else {
+          console.error("Unexpected response status:", response.status);
+        }
+      } catch (error) {
+        console.error("Error adding subject to backend:", error);
+      }
+    }
   };
 
   return (
@@ -265,86 +401,63 @@ function ManageClass({ onClose }) {
                             </p>
                             <div className="flex items-center mt-4 gap-4">
                               <div className="filter-badges-blk flex flex-wrap gap-4">
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  English
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-                                  >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                {theorySubject.length > 0 ? (
+                                  theorySubject.map((subject) => (
+                                    <span
+                                      key={subject.value}
+                                      className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                                     >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Telugu
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
+                                      {subject.label}
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleRemoveTheorySubject(
+                                            subject.value
+                                          )
+                                        }
+                                        className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
+                                      >
+                                        <span className="sr-only">Remove</span>
+                                        <svg
+                                          viewBox="0 0 14 14"
+                                          className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                        >
+                                          <path d="M4 4l6 6m0-6l-6 6" />
+                                        </svg>
+                                        <span className="absolute -inset-1" />
+                                      </button>
+                                    </span>
+                                  ))
+                                ) : (
+                                  <p className="text-red-500 text-sm">
+                                    Need to select at least one theory subject.
+                                  </p>
+                                )}
+
+                                {/* {theorySubject.map((subject) => (
+                                  <span
+                                    key={subject.value}
+                                    className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                                   >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                    {subject.label}
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleRemoveTheorySubject(subject.value)
+                                      }
+                                      className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
                                     >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Hindi
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-                                  >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-                                    >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Maths
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-                                  >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-                                    >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Social
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-                                  >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-                                    >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
+                                      <span className="sr-only">Remove</span>
+                                      <svg
+                                        viewBox="0 0 14 14"
+                                        className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                      >
+                                        <path d="M4 4l6 6m0-6l-6 6" />
+                                      </svg>
+                                      <span className="absolute -inset-1" />
+                                    </button>
+                                  </span>
+                                ))} */}
                               </div>
 
                               <div className="flex add-sub-input-blk">
@@ -355,16 +468,19 @@ function ManageClass({ onClose }) {
                                     placeholder="Add New Subject"
                                     className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
                                   />
-                                  <ErrorMessage
+                                  {/* <ErrorMessage
                                     name="theorySubject"
                                     component="div"
                                     className="text-red-500"
-                                  />
+                                  /> */}
                                 </div>
 
                                 <button
                                   type="submit"
                                   className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                                  onClick={(e) =>
+                                    handleAddTeorySubject(e, values)
+                                  }
                                 >
                                   Add
                                 </button>
@@ -382,38 +498,60 @@ function ManageClass({ onClose }) {
                             </p>
                             <div className="flex items-center mt-4 gap-4">
                               <div className="filter-badges-blk flex flex-wrap gap-4">
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Computer
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-                                  >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                {/* {labSubject.length > 0 ? (
+                                  labSubject.map((subject) => (
+                                    <span
+                                      key={subject.value}
+                                      className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                                     >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Science
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
+                                      {subject.label}
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleRemoveLabSubject(subject.value)
+                                        }
+                                        className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
+                                      >
+                                        <span className="sr-only">Remove</span>
+                                        <svg
+                                          viewBox="0 0 14 14"
+                                          className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                        >
+                                          <path d="M4 4l6 6m0-6l-6 6" />
+                                        </svg>
+                                        <span className="absolute -inset-1" />
+                                      </button>
+                                    </span>
+                                  ))
+                                ) : (
+                                  <p className="text-red-500 text-sm">
+                                    Need to select at least one lab subject.
+                                  </p>
+                                )} */}
+                                {labSubject.map((subject) => (
+                                  <span
+                                    key={subject.value}
+                                    className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                                   >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                    {subject.label}
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleRemoveLabSubject(subject.value)
+                                      }
+                                      className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
                                     >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
+                                      <span className="sr-only">Remove</span>
+                                      <svg
+                                        viewBox="0 0 14 14"
+                                        className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                      >
+                                        <path d="M4 4l6 6m0-6l-6 6" />
+                                      </svg>
+                                      <span className="absolute -inset-1" />
+                                    </button>
+                                  </span>
+                                ))}
                               </div>
 
                               <div className="flex add-sub-input-blk">
@@ -434,6 +572,9 @@ function ManageClass({ onClose }) {
                                 <button
                                   type="submit"
                                   className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                                  onClick={(e) =>
+                                    handleAddLabSubject(e, values)
+                                  }
                                 >
                                   Add
                                 </button>
@@ -452,54 +593,64 @@ function ManageClass({ onClose }) {
                             </p>
                             <div className="flex items-center mt-4 gap-4">
                               <div className="filter-badges-blk flex flex-wrap gap-4">
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Dance
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
+                                {extraCurricular.map((subject) => (
+                                  <span
+                                    key={subject.value}
+                                    className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                                   >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                    {subject.label}
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleRemoveExtraSubject(subject.value)
+                                      }
+                                      className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
                                     >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Art
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-                                  >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                      <span className="sr-only">Remove</span>
+                                      <svg
+                                        viewBox="0 0 14 14"
+                                        className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                      >
+                                        <path d="M4 4l6 6m0-6l-6 6" />
+                                      </svg>
+                                      <span className="absolute -inset-1" />
+                                    </button>
+                                  </span>
+                                ))}
+
+                                {/* {extraCurricular.length > 0 ? (
+                                  extraCurricular.map((subject) => (
+                                    <span
+                                      key={subject.value}
+                                      className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                                     >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
-                                <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-                                  Sports
-                                  <button
-                                    type="button"
-                                    className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-                                  >
-                                    <span className="sr-only">Remove</span>
-                                    <svg
-                                      viewBox="0 0 14 14"
-                                      className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-                                    >
-                                      <path d="M4 4l6 6m0-6l-6 6" />
-                                    </svg>
-                                    <span className="absolute -inset-1" />
-                                  </button>
-                                </span>
+                                      {subject.label}
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          handleRemoveExtraSubject(
+                                            subject.value
+                                          )
+                                        }
+                                        className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
+                                      >
+                                        <span className="sr-only">Remove</span>
+                                        <svg
+                                          viewBox="0 0 14 14"
+                                          className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
+                                        >
+                                          <path d="M4 4l6 6m0-6l-6 6" />
+                                        </svg>
+                                        <span className="absolute -inset-1" />
+                                      </button>
+                                    </span>
+                                  ))
+                                ) : (
+                                  <p className="text-red-500 text-sm">
+                                    Need to select at least one extracurricular
+                                    activity.
+                                  </p>
+                                )} */}
                               </div>
 
                               <div className="flex add-sub-input-blk">
@@ -520,6 +671,9 @@ function ManageClass({ onClose }) {
                                 <button
                                   type="submit"
                                   className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                                  onClick={(e) =>
+                                    handleAddExtraSubject(e, values)
+                                  }
                                 >
                                   Add
                                 </button>

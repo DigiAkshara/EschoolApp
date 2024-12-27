@@ -69,7 +69,7 @@ function ManageClassTimetable({ values, setFieldValue }) {
         time: "",
         days: daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: { subject: "", teacher: "" } }), {}),
       },]
-    setRows(dummyList);
+    // setRows(dummyList);
     setFieldValue("timetable",dummyList)
   };
 

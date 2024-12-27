@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
@@ -35,12 +35,12 @@ import React, { PureComponent } from 'react';
 import Select from "react-tailwindcss-select";
 import ManageClass from './ManageClass'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { getData } from '../app/api'
+import { NEWCLASS } from '../app/url'
+import ManageViewClass from './ManageViewClass'
+import { useDispatch } from 'react-redux';
+import { setClass, setSelectedClass } from '../app/reducers/classSlice'
 
-const subjects = [
-    { value: "English", label: "English" },
-    { value: "Telugu", label: "Telugu" },
-    { value: "Social", label: "Social" }
-];
 
 
 const people = [
@@ -53,17 +53,6 @@ const people = [
   // More people...
 ]
 
-const people2 = [
-  {
-    name: 'Janet Baker',
-    title: '12345678 | 1A',
-    email: 'janecooper@example.com',
-    telephone: '+1-202-555-0170',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-  },
-  // More people...
-]
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -81,29 +70,39 @@ export default function Class() {
   const [open2, setOpen2] = useState(false)
   const navigate = useNavigate()
   const location = useLocation();
-
-
-  const checkbox = useRef()
+  // const checkbox = useRef()
   const [checked, setChecked] = useState(false)
   const [indeterminate, setIndeterminate] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
+  const [classData, setClassData] = useState([])
+  const dispatch = useDispatch(); // Get the dispatch function
 
+
+  useEffect(()=>{
+    getClassData()
+  },[])
+
+
+  console.log("class data response ##########:",classData);
+  
   const notificationMethods = [
     { id: 'All', title: 'All' },
     { id: 'Old Students', title: 'Old Students' },
     { id: 'New Students', title: 'New Students' },
   ]
 
-  const [value, setValue] = useState({
- 
-});
-
-  useLayoutEffect(() => {
-    const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < people.length
-    setChecked(selectedPeople.length === people.length)
-    setIndeterminate(isIndeterminate)
-    checkbox.current.indeterminate = isIndeterminate
-  }, [selectedPeople])
+  const getClassData = async () => {
+    try {
+      const response = await getData(NEWCLASS);
+    console.log("response is:", response.data);
+    if (response && response.data) {
+      setClassData(response.data.data);
+      // dispatch(setClass(response.data.data))
+      }
+    } catch (error) {
+      console.error("Error fetching class data:", error);
+    }
+  }
 
   function toggleAll() {
     setSelectedPeople(checked || indeterminate ? [] : people)
@@ -118,10 +117,8 @@ export default function Class() {
       setAnimal(value);
   };
   const handleClose = () =>setOpen(false)
+  const handleClose2 =()=> setOpen2(false)
 
-  const handleTabClick = (path) => {
-    navigate(path);
-  };
 
   const handleTabChange = (event) => {
     const selectedTab = tabs.find((tab) => tab.name === event.target.value);
@@ -129,6 +126,27 @@ export default function Class() {
       navigate(selectedTab.path);
     }
   };
+
+  const checkbox = useRef(null);
+
+useEffect(() => {
+  if (checkbox.current) {
+    checkbox.current.indeterminate = selectedPeople.length > 0 && selectedPeople.length < people.length;
+  }
+}, [selectedPeople, people]);
+
+const groupedData = classData.reduce((acc, item) => {
+  if (!acc[item.category]) {
+    acc[item.category] = [];
+  }
+  acc[item.category].push(item);
+  return acc;
+}, {});
+
+const handleViewClick = (data) => {
+  dispatch(setSelectedClass(data)); // Save selected class in Redux
+  setOpen2(true); // Navigate to the "View More" page
+};
 
   return (
     <>
@@ -374,371 +392,94 @@ export default function Class() {
               <div className='table-container-main overflow-y-auto max-h-[56vh]'>
                 
                 {/* Table View */}
-                <table className="table-auto min-w-full divide-y divide-gray-300">
-                  <thead className="sticky top-0 bg-purple-100 z-20">
-                    <tr>
-                      <th scope="col" className="relative px-7 sm:w-12 sm:px-6">
-                        <input
-                          type="checkbox"
-                          className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                          ref={checkbox}
-                          checked={checked}
-                          onChange={toggleAll}
-                        />
-                      </th>
-                      <th scope="col" className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2">
-                        <a href="#" className="group inline-flex">
-                        Board
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
-                        </a>
-                      </th>
-                    
-                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        <a href="#" className="group inline-flex">
-                        Class
-                        <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
-                          </a>
-                      </th>
-                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        <a href="#" className="group inline-flex">
-                        Section
-                        <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
-                          </a>
-                      </th>
-                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        <a href="#" className="group inline-flex">
-                        Total Students
-                        <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
-                          </a>
-                      </th>
-                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        <a href="#" className="group inline-flex">
-                        Class Teacher
-                        <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
-                          </a>
-                      </th>
-                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        <a href="#" className="group inline-flex">
-                        Time Table & Syllabus
-                        
-                          </a>
-                      </th>
-                      
-                      
-                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        <a href="#" className="group inline-flex">
-                        Actions
+               
 
-                          </a>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white z-1">
-                    <tr className="border-t border-gray-200">
-                      <th
-                        scope="colgroup"
-                        colSpan={8}
-                        className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"
-                      >
-                        KINDERGARTEN
-                      </th>
-                    </tr>
+<table className="table-auto min-w-full divide-y divide-gray-300">
+  <thead className="sticky top-0 bg-purple-100 z-20">
+    <tr>
+      <th className="relative px-7 sm:w-12 sm:px-6">
+        <input
+          type="checkbox"
+          className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+          onChange={() => {}}
+        />
+      </th>
+      <th className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900">Board</th>
+      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">Class</th>
+      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">Section</th>
+      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">Total Students</th>
+      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">Class Teacher</th>
+      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">Time Table & Syllabus</th>
+      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
+    </tr>
+  </thead>
+  <tbody className="divide-y divide-gray-200 bg-white z-1">
+    {Object.entries(groupedData).map(([category, items]) => (
+      <>
+        {/* Category Row */}
+        <tr key={category} className="border-t border-gray-200">
+          <th
+            scope="colgroup"
+            colSpan={8}
+            className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"
+          >
+            {category}
+          </th>
+        </tr>
 
-                    {people.map((person) => (
-                      <tr key={person.email} className={selectedPeople.includes(person) ? 'bg-gray-50' : undefined}>
-                        <td className="relative px-7 sm:w-12 sm:px-6" >
-                          {selectedPeople.includes(person) && (
-                            <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
-                          )}
-                          <input
-                            type="checkbox"
-                            className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                            value={person.email}
-                            checked={selectedPeople.includes(person)}
-                            onChange={(e) =>
-                              setSelectedPeople(
-                                e.target.checked
-                                  ? [...selectedPeople, person]
-                                  : selectedPeople.filter((p) => p !== person),
-                              )
-                            }
-                          />
-                        </td>
-                       
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">CBSE</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Nursery</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">A</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">30</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Janet Baker</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#' onClick={() => setOpen2(true)}>View</a></td>
-                        
+        {/* Data Rows */}
+        {items.map((data, index) => (
+          <tr key={data._id || index} className="border-t border-gray-200">
+            <td className="relative px-7 sm:w-12 sm:px-6">
+              <input
+                type="checkbox"
+                className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+              />
+            </td>
+            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{data.board}</td>
+            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{data.class}</td>
+            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{data.section}</td>
+            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+              {data.totalStudents || "-"}
+            </td>
+            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+              {data.classTeacher || "-"}
+            </td>
+            <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
+              <a href="#" onClick={() => handleViewClick(data)}>View</a>
+            </td>
+            <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
+              <Menu as="div" className="relative inline-block text-left">
+                <div>
+                  <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
+                    <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
+                  </MenuButton>
+                </div>
+                <MenuItems
+                  className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none"
+                >
+                  <div className="py-1">
+                    <MenuItem>
+                      <a href="#" className="block px-4 py-2 text-sm text-gray-700">
+                        Edit
+                      </a>
+                    </MenuItem>
+                    <MenuItem>
+                      <a href="#" className="block px-4 py-2 text-sm text-gray-700">
+                        Delete
+                      </a>
+                    </MenuItem>
+                  </div>
+                </MenuItems>
+              </Menu>
+            </td>
+          </tr>
+        ))}
+      </>
+    ))}
+  </tbody>
+</table>
 
-                        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                          <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                              <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                                <span className="sr-only">Open options</span>
-                                <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
-                              </MenuButton>
-                            </div>
-
-                            <MenuItems
-                              transition
-                              className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                            >
-                              <div className="py-1">
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Edit
-                                  </a>
-                                </MenuItem>
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Delete
-                                  </a>
-                                </MenuItem>
-                                
-                                
-                              </div>
-                            </MenuItems>
-                          </Menu>
-                        </td>
-                      </tr>
-                      
-                    ))}
-                    {people.map((person) => (
-                      <tr key={person.email} className={selectedPeople.includes(person) ? 'bg-gray-50' : undefined}>
-                        <td className="relative px-7 sm:w-12 sm:px-6" >
-                          {selectedPeople.includes(person) && (
-                            <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
-                          )}
-                          <input
-                            type="checkbox"
-                            className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                            value={person.email}
-                            checked={selectedPeople.includes(person)}
-                            onChange={(e) =>
-                              setSelectedPeople(
-                                e.target.checked
-                                  ? [...selectedPeople, person]
-                                  : selectedPeople.filter((p) => p !== person),
-                              )
-                            }
-                          />
-                        </td>
-                       
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">CBSE</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">LKG</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">A</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">30</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Janet Baker</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#'>View</a></td>
-                        
-
-                        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                          <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                              <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                                <span className="sr-only">Open options</span>
-                                <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
-                              </MenuButton>
-                            </div>
-
-                            <MenuItems
-                              transition
-                              className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                            >
-                              <div className="py-1">
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Edit
-                                  </a>
-                                </MenuItem>
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Delete
-                                  </a>
-                                </MenuItem>
-                                
-                                
-                              </div>
-                            </MenuItems>
-                          </Menu>
-                        </td>
-                      </tr>
-                      
-                    ))}
-                    {people.map((person) => (
-                      <tr key={person.email} className={selectedPeople.includes(person) ? 'bg-gray-50' : undefined}>
-                        <td className="relative px-7 sm:w-12 sm:px-6" >
-                          {selectedPeople.includes(person) && (
-                            <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
-                          )}
-                          <input
-                            type="checkbox"
-                            className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                            value={person.email}
-                            checked={selectedPeople.includes(person)}
-                            onChange={(e) =>
-                              setSelectedPeople(
-                                e.target.checked
-                                  ? [...selectedPeople, person]
-                                  : selectedPeople.filter((p) => p !== person),
-                              )
-                            }
-                          />
-                        </td>
-                       
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">CBSE</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">UKG</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">A</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">30</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Janet Baker</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#'>View</a></td>
-                        
-
-                        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                          <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                              <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                                <span className="sr-only">Open options</span>
-                                <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
-                              </MenuButton>
-                            </div>
-
-                            <MenuItems
-                              transition
-                              className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                            >
-                              <div className="py-1">
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Edit
-                                  </a>
-                                </MenuItem>
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Delete
-                                  </a>
-                                </MenuItem>
-                                
-                                
-                              </div>
-                            </MenuItems>
-                          </Menu>
-                        </td>
-                      </tr>
-                      
-                    ))}
-                    
-                    <tr className="border-t border-gray-200">
-                      <th
-                        scope="colgroup"
-                        colSpan={8}
-                        className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"
-                      >
-                       Primary – Classes 1 to 5
-                      </th>
-                    </tr>
-                    {people.map((person) => (
-                      <tr key={person.email} className={selectedPeople.includes(person) ? 'bg-gray-50' : undefined}>
-                        <td className="relative px-7 sm:w-12 sm:px-6" >
-                          {selectedPeople.includes(person) && (
-                            <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
-                          )}
-                          <input
-                            type="checkbox"
-                            className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                            value={person.email}
-                            checked={selectedPeople.includes(person)}
-                            onChange={(e) =>
-                              setSelectedPeople(
-                                e.target.checked
-                                  ? [...selectedPeople, person]
-                                  : selectedPeople.filter((p) => p !== person),
-                              )
-                            }
-                          />
-                        </td>
-                       
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">CBSE</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Class 1</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">A</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">30</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">Janet Baker</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500"><a href='#'>View</a></td>
-                        
-
-                        <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                          <Menu as="div" className="relative inline-block text-left">
-                            <div>
-                              <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                                <span className="sr-only">Open options</span>
-                                <EllipsisHorizontalIcon aria-hidden="true" className="size-5" />
-                              </MenuButton>
-                            </div>
-
-                            <MenuItems
-                              transition
-                              className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                            >
-                              <div className="py-1">
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Edit
-                                  </a>
-                                </MenuItem>
-                                <MenuItem>
-                                  <a
-                                    href="#"
-                                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                                  >
-                                    Delete
-                                  </a>
-                                </MenuItem>
-                                
-                                
-                              </div>
-                            </MenuItems>
-                          </Menu>
-                        </td>
-                      </tr>
-                      
-                    ))}
-                    
-                  </tbody>
-                </table>
                 
                 
               </div>
@@ -842,350 +583,7 @@ export default function Class() {
     </Dialog>
 
     <Dialog open={open2} onClose={setOpen2} className="relative z-50">
-      <div className="fixed inset-0" />
-
-      <div className="fixed inset-0 overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-            <DialogPanel
-              transition
-              className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
-            >
-              <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
-                <div className="flex min-h-0 flex-1 flex-col">
-                  <div className="bg-purple-900 px-3 py-3 sm:px-6">
-                    <div className="flex items-start justify-between">
-                      <DialogTitle className=" text-base font-semibold text-white">View Class Info</DialogTitle>
-                      <div className="ml-3 flex h-7 items-center">
-                        <button
-                          type="button"
-                          onClick={() => setOpen2(false)}
-                          className="relative rounded-md text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        >
-                          <span className="absolute -inset-2.5" />
-                          <span className="sr-only">Close panel</span>
-                          <XMarkIcon aria-hidden="true" className="size-6" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="relative flex-1 px-6 py-6 sm:px-6 overflow-y-auto">
-                    
-
-                    <div className='form-content'>
-                    
-                          <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
-                              
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white'>
-                                        <UserCircleIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="text-lg pl-4 font-medium text-gray-900">Class Details</div>
-                                  </div>
-                                </div>
-
-                                <div className="px-4 py-4 text-sm/6">
-                                  
-                                    <dl className="grid auto-cols-auto grid-cols-4 gap-4 w-full">
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Board</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">CBSE</dd>
-                                      </div>
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Class Category</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">KINDERGARTEN</dd>
-                                      </div>
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Class</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">Class 1</dd>
-                                      </div>
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Section</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">A</dd>
-                                      </div>
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Class Teacher </dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">Rama Krishna</dd>
-                                      </div>
-                                      
-                                      <div className="content-item pb-2 border-b border-gray-300">
-                                        <dt className="text-sm/6 text-gray-500">Subjects</dt>
-                                        <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">English, Telugu, Social, Science</dd>
-                                      </div>
-                                      
-                                      
-                                    </dl>
-                                  
-                                </div>
-                              </li>
-
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white'>
-                                        <UserCircleIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="text-lg pl-4 font-medium text-gray-900">Time Table</div>
-                                  </div>
-                                </div>
-
-                                <div className="px-4 py-4 text-sm/6">
-                                  
-                                <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
-                                  <thead className="bg-purple-100">
-                                    <tr>
-                                      
-                                      <th scope="col" className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 pl-4 w-18">
-                                        <a href="#" className="group inline-flex">
-                                        P. No
-                                        </a>
-                                      </th>
-                                                                          
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Period  Time
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Monday
-                                        </a>
-                                      </th>
-                                                                          
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Tuesday
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Wednesday
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Thursday
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Friday
-                                        </a>
-                                      </th>
-                                      <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                        <a href="#" className="group inline-flex">
-                                        Saturday
-                                        </a>
-                                      </th>
-                                      
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-gray-200 bg-white">
-                                      <tr>
-                                        
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">1</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        
-                                      </tr>
-                                      <tr>
-                                        
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">2</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        
-                                      </tr>
-                                      
-                                      <tr className="border-t border-gray-200 bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">3</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                        <td
-                                            scope="colgroup"
-                                            colSpan={6}
-                                            className="whitespace-nowrap px-2 py-2 text-sm text-gray-900"
-                                          >
-                                            Lunch Break
-                                        </td>
-
-                                      </tr>
-                                      
-                                      <tr>
-                                        
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">4</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                          <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                        </td>
-                                        
-                                      </tr>
-                                      
-                                  
-                                    
-                                    
-                                  </tbody>
-                                </table>
-                                  
-                                </div>
-                              </li>
-
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white'>
-                                        <UserCircleIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="text-lg pl-4 font-medium text-gray-900">Syllabus 2023-2024</div>
-                                  </div>
-                                </div>
-
-                                <div className="px-4 py-4 text-sm/6">
-                                  
-                                <ul role="list" className="grid grid-cols-4 gap-x-6 gap-y-8">
-                                    <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                      <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                        <div className='flex items-center item-title-blk'>
-                                            <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                              <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                            </div>
-                                            <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                              <span>English</span>
-                                            </div>
-                                        </div>
-                                        <a href='#' className='text-gray-400'>
-                                          <EyeIcon aria-hidden="true" className="size-5" />
-                                        </a>
-                                      </div>
-                                    </li>
-                                    <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                      <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                        <div className='flex items-center item-title-blk'>
-                                            <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                              <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                            </div>
-                                            <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                              <span>Telugu</span>
-                                            </div>
-                                        </div>
-                                        <a href='#' className='text-gray-400'>
-                                          <EyeIcon aria-hidden="true" className="size-5" />
-                                        </a>
-                                      </div>
-                                    </li>
-                                    <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                      <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                        <div className='flex items-center item-title-blk'>
-                                            <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                              <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                            </div>
-                                            <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                              <span>Social</span>
-                                            </div>
-                                        </div>
-                                        <a href='#' className='text-gray-400'>
-                                          <EyeIcon aria-hidden="true" className="size-5" />
-                                        </a>
-                                      </div>
-                                    </li>
-                                    <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                      <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                        <div className='flex items-center item-title-blk'>
-                                            <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                              <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                            </div>
-                                            <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                              <span>Science</span>
-                                            </div>
-                                        </div>
-                                        <a href='#' className='text-gray-400'>
-                                          <EyeIcon aria-hidden="true" className="size-5" />
-                                        </a>
-                                      </div>
-                                    </li>
-
-
-
-                                 </ul>     
-                                      
-                                      
-                                   
-                                  
-                                </div>
-                              </li>
-                              
-
-                          </ul>
-
-                    </div>
-
-                  </div>
-                </div>
-                <div className="flex shrink-0 px-4 py-4 bg-gray-100 w-full justify-end">
-                  
-                    <button
-                      type="button"
-                      onClick={() => setOpen(false)}
-                      className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                    >
-                      Submit
-                    </button>
-
-                </div>
-              </div>
-            </DialogPanel>
-          </div>
-        </div>
-      </div>
+      <ManageViewClass onClose={handleClose2}/>
     </Dialog>
 
     </>

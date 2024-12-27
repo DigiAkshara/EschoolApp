@@ -13,8 +13,9 @@ import CustomDate from "../commonComponent/CustomDate";
 import ExamTimeTable from "./ExamTimeTable";
 import { CLASSES, EXAM } from "../app/url";
 import { getData, postData } from "../app/api";
+import ManageAddMarks from "./ManageAddMarks";
 
-function CreateExam({ onClose }) {
+function ManageExamMarks({ onClose }) {
   const [classData, setClassData] = useState()
   const navigate = useNavigate();
 
@@ -43,7 +44,7 @@ function CreateExam({ onClose }) {
       endDate: Yup.date().nullable().required("Exam End Date  is required"),
       timeTable: Yup.array().of(
         Yup.object({
-          subject: Yup.string().required("Subject is required"),
+          subject: Yup.string(),
           examDate: Yup.date().required("Date is required"),
           startTime: Yup.string().required("Start time is required"),
           endTime: Yup.string().required("End time is required"),
@@ -123,7 +124,7 @@ function CreateExam({ onClose }) {
                         <div className="bg-purple-900 px-3 py-3 sm:px-6">
                           <div className="flex items-start justify-between">
                             <DialogTitle className=" text-base font-semibold text-white">
-                              Add Exan
+                              Add Exam Marks
                             </DialogTitle>
                             <div className="ml-3 flex h-7 items-center">
                               <button
@@ -158,6 +159,7 @@ function CreateExam({ onClose }) {
                                       options={board}
                                       required
                                     />
+                                    
                                   </div>
 
                                   <div className="sm:col-span-1">
@@ -195,35 +197,32 @@ function CreateExam({ onClose }) {
                                       required={true}
                                     />
                                   </div>
-                                  <div className="sm:col-span-1">
-                                    <CustomDate
-                                      name="startDate"
-                                      label="Exam Start Date"
-                                      required={true}
-                                    />
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <CustomDate
-                                      name="endDate"
-                                      label="Exam End Date"
-                                      required={true}
-                                    />
-                                  </div>
+                                  
+                                  
+                                  
                                 </div>
+                                <div className=" sm-col-12  mt-2 flex justify-end">
+                                  <button
+                          type="submit"
+                          className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                        >
+                          Search
+                        </button>
+                                  </div>
                               </div>
 
                               <div className="border-b border-gray-900/10 pb-4 mb-4">
-                                <ExamTimeTable
-                                  values={values}
-                                  setFieldValue={setFieldValue}
-                                  errors={errors}
-                                  touched={touched}
-                                />
+                               <ManageAddMarks
+                               values={values}
+                               setFieldValue={setFieldValue}
+                               errors={errors}
+                               touched={touched}
+                               />
                               </div>
 
                               <div className="border-b border-gray-900/10 pb-4 mb-4">
                                 <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
-                                  Hall Tickets
+                                Progress Cards
                                 </h2>
                                 <button
                                   type="button"
@@ -233,7 +232,7 @@ function CreateExam({ onClose }) {
                                     aria-hidden="true"
                                     className="-ml-0.5 size-5"
                                   />
-                                  Generate Hall Tickets
+                                  Generate Progress Cards
                                 </button>
                               </div>
                             </div>
@@ -267,4 +266,4 @@ function CreateExam({ onClose }) {
   );
 }
 
-export default CreateExam;
+export default ManageExamMarks;
