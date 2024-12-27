@@ -7,11 +7,11 @@ import {
 import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
 import CustomButton from "../commonComponent/CustomButton";
-import { Form, Formik, useFormik } from "formik";
+import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import { postData } from "../app/api";
 import { LOGIN } from "../app/url";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
 import { setUser } from "../app/reducers/appConfigSlice";
 import { useNavigate, useParams } from "react-router-dom";
