@@ -125,12 +125,12 @@ export default function Login() {
                     </div>
 
                     <div className="text-sm/6">
-                      <a
+                      {/* <a
                         href="#"
                         className="font-semibold text-purple-600 hover:text-purple-500"
                       >
                         Forgot password?
-                      </a>
+                      </a> */}
                     </div>
                   </div>
 
