@@ -48,7 +48,7 @@ function StudentAcademicDetails({values, setFieldValue}) {
           <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
             <div className="sm:col-span-2">
               <CustomSelect
-                name="acadamicDetails.acadamicYear"
+                name="academicDetails.academicYear"
                 label="Academic year"
                 options={getAcademicYears()}
                 required={true}
@@ -74,7 +74,7 @@ function StudentAcademicDetails({values, setFieldValue}) {
 
             <div className="sm:col-span-1">
               <CustomSelect
-                name="acadamicDetails.class"
+                name="academicDetails.class"
                 label="Class"
                 required={true}
                 options={classes}
@@ -83,7 +83,7 @@ function StudentAcademicDetails({values, setFieldValue}) {
 
             <div className="sm:col-span-1">
               <CustomSelect
-                name="acadamicDetails.section"
+                name="academicDetails.section"
                 label="Section"
                 required={true}
                 options={sections}

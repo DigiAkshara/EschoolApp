@@ -22,7 +22,7 @@ const navigation = [
   { name: "Attendance", href: "/attendance", icon: CalendarIcon },
   { name: "Academics", href: "/academics", icon: DocumentDuplicateIcon },
   { name: "Finance", href: "/finance", icon: DocumentDuplicateIcon },
-
+  { name: "Tenant", href: "/tenant", icon: DocumentDuplicateIcon },
   { name: "Reports and Analytics", href: "#", icon: ChartPieIcon },
   { name: "Transportation", href: "#", icon: ChartPieIcon },
   { name: "Hostel Management", href: "#", icon: ChartPieIcon },

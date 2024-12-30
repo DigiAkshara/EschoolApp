@@ -2,7 +2,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ListBulletIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { ArrowDownTrayIcon, FunnelIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 
-const FilterComponent = ({ onSearch }) => {
+const FilterComponent = ({ onSearch, filters }) => {
   return (
     <div className="relative table-tool-bar z-30">
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">

@@ -53,8 +53,8 @@ function Student({ onClose }) {
       pincode: "",
     },
     parentIdProof: null,
-    acadamicDetails: {
-      acadamicYear: "",
+    academicDetails: {
+      academicYear: "",
       class: "",
       section: "",
     },
@@ -122,8 +122,8 @@ function Student({ onClose }) {
       parentIdProof: Yup.object().required("Parent ID proof is required"),
     }),
     Yup.object({
-      acadamicDetails: Yup.object({
-        acadamicYear: Yup.string().required("Academic year is required"),
+      academicDetails: Yup.object({
+        academicYear: Yup.string().required("Academic year is required"),
         class: Yup.string().required("Class is required"),
         section: Yup.string().required("Section is required"),
       }),
@@ -196,7 +196,6 @@ function Student({ onClose }) {
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
         {({ values, setFieldValue, errors }) => (
-          console.log(errors),
           (
             <Form>
               <div className="fixed inset-0 overflow-hidden">

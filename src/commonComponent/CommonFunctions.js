@@ -8,16 +8,16 @@ export const getAcademicYears = () => {
 
   // Determine the current academic year
   const startYear = currentMonth >= 6 ? currentYear : currentYear - 1;
-  const acadamicYears = [];
+  const academicYears = [];
 
   // Generate the academic years
   for (let year = startYear; year <= startYear + 2; year++) {
-    acadamicYears.push({
+    academicYears.push({
       value: `${year}-${year + 1}`,
       label: `${year}-${year + 1}`,
     });
   }
-  return acadamicYears;
+  return academicYears;
 };
 
 export const getFeeGroups = [

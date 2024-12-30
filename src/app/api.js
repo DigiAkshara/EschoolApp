@@ -1,13 +1,15 @@
 import { backendAPI } from "./baseAPI";
 
 export const getData = async (url) => {
+  try {
     const response = await backendAPI.get(url);
-    return response;
+    return response.data;
+  } catch (error) {
+    console.log("error", error);
+    throw error;
+  }
 }
 
 export const postData = async (url, payload) => {
-  console.log(payload);
-  
-  const response = await backendAPI.post(url, payload);
-  return response;
+  return await backendAPI.post(url, payload);
 }

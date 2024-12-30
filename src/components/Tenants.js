@@ -1,40 +1,22 @@
-import { Dialog } from "@headlessui/react";
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import Tenant from "./Tenant";
 import { getData } from "../app/api";
-import { selectStudent, setStudents } from "../app/reducers/studentSlice";
-import { ACADEMICS, FEES, STUDENT } from "../app/url";
-import { gender } from "../commonComponent/CommonFunctions";
+import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { Dialog } from "@headlessui/react";
 import TableComponent from "../commonComponent/TableComponent";
-import Student from "./Student";
+import { TENANT } from "../app/url";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
 
-const tabs = [
-  { name: "Students", href: "#", current: true },
-  { name: "Enrollments", href: "#", current: false },
-];
-
-const tabs2 = [
-  { name: "Active", href: "#", count: "52", current: true },
-  { name: "Drafts", href: "#", count: "12", current: false },
-];
-
-export default function ManageStudents() {
-  const dispatch = useDispatch();
-  // const { students } = useSelector((state) => state.students);
-  const [studentList, setStudentList] = useState([]);
+export default function Tenants () {
+  const [tenantList, setTenantList] = useState([]);
   const [open, setOpen] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  useEffect(() => {
-    getStudents();
-  }, []);
+  useEffect(()=>{
+    getTenants()
+  },[])
 
   const columns = [
     { title: "Student Name", key: "name" },
@@ -48,62 +30,27 @@ export default function ManageStudents() {
     { title: "Actions", key: "actions" },
   ];
 
-  const getStudents = async () => {
-    try {
-      const [student, academicsData]  = await Promise.all([getData(STUDENT), getData(ACADEMICS)]);
-      const studentRes = student.data;
-      const academics = academicsData.data; 
-      const lookup = new Map(academics.map(item => [item.student, item]));
-
-      const combined = studentRes.map(item1 => {
-        const match = lookup.get(item1._id);
-        return { ...item1, ...(match || {}) };
-      });
-      const studentData = combined.map((item) => {
-        return {
-          _id: item._id,
-          pic: item.profilePic?.Location,
-          name: item.firstName + " " + item.lastName,
-          admissionNo: item.admissionNumber,
-          class: item.class?.name,
-          section: item.section,
-          phoneNumber: item.fatherDetails.mobileNumber,
-          date: item.DOB,
-          aadharNo: item.aadharNumber,
-          gender: gender.find((gender) => gender.value === item.gender).label,
-          actions: [
-            { label: "Edit", actionHandler: onHandleEdit },
-            { label: "Delete", actionHandler: onDelete },
-          ],
-        };
-      });
-      setStudentList(studentData);
-      setFilteredData(studentData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const onHandleEdit = async (studentId) => {
-    const studentDetails  = await getData(STUDENT+"/details/"+studentId);
-
-    // const data = students.find((item) => item._id === Id);
-    // dispatch(selectStudent(data));
-    handleOpen();
-  };
-
-  const onDelete = () => {
-    console.log("delete");
-  };
-  const onPromote = () => {
-    console.log("promote");
-  };
-  const onExit = () => {
-    console.log("exit");
-  };
+  
+      // const data = students.find((item) => item._id === Id);
+      // dispatch(selectStudent(data));
+      handleOpen();
+    };
+  
+    const onDelete = () => {
+      console.log("delete");
+    };
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const classNames = (...classes)=> {
+    return classes.filter(Boolean).join(" ");
+  }
+
+  const getTenants = async () => {
+    const response = await getData(TENANT)
+  }
 
   const filters = [
     {
@@ -117,7 +64,7 @@ export default function ManageStudents() {
   ];
 
   const handleSearch = (term) => {
-    const filtered = studentList.filter((item) =>
+    const filtered = tenantList.filter((item) =>
       columns.some((col) =>
         String(item[col.key]).toLowerCase().includes(term.toLowerCase())
       )
@@ -126,15 +73,25 @@ export default function ManageStudents() {
   };
 
   const handleFilter = (key, value) => {
-    let filtered = studentList;
+    let filtered = tenantList;
     if (key === "age" && value) {
       const [min, max] = value.split("-");
-      filtered = studentList.filter(
+      filtered = tenantList.filter(
         (item) => item.age >= parseInt(min) && item.age <= parseInt(max)
       );
     }
     setFilteredData(filtered);
   };
+
+  const tabs = [
+    { name: "Students", href: "#", current: true },
+    { name: "Enrollments", href: "#", current: false },
+  ];
+  
+  const tabs2 = [
+    { name: "Active", href: "#", count: "52", current: true },
+    { name: "Drafts", href: "#", count: "12", current: false },
+  ];
 
   const handleAction = {
     edit: (item) => console.log("Edit:", item),
@@ -153,12 +110,12 @@ export default function ManageStudents() {
   return (
     <div className="flow-root">
       {/* Primary Tabs */}
-      <div>
+      {/* <div>
         <div className="sm:hidden">
           <label htmlFor="tabs" className="sr-only">
             Select a tab
           </label>
-          {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+          {/* Use an "onChange" listener to redirect the user to the selected tab URL. 
           <select
             id="tabs"
             name="tabs"
@@ -191,14 +148,14 @@ export default function ManageStudents() {
             </nav>
           </div>
         </div>
-      </div>
+      </div> */}
       {/* Secondary Tabs */}
       <div className="mt-4 flex justify-between">
-        <div className="sm:hidden">
+        {/* <div className="sm:hidden">
           <label htmlFor="tabs2" className="sr-only">
             Select a tab
           </label>
-          {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+          {/* Use an "onChange" listener to redirect the user to the selected tab URL. 
           <select
             id="tabs2"
             name="tabs2"
@@ -240,7 +197,7 @@ export default function ManageStudents() {
               </a>
             ))}
           </nav>
-        </div>
+        </div> */}
         <div className="right-btns-blk space-x-4">
           <button
             type="button"
@@ -248,15 +205,15 @@ export default function ManageStudents() {
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Student
+            Add Tenant
           </button>
-          <button
+          {/* <button
             type="button"
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Bulk Upload Students
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -352,12 +309,12 @@ export default function ManageStudents() {
         </div>
       </div>
 
-      {/* Student Onboarding Modal */}
+      {/* Tenant Onboarding Modal */}
 
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
 
-        <Student onClose={handleClose} />
+        <Tenant onClose={handleClose} />
       </Dialog>
     </div>
   );

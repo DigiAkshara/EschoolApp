@@ -53,7 +53,7 @@ export default function Login() {
     if(token){
       navigate("/");
     }
-  },[navigate])
+  },[])
   
 
   return (

@@ -39,7 +39,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
   };
 
   const getfees = async () => {
-    const res = await getData(FEES + "/" + values.acadamicDetails.class);
+    const res = await getData(FEES + "/" + values.academicDetails.class);
     let dumpList = []
     res.data.forEach(item => {
       dumpList.push({

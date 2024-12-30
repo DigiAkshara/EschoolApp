@@ -121,7 +121,7 @@ function ManageClassSyllabus({ values, setFieldValue, touched,errors }) {
             <td className="relative px-7 sm:w-12 sm:px-6">{index + 1}</td>
 
             <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-            <CustomSelect name={`syllabus.${index}.acadamicYear`} options={getAcademicYears()}/>
+            <CustomSelect name={`syllabus.${index}.academicYear`} options={getAcademicYears()}/>
 
             </td>
             <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">

@@ -10,6 +10,7 @@ import FilterComponent from "./FilterComponent";
 const TableComponent = ({
   columns,
   data,
+  filters,
   onSearch,
   onFilter,
   pagination,
@@ -32,7 +33,7 @@ const TableComponent = ({
   return (
     <div>
       {/* Search */}
-      <FilterComponent onSearch={handleSearch} />
+      <FilterComponent onSearch={handleSearch} filters={filters} />
 
       {/* Table */}
       <table className="table-auto min-w-full divide-y divide-gray-300">

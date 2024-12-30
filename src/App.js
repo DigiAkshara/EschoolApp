@@ -18,6 +18,7 @@ import ManageExams from './components/ManageExams';
 import Class from './components/Class';
 import FeesOverview from './components/ManageFeesOverview';
 import ManageFinance from './components/ManageFinance';
+import Tenants from './components/Tenants';
 
 
 function App() {
@@ -49,7 +50,7 @@ function App() {
                 <Route path="/academics" element={<ProtectedRoute><Academics /></ProtectedRoute>} />
                 <Route path="/staff" element={<ProtectedRoute><ManageStaff /></ProtectedRoute>} />
                 <Route path="/attendance" element={<ProtectedRoute><ManageAttendance /></ProtectedRoute>} />
-                
+                <Route path='/tenant' element={<ProtectedRoute><Tenants /></ProtectedRoute>} />
                 <Route path="/academics-class" element={<ProtectedRoute><Class /></ProtectedRoute>} />
                 <Route path="/academics-exams" element={<ProtectedRoute><ManageExams /></ProtectedRoute>} />
                 <Route path="/finance" element={<ProtectedRoute><ManageFinance /></ProtectedRoute>} />

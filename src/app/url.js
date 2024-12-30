@@ -7,10 +7,12 @@ export const STUDENT = "/student"
 export const UPLOAD = "/upload"
 export const EXAM = "/exam"
 export const NEWCLASS = "/timetable"
+export const ACADEMICS= "/academics"
+export const TENANT = "/tenant"
 
 
 
-export const CREATE_TENANT = "/tenant"
+
 export const PROFILE = "/user"
 export const ROLES = "/user/roles"
 export const PERMISSIONS = "/user/role"

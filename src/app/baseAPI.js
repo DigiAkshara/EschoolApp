@@ -1,26 +1,26 @@
-import Axios from "axios";
+import Axios from 'axios';
 
-const API_URL = process.env.URL || "https://eschoolapi.onrender.com/api";
+const API_URL = process.env.URL || 'http://localhost:8000/api';
 
 const createInstance = (URL) => {
   const instance = Axios.create({
     baseURL: URL,
     headers: {
-      Authorization: `Bearer ${localStorage.getItem('studentManagment') || ""}`,
+      Authorization: `Bearer ${localStorage.getItem('studentManagment') || ''}`,
     },
   });
 
-  // Add an interceptor to update headers before each request
   instance.interceptors.request.use(
     (config) => {
-      // Update Authorization header with the latest token
-      config.headers.Authorization = `Bearer ${localStorage.getItem('studentManagment') || ""}`;
-      // Add other dynamic headers as needed
+      config.headers.Authorization = `Bearer ${localStorage.getItem('studentManagment') || ''}`;
       return config;
     },
-    (error) => {
-      return error;
-    }
+    (error) => Promise.reject(error)
+  );
+
+  instance.interceptors.response.use(
+    (response) => response,
+    (error) => Promise.reject(error)
   );
 
   return instance;

@@ -135,7 +135,7 @@ function ManageClass({ onClose }) {
       syllabus: Yup.array().of(
         Yup.object({
           syllabusSubject: Yup.string(),
-          acadamicYear: Yup.string(),
+          academicYear: Yup.string(),
           syllabusPic: Yup.string().nullable(),
         })
       ),
