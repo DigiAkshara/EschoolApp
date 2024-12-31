@@ -1,6 +1,6 @@
 "use client";
 
-<<<<<<< Updated upstream
+
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -13,33 +13,20 @@ import {
   FunnelIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
-=======
-'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { ChevronDownIcon } from '@heroicons/react/20/solid'
-import { CheckCircleIcon } from '@heroicons/react/20/solid'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
-import { PlusIcon } from '@heroicons/react/20/solid'
-import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { ArrowUpTrayIcon } from '@heroicons/react/20/solid'
 import { ListBulletIcon } from '@heroicons/react/20/solid'
 import { Squares2X2Icon } from '@heroicons/react/24/outline'
-import { FunnelIcon } from '@heroicons/react/24/outline'
-import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { ArrowsUpDownIcon } from '@heroicons/react/24/outline'
-import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
 import { InformationCircleIcon } from '@heroicons/react/24/outline'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PhoneIcon } from '@heroicons/react/24/outline'
 
 
-import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { LinkIcon, QuestionMarkCircleIcon } from '@heroicons/react/20/solid'
 import { CheckIcon } from '@heroicons/react/20/solid'
 import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { DocumentArrowDownIcon} from '@heroicons/react/24/outline'
 import { EyeIcon} from '@heroicons/react/24/outline'
 
@@ -56,7 +43,7 @@ import ManageViewClass from './ManageViewClass'
 import { useDispatch } from 'react-redux';
 import { setClass, setSelectedClass } from '../app/reducers/classSlice'
 import { classCategory } from '../commonComponent/CommonFunctions'
->>>>>>> Stashed changes
+
 
 import {
   Button,
@@ -67,14 +54,6 @@ import {
   MenuItems,
 } from "@headlessui/react";
 
-import React from "react";
-import { useDispatch } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
-import { getData } from "../app/api";
-import { setSelectedClass } from "../app/reducers/classSlice";
-import { NEWCLASS } from "../app/url";
-import ManageClass from "./ManageClass";
-import ManageViewClass from "./ManageViewClass";
 
 const people = [
   {
@@ -113,34 +92,30 @@ export default function Class() {
     getClassData();
   }, []);
 
-  console.log("class data response ##########:", classData);
-
-<<<<<<< Updated upstream
-=======
 
   console.log("class data is ##########:",classData);
   
->>>>>>> Stashed changes
+
   const notificationMethods = [
     { id: "All", title: "All" },
     { id: "Old Students", title: "Old Students" },
     { id: "New Students", title: "New Students" },
   ];
 
-<<<<<<< Updated upstream
-  const getClassData = async () => {
-    try {
-      const response = await getData(NEWCLASS);
-      console.log("response is:", response.data);
-      if (response && response.data) {
-        setClassData(response.data.data);
-        // dispatch(setClass(response.data.data))
-      }
-    } catch (error) {
-      console.error("Error fetching class data:", error);
-    }
-  };
-=======
+
+  // const getClassData = async () => {
+  //   try {
+  //     const response = await getData(NEWCLASS);
+  //     console.log("response is:", response.data);
+  //     if (response && response.data) {
+  //       setClassData(response.data.data);
+  //       // dispatch(setClass(response.data.data))
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching class data:", error);
+  //   }
+  // };
+
   // const getClassData = async () => {
   //   try {
   //     const response = await getData(NEWCLASS);
@@ -180,7 +155,6 @@ const getClassData = async () => {
   }
 };
 
->>>>>>> Stashed changes
 
   function toggleAll() {
     setSelectedPeople(checked || indeterminate ? [] : people);

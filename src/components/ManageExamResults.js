@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 'use client'
 import { ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { ArrowDownTrayIcon, ArrowsUpDownIcon, FunnelIcon } from '@heroicons/react/24/outline'
@@ -8,59 +7,10 @@ import { Button, Dialog, Menu, MenuButton, MenuItem, MenuItems } from '@headless
 
 import { useDispatch, useSelector } from 'react-redux'
 import { getData } from '../app/api'
-import { setExams } from '../app/reducers/examSlice'
 import { EXAM } from '../app/url'
 import ExamMarkDetailsPage from './ExamMarkDetailsPage'
 import ManageExamMarks from './ManageExamMarks'
-=======
-"use client";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
-import { PlusIcon } from "@heroicons/react/20/solid";
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
-import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
-import { ListBulletIcon } from "@heroicons/react/20/solid";
-import { Squares2X2Icon } from "@heroicons/react/24/outline";
-import { FunnelIcon } from "@heroicons/react/24/outline";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
-import { ArrowsUpDownIcon } from "@heroicons/react/24/outline";
-import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { EnvelopeIcon } from "@heroicons/react/24/outline";
-import { PhoneIcon } from "@heroicons/react/24/outline";
-
-import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-
-import Datepicker from "react-tailwindcss-datepicker";
-import React, { PureComponent } from "react";
-import {
-  BarChart,
-  Bar,
-  Rectangle,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  PieChart,
-  Pie,
-  Sector,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Label,
-  legendType,
-} from "recharts";
-import Select from "react-tailwindcss-select";
-import CreateExam from "./CreateExam";
-import { getData } from "../app/api";
-import { EXAM } from "../app/url";
-import ExamDetailsPage from "./ExamDetailsPage";
-import { useDispatch, useSelector } from "react-redux";
 import { selectExam, setExams } from "../app/reducers/examSlice";
-import ManageExamMarks from "./ManageExamMarks";
-import ExamMarkDetailsPage from "./ExamMarkDetailsPage";
->>>>>>> Stashed changes
 
 const people = [
   {
@@ -358,9 +308,7 @@ function ManageExamResults() {
                         <input
                           type="checkbox"
                           className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                          //   ref={checkbox}
-                          //   checked={checked}
-                          //   onChange={toggleAll}
+                        
                         />
                       </th>
                       <th

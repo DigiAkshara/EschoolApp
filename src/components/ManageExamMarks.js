@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import * as Yup from "yup";
 import { getData, postData } from "../app/api";
-import { CLASSES, EXAM } from "../app/url";
+import { CLASSES, EXAM, SUBJECTS } from "../app/url";
 import { board, classCategory } from "../commonComponent/CommonFunctions";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
@@ -15,43 +15,92 @@ import { useSelector } from "react-redux";
 function ManageExamMarks({ onClose }) {
   const [classData, setClassData] = useState()
   const selectedExam = useSelector((state) => state.exams.selectedExam);
+  console.log("selected exam :",selectedExam);
+  
 
-  const navigate = useNavigate();
+  const subjects = selectedExam?.timeTable?.map(item => ({
+    label: item.subject,
+    value: item.subject
+  }));
+  console.log(subjects);
 
-  const getInitialValues = () => {
+  const students = [
+    {
+      rollNo: '1',
+      name: 'Janet Baker',
+      id: '112345',
+      },
+    {
+      rollNo: '2',
+      name: 'John Doe',
+      id: '112346',
+      
+    },
+    // More students can be added here
+  ];
+
+  const initialMarks = students.map(student => ({
+      student: student.name,
+      marks: subjects.map(subject => ({
+        subject: subject.label,
+        mark: "",
+      })),
+      marksObt: "",
+      totalMarks: "",
+      percentage: "",
+    }));
+  
+
+  const getInitialValues = (subjects,students ) => {
+    
     return {
-      board: "",
-      classCategory: "",
-      class: "",
-      section: "",
-      name: "",
-      
-    };
+      board: selectedExam?.board || "",
+      classCategory: selectedExam?.classCategory || "",
+      class: selectedExam?.class || "",
+      section: selectedExam?.section || "",
+      name: selectedExam?.name || "",
+      marks: initialMarks,
   };
+}
 
 
-  const getValidationSchema = () => {
-    return Yup.object({
-      board: Yup.string(),
-      classCategory: Yup.string(),
-      class: Yup.string(),
-      section: Yup.string(),
-      name: Yup.string(),
-      
-    });
-  };
+
+const getValidationSchema = () => {
+  return Yup.object({
+    board: Yup.string().required("Board is required"),
+    classCategory: Yup.string().required("Class category is required"),
+    class: Yup.string().required("Class is required"),
+    section: Yup.string().required("Section is required"),
+    name: Yup.string().required("Exam name is required"),
+    marks: Yup.array().of(
+      Yup.object({
+        student: Yup.string(),
+        marks: Yup.array().of(
+          Yup.object({
+            subject: Yup.string(),
+            mark: Yup.number(),
+          })
+        ),
+        
+      })
+    ),
+  });
+};
+
 
   useEffect(() => {
     getClass();
   }, []);
 
+   
+ 
   const getClass = async () => {
     const res = await getData(CLASSES);
     console.log("comming class data is:", res.data);
 
     const classData = res.data.data.map((item) => {
       return {
-        label: item.name, // Displayed text in the dropdown
+        label: item.name,
         value: item._id,
       };
     });
@@ -59,6 +108,7 @@ function ManageExamMarks({ onClose }) {
   };
 
   const handleSubmit = async (values) => {
+    console.log("Entered submit function");
     console.log("Exam values:",values);
    
   };
@@ -68,7 +118,7 @@ function ManageExamMarks({ onClose }) {
   return (
     <>
       <Formik
-        initialValues={getInitialValues()}
+        initialValues={getInitialValues(subjects,students )}
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
@@ -178,6 +228,8 @@ function ManageExamMarks({ onClose }) {
 
                               <div className="border-b border-gray-900/10 pb-4 mb-4">
                                <ManageAddMarks
+                               subjects={subjects}
+                               students={students} 
                                values={values}
                                setFieldValue={setFieldValue}
                                errors={errors}

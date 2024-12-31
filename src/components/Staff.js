@@ -80,7 +80,7 @@ function Staff({ onClose }) {
       mobileNumber: Yup.string().required("Mobile Number is required"),     
     }),
     Yup.object({
-      profilePic: Yup.object().required("Aadhar card file is required"),
+      profilePic: Yup.object(),
       email:Yup.string().required("Email is required").email("Enter a valid email address"),
       guardian:Yup.string().required(" Guardian is required"),
       gender:Yup.string().required("Gender is required"),
@@ -101,8 +101,8 @@ function Staff({ onClose }) {
       .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
       .required("Aadhar number is required"),
       panNumber:Yup.string().required("Pan number is required"),
-      aadharPic: Yup.object().required("Aadhar card file is required"),
-      panCardPic: Yup.object().required("Pan card file is required"),
+      aadharPic: Yup.object(),
+      panCardPic: Yup.object(),
       
     }),
     Yup.object({

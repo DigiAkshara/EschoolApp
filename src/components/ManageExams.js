@@ -2,23 +2,15 @@
 'use client'
 
 import { PlusIcon } from '@heroicons/react/20/solid'
-<<<<<<< Updated upstream
 import React, { useEffect, useRef, useState } from 'react'
 
 import { Dialog } from '@headlessui/react'
 
-=======
-import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 
 
-import React, { PureComponent } from 'react';
+import { PureComponent } from 'react';
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Sector, Cell, ResponsiveContainer, Legend, Label, legendType } from 'recharts';
-import CreateExam from './CreateExam'
-import { getData } from '../app/api'
-import { EXAM } from '../app/url'
-import ExamDetailsPage from './ExamDetailsPage'
->>>>>>> Stashed changes
 import { useDispatch, useSelector } from 'react-redux'
 import { getData } from '../app/api'
 import { selectExam, setExams } from '../app/reducers/examSlice'

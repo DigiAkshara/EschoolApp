@@ -81,26 +81,25 @@ function Student({ onClose }) {
         .min(3, "Last Name must be at least 3 characters")
         .required("Last Name is required"),
       gender: Yup.string().required("Gender is required"),
-      nationality: Yup.string().required("Nationality is required"),
-      religion: Yup.string().required("Religion is required"),
-      cast: Yup.string().required("cast is required"),
-      subCast: Yup.string().required("subCast is required"),
+      nationality: Yup.string(),
+      religion: Yup.string(),
+      cast: Yup.string(),
+      subCast: Yup.string(),
       bloodGroup: Yup.string().required("bloodGroup is required"),
       fatherDetails: Yup.object({
         name: Yup.string().required("Father's Name is required"),
         mobileNumber: Yup.string()
           .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
           .required("Fathers mobile number is required"),
-        occupation: Yup.string().required("Fathers Occupation is required"),
-        email: Yup.string().required("Fathers Email is required"),
+        occupation: Yup.string(),
+        email: Yup.string(),
       }),
       motherDetails: Yup.object({
-        name: Yup.string().required("Mother's Name is required"),
+        name: Yup.string(),
         mobileNumber: Yup.string()
-          .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
-          .required("Mother's mobile number is required"),
-        occupation: Yup.string().required("Mother's Occupation is required"),
-        email: Yup.string().required("Mother's email is required"),
+          .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits"),
+        occupation: Yup.string(),
+        email: Yup.string(),
       }),
       presentAddress: Yup.object({
         area: Yup.string().required("Area is required"),
@@ -118,8 +117,8 @@ function Student({ onClose }) {
         .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
         .required("Aadhar number is required"),
       DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
-      aadharPic: Yup.object().required("Aadhar card file is required"),
-      parentIdProof: Yup.object().required("Parent ID proof is required"),
+      aadharPic: Yup.object().nullable(),
+      parentIdProof: Yup.object().nullable(),
     }),
     Yup.object({
       academicDetails: Yup.object({

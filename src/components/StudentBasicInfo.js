@@ -73,7 +73,6 @@ function BasicInfo({values, setFieldValue}) {
               name="nationality"
               label="Nationality"
               options={nationality}
-              required={true}
             />
           </div>
 
@@ -82,7 +81,6 @@ function BasicInfo({values, setFieldValue}) {
               name="religion"
               label="Religion"
               options={religion}
-              required={true}
             />
           </div>
 
@@ -91,7 +89,6 @@ function BasicInfo({values, setFieldValue}) {
               name="cast"
               label="Cast"
               options={caste}
-              required={true}
             />
           </div>
 
@@ -100,7 +97,6 @@ function BasicInfo({values, setFieldValue}) {
               name="subCast"
               label="Sub Caste"
               placeholder="Enter Sub Caste"
-              required={true}
             />
           </div>
 
@@ -126,7 +122,6 @@ function BasicInfo({values, setFieldValue}) {
             <CustomFileUploader
               label="Upload Student Aadhar Card"
               name="aadharPic"
-              required={true}
               onChange={handleFileChange}
             />
           </div>
@@ -161,7 +156,6 @@ function BasicInfo({values, setFieldValue}) {
               name="fatherDetails.occupation"
               label="Occupation"
               options={occupation}
-              required={true}
             />
           </div>
 
@@ -170,7 +164,6 @@ function BasicInfo({values, setFieldValue}) {
               name="fatherDetails.email"
               label="Father Email"
               placeholder="Enter email"
-              required={true}
             />
           </div>
         </div>
@@ -185,7 +178,6 @@ function BasicInfo({values, setFieldValue}) {
               name="motherDetails.name"
               label="Mother Full Name"
               placeholder="Enter Name"
-              required={true}
             />
           </div>
 
@@ -194,7 +186,6 @@ function BasicInfo({values, setFieldValue}) {
               name="motherDetails.mobileNumber"
               label="Mobile Number"
               placeholder="Enter mobile"
-              required={true}
             />
           </div>
 
@@ -203,7 +194,6 @@ function BasicInfo({values, setFieldValue}) {
               name="motherDetails.occupation"
               label="Occupation"
               options={occupation}
-              required={true}
             />
           </div>
 
@@ -212,7 +202,6 @@ function BasicInfo({values, setFieldValue}) {
               name="motherDetails.email"
               label="Mother Email"
               placeholder="Enter email"
-              required={true}
             />
           </div>
         </div>
@@ -310,7 +299,6 @@ function BasicInfo({values, setFieldValue}) {
             <CustomFileUploader
               name="parentIdProof"
               label="Upload Parents ID Proof"
-              required={true}
               onChange={handleFileChange}
             />
           </div>

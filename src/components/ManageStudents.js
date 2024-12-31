@@ -51,8 +51,8 @@ export default function ManageStudents() {
   const getStudents = async () => {
     try {
       const [student, academicsData]  = await Promise.all([getData(STUDENT), getData(ACADEMICS)]);
-      const studentRes = student.data;
-      const academics = academicsData.data; 
+      const studentRes = student.data.data;
+      const academics = academicsData.data.data; 
       const lookup = new Map(academics.map(item => [item.student, item]));
 
       const combined = studentRes.map(item1 => {
