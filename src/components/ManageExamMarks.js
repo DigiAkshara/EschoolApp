@@ -10,9 +10,12 @@ import { board, classCategory } from "../commonComponent/CommonFunctions";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
 import ManageAddMarks from "./ManageAddMarks";
+import { useSelector } from "react-redux";
 
 function ManageExamMarks({ onClose }) {
   const [classData, setClassData] = useState()
+  const selectedExam = useSelector((state) => state.exams.selectedExam);
+
   const navigate = useNavigate();
 
   const getInitialValues = () => {
@@ -22,33 +25,19 @@ function ManageExamMarks({ onClose }) {
       class: "",
       section: "",
       name: "",
-      startDate: "",
-      endDate: "",
-      timeTable: [],
+      
     };
   };
 
 
   const getValidationSchema = () => {
     return Yup.object({
-      board: Yup.string().required("Board is required"),
-      classCategory: Yup.string().required("Class category is required"),
-      class: Yup.string().required("Class is required"),
-      section: Yup.string().required("Section is required"),
-      name: Yup.string().required("Exam Name is required"),
-      startDate: Yup.date().nullable().required("Exam Start Date  is required"),
-      endDate: Yup.date().nullable().required("Exam End Date  is required"),
-      timeTable: Yup.array().of(
-        Yup.object({
-          subject: Yup.string(),
-          examDate: Yup.date().required("Date is required"),
-          startTime: Yup.string().required("Start time is required"),
-          endTime: Yup.string().required("End time is required"),
-          passMark: Yup.string().required("Pass mark is required"),
-          totalMark: Yup.string().required("Total Mark is required"),
-          syllabus: Yup.string().required("Syllabusis required"),
-        })
-      ),
+      board: Yup.string(),
+      classCategory: Yup.string(),
+      class: Yup.string(),
+      section: Yup.string(),
+      name: Yup.string(),
+      
     });
   };
 
@@ -71,31 +60,11 @@ function ManageExamMarks({ onClose }) {
 
   const handleSubmit = async (values) => {
     console.log("Exam values:",values);
-    try {
-      let response = await postData(EXAM, values);
-      console.log("respose is:", response);
-      if (response.status === 201) {
-        console.log("Exam added successfully!");
-        navigate('/academics-exams')
-        alert(response.statusText);
-
-        onClose()
-      } else {
-        alert(response.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+   
   };
 
-  // const handleSubmit = (values) => {
-  //   alert("Form submitted successfully!");
-  //   console.log("Form submitted with values:", values);
 
-  //   onClose(); // Close the modal after form submission
-  // };
 
-  const [value, setValue] = useState({});
   return (
     <>
       <Formik
@@ -153,7 +122,7 @@ function ManageExamMarks({ onClose }) {
                                       label="Board"
                                       name="board"
                                       options={board}
-                                      required
+                                      
                                     />
                                     
                                   </div>
@@ -163,7 +132,7 @@ function ManageExamMarks({ onClose }) {
                                       label="Class Category"
                                       name="classCategory"
                                       options={classCategory}
-                                      required
+                                      
                                     />
                                   </div>
 
@@ -172,7 +141,7 @@ function ManageExamMarks({ onClose }) {
                                       label="Class"
                                       name="class"
                                       options={classData}
-                                      required
+                                      
                                     />
                                   </div>
 
@@ -180,7 +149,7 @@ function ManageExamMarks({ onClose }) {
                                     <CustomInput
                                       label="Section"
                                       name="section"
-                                      required
+                                      
                                     />
                                   </div>
 
@@ -190,7 +159,7 @@ function ManageExamMarks({ onClose }) {
                                       name="name"
                                       label="Exam Name"
                                       placeholder="Enter Exam name"
-                                      required={true}
+                                      
                                     />
                                   </div>
                                   

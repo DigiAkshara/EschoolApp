@@ -84,7 +84,7 @@ function ManageClass({ onClose }) {
       theorySubject: "",
       labSubject: "",
       extracurricular: "",
-      timetable: [],
+      timetables: [],
       syllabus: [],
     };
   };
@@ -100,7 +100,7 @@ function ManageClass({ onClose }) {
       labSubject: Yup.string(),
       extracurricular: Yup.string(),
 
-      timetable: Yup.array().of(
+      timetables: Yup.array().of(
         Yup.object({
           period: Yup.number(),
           time: Yup.string(),
@@ -146,7 +146,7 @@ function ManageClass({ onClose }) {
     console.log("Handle submit");
     const processedValues = {
       ...values,
-      theorySubject: theorySubject.length > 0 ? theorySubject : "",
+      theorySubjects: theorySubject.length > 0 ? theorySubject : "",
       extracurricular: extraCurricular.length > 0 ? extraCurricular : "",
       labSubject: labSubject.length > 0 ? labSubject : "",
     };

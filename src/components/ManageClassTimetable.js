@@ -27,7 +27,7 @@ function ManageClassTimetable({ values, setFieldValue }) {
 
   useEffect(() => {
     getSubjects();
-    setFieldValue("timetable",[
+    setFieldValue("timetables",[
       {
         period: 1,
         time: "",
@@ -70,14 +70,14 @@ function ManageClassTimetable({ values, setFieldValue }) {
         days: daysOfWeek.reduce((acc, day) => ({ ...acc, [day]: { subject: "", teacher: "" } }), {}),
       },]
     // setRows(dummyList);
-    setFieldValue("timetable",dummyList)
+    setFieldValue("timetables",dummyList)
   };
 
 
   const removeRow = (index) => {
     const updatedRows = rows.filter((_, i) => i !== index);
     setRows(updatedRows);
-    setFieldValue("timetable",updatedRows)
+    setFieldValue("timetables",updatedRows)
 
   };
   
@@ -131,25 +131,25 @@ function ManageClassTimetable({ values, setFieldValue }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
-        <FieldArray name="timetable">
+        <FieldArray name="timetables">
         {() =>
-          values.timetable.map((item, index) => (
+          values.timetables.map((item, index) => (
             <tr key={index}>
               <td className="relative px-7 sm:w-12 sm:px-6">{item.period}</td>
 
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                 <CustomInput
                       // name={item.passMarks}
-                      name={`timetable.${index}.time`}
+                      name={`timetables.${index}.time`}
                       placeholder="9:00-10:00 "
                       
                     />
               </td>
               {daysOfWeek.map((day) => (
               <td key={day} className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                <CustomSelect  name={`timetable.${index}.days.${day}.subject`}  options={subjects} />
+                <CustomSelect  name={`timetables.${index}.days.${day}.subject`}  options={subjects} />
 
-                <CustomSelect name={`timetable.${index}.days.${day}.teacher`} options={teacher} />
+                <CustomSelect name={`timetables.${index}.days.${day}.teacher`} options={teacher} />
               </td>
               ))}
               
