@@ -50,27 +50,20 @@ export default function ManageStudents() {
 
   const getStudents = async () => {
     try {
-      const [student, academicsData]  = await Promise.all([getData(STUDENT), getData(ACADEMICS)]);
+      const student= await getData(ACADEMICS);
       const studentRes = student.data.data;
-      const academics = academicsData.data.data; 
-      const lookup = new Map(academics.map(item => [item.student, item]));
-
-      const combined = studentRes.map(item1 => {
-        const match = lookup.get(item1._id);
-        return { ...item1, ...(match || {}) };
-      });
-      const studentData = combined.map((item) => {
+      const studentData = studentRes.map((item) => {
         return {
-          _id: item._id,
-          pic: item.profilePic?.Location,
-          name: item.firstName + " " + item.lastName,
-          admissionNo: item.admissionNumber,
+          _id: item.student._id,
+          pic: item.student.profilePic?.Location,
+          name: item.student.firstName + " " + item.student.lastName,
+          admissionNo: item.student.admissionNumber,
           class: item.class?.name,
           section: item.section,
-          phoneNumber: item.fatherDetails.mobileNumber,
-          date: item.DOB,
-          aadharNo: item.aadharNumber,
-          gender: gender.find((gender) => gender.value === item.gender).label,
+          phoneNumber: item.student.fatherDetails.mobileNumber,
+          date: item.student.DOB,
+          aadharNo: item.student.aadharNumber,
+          gender: gender.find((gender) => gender.value === item.student.gender).label,
           actions: [
             { label: "Edit", actionHandler: onHandleEdit },
             { label: "Delete", actionHandler: onDelete },
@@ -86,9 +79,9 @@ export default function ManageStudents() {
 
   const onHandleEdit = async (studentId) => {
     const studentDetails  = await getData(STUDENT+"/details/"+studentId);
-
+    console.log("studentDetails", studentDetails);
     // const data = students.find((item) => item._id === Id);
-    // dispatch(selectStudent(data));
+    dispatch(selectStudent(studentDetails.data.data));
     handleOpen();
   };
 

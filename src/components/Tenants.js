@@ -19,14 +19,12 @@ export default function Tenants () {
   },[])
 
   const columns = [
-    { title: "Student Name", key: "name" },
-    { title: "Admission Number", key: "admissionNo" },
-    { title: "Class", key: "class" },
-    { title: "Section", key: "section" },
+    { title: "School Name", key: "name" },
+    { title: "Email", key: "email" },
     { title: "Phone Number", key: "phoneNumber" },
-    { title: "DOB", key: "date" },
-    { title: "Aadhar No", key: "aadharNo" },
-    { title: "Gender", key: "gender" },
+    { title: "Admin Name", key: "adminName" },
+    { title: "Mobile Number", key: "mobileNumber" },
+    { title: "Email", key: "email" },
     { title: "Actions", key: "actions" },
   ];
 

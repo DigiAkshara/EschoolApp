@@ -1,6 +1,6 @@
-import { postData } from "../app/api";
-import { UPLOAD } from "../app/url";
-
+import { useDispatch } from "react-redux";
+import { getData, postData } from "../app/api";
+import { CLASSES, UPLOAD } from "../app/url"; 
 export const getAcademicYears = () => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -192,3 +192,22 @@ export const uploadFile = async (file) => {
       console.log(error);
     }
   }
+
+  export const getClasses = async () => {
+    try {
+      const res = await getData(CLASSES);
+      if(res.status === 200 || res.status === 201){
+        const classData = res.data.data.map((item) => {
+          return {
+            label: item.name, // Displayed text in the dropdown
+            value: item._id, 
+          }
+        })
+        return classData
+      }else{
+        throw new Error(res.message)
+      }
+    } catch (error) {
+      return []
+      console.log(error);}
+    }

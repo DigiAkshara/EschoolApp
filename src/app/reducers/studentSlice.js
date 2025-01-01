@@ -6,6 +6,7 @@ const studentSlice = createSlice({
   initialState: {
     students: [], // List of all exams
     selectedStudent: null, // Stores details of the clicked exam
+    classes:[]
   },
   reducers: {
     setStudents: (state, action) => {
@@ -14,8 +15,11 @@ const studentSlice = createSlice({
     selectStudent: (state, action) => {
       state.selectedStudent = action.payload; // Set selected exam details
     },
+    setClasses: (state, action) => {
+      state.classes = action.payload;
+    },
   },
 });
 
-export const { setStudents, selectStudent } = studentSlice.actions;
+export const { setStudents, selectStudent, setClasses } = studentSlice.actions;
 export default studentSlice.reducer;

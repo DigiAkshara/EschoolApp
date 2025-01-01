@@ -1,6 +1,8 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ListBulletIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { ArrowDownTrayIcon, FunnelIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
+import Student from '../components/Student';
+import CustomSelect from "./CustomSelect";
 
 const FilterComponent = ({ onSearch, filters }) => {
   return (
@@ -58,13 +60,13 @@ const FilterComponent = ({ onSearch, filters }) => {
                         htmlFor="street-address"
                         className="block text-sm/6 font-regular text-gray-900"
                       >
-                        Fee Name
+                        Student Name
                       </label>
                       <div className="mt-2">
                         <select
-                          id="location"
-                          name="location"
-                          defaultValue="Fee Name Title"
+                          id="studentName"
+                          name="studentName"
+                          defaultValue="SelectStudent Name"
                           className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
                         >
                           <option>Fee Name Title</option>
@@ -76,6 +78,7 @@ const FilterComponent = ({ onSearch, filters }) => {
                   </MenuItem>
 
                   <MenuItem>
+                  {/* <CustomSelect label="Class" name="class" options={["Nursery", "1st class", "2nd class"]}/> */}
                     <div className="">
                       <label
                         htmlFor="street-address"
@@ -85,17 +88,18 @@ const FilterComponent = ({ onSearch, filters }) => {
                       </label>
                       <div className="mt-2">
                         <select
-                          id="location"
-                          name="location"
-                          defaultValue="Fee Name Title"
+                          id="class"
+                          name="class"
+                          defaultValue="Select Class"
                           className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
                         >
-                          <option>Fee Name Title</option>
-                          <option>Canada</option>
-                          <option>Mexico</option>
+                          <option>Select Class</option>
+                          <option>Nursery</option>
+                          <option>1st class</option>
+                          <option>2nd class</option>
                         </select>
                       </div>
-                    </div>
+                    </div> 
                   </MenuItem>
 
                   <MenuItem>
