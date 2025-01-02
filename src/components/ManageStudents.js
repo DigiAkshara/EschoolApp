@@ -3,11 +3,12 @@ import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../app/api";
-import { selectStudent, setStudents } from "../app/reducers/studentSlice";
+import { fetchInitialStudentData, selectStudent, setStudents } from "../app/reducers/studentSlice";
 import { ACADEMICS, FEES, STUDENT } from "../app/url";
 import { gender } from "../commonComponent/CommonFunctions";
 import TableComponent from "../commonComponent/TableComponent";
 import Student from "./Student";
+import FilterComponent from "../commonComponent/FilterComponent";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -25,16 +26,33 @@ const tabs2 = [
 
 export default function ManageStudents() {
   const dispatch = useDispatch();
-  // const { students } = useSelector((state) => state.students);
+  const { classes, sections } = useSelector((state) => state.students);
   const [studentList, setStudentList] = useState([]);
   const [open, setOpen] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
+  const [clsOptions, setClsOptions] = useState([])
+  const [sectionOptions, setSectionOptions] = useState([])
+  const genderOptions = [{label:"Male", value:"male"},{label:"Female", value:"female"},{label:"Trans Gender", value:"transgender"}]
+  const getClassOptions = () =>{
+    return classes.map(cls=>({label:cls.name,value:cls._id}))
+  }
+  const getSectionOptions = () =>{
+    return sections.map(item=>({label:item.section,value:item._id}))
+  }
+
+  useEffect(()=>{
+    const clsTmp = getClassOptions()
+    const secTmp = getSectionOptions()
+    setClsOptions(clsTmp); setSectionOptions(secTmp)
+  },[classes,sections])
+
   useEffect(() => {
+    dispatch(fetchInitialStudentData())
     getStudents();
-  }, []);
+  }, [dispatch]);
 
   const columns = [
     { title: "Student Name", key: "name" },
@@ -88,25 +106,33 @@ export default function ManageStudents() {
   const onDelete = () => {
     console.log("delete");
   };
-  const onPromote = () => {
-    console.log("promote");
-  };
-  const onExit = () => {
-    console.log("exit");
-  };
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const filterForm = {
+    name:"",
+    class:"",
+    section:"",
+    gender:""
+  }
+
   const filters = [
     {
-      key: "age",
-      label: "Age Filter",
-      options: [
-        { value: "20-30", label: "20-30" },
-        { value: "30-40", label: "30-40" },
-      ],
+      key: "class",
+      label: "Class",
+      options: clsOptions,
     },
+    {
+      key:"section",
+      label:"Section Filter",
+      options:sectionOptions
+    },
+    {
+      key:"gender",
+      label:"Gender Filter",
+      options:genderOptions
+    }
   ];
 
   const handleSearch = (term) => {
@@ -118,14 +144,20 @@ export default function ManageStudents() {
     setFilteredData(filtered);
   };
 
-  const handleFilter = (key, value) => {
+  const handleFilter = () => {
     let filtered = studentList;
-    if (key === "age" && value) {
-      const [min, max] = value.split("-");
-      filtered = studentList.filter(
-        (item) => item.age >= parseInt(min) && item.age <= parseInt(max)
-      );
-    }
+    filters.forEach(item=>{
+      let value = filterForm[item.key]
+      if(value){
+        filtered = filtered.filter(rec=>rec[item.key].toLowerCase().includes(value.toLowerCase()))
+      }
+    })
+    // if (key === "class" && value) {
+    //   const [min, max] = value.split("-");
+    //   filtered = filtered.filter(
+    //     (item) => item.age >= parseInt(min) && item.age <= parseInt(max)
+    //   );
+    // }
     setFilteredData(filtered);
   };
 
@@ -281,12 +313,10 @@ export default function ManageStudents() {
             <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
               <div className="table-container-main overflow-y-auto max-h-[56vh]">
                 {/* Table View */}
+                <FilterComponent onSearch={handleSearch} filters={filters} filterForm={filterForm} handleFilter={handleFilter}/>
                 <TableComponent
                   columns={columns}
                   data={paginatedData}
-                  filters={filters}
-                  onSearch={handleSearch}
-                  onFilter={handleFilter}
                   onAction={[
                     { label: "Edit", handler: handleAction.edit },
                     { label: "Delete", handler: handleAction.delete },

@@ -4,6 +4,7 @@ const AppConfigSlice = createSlice({
   name: "AppConfig",
   initialState: {
     activeMenu: "home",
+    academicYear:null,
     user: null,
     navConfig:[],
     tenantId: null,
@@ -18,6 +19,10 @@ const AppConfigSlice = createSlice({
     },
     clearSession:(state)=>{
       state.user = null
+      state.academicYear = null
+    },
+    setAcademicYear:(state,action)=>{
+      state.academicYear = action.payload.academicYear
     },
     // loadNavConfig:(state, action)=>{  
     //   let temNav = navData.filter((item)=>{
@@ -37,5 +42,5 @@ const AppConfigSlice = createSlice({
   },
 })
 
-export const { setActiveMenu, setUser, clearSession, setTenantId, setFormData, clearFormData} = AppConfigSlice.actions
+export const { setActiveMenu, setUser, clearSession, setTenantId, setFormData, clearFormData, setAcademicYear} = AppConfigSlice.actions
 export default AppConfigSlice.reducer

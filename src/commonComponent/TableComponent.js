@@ -3,37 +3,20 @@ import {
   ArrowsUpDownIcon,
   EllipsisHorizontalIcon,
 } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
 import moment from "moment";
+import React from "react";
 import PaginationComponent from "./PaginationComponent";
-import FilterComponent from "./FilterComponent";
 const TableComponent = ({
   columns,
   data,
-  filters,
-  onSearch,
-  onFilter,
   pagination,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Handle Search
-  const handleSearch = (e) => {
-    
-    const term = e.target.value;
-    setSearchTerm(term);
-    onSearch(term);
-  };
-
-  // Handle Filters
-  const handleFilter = (key, value) => {
-    onFilter(key, value);
-  };
+  
 
   return (
     <div>
       {/* Search */}
-      <FilterComponent onSearch={handleSearch} filters={filters} />
+      {/* <FilterComponent onSearch={handleSearch} filters={filters} filterForm={filterForm}/> */}
 
       {/* Table */}
       <table className="table-auto min-w-full divide-y divide-gray-300">

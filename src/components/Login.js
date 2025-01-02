@@ -13,7 +13,7 @@ import { postData } from "../app/api";
 import { LOGIN } from "../app/url";
 import { useDispatch } from "react-redux";
 import { jwtDecode } from "jwt-decode";
-import { setUser } from "../app/reducers/appConfigSlice";
+import { setAcademicYear, setUser } from "../app/reducers/appConfigSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import { roles } from "../commonComponent/CommonFunctions";
 
@@ -40,7 +40,9 @@ export default function Login() {
     let response = await postData(LOGIN, values); 
     if (response.status === 200 || response.status === 201) {
       localStorage.setItem("studentManagment", response.data.token);
+      localStorage.setItem("academicYear", response.data.academicYear._id);
       dispatch(setUser(jwtDecode(response.data.token)));
+      dispatch(setAcademicYear(response.data.academicYear))
       navigate(id ? `/tenant/${id}` : "/");
     } else {
       alert("Login Failed, please retry again");

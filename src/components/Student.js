@@ -52,7 +52,8 @@ function Student({ onClose }) {
       state: "",
       pincode: "",
     },
-    parentIdProof: null,
+    parentIdProof: null, 
+    //academic tab
     academicDetails: {
       academicYear: "",
       class: "",
@@ -67,6 +68,7 @@ function Student({ onClose }) {
       classStudied: "",
       studyProof: null,
     },
+    //fees tab
     feesData: [],
     ...(selectedStudent && selectedStudent),
   });
