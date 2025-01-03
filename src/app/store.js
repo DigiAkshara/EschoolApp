@@ -4,6 +4,7 @@ import appConfigSlice from "./reducers/appConfigSlice";
 import examSlice from "./reducers/examSlice";
 import studentSlice from "./reducers/studentSlice";
 import classReducer from "./reducers/classSlice"
+import stuFeesReducer from "./reducers/stuFeesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     exams:examSlice,
     students:studentSlice,
     class: classReducer,
+    stuFees: stuFeesReducer, 
 
   }
 })

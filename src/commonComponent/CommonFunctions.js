@@ -157,6 +157,14 @@ export const banks = [
   { value: "other", label: "Other" },
 ]
 
+export const payments = [
+  { value: "cash", label: "Cash" },
+  { value: "upi", label: "UPI" },
+  { value: "bankTransfer", label: "Bank Transfer" },
+  { value: "cheque", label: "CHEQUE" },
+
+];
+
 export const designations = [
   { value: "principal", label: "Principal" },
   { value: "viceprincipal", label: "Vice Principal" },

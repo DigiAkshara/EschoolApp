@@ -120,7 +120,7 @@ function CreateExam({ onClose }) {
                         <div className="bg-purple-900 px-3 py-3 sm:px-6">
                           <div className="flex items-start justify-between">
                             <DialogTitle className=" text-base font-semibold text-white">
-                              Add Exan
+                              Add Exam
                             </DialogTitle>
                             <div className="ml-3 flex h-7 items-center">
                               <button
