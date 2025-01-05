@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-const API_URL = process.env.URL || 'http://192.168.1.11:8000/api';
+const API_URL = process.env.URL || 'http://localhost:8000/api';
 
 const createInstance = (URL) => {
   const instance = Axios.create({

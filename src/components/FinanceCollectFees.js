@@ -82,7 +82,7 @@ function FinanceCollectFees({ onClose }) {
   };
 
 
-  // const handleFileChange = async (e) => {
+  // const handleFileChange = async (e,setFieldValue) => {
   //   try {
   //     const fileResponse = await uploadFile(e.target.files[0]);
   //     setFieldValue(e.target.name, fileResponse);
@@ -90,6 +90,18 @@ function FinanceCollectFees({ onClose }) {
   //     console.log(error);
   //   }
   // }
+
+  const handleFileChange = async (e, setFieldValue) => {
+    try {
+      const file = e.target.files[0]; // Get the first selected file
+      if (file) {
+        const fileResponse = await uploadFile(file); // Upload the file
+        setFieldValue(e.target.name, fileResponse); // Update the form field with the response
+      }
+    } catch (error) {
+      console.error("File upload failed:", error);
+    }
+  };
 
   const feeInfoTabs = [
     {
@@ -350,7 +362,7 @@ function FinanceCollectFees({ onClose }) {
                                     <CustomFileUploader
                                       label="Upload Special Discount Approval  Proof"
                                       name="specialApprovel"
-                                      // onChange={handleFileChange}
+                                      onChange={(e) => handleFileChange(e, setFieldValue)}
                                       required={true}
                                     />
                                   </div>
@@ -412,7 +424,7 @@ function FinanceCollectFees({ onClose }) {
                                     <CustomFileUploader
                                       label="Upload Transaction Proof"
                                       name="transactionProof"
-                                      // onChange={handleFileChange}
+                                      onChange={(e) => handleFileChange(e, setFieldValue)}
                                     />
                                   </div>
                                 </div>

@@ -9,13 +9,13 @@ export const EXAM = "/exam"
 export const NEWCLASS = "/timetable"
 export const ACADEMICS= "/academics"
 export const TENANT = "/tenant"
-<<<<<<< Updated upstream
+
 export const SECTIONS = "/sections"
-=======
+
 export const STUDENTFEE = "/studentFees"
 
 
->>>>>>> Stashed changes
+
 
 
 

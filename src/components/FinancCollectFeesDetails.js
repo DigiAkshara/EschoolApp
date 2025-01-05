@@ -1,25 +1,26 @@
 import React, { useEffect, useState } from "react";
-import {  PlusIcon } from "@heroicons/react/20/solid";
+import { PlusIcon } from "@heroicons/react/20/solid";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { feeDiscount, payments } from "../commonComponent/CommonFunctions";
+import {
+  feeDiscount,
+  feeduration,
+  payments,
+} from "../commonComponent/CommonFunctions";
 import { getData } from "../app/api";
 import { FEES } from "../app/url";
 import CustomInput from "../commonComponent/CustomInput";
 import { FieldArray } from "formik";
 
-function FinancCollectFeesDetails({ feeData , values, setFieldValue}) {
-  // console.log("next step :", feeData);
-  // console.log("values:",values );
-  
-
+function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
   const [fees, setFees] = useState([]);
   const [reduxFees, setReduxFees] = useState(feeData.fees);
+  const [newRows, setNewRow] = useState([]);
   const [allFees, setAllFees] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [duration, setDuration] = useState(0);
 
   // console.log("Redux fees data only:", reduxFees);
   // console.log("allFees:",allFees);
-  
 
   const getFeesData = async () => {
     try {
@@ -35,7 +36,6 @@ function FinancCollectFeesDetails({ feeData , values, setFieldValue}) {
       }
     } catch (error) {
       console.error("Failed to fetch fees data:", error);
-      
     }
   };
 
@@ -44,7 +44,6 @@ function FinancCollectFeesDetails({ feeData , values, setFieldValue}) {
     0
   );
   const totalAmountTobepay = totalAmount - (Number(values.discountAmnt) || 0);
- 
 
   useEffect(() => {
     setFieldValue("totalPayAmnt", totalAmountTobepay);
@@ -54,27 +53,35 @@ function FinancCollectFeesDetails({ feeData , values, setFieldValue}) {
     getFeesData();
   }, []);
 
-
   const handleAddFee = (fee) => {
-  
-    
-    let dummyList = [...values.fees,{
+    const newFee = {
       _id: fee._id,
       feeName: fee.name.toUpperCase(),
       feeInstallment: fee.feeInstallment,
+      // feeInstallment:duration,
       amount: fee.amount,
       instalmentAmount: fee.instalmentAmount,
       disCount: "",
-      paidAmount:0,
-      dueDate:'',
+      paidAmount: 0,
+      dueDate: "",
       status: "",
-      payAmnt: "",}]
-    console.log("dummy list :",dummyList);
-    
-    setFieldValue("fees",dummyList)
-  
-    setShowDropdown(false); // Close the dropdown
+      payAmnt: "",
+    };
+
+    let dummyList = [...values.fees, newFee];
+    console.log("dummy list :", dummyList);
+    setNewRow([...newRows, newFee._id]);
+    setFieldValue("fees", dummyList);
+
+    setShowDropdown(false);
   };
+
+  // const handleInputChange = (id, value) => {
+  //   const updatedFees = feeData.map(fee =>
+  //     fee.id === id ? { ...fee, paidAmount: value } : fee
+  //   );
+  //   setFeeData(updatedFees);
+  // };
 
   return (
     <>
@@ -159,92 +166,127 @@ function FinancCollectFeesDetails({ feeData , values, setFieldValue}) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-          <FieldArray name="fees">
-          {() =>
-            values.fees.map((fee, index) => (
-              
-              
-                    <tr key={index}>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {fee.feeName}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {fee.feeInstallment} installment
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {fee.amount}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {fee.amount - fee.instalmentAmount}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {fee.paidAmount}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {fee.instalmentAmount}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {fee.dueDate}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
-                      {fee.status}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  <div className="sm:col-span-1">
-                    <CustomInput 
-                    
-                    name={`fees[${index}].payAmnt`}
-                    
-                    className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm" />
-                    </div>
-                  
-                  
-                  </td>
-                </tr>
-              ))
-          }
-        </FieldArray>
-              
-            
-{/*           
-                <tr key={index}>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {fee.name}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    <div className="sm:col-span-1">
-                      <CustomSelect name="discount" options={feeDiscount} />
-                    </div>
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    <input
-                      type="text"
-                      value={fee.amount}
-                      className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
-                    />
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    <input
-                      type="text"
-                      className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
-                    />
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    0
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  <div className="sm:col-span-1">
-                    <CustomInput name='discountFees'                  
-                    className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm" />
-                    </div>
-                  </td>
-                </tr> */}
-             
+            <FieldArray name="fees">
+              {() =>
+                values.fees.map((fee, index) => (
+                  <tr key={index}>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {fee.feeName}
+                    </td>
+
+                    {/* <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {newRows.includes(fee._id) ? (
+                        <div className="sm:col-span-1">
+                          <CustomSelect
+                            name="feeInstallment"
+                            placeholder="duration"
+                            options={feeduration}
+                            value={fee.feeInstallment}
+                            onChange={(e) => {
+                              const duration = Number(e.target.value);
+                              setDuration(duration);
+                              setFieldValue("feeInstallment", duration);
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        `${fee.feeInstallment} installment`
+                      )}
+                    </td> */}
+
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {newRows.includes(fee._id) ? (
+                        <div className="sm:col-span-1">
+                          <CustomSelect
+                            name={`fees.${fee._id}.feeInstallment`} // Dynamically bind the name
+                            placeholder="duration"
+                            options={feeduration}
+                            value={
+                              values.fees.find((f) => f._id === fee._id)
+                                ?.feeInstallment || fee.feeInstallment
+                            } // Reflect state or fallback to fee.feeInstallment
+                            onChange={(e) => {
+                              const duration = Number(e.target.value);
+                              const updatedFees = values.fees.map((f) =>
+                                f._id === fee._id
+                                  ? { ...f, feeInstallment: duration }
+                                  : f
+                              );
+                              setFieldValue("fees", updatedFees); // Update the fees array in Formik state
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        `${fee.feeInstallment} installment`
+                      )}
+                    </td>
+
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {newRows.includes(fee._id) ? (
+                        <input
+                          type="text"
+                          value={
+                            values.fees.find((f) => f._id === fee._id)
+                              ?.amount || fee.amount
+                          } // Bind to Formik's state
+                          onChange={(e) => {
+                            const updatedValue = Number(e.target.value);
+                            const updatedFees = values.fees.map((f) =>
+                              f._id === fee._id
+                                ? { ...f, amount: updatedValue }
+                                : f
+                            );
+                            setFieldValue("fees", updatedFees); // Update the fees array in Formik state
+                          }}
+                          className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
+                        />
+                      ) : (
+                        fee.amount
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {newRows.includes(fee._id) ? (
+                        <input
+                          type="text"
+                          name="feeTitle"
+                          placeholder="Enter"
+                          className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
+                        />
+                      ) : (
+                        fee.amount - fee.instalmentAmount
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {fee.paidAmount}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {fee.instalmentAmount}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {fee.dueDate}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {newRows.includes(fee._id) ? (
+                        ""
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+                          {fee.status}
+                        </span>
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      <div className="sm:col-span-1">
+                        <CustomInput
+                          name={`fees[${index}].payAmnt`}
+                          className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              }
+            </FieldArray>
+
             <tr>
               <td>
                 <button
@@ -294,7 +336,7 @@ function FinancCollectFeesDetails({ feeData , values, setFieldValue}) {
                 Currently Received:
               </td>
               <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
-              {totalAmount}
+                {totalAmount}
               </td>
             </tr>
             <tr>
@@ -317,13 +359,12 @@ function FinancCollectFeesDetails({ feeData , values, setFieldValue}) {
                 />
               </td>
               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-              <div className="sm:col-span-1">
-                    <CustomInput 
-                    
-                    name='discountAmnt'
-                    
-                    className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm" />
-                    </div>
+                <div className="sm:col-span-1">
+                  <CustomInput
+                    name="discountAmnt"
+                    className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
+                  />
+                </div>
               </td>
             </tr>
             <tr>
@@ -338,11 +379,9 @@ function FinancCollectFeesDetails({ feeData , values, setFieldValue}) {
                 Total Paid:
               </td>
               <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
-              {totalAmountTobepay}
+                {totalAmountTobepay}
               </td>
             </tr>
-            
-           
           </tbody>
         </table>
       </div>
