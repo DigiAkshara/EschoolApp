@@ -15,6 +15,7 @@ import CustomSelect from "../commonComponent/CustomSelect";
 function StudentFeeDetails({ values, setFieldValue }) {
   const [checked, setChecked] = useState(false);
   const [fees, setFees] = useState([]);
+  const [classData, setClassData] = useState(null);
 
   const handleFeeChange = (e, index) => {
     let dumpLIst = values.feesData
@@ -52,8 +53,29 @@ function StudentFeeDetails({ values, setFieldValue }) {
           totalFee: item.amount*1 //total fee
       })
     });
+    setClassData({...res.data.data[0].class, section:values.academicDetails.section})
     setFieldValue("feesData", dumpList);
     setFees(res.data)
+  };
+
+  const selectAllFees = () => {
+    let dumpList = []
+    values.feesData.forEach(item => {
+      dumpList.push({
+          ...item,
+          isChecked: !checked,
+      })
+    });
+    setFieldValue("feesData", dumpList);
+    setChecked(!checked)
+  };
+
+  const handleFeeChecked = (e, index) => {
+    let dumpList = values.feesData
+    dumpList[index].isChecked = e.target.checked
+    let isAllChecked = dumpList.every(item => item.isChecked);
+    setFieldValue("feesData", dumpList);
+    setChecked(isAllChecked)
   };
 
   return (
@@ -73,7 +95,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
               </div>
               <div className="ml-3 flex-1 md:flex md:justify-between">
                 <p className="text-sm text-blue-700">
-                  {`Academic Fee Details - Class: ${fees[0]?.class?.name} - Sec - ${values?.section}`}
+                  {`Academic Fee Details - Class: ${classData?.name} - Sec - ${classData?.section}`}
                 </p>
               </div>
             </div>
@@ -84,10 +106,11 @@ function StudentFeeDetails({ values, setFieldValue }) {
               <tr>
                 <th scope="col" className="relative px-7 sm:w-12 sm:px-6">
                   <CustomCheckBox
+                    checked={checked}
                     type="checkbox"
                     className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
                     name="selectAll"
-                    // onChange={toggleAll}
+                    onChange={selectAllFees}
                   />
                 </th>
                 <th
@@ -139,7 +162,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                   values.feesData.map((item, index) => (
                     <tr key={item.id}>
                       <td className="relative px-7 sm:w-12 sm:px-6">
-                        <CustomCheckBox name={item.feeName} />
+                        <CustomCheckBox name={item.feeName} checked={item.isChecked} onChange={(e) => handleFeeChecked(e, index)} />
                       </td>
 
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
@@ -151,7 +174,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           options={feeduration}
                           value={item.duration}
                           onChange={(e) => handleFeeChange(e, index)}
-                          // disabled = {!item.isChecked}
+                          disabled = {!item.isChecked}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -160,7 +183,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           options={feeDiscount}
                           value={item.discount}
                           onChange={(e) => handleFeeChange(e, index)}
-                          // disabled = {!item.isChecked}
+                          disabled = {!item.isChecked}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -168,7 +191,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           name={`feesData.${index}.installmentAmount`}
                           type="number"
                           value={item.installmentAmount}
-                          // disabled
+                          disabled
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -177,7 +200,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           placeholder="Enter Total Fee"
                           type="number"
                           value={item.amount}
-                          // disabled
+                          disabled
                         />
                       </td>
                     </tr>

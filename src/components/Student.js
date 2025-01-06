@@ -164,17 +164,22 @@ function Student({ onClose }) {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async(values) => {
     const finalData = { ...formData, ...values };
     try {
-      let response = postData(STUDENT, finalData);
+      let response = await postData(STUDENT, finalData);
       if (response.status === 200) {
         console.log("Student added successfully!");
       } else {
-        alert(response.message);
+        throw new Error(response);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response && error.response.status === 400) {
+        console.error("400 Bad Request:", error.response.data);
+        // Handle the error gracefully
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
     }
   };
 
@@ -198,8 +203,7 @@ function Student({ onClose }) {
       >
         {({ values, setFieldValue, errors }) => (
           (
-            <Form>
-              {console.log(errors)}
+            <Form> 
               <div className="fixed inset-0 overflow-hidden">
                 <div className="absolute inset-0 overflow-hidden">
                   <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">

@@ -6,10 +6,16 @@ export const getData = async (url) => {
     return response;
   } catch (error) {
     console.log("error", error);
-    throw error;
+    return error;
   }
 }
 
 export const postData = async (url, payload) => {
-  return await backendAPI.post(url, payload);
-}
+  try {
+    const response = await backendAPI.post(url, payload);
+    return response;
+  } catch (error) {
+    console.log("error", error);
+    return error;
+  }
+} 

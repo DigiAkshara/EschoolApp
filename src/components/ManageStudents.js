@@ -3,7 +3,11 @@ import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../app/api";
-import { fetchInitialStudentData, selectStudent, setStudents } from "../app/reducers/studentSlice";
+import {
+  fetchInitialStudentData,
+  selectStudent,
+  setStudents,
+} from "../app/reducers/studentSlice";
 import { ACADEMICS, FEES, STUDENT } from "../app/url";
 import { gender } from "../commonComponent/CommonFunctions";
 import TableComponent from "../commonComponent/TableComponent";
@@ -33,24 +37,29 @@ export default function ManageStudents() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
-  const [clsOptions, setClsOptions] = useState([])
-  const [sectionOptions, setSectionOptions] = useState([])
-  const genderOptions = [{label:"Male", value:"male"},{label:"Female", value:"female"},{label:"Trans Gender", value:"transgender"}]
-  const getClassOptions = () =>{
-    return classes.map(cls=>({label:cls.name,value:cls._id}))
-  }
-  const getSectionOptions = () =>{
-    return sections.map(item=>({label:item.section,value:item._id}))
-  }
-
-  useEffect(()=>{
-    const clsTmp = getClassOptions()
-    const secTmp = getSectionOptions()
-    setClsOptions(clsTmp); setSectionOptions(secTmp)
-  },[classes,sections])
+  const [clsOptions, setClsOptions] = useState([]);
+  const [sectionOptions, setSectionOptions] = useState([]);
+  const genderOptions = [
+    { label: "Male", value: "male" },
+    { label: "Female", value: "female" },
+    { label: "Trans Gender", value: "transgender" },
+  ];
+  const getClassOptions = () => {
+    return classes.map((cls) => ({ label: cls.name, value: cls.name, id: cls._id }));
+  };
+  const getSectionOptions = () => {
+    return sections.map((item) => ({ label: item.section, value: item.section, id: item._id }));
+  };
 
   useEffect(() => {
-    dispatch(fetchInitialStudentData())
+    const clsTmp = getClassOptions();
+    const secTmp = getSectionOptions();
+    setClsOptions(clsTmp);
+    setSectionOptions(secTmp);
+  }, [classes, sections]);
+
+  useEffect(() => {
+    dispatch(fetchInitialStudentData());
     getStudents();
   }, [dispatch]);
 
@@ -68,7 +77,7 @@ export default function ManageStudents() {
 
   const getStudents = async () => {
     try {
-      const student= await getData(ACADEMICS);
+      const student = await getData(ACADEMICS);
       const studentRes = student.data.data;
       const studentData = studentRes.map((item) => {
         return {
@@ -81,7 +90,8 @@ export default function ManageStudents() {
           phoneNumber: item.student.fatherDetails.mobileNumber,
           date: item.student.DOB,
           aadharNo: item.student.aadharNumber,
-          gender: gender.find((gender) => gender.value === item.student.gender).label,
+          gender: gender.find((gender) => gender.value === item.student.gender)
+            .label,
           actions: [
             { label: "Edit", actionHandler: onHandleEdit },
             { label: "Delete", actionHandler: onDelete },
@@ -96,7 +106,7 @@ export default function ManageStudents() {
   };
 
   const onHandleEdit = async (studentId) => {
-    const studentDetails  = await getData(STUDENT+"/details/"+studentId);
+    const studentDetails = await getData(STUDENT + "/details/" + studentId);
     console.log("studentDetails", studentDetails);
     // const data = students.find((item) => item._id === Id);
     dispatch(selectStudent(studentDetails.data.data));
@@ -111,29 +121,13 @@ export default function ManageStudents() {
   const handleClose = () => setOpen(false);
 
   const filterForm = {
-    name:"",
-    class:"",
-    section:"",
-    gender:""
-  }
-
-  const filters = [
-    {
-      key: "class",
-      label: "Class",
-      options: clsOptions,
-    },
-    {
-      key:"section",
-      label:"Section Filter",
-      options:sectionOptions
-    },
-    {
-      key:"gender",
-      label:"Gender Filter",
-      options:genderOptions
-    }
-  ];
+    class: "",
+    section: "",
+    gender: "",
+  };
+ 
+  const filters ={class:clsOptions,section:sectionOptions,gender:genderOptions}
+ 
 
   const handleSearch = (term) => {
     const filtered = studentList.filter((item) =>
@@ -144,22 +138,22 @@ export default function ManageStudents() {
     setFilteredData(filtered);
   };
 
-  const handleFilter = () => {
+  const handleFilter = (values) => {
     let filtered = studentList;
-    filters.forEach(item=>{
-      let value = filterForm[item.key]
+    Object.entries(values).forEach(([key,value])=>{
       if(value){
-        filtered = filtered.filter(rec=>rec[item.key].toLowerCase().includes(value.toLowerCase()))
+        filtered = filtered.filter(rec=>rec[key].toLowerCase().includes(value.toLowerCase()))
       }
     })
-    // if (key === "class" && value) {
-    //   const [min, max] = value.split("-");
-    //   filtered = filtered.filter(
-    //     (item) => item.age >= parseInt(min) && item.age <= parseInt(max)
-    //   );
-    // }
     setFilteredData(filtered);
   };
+
+  const handleReset = (updatedValues) => {
+    setFilteredData(studentList);
+    updatedValues('gender','')
+    updatedValues('class','')
+    updatedValues('section','') 
+  }
 
   const handleAction = {
     edit: (item) => console.log("Edit:", item),
@@ -313,7 +307,13 @@ export default function ManageStudents() {
             <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
               <div className="table-container-main overflow-y-auto max-h-[56vh]">
                 {/* Table View */}
-                <FilterComponent onSearch={handleSearch} filters={filters} filterForm={filterForm} handleFilter={handleFilter}/>
+                <FilterComponent
+                  onSearch={handleSearch}
+                  filters={filters}
+                  filterForm={filterForm}
+                  handleFilter={handleFilter}
+                  handleReset={handleReset}
+                />
                 <TableComponent
                   columns={columns}
                   data={paginatedData}

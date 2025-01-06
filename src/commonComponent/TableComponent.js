@@ -4,15 +4,31 @@ import {
   EllipsisHorizontalIcon,
 } from "@heroicons/react/24/outline";
 import moment from "moment";
-import React from "react";
+import React, { useState } from "react";
 import PaginationComponent from "./PaginationComponent";
 const TableComponent = ({
   columns,
   data,
   pagination,
 }) => {
-  
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
+  const handleSort = ({key}) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+
+    const sortedData = [...data].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setSortConfig({ key, direction });
+    return sortedData;
+  };
+  const sortedData = sortConfig.key ? handleSort(sortConfig.key) : data;
   return (
     <div>
       {/* Search */}
@@ -36,7 +52,7 @@ const TableComponent = ({
               >
                 <a href="#" className="group inline-flex">
                   {col.title}
-                  <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
+                  <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200" onClick={() => handleSort(col)}>
                     <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
                   </span>
                 </a>
@@ -45,7 +61,7 @@ const TableComponent = ({
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white z-1">
-          {data.map((student, indx) => (
+          {sortedData.map((student, indx) => (
             <tr key={indx} className="bg-gray-50">
               <td className="relative px-7 sm:w-12 sm:px-6">
                 <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
@@ -54,9 +70,9 @@ const TableComponent = ({
                   className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
                 />
               </td>
-              {columns.map((col, index) =>
+              {columns.map((col, ind) =>
                 col.key === "name" ? (
-                  <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
+                  <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0" key={ind}>
                     <a
                       href="#"
                       className="text-purple-600 hover:text-purple-900"
@@ -81,7 +97,7 @@ const TableComponent = ({
                     </a>
                   </td>
                 ) : col.key === "actions" ? (
-                  <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
+                  <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3" key={ind}>
                       <Menu as="div" className="relative inline-block text-left">
                   <div>
                     <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
@@ -98,8 +114,8 @@ const TableComponent = ({
                     className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
                   >
                     <div className="py-1">
-                      {student.actions.map((action) => (
-                        <a
+                      {student.actions.map((action,index) => (
+                        <a key={index}
                           onClick={()=>action.actionHandler(student._id)}
                           className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
                         >
@@ -111,7 +127,7 @@ const TableComponent = ({
                 </Menu> 
                   </td>)
                  :
-                  (<td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                  (<td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500" key={ind}>
                     {col.key === "date"
                       ? moment(student[col.key]).format("DD-MM-YYYY")
                       : student[col.key]}

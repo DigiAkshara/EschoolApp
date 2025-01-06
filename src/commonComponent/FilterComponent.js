@@ -8,8 +8,7 @@ import {
 import CustomSelect from './CustomSelect'
 import {Form, Formik} from 'formik'
 
-const FilterComponent = ({onSearch, filters, filterForm,handleFilter}) => {
-  
+const FilterComponent = ({onSearch, filters, filterForm,handleFilter, handleReset}) => {
   return (
     <div className="relative table-tool-bar z-30">
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
@@ -31,7 +30,9 @@ const FilterComponent = ({onSearch, filters, filterForm,handleFilter}) => {
               />
             </div>
           </div>
-          <Formik initialValues={filterForm}>
+          <Formik initialValues={filterForm} onSubmit={handleFilter}>
+          {({ values,setFieldValue }) => (
+          (
             <Form>
               <div className="right-action-btns-blk space-x-4">
                 <button
@@ -60,26 +61,25 @@ const FilterComponent = ({onSearch, filters, filterForm,handleFilter}) => {
                           <span className="pl-2">Select Filters</span>
                         </div>
                       </MenuItem>
-                      {filters.map(item=>(
-                        <div key={item.key}>
+                      {Object.entries(values).map(([key])=>(
+                        <div key={key}>
                           <CustomSelect
-                            label={item.label}
-                            name={item.key}
-                            options={item.options}
+                            label={key}
+                            name={key}
+                            options={filters[key]}
                           />
                         </div>))}
                         
                     <div className="flex">
                       <button
                         type="button"
-                        // onClick={() => setOpen(false)}
+                        onClick={()=>{handleReset(setFieldValue)}}
                         className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
                       >
-                        Cancel
+                        Reset
                       </button>
                       <button
-                        onClick={handleFilter}
-                        // type="submit"
+                        type="submit"
                         className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                       >
                         Apply
@@ -105,7 +105,7 @@ const FilterComponent = ({onSearch, filters, filterForm,handleFilter}) => {
                   <ListBulletIcon aria-hidden="true" className="size-5" />
                 </button>
               </div>
-            </Form>
+            </Form>))}
           </Formik>
         </div>
       </div>
