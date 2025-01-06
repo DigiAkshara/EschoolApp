@@ -32,7 +32,7 @@ function FinanceCollectFees({ onClose }) {
     return {
       fees: feeList.map((item) => ({
         _id: item.feeId,
-        feeName: item.feeName.toUpperCase(),
+        feeName: item.feeName,
         feeInstallment: item.feeInstallment,
         amount: item.amount,
         instalmentAmount: item.instalmentAmount,
@@ -59,16 +59,22 @@ function FinanceCollectFees({ onClose }) {
     return Yup.object({
       fees: Yup.array().of(
         Yup.object({
-          payAmnt: Yup.number(),
+          payAmnt: Yup.number().required("Amount is required")
+          .min(1, 'Amount must be greater than 0')
+          .test(
+            'max-pay',
+            'Amount cannot exceed Pending Balance',
+            function (value) {
+              const { instalmentAmount } = this.parent;
+              return value <= instalmentAmount;
+            }
+          ),
         })
       ),
 
       discountAmnt: Yup.number(),
       discountFees: Yup.string(),
-      // transactionDate: Yup.date(),
-      // paymentMode: Yup.string(),
-      // banks: Yup.string(),
-      // transactionId: Yup.string(),
+    
       totalPayAmnt: Yup.number(),
 
       transactionDate: Yup.date().nullable().required("Transaction Date is required"),

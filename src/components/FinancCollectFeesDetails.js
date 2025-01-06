@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import CustomSelect from "../commonComponent/CustomSelect";
-import {
-  feeDiscount,
-  feeduration,
-  payments,
-} from "../commonComponent/CommonFunctions";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { capitalizeWords, feeduration } from "../commonComponent/CommonFunctions";
 import { getData } from "../app/api";
 import { FEES } from "../app/url";
 import CustomInput from "../commonComponent/CustomInput";
@@ -13,11 +10,9 @@ import { FieldArray } from "formik";
 
 function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
   const [fees, setFees] = useState([]);
-  const [reduxFees, setReduxFees] = useState(feeData.fees);
   const [newRows, setNewRow] = useState([]);
   const [allFees, setAllFees] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [duration, setDuration] = useState(0);
 
   // console.log("Redux fees data only:", reduxFees);
   // console.log("allFees:",allFees);
@@ -60,7 +55,7 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
       feeInstallment: fee.feeInstallment,
       // feeInstallment:duration,
       amount: fee.amount,
-      instalmentAmount: fee.instalmentAmount,
+      instalmentAmount: fee.amount,
       disCount: "",
       paidAmount: 0,
       dueDate: "",
@@ -76,12 +71,11 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
     setShowDropdown(false);
   };
 
-  // const handleInputChange = (id, value) => {
-  //   const updatedFees = feeData.map(fee =>
-  //     fee.id === id ? { ...fee, paidAmount: value } : fee
-  //   );
-  //   setFeeData(updatedFees);
-  // };
+  const handleRemove = (feeId) => {
+    const updatedFees = values.fees.filter((fee) => fee._id !== feeId);
+    setFieldValue("fees", updatedFees); // Update Formik state
+    setNewRow(newRows.filter((id) => id !== feeId)); // Remove ID from newRows
+  };
 
   return (
     <>
@@ -163,6 +157,10 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                   Now Paid
                 </a>
               </th>
+              <th
+                scope="col"
+                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+              ></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
@@ -171,28 +169,9 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                 values.fees.map((fee, index) => (
                   <tr key={index}>
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {fee.feeName}
+                    {capitalizeWords(fee.feeName)}
+                     
                     </td>
-
-                    {/* <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {newRows.includes(fee._id) ? (
-                        <div className="sm:col-span-1">
-                          <CustomSelect
-                            name="feeInstallment"
-                            placeholder="duration"
-                            options={feeduration}
-                            value={fee.feeInstallment}
-                            onChange={(e) => {
-                              const duration = Number(e.target.value);
-                              setDuration(duration);
-                              setFieldValue("feeInstallment", duration);
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        `${fee.feeInstallment} installment`
-                      )}
-                    </td> */}
 
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                       {newRows.includes(fee._id) ? (
@@ -221,7 +200,7 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                       )}
                     </td>
 
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                    {/* <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                       {newRows.includes(fee._id) ? (
                         <input
                           type="text"
@@ -243,7 +222,36 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                       ) : (
                         fee.amount
                       )}
+                    </td> */}
+
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {newRows.includes(fee._id) ? (
+                        <input
+                          type="text"
+                          value={
+                            values.fees.find((f) => f._id === fee._id)
+                              ?.amount || fee.amount
+                          } // Bind to Formik's state
+                          onChange={(e) => {
+                            const updatedValue = Number(e.target.value);
+                            const updatedFees = values.fees.map((f) =>
+                              f._id === fee._id
+                                ? {
+                                    ...f,
+                                    amount: updatedValue,
+                                    instalmentAmount: updatedValue,
+                                  }
+                                : f
+                            );
+                            setFieldValue("fees", updatedFees); // Update the fees array in Formik state
+                          }}
+                          className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
+                        />
+                      ) : (
+                        fee.amount
+                      )}
                     </td>
+
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                       {newRows.includes(fee._id) ? (
                         <input
@@ -259,8 +267,18 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                       {fee.paidAmount}
                     </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                    {/* <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                       {fee.instalmentAmount}
+                    </td> */}
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {newRows.includes(fee._id) ? (
+                        <span>
+                          {values.fees.find((f) => f._id === fee._id)
+                            ?.instalmentAmount || fee.instalmentAmount}
+                        </span>
+                      ) : (
+                        fee.instalmentAmount
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                       {fee.dueDate}
@@ -282,6 +300,16 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                         />
                       </div>
                     </td>
+                    {newRows.includes(fee._id) && (
+                      <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                        <button onClick={() => handleRemove(fee._id)}>
+                          <XMarkIcon
+                            aria-hidden="true"
+                            className="text-red-500 size-5"
+                          />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               }
@@ -326,7 +354,7 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
               </td>
               <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
                 ₹
-                {reduxFees.reduce(
+                {values.fees.reduce(
                   (total, fee) => total + fee.instalmentAmount,
                   0
                 )}

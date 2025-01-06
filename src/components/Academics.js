@@ -9,11 +9,7 @@ import ManageCertificates from "./ManageCertificates";
 import ManageDailyTimeTable from "./ManageDailyTimeTable";
 import ManageExams from "./ManageExams";
 
-const subjects = [
-  { value: "English", label: "English" },
-  { value: "Telugu", label: "Telugu" },
-  { value: "Social", label: "Social" },
-];
+
 
 const people = [
   {
@@ -25,17 +21,6 @@ const people = [
   // More people...
 ];
 
-const people2 = [
-  {
-    name: "Janet Baker",
-    title: "12345678 | 1A",
-    email: "janecooper@example.com",
-    telephone: "+1-202-555-0170",
-    imageUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-  },
-  // More people...
-];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -43,12 +28,7 @@ function classNames(...classes) {
 
 const tabs = ["Daily Time table", "Classes", "Exams", "Certificates"];
 
-// const tabs = [
-//   { name: 'Daily Time table', href: '/academics', component: ManageDailyTimeTable },
-//   { name: 'Classes', href: '/academics-class', component: ManageClass },
-//   { name: 'Exams', href: '/academics-exams', component: () => <div>Exams Component</div> },
-//   { name: 'Certificates', href: '/academics-certificates', component: () => <div>Certificates Component</div> },
-// ]
+
 
 export default function Academics() {
   const [open, setOpen] = useState(false);

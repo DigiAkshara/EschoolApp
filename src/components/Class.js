@@ -93,43 +93,8 @@ export default function Class() {
   }, []);
 
 
-  console.log("class data is ##########:",classData);
-  
-
-  const notificationMethods = [
-    { id: "All", title: "All" },
-    { id: "Old Students", title: "Old Students" },
-    { id: "New Students", title: "New Students" },
-  ];
 
 
-  // const getClassData = async () => {
-  //   try {
-  //     const response = await getData(NEWCLASS);
-  //     console.log("response is:", response.data);
-  //     if (response && response.data) {
-  //       setClassData(response.data.data);
-  //       // dispatch(setClass(response.data.data))
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching class data:", error);
-  //   }
-  // };
-
-  // const getClassData = async () => {
-  //   try {
-  //     const response = await getData(NEWCLASS);
-  //   console.log("response is:", response.data);
-  //   if (response && response.data) {
-  //     setClassData(response.data.data);
-      
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching class data:", error);
-  //   }
-  // }
-
- 
 
 const getClassData = async () => {
   try {
