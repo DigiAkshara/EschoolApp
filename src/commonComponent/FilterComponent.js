@@ -9,6 +9,12 @@ import CustomSelect from './CustomSelect'
 import {Form, Formik} from 'formik'
 
 const FilterComponent = ({onSearch, filters, filterForm,handleFilter, handleReset}) => {
+  const getOptions = (item, value) => { 
+    if (item.dependancy && item.filterOptions) {
+      return item.options.filter((option) => option[item.dependancyKey] === value)
+
+    }else return item.options
+  }
   return (
     <div className="relative table-tool-bar z-30">
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
@@ -66,7 +72,8 @@ const FilterComponent = ({onSearch, filters, filterForm,handleFilter, handleRese
                           <CustomSelect
                             label={key}
                             name={key}
-                            options={filters[key]}
+                            options={getOptions(filters[key],values[filters[key].dependancyKey])}
+                            disabled={filters[key].dependancy&&!values[filters[key].dependancyKey]}
                           />
                         </div>))}
                         

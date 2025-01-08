@@ -50,7 +50,7 @@ const TableComponent = ({
                 className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
                 key={index}
               >
-                <a href="#" className="group inline-flex">
+                <a className="group inline-flex" onClick={() => handleSort(col)}>
                   {col.title}
                   <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200" onClick={() => handleSort(col)}>
                     <ArrowsUpDownIcon aria-hidden="true" className="size-4" />

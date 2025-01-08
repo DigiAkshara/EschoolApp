@@ -45,10 +45,19 @@ export default function ManageStudents() {
     { label: "Trans Gender", value: "transgender" },
   ];
   const getClassOptions = () => {
-    return classes.map((cls) => ({ label: cls.name, value: cls.name, id: cls._id }));
+    return classes.map((cls) => ({
+      label: cls.name,
+      value: cls._id,
+      id: cls._id,
+    }));
   };
   const getSectionOptions = () => {
-    return sections.map((item) => ({ label: item.section, value: item.section, id: item._id }));
+    return sections.map((item) => ({
+      label: item.section,
+      value: item.section,
+      class: item.class,
+      id: item._id,
+    }));
   };
 
   useEffect(() => {
@@ -66,7 +75,7 @@ export default function ManageStudents() {
   const columns = [
     { title: "Student Name", key: "name" },
     { title: "Admission Number", key: "admissionNo" },
-    { title: "Class", key: "class" },
+    { title: "Class", key: "className" },
     { title: "Section", key: "section" },
     { title: "Phone Number", key: "phoneNumber" },
     { title: "DOB", key: "date" },
@@ -85,7 +94,8 @@ export default function ManageStudents() {
           pic: item.student.profilePic?.Location,
           name: item.student.firstName + " " + item.student.lastName,
           admissionNo: item.student.admissionNumber,
-          class: item.class?.name,
+          className: item.class?.name,
+          class: item.class?._id,
           section: item.section,
           phoneNumber: item.student.fatherDetails.mobileNumber,
           date: item.student.DOB,
@@ -106,9 +116,7 @@ export default function ManageStudents() {
   };
 
   const onHandleEdit = async (studentId) => {
-    const studentDetails = await getData(STUDENT + "/details/" + studentId);
-    console.log("studentDetails", studentDetails);
-    // const data = students.find((item) => item._id === Id);
+    const studentDetails = await getData(STUDENT + "/details/" + studentId); 
     dispatch(selectStudent(studentDetails.data.data));
     handleOpen();
   };
@@ -125,9 +133,12 @@ export default function ManageStudents() {
     section: "",
     gender: "",
   };
- 
-  const filters ={class:clsOptions,section:sectionOptions,gender:genderOptions}
- 
+
+  const filters = {
+    class: {options:clsOptions},
+    section:{options:sectionOptions, dependancy:true, dependancyKey:"class", filterOptions:true},
+    gender: {options:genderOptions},
+  };
 
   const handleSearch = (term) => {
     const filtered = studentList.filter((item) =>
@@ -138,22 +149,24 @@ export default function ManageStudents() {
     setFilteredData(filtered);
   };
 
-  const handleFilter = (values) => {
+  const handleFilter = (values) => { 
     let filtered = studentList;
-    Object.entries(values).forEach(([key,value])=>{
-      if(value){
-        filtered = filtered.filter(rec=>rec[key].toLowerCase().includes(value.toLowerCase()))
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        filtered = filtered.filter((rec) =>
+          rec[key].toLowerCase().includes(value.toLowerCase())
+        );
       }
-    })
+    });
     setFilteredData(filtered);
   };
 
   const handleReset = (updatedValues) => {
     setFilteredData(studentList);
-    updatedValues('gender','')
-    updatedValues('class','')
-    updatedValues('section','') 
-  }
+    updatedValues("gender", "");
+    updatedValues("class", "");
+    updatedValues("section", "");
+  };
 
   const handleAction = {
     edit: (item) => console.log("Edit:", item),

@@ -16,6 +16,8 @@ import { Form, Formik } from "formik";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomFileUploader from "../commonComponent/CustomFileUploader";
 import { banks, payments, uploadFile } from "../commonComponent/CommonFunctions";
+import { postData } from "../app/api";
+import { STUDENTFEE } from "../app/url";
 
 function FinanceCollectFees({ onClose }) {
   const [open2, setOpen2] = useState(false);
@@ -137,10 +139,16 @@ function FinanceCollectFees({ onClose }) {
     },
     // More people...
   ];
-  const handleSubmit = (values) => {
-    console.log("inside handle submit");
-        console.log(" values:", values);
-        
+  const handleSubmit = async (values) => {
+    try {
+      const response = await postData(STUDENTFEE, values);
+      if (response.status === 200 || response.status === 201) {
+        onClose();
+        alert("Fees added successfully!");
+      }
+    } catch (error) {
+      console.log(error);
+    } 
   };
 
   return (

@@ -27,10 +27,6 @@ function FeeCreation({ onClose }) {
       academicYear: "",
       feeGroup: "",
       feeTitle: "",
-      feeDuration: "",
-      dueDates: [],
-      feeApplicable: "",
-      discount: "",
       fees: feeDetails.map((item) => ({
         name: item.name,
         _id: item._id,
@@ -185,16 +181,16 @@ function FeeCreation({ onClose }) {
                                       />
                                     </div>
 
-                                    <div className="sm:col-span-1">
+                                    {/* <div className="sm:col-span-1">
                                       <CustomRadio
                                         name="feeApplicable"
                                         label="Apply this fees to Students"
                                         required={true}
                                         options={applyFees}
                                       />
-                                    </div>
+                                    </div> */}
 
-                                    <div className="sm:col-span-1">
+                                    {/* <div className="sm:col-span-1">
                                       <CustomSelect
                                         name="feeDuration"
                                         label="Fee Duration"
@@ -221,9 +217,9 @@ function FeeCreation({ onClose }) {
                                           );
                                         }}
                                       />
-                                    </div>
+                                    </div> */}
 
-                                    <FieldArray name="dueDates">
+                                    {/* <FieldArray name="dueDates">
                                       {() =>
                                         values.dueDates.map((_, index) => (
                                           <div
@@ -242,16 +238,16 @@ function FeeCreation({ onClose }) {
                                           </div>
                                         ))
                                       }
-                                    </FieldArray>
+                                    </FieldArray> */}
 
-                                    <div className="sm:col-span-1">
+                                    {/* <div className="sm:col-span-1">
                                       <CustomSelect
                                         name="discount"
                                         label="One Time Discount Percentage"
                                         required={true}
                                         options={feeDiscount}
                                       />
-                                    </div>
+                                    </div> */}
                                   </div>
                                 </div>
 
