@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import CustomSelect from "../commonComponent/CustomSelect";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { capitalizeWords, feeduration } from "../commonComponent/CommonFunctions";
+import {
+  capitalizeWords,
+  feeduration,
+} from "../commonComponent/CommonFunctions";
 import { getData } from "../app/api";
 import { FEES } from "../app/url";
 import CustomInput from "../commonComponent/CustomInput";
@@ -169,8 +172,7 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                 values.fees.map((fee, index) => (
                   <tr key={index}>
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {capitalizeWords(fee.feeName)}
-                     
+                      {capitalizeWords(fee.feeName)}
                     </td>
 
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
@@ -325,7 +327,7 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                   <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
                   Add New
                 </button>
-                {showDropdown && (
+                {/* {showDropdown && (
                   <ul className="border rounded shadow-md mt-2 bg-white">
                     {allFees.map((fee, index) => (
                       <li
@@ -340,6 +342,26 @@ function FinancCollectFeesDetails({ feeData, values, setFieldValue }) {
                         {fee.name}
                       </li>
                     ))}
+                  </ul>
+                )} */}
+                {showDropdown && (
+                  <ul className="border rounded shadow-md mt-2 bg-white">
+                    {allFees
+                      .filter(
+                        (fee) =>
+                          !values.fees.some(
+                            (selectedFee) => selectedFee._id === fee._id
+                          )
+                      )
+                      .map((fee, index) => (
+                        <li
+                          key={index}
+                          className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                          onClick={() => handleAddFee(fee)}
+                        >
+                          {fee.name}
+                        </li>
+                      ))}
                   </ul>
                 )}
               </td>

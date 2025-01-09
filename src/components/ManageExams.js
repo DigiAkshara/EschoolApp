@@ -3,14 +3,7 @@
 
 import { PlusIcon } from '@heroicons/react/20/solid'
 import React, { useEffect, useRef, useState } from 'react'
-
 import { Dialog } from '@headlessui/react'
-
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-
-
-import { PureComponent } from 'react';
-import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Sector, Cell, ResponsiveContainer, Legend, Label, legendType } from 'recharts';
 import { useDispatch, useSelector } from 'react-redux'
 import { getData } from '../app/api'
 import { selectExam, setExams } from '../app/reducers/examSlice'
@@ -21,27 +14,9 @@ import ManageExamResults from './ManageExamResults'
 import ManageExamSchedules from './ManageExamSchedules'
 
 
-const people = [
-  {
-    name: 'Lindsay Walton',
-    title: 'Front-end Developer',
-    email: 'lindsay.walton@example.com',
-    role: 'Member',
-  },
-  // More people...
-]
-
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
-
-
-// const tabs2 = [
-//   { name: 'Exams Schedules', href: '#',  current: true },
-//   { name: 'Exams Results', href: '#',  current: false },
-// ]
-
 
 
 export default function ManageExams() {
@@ -124,19 +99,6 @@ const handleViewDetails = (exam) => {
 };
 
 
-
-  // useLayoutEffect(() => {
-  //   const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < people.length
-  //   setChecked(selectedPeople.length === people.length)
-  //   setIndeterminate(isIndeterminate)
-  //   checkbox.current.indeterminate = isIndeterminate
-  // }, [selectedPeople])
-
-  // function toggleAll() {
-  //   setSelectedPeople(checked || indeterminate ? [] : people)
-  //   setChecked(!checked && !indeterminate)
-  //   setIndeterminate(false)
-  // }
 
   const [animal, setAnimal] = useState(null);
 

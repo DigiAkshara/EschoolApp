@@ -7,41 +7,98 @@ import {
   ArrowsUpDownIcon,
 } from "@heroicons/react/24/outline";
 import AttendanceSidebar from "./AttendanceSidebar";
-import { getData, postData } from "../app/api";
-import { ACADEMICS, HOLIDAYS, STAFF } from "../app/url";
+import { getData } from "../app/api";
+import { ACADEMICS, STAFF } from "../app/url";
 import { designations, gender } from "../commonComponent/CommonFunctions";
-import ManageHolidatSidebar from "./ManageHolidatSidebar";
+import CustomRadio from "../commonComponent/CustomRadio";
 
-const ManageHolidayAttendance = () => {
-  const [holidaysData, setHolidaysData] = useState([]);
+const ManageStudentDailyAttendance = () => {
+  const [date, setDate] = useState("");
+  const teacherOptions = ["Set attendance for all Teachers"];
   const [studentList, setStudentList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
+  const [globalAttendance, setGlobalAttendance] = useState({});
+  const [attendance, setAttendance] = useState({});
 
   const getInitialValues = () => {
     return {
-      academicYear: "",
-      startDate: "",
-      endDate: "",
-      holidayName: "",
-      
+      date: "",
+      class: "",
+      section: "",
+      name: "",
+      attendance: "",
     };
   };
 
   const getValidationSchema = () => {
     return Yup.object({
-      academicYear: Yup.string().required("Academic year is required"),
-      startDate: Yup.date().nullable().required(" Date  is required"),
-      endDate: Yup.date().nullable().required(" Date  is required"),
-      holidayName: Yup.string().required(" Holiday name is required"),
+      class: Yup.string(),
+      section: Yup.string(),
+      date: Yup.date().nullable().required(" Date  is required"),
+      attendance: Yup.string(),
     });
   };
 
   useEffect(() => {
+    getStudents();
   }, []);
 
+  const getStudents = async () => {
+    try {
+      const student = await getData(ACADEMICS);
+      const studentRes = student.data.data;
+      const studentData = studentRes.map((item) => {
+        return {
+          _id: item.student._id,
+          pic: item.student.profilePic?.Location,
+          name: item.student.firstName + " " + item.student.lastName,
+          admissionNo: item.student.admissionNumber,
+          class: item.class?.name,
+          section: item.section,
+          phoneNumber: item.student.fatherDetails.mobileNumber,
+          date: item.student.DOB,
+          aadharNo: item.student.aadharNumber,
+          gender: gender.find((gender) => gender.value === item.student.gender)
+            .label,
+        };
+      });
+      setStudentList(studentData);
+      setFilteredData(studentData);
+      setAttendance(
+        Object.fromEntries(studentData.map((student) => [student._id, ""]))
+      );
+      setGlobalAttendance(
+        Object.fromEntries(studentData.map((student) => [student._id, ""]))
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  //   const handleSaveAttendance = () => {
+
+  //     console.log("Attendance saved:", attendanceData);
+  //     // Send `attendanceData` to the backend.
+  //   };
+
+  const handleAttendanceChange = (staffId, status) => {
+    setAttendance((prevAttendance) => ({
+      ...prevAttendance,
+      [staffId]: status, // Updates the status for the specific staff member
+    }));
+  };
+
+  useEffect(() => {
+    // Merge the globalAttendance with individual attendance states
+    const updatedAttendance = studentList.reduce((acc, student) => {
+      acc[student._id] =
+        globalAttendance[student._id] || attendance[student._id];
+      return acc;
+    }, {});
+    setAttendance(updatedAttendance);
+  }, [globalAttendance]);
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
@@ -52,21 +109,9 @@ const ManageHolidayAttendance = () => {
     );
   };
 
-
-  const handleSubmit = async (values) => {
+  const handleSubmit = (values) => {
+    // alert("Form submitted successfully!");
     console.log("Form submitted with values:", values);
-
-    try {
-      const response = await postData(HOLIDAYS, values); 
-      console.log("response from backend :",response.data);
-      
-      
-      if (response.data) {
-        setHolidaysData((prevData) => [...prevData, response.data]);
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
   };
 
   return (
@@ -80,8 +125,13 @@ const ManageHolidayAttendance = () => {
           <Form>
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               {/* Sidebar */}
-              <ManageHolidatSidebar
-                values={values}
+              <AttendanceSidebar
+                date={date}
+                setDate={setDate}
+                teacherOptions={teacherOptions}
+                // handleSaveAttendance={handleSaveAttendance}
+                user="student"
+                setGlobalAttendance={setGlobalAttendance}
               />
 
               {/* Main Content */}
@@ -125,27 +175,24 @@ const ManageHolidayAttendance = () => {
                         <table className="table-auto min-w-full divide-y divide-gray-300">
                           <thead className="sticky top-0 bg-purple-100 z-20">
                             <tr>
-                            <th
+                              <th
                                 scope="col"
-                                className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
+                                className="relative px-7 sm:w-12 sm:px-6"
                               >
-                                <a href="#" className="group inline-flex">
-                                  Si.No.
-                                  <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                                    <ArrowsUpDownIcon
-                                      aria-hidden="true"
-                                      className="size-4"
-                                    />
-                                  </span>
-                                </a>
+                                <input
+                                  type="checkbox"
+                                  className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                                  // ref={checkbox}
+                                  // checked={checked}
+                                  // onChange={toggleAll}
+                                />
                               </th>
-                              
                               <th
                                 scope="col"
                                 className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
                               >
                                 <a href="#" className="group inline-flex">
-                                  Holiday
+                                  Student Name
                                   <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
                                     <ArrowsUpDownIcon
                                       aria-hidden="true"
@@ -160,7 +207,7 @@ const ManageHolidayAttendance = () => {
                                 className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
                               >
                                 <a href="#" className="group inline-flex">
-                                  Date
+                                  Admission No.
                                   <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
                                     <ArrowsUpDownIcon
                                       aria-hidden="true"
@@ -174,28 +221,116 @@ const ManageHolidayAttendance = () => {
                                 className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
                               >
                                 <a href="#" className="group inline-flex">
-                                  No.of Days
+                                  Attendance
                                   <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
                                     <ArrowsUpDownIcon
                                       aria-hidden="true"
                                       className="size-4"
                                     />
                                   </span>
-                                </a>
-                              </th>
-                              <th
-                                scope="col"
-                                className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                              >
-                                <a href="#" className="group inline-flex">
-                                  Actions
-                                  
                                 </a>
                               </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
-                           
+                            {studentList.map((student, index) => (
+                              <tr key={student._id} className="bg-gray-50">
+                                {/* Checkbox Column */}
+                                <td className="relative px-7 sm:w-12 sm:px-6">
+                                  <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
+                                  <input
+                                    type="checkbox"
+                                    className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                                  />
+                                </td>
+
+                                {/* Staff Details Column */}
+                                <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
+                                  <div className="flex items-center">
+                                    {/* Staff Image */}
+                                    <div className="h-9 w-9 shrink-0">
+                                      <img
+                                        alt="Staff"
+                                        src="https://stu-images.mos.ap-southeast-2.sufybkt.com/1734344416163.jpeg"
+                                        className="h-9 w-9 rounded-full"
+                                      />
+                                    </div>
+                                    {/* Staff Details */}
+                                    <div className="ml-4">
+                                      <div className="font-medium text-gray-900 text-purple-600">
+                                        {student.name}{" "}
+                                        {/* Replace 'staff.name' with the actual staff name field */}
+                                      </div>
+                                      {/* <div className="mt-1 text-gray-500">
+                                {student.email}{" "}
+                                
+                              </div> */}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                                  {student.admissionNo}
+                                </td>
+                                {/* <td>
+                                  {["Present", "Absent", "Half Day"].map(
+                                    (option) => (
+                                      <label
+                                        key={`${
+                                          student._id
+                                        }-${option.toLowerCase()}`}
+                                        className="me-3"
+                                      >
+                                        <input
+                                          type="radio"
+                                          name={`attendance-${student._id}`}
+                                          value={option
+                                            .toLowerCase()
+                                            .replace(" ", "-")} // Format: present, absent, half-day, leave
+                                          checked={
+                                            attendance[student._id] ===
+                                            option
+                                              .toLowerCase()
+                                              .replace(" ", "-")
+                                          }
+                                          className="me-1"
+                                          onChange={() =>
+                                            handleAttendanceChange(
+                                              student._id,
+                                              option
+                                                .toLowerCase()
+                                                .replace(" ", "-")
+                                            )
+                                          }
+                                        />
+                                        {option}
+                                      </label>
+                                    )
+                                  )}
+                                </td> */}
+                                <td>
+                                  <div className="sm:col-span-2 flex flex-row space-x-4">
+                                    {["Present", "Absent", "Half Day"].map(
+                                      (option) => (
+                                        <CustomRadio
+                                          key={`attendance-${
+                                            student._id
+                                          }-${option.toLowerCase()}`}
+                                          name={`attendance-${student._id}`}
+                                          options={[
+                                            {
+                                              value: option
+                                                .toLowerCase()
+                                                .replace(" ", "-"),
+                                              label: option,
+                                            },
+                                          ]}
+                                        />
+                                      )
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>
@@ -290,4 +425,4 @@ const ManageHolidayAttendance = () => {
   );
 };
 
-export default ManageHolidayAttendance;
+export default ManageStudentDailyAttendance;

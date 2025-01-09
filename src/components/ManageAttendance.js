@@ -2,10 +2,6 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-
-import ManageFeeCollection from './ManageFeeCollection'
-import ManageFeesOverview from './ManageFeesOverview'
-import FinanceFeesStructure from './ManageFeesStructure'
 import ManageStaffAttendance from './ManageStaffAttendance'
 import ManageStudentAttendance from './ManageStudentAttendance'
 import ManageHolidayAttendance from './ManageHolidayAttendance'
@@ -17,7 +13,7 @@ function classNames(...classes) {
 
 
 
-const tabs = ['Staff','Students','Holyday Entry']
+const tabs = ['Staff','Students','Holiday Entry']
 
 
 
@@ -35,7 +31,7 @@ const renderTabContent = () => {
         return <ManageStaffAttendance />;
       case "Students":
         return <ManageStudentAttendance />;
-        case "Holyday Entry":
+        case "Holiday Entry":
         return <ManageHolidayAttendance />;
          
       default:

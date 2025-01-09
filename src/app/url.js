@@ -13,6 +13,8 @@ export const SECTIONS = "/sections"
 export const STUDENTFEE = "/studentFees"
 export const FEEGROUP= "/feeGroup"
 export const ACADEMICYEAR= "/academicYear"
+export const HOLIDAYS = "/holidays"
+
 
 
 
