@@ -115,6 +115,11 @@ export const occupation = [
   { value: "other", label: "Other" },
 ]
 
+export const staffCategory = [
+  { value: "teacher", label: "Teacher" },
+  { value: "Non-teacher", label: "Non Teaching Staff" },
+]
+
 export const states = [
   { value: "andhrapradesh", label: "Andhra Pradesh" },
   { value: "telangana", label: "Telangana" },

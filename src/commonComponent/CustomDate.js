@@ -2,9 +2,9 @@ import { ErrorMessage, Field } from "formik";
 import Datepicker from "react-tailwindcss-datepicker";
 
 export default function CustomDate(props) {
-  const { name, label, icon: Icon, required = false } = props;
+  const { name, label, icon: Icon, required = false, max  } = props;
   const MAX_DATE = new Date();
-  MAX_DATE.setDate(MAX_DATE.getDate() - 4);
+  MAX_DATE.setDate(MAX_DATE.getDate());
   return (
     <>
       <label
@@ -31,7 +31,7 @@ export default function CustomDate(props) {
             required={false}
             displayFormat="DD/MM/YYYY"
             id={field.name}
-            // maxDate={MAX_DATE}
+            maxDate={MAX_DATE}
           />
         );
       }}

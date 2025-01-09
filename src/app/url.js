@@ -13,6 +13,8 @@ export const TENANT = "/tenant"
 export const SECTIONS = "/sections"
 
 export const STUDENTFEE = "/studentFees"
+export const HOLIDAYS = "/holidays"
+
 
 
 

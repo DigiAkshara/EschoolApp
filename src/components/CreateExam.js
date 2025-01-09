@@ -88,12 +88,7 @@ function CreateExam({ onClose }) {
     }
   };
 
-  // const handleSubmit = (values) => {
-  //   alert("Form submitted successfully!");
-  //   console.log("Form submitted with values:", values);
-
-  //   onClose(); // Close the modal after form submission
-  // };
+ 
 
   const [value, setValue] = useState({});
   return (

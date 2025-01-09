@@ -90,14 +90,6 @@ function FinanceCollectFees({ onClose }) {
   };
 
 
-  // const handleFileChange = async (e,setFieldValue) => {
-  //   try {
-  //     const fileResponse = await uploadFile(e.target.files[0]);
-  //     setFieldValue(e.target.name, fileResponse);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
 
   const handleFileChange = async (e, setFieldValue) => {
     try {
@@ -197,7 +189,7 @@ function FinanceCollectFees({ onClose }) {
                               {people2.map((person2) => (
                                 <img
                                   alt=""
-                                  src={person2.imageUrl}
+                                  src="https://stu-images.mos.ap-southeast-2.sufybkt.com/1734344416163.jpeg"
                                   className="size-36 shrink-0 rounded-full bg-gray-300"
                                 />
                               ))}

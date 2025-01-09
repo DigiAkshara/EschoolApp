@@ -1,162 +1,339 @@
+import {
+  Dialog,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from "@headlessui/react";
+import {
+  ArrowUpTrayIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ListBulletIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
+import {
+  ArrowDownTrayIcon,
+  ArrowsUpDownIcon,
+  ChatBubbleBottomCenterTextIcon,
+  FunnelIcon,
+  PhoneIcon,
+  Squares2X2Icon,
+} from "@heroicons/react/24/outline";
+import React, { useEffect, useRef, useState } from "react";
+import FinanceCollectFees from "./FinanceCollectFees";
+import { getData } from "../app/api";
+import { STUDENT, STUDENTFEE } from "../app/url";
+import { useDispatch } from "react-redux";
+import { setStuFees } from "../app/reducers/stuFeesSlice";
 
-import React from "react";
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
 
-function ManageAddMarks({ students, subjects, values, setFieldValue }) {
+const tabs2 = [
+  { name: "Unpaid", href: "#", count: "122", current: true },
+  { name: "Overdue", href: "#", count: "4", current: false },
+  { name: "Paid ", href: "#", count: "4", current: true },
+  { name: "All", href: "#", count: "4", current: true },
+];
 
-    const getInitialValues = (students, subjects) => {
-        return {
-          board: selectedExam?.board || "",
-          classCategory: selectedExam?.classCategory || "",
-          class: selectedExam?.class || "",
-          section: selectedExam?.section || "",
-          name: selectedExam?.name || "",
-          marks: students.map((student) => ({
-            studentId: student.id,
-            studentName: student.name,
-            rollNo: student.rollNo,
-            image: student.image || "", // If applicable
-            subjectMarks: subjects.reduce((acc, subject) => {
-              acc[subject] = ""; 
-              return acc;
-            }, {}),
-            marksObt: 0, 
-            totalMark: 0,
-            percentage: 0,
-            result: "Pending", // Default result
-          })),
-        };
-      };
-    
-      const getValidationSchema = (subjects) => {
-        return Yup.object({
-          board: Yup.string().required("Board is required"),
-          classCategory: Yup.string().required("Class category is required"),
-          class: Yup.string().required("Class is required"),
-          section: Yup.string().required("Section is required"),
-          name: Yup.string().required("Exam name is required"),
-          marks: Yup.array().of(
-            Yup.object().shape({
-              studentId: Yup.string(),
-              studentName: Yup.string(),
-              rollNo: Yup.string(),
-              subjectMarks: Yup.object(
-                subjects.reduce((schema, subject) => {
-                  schema[subject] = Yup.number()
-                    .min(0, `${subject} marks cannot be less than 0`)
-                    .max(100, `${subject} marks cannot exceed 100`)
-                    .required(`${subject} marks are required`);
-                  return schema;
-                }, {})
-              ),
-              marksObt: Yup.number().min(0),
-              totalMark: Yup.number().min(0).required("Total Marks is required"),
-              percentage: Yup.number()
-                .min(0, "Percentage cannot be less than 0")
-                .max(100, "Percentage cannot exceed 100")
-                .required("Percentage is required"),
-              result: Yup.string(),
-            })
-          ),
-        });
-      };
+const people = [
+  {
+    name: "Lindsay Walton",
+    title: "Front-end Developer",
+    email: "lindsay.walton@example.com",
+    role: "Member",
+  },
+  // More people...
+];
+
+function refer() {
+  const [selectedPeople, setSelectedPeople] = useState([]);
+  const [studentFees, setStudentFee] = useState([])
+  const [groupedFees, setGroupedFees] = useState({});
+  const [open, setOpen] = useState(false);
+  const [openN, setOpenN] = useState(false);
+
+  const checkbox = useRef();
+  const [checked, setChecked] = useState(false);
+  const [indeterminate, setIndeterminate] = useState(false);
+  const dispatch = useDispatch(); 
+
+  useEffect(() => {
+    getStudentData();
+  }, []);
+
+  const getStudentData = async () => {
+    try {
+      const response = await getData(STUDENTFEE);
+      console.log("Student fee data:", response.data);
+      const feedata  = response.data.data; // Access the correct array property
+
+      const stuFees = [];
+
+      feedata.forEach(fee => {
+        // Find the index of the student in the `stuFees` array
+        let index = stuFees.findIndex(f => f.studentId.toString() === fee.student._id.toString());
       
-    
-      const initialValues = getInitialValues(students, subjects);
-    const validationSchema = getValidationSchema(subjects);
-
-
-  // Function to update marks, calculate percentage and result
-  const handleMarksChange = (studentIndex, subject, value) => {
-    const updatedMarks = [...values.marks];
-    updatedMarks[studentIndex].subjectMarks[subject] = value;
-
-    // Calculate total marks obtained and percentage
-    const totalMarksObt = Object.values(updatedMarks[studentIndex].subjectMarks).reduce(
-      (total, mark) => total + (parseFloat(mark) || 0),
-      0
-    );
-
-    const maxMarks = subjects.length * 100; // Assuming each subject has a max of 100 marks
-    const percentage = (totalMarksObt / maxMarks) * 100;
-
-    updatedMarks[studentIndex].marksObt = totalMarksObt;
-    updatedMarks[studentIndex].totalMark = maxMarks;
-    updatedMarks[studentIndex].percentage = percentage.toFixed(2);
-
-    // Determine result (pass/fail based on percentage threshold, e.g., 40%)
-    updatedMarks[studentIndex].result = percentage >= 40 ? "Pass" : "Fail";
-
-    setFieldValue("marks", updatedMarks);
+        if (index !== -1) {
+          // If the student already exists in `stuFees`, add the fee details
+          stuFees[index].fees.push({
+           feeInstallment: fee.feeInstallment,
+              feeName: fee.fees.name,
+              feeId: fee.fees._id,
+              academicYear : fee.fees.academicYear,
+              amount: fee.amount,
+              disCount:fee.amount-fee.instalmentAmount,
+              dueDate: fee.dueDate,
+              instalmentAmount: fee.instalmentAmount,
+              paymentStatus: fee.paymentStatus,
+              status: fee.paymentStatus,
+              paidAmount: fee.paidAmount,
+              pendingAmount: fee.paymentStatus === 'paid' ? 0 : fee.instalmentAmount
+          });
+      
+          // Update the total amounts based on the payment status
+          if (fee.paymentStatus === 'paid') {
+            stuFees[index].fees[stuFees[index].fees.length - 1].paidAmount = fee.amount;
+          } else {
+            stuFees[index].fees[stuFees[index].fees.length - 1].pendingAmount = fee.amount;
+          }
+      
+        } else {
+          // If the student doesn't exist in `stuFees`, add a new student object
+          stuFees.push({
+            studentId: fee.student._id,
+            name: `${fee.student.firstName} ${fee.student.lastName}`,
+            admissionNo : fee.student.admissionNumber,
+            phoneNo: fee.student.fatherDetails.mobileNumber,
+            fatherName : fee.student.fatherDetails.name,           
+            gender: fee.student.gender,
+            dob: new Date(fee.student.DOB).toLocaleDateString('en-CA'),
+            fees: [{
+              feeInstallment: fee.feeInstallment,
+              feeName: fee.fees.name,
+              feeId: fee.fees._id,
+              academicYear : fee.fees.academicYear,
+              amount: fee.amount,
+              disCount:fee.fees?.disCount||'N/A',
+              dueDate: fee.dueDate,
+              instalmentAmount: fee.instalmentAmount,
+              paymentStatus: fee.paymentStatus,
+              status: fee.paymentStatus,
+              paidAmount: fee.paidAmount,
+              pendingAmount: fee.instalmentAmount-fee.paidAmount
+            }]
+          });
+        }
+      });
+      
+      // Now you can display the `stuFees` array which will contain each student with their associated fees
+      console.log("stuFees:",stuFees);
+      setStudentFee(stuFees)
+      
+      
+    } catch (error) {
+      console.error("Error fetching student fee data:", error);
+    }
   };
+
+  function toggleAll() {
+    setSelectedPeople(checked || indeterminate ? [] : people);
+    setChecked(!checked && !indeterminate);
+    setIndeterminate(false);
+  }
+
+  const handleOpen = (studentFee) => {
+    setOpenN(true);
+    dispatch(setStuFees(studentFee));
+  }
+  const handleClose = () => setOpenN(false);
 
   return (
     <>
-      <h2 className="text-base/7 font-semibold text-gray-900 mb-2">Enter Marks</h2>
 
-      <div className="overflow-x-auto">
-        <table className="mt-4 min-w-full table-fixed divide-y divide-gray-300 border border-gray-300">
-          <thead className="bg-purple-100">
-            <tr>
-              <th className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2 w-12">
-                Roll No
-              </th>
-              <th className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48">
-                Student Name
-              </th>
-              {subjects.map((subject, index) => (
-                <th key={index} className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-32">
-                  {subject.label.toUpperCase()}
-                </th>
-              ))}
-              <th className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-32">Marks Obt.</th>
-              <th className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-32">Max Marks</th>
-              <th className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-32">Per (%)</th>
-              <th className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-32">Result</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {values.marks.map((student, studentIndex) => (
-              <tr key={studentIndex} className="bg-gray-50">
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{student.rollNo}</td>
-                <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
-                  <div className="flex items-center">
-                    <div className="ml-4">
-                      <div className="font-medium text-gray-900 text-purple-600">{student.studentName}</div>
-                      <div className="mt-1 text-gray-500">{student.studentId}</div>
+      <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
+        <div className="inline-block min-w-full py-4 align-middle sm:px-6">
+          <div className="relative">
+          
+            <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
+              <div className="relative table-tool-bar z-30">
+                <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
+                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="relative rounded-md  inline-block  ">
+                      
+                        <input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="Search"
+                          className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
+                        />
+                      </div>
+                    
+                    </div>
+
+                    <div className="right-action-btns-blk space-x-4">
+                      <button
+                        type="button"
+                        className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                      >
+                        <ArrowDownTrayIcon
+                          aria-hidden="true"
+                          className="size-5"
+                        />
+                      </button>
+
                     </div>
                   </div>
-                </td>
-                {subjects.map((subject, subjectIndex) => (
-                  <td key={subjectIndex} className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    <input
-                      type="number"
-                      value={student.subjectMarks[subject]}
-                      onChange={(e) => handleMarksChange(studentIndex, subject, e.target.value)}
-                      className="block w-12 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
-                    />
-                  </td>
-                ))}
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{student.marksObt}</td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{student.totalMark}</td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{student.percentage}</td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                      student.result === "Pass"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {student.result}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+
+              <div className="table-container-main overflow-y-auto max-h-[56vh]">
+  {/* Table View */}
+  <table className="table-auto min-w-full divide-y divide-gray-300">
+    <thead className="sticky top-0 bg-purple-100 z-20">
+      <tr>
+        <th scope="col" className="relative px-7 sm:w-12 sm:px-6">
+          <input
+            type="checkbox"
+            className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+            ref={checkbox}
+            checked={checked}
+            onChange={toggleAll}
+          />
+        </th>
+        <th
+          scope="col"
+          className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
+        >
+          <a href="#" className="group inline-flex">
+            Student Name
+            <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
+              <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
+            </span>
+          </a>
+        </th>
+
+        <th
+          scope="col"
+          className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+        >
+          <a href="#" className="group inline-flex">
+            Class
+            <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
+              <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
+            </span>
+          </a>
+        </th>
+        <th
+          scope="col"
+          className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+        >
+          <a href="#" className="group inline-flex">
+            Total Fee
+            <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
+              <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
+            </span>
+          </a>
+        </th>
+       
+       
+          </tr>
+    </thead>
+    <tbody className="divide-y divide-gray-200 bg-white z-1">
+     
+    </tbody>
+  </table>
+</div>
+
+              <div className="pagination">
+                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-3 py-3 sm:px-3">
+                  <div className="flex flex-1 justify-between sm:hidden">
+                    <a
+                      href="#"
+                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Previous
+                    </a>
+                    <a
+                      href="#"
+                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Next
+                    </a>
+                  </div>
+                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm text-gray-700">
+                        Showing <span className="font-medium">1</span> to{" "}
+                        <span className="font-medium">10</span> of{" "}
+                        <span className="font-medium">97</span> results
+                      </p>
+                    </div>
+                    <div>
+                      <nav
+                        aria-label="Pagination"
+                        className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                      >
+                        <a
+                          href="#"
+                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        >
+                          <span className="sr-only">Previous</span>
+                          <ChevronLeftIcon
+                            aria-hidden="true"
+                            className="size-5"
+                          />
+                        </a>
+                        {/* Current: "z-10 bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
+                        <a
+                          href="#"
+                          aria-current="page"
+                          className="relative z-10 inline-flex items-center bg-purple-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                        >
+                          1
+                        </a>
+                        <a
+                          href="#"
+                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        >
+                          2
+                        </a>
+                        <a
+                          href="#"
+                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
+                        >
+                          3
+                        </a>
+                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
+                          ...
+                        </span>
+                       
+                        <a
+                          href="#"
+                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                        >
+                          <span className="sr-only">Next</span>
+                          <ChevronRightIcon
+                            aria-hidden="true"
+                            className="size-5"
+                          />
+                        </a>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+       
       </div>
     </>
   );
 }
 
-export default ManageAddMarks;
+export default Refer;
