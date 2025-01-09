@@ -4,7 +4,7 @@ import { FieldArray, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { getData, postData } from "../app/api";
-import { CLASSES, FEES } from "../app/url";
+import { ACADEMICYEAR, CLASSES, FEEGROUP, FEES } from "../app/url";
 import {
   applyFees,
   feeDiscount,
@@ -20,10 +20,12 @@ import CustomSelect from "../commonComponent/CustomSelect";
 
 function FeeCreation({ onClose }) {
   const [feeDetails, setFeeDetails] = useState([]);
-  const [feeDuration, setFeeDuration] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [academicYears, setAcademicYears] = useState([]);
+  const [feeGroups, setFeeGroups] = useState([]);
 
-  const getInitialValues = () => {return {
+  const getInitialValues = () => {
+    return {
       academicYear: "",
       feeGroup: "",
       feeTitle: "",
@@ -36,26 +38,11 @@ function FeeCreation({ onClose }) {
     };
   };
 
-  const getValidationSchema = (duration) => {
+  const getValidationSchema = () => {
     return Yup.object({
       academicYear: Yup.string().required("Academic year is required"),
       feeGroup: Yup.string().required("Fee Group is required"),
       feeTitle: Yup.string().required("Fee Title is required"),
-      feeDuration: Yup.string().required("Fee Duration is required"),
-      dueDates: Yup.array()
-        .of(
-          Yup.object({
-            installment_no: Yup.string().required(
-              "Installment number is required"
-            ),
-            dueDate: Yup.date()
-              .required("Due date is required")
-              .typeError("Invalid date format"),
-          })
-        )
-        .min(duration, `Please provide ${duration} fee due dates`),
-      feeApplicable: Yup.string().required("who to apply fee is required"),
-      discount: Yup.string().required("Discount is required"),
       fees: Yup.array().of(
         Yup.object({
           checked: Yup.boolean(),
@@ -72,9 +59,9 @@ function FeeCreation({ onClose }) {
     });
   };
 
-  const handleSubmit = async(values) => {
+  const handleSubmit = async (values) => {
     try {
-      const response = await  postData(FEES, values)
+      const response = await postData(FEES, values);
       if (response.status === 200 || response.status === 201) {
         onClose();
         alert("Fees added successfully!");
@@ -85,20 +72,67 @@ function FeeCreation({ onClose }) {
   };
 
   useEffect(() => {
-    getClass();
+    getFeeDetails();
   }, []);
-  const getClass = async () => {
+
+  const getFeeDetails = async () => {
     try {
-      const res = await getData(CLASSES);
-      if (res.status === 200 || res.status === 201) {
-        setFeeDetails(res.data.data);
+      const [classRes, feeGroupRes, academicYearRes] = await Promise.all([
+        getData(CLASSES),
+        getData(FEEGROUP),
+        getData(ACADEMICYEAR),
+      ]);
+      if (classRes.status === 200 || classRes.status === 201) {
+        setFeeDetails(classRes.data.data);
         setLoading(false);
       } else {
-        throw new Error(res.message);
+        throw new Error(classRes.message);
+      }
+      if (feeGroupRes.status === 200 || feeGroupRes.status === 201) {
+        let feeGroupData = feeGroupRes.data.data.map((item) => {
+          return {
+            label: item.name, // Displayed text in the dropdown
+            value: item._id,
+          };
+        });
+        setFeeGroups(feeGroupData);
+      } else {
+        throw new Error(feeGroupRes.message);
+      }
+      if (academicYearRes.status === 200 || academicYearRes.status === 201) {
+        let academicYearData = [
+          {
+            label: academicYearRes.data.data.year, // Displayed text in the dropdown
+            value: academicYearRes.data.data._id,
+          },
+        ];
+        setAcademicYears(academicYearData);
+      } else {
+        throw new Error(academicYearRes.message);
       }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const selectAllFees = () => {
+    let dumpList = [];
+    values.fees.forEach((item) => {
+      dumpList.push({
+        ...item,
+        isChecked: !checked,
+      });
+    });
+    setFieldValue("fees", dumpList);
+    setCheckAll(!checkAll);
+  };
+
+  const handleFeeChecked = (e, index) => {
+    let dumpList = values.feesData;
+    dumpList[index].isChecked = e.target.checked;
+    let isAllChecked = dumpList.every((item) => item.isChecked);
+    setFieldValue("fees", dumpList);
+    setCheckAll(isAllChecked);
   };
 
   if (loading || feeDetails.length === 0) {
@@ -108,9 +142,9 @@ function FeeCreation({ onClose }) {
   return (
     <>
       <Formik
-        initialValues= {getInitialValues()}
+        initialValues={getInitialValues()}
         enableReinitialize
-        validationSchema= {getValidationSchema(feeDuration)}
+        validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
         {({ values, setFieldValue, errors }) => {
@@ -159,7 +193,7 @@ function FeeCreation({ onClose }) {
                                         name="academicYear"
                                         label="Academic year"
                                         required={true}
-                                        options={getAcademicYears()}
+                                        options={academicYears}
                                       />
                                     </div>
 
@@ -168,7 +202,7 @@ function FeeCreation({ onClose }) {
                                         name="feeGroup"
                                         label="Fee Group"
                                         required={true}
-                                        options={getFeeGroups}
+                                        options={feeGroups}
                                       />
                                     </div>
 

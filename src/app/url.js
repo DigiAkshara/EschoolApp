@@ -9,10 +9,10 @@ export const EXAM = "/exam"
 export const NEWCLASS = "/timetable"
 export const ACADEMICS= "/academics"
 export const TENANT = "/tenant"
-
 export const SECTIONS = "/sections"
-
 export const STUDENTFEE = "/studentFees"
+export const FEEGROUP= "/feeGroup"
+export const ACADEMICYEAR= "/academicYear"
 
 
 
