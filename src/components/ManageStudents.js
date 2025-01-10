@@ -1,98 +1,101 @@
-import { Dialog } from "@headlessui/react";
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getData } from "../app/api";
+import {Dialog} from '@headlessui/react'
+import {ArrowUpTrayIcon, PlusIcon} from '@heroicons/react/20/solid'
+import {useEffect, useState} from 'react'
+import {useDispatch, useSelector} from 'react-redux'
+import {getData} from '../app/api'
 import {
   fetchInitialStudentData,
   selectStudent,
   setStudents,
-} from "../app/reducers/studentSlice";
-import { ACADEMICS, FEES, STUDENT } from "../app/url";
-import { gender } from "../commonComponent/CommonFunctions";
-import TableComponent from "../commonComponent/TableComponent";
-import Student from "./Student";
-import FilterComponent from "../commonComponent/FilterComponent";
+} from '../app/reducers/studentSlice'
+import {ACADEMICS, FEES, STUDENT} from '../app/url'
+import {gender} from '../commonComponent/CommonFunctions'
+import TableComponent from '../commonComponent/TableComponent'
+import Student from './Student'
+import FilterComponent from '../commonComponent/FilterComponent'
+import StudentProfileModal from './StudentProfileModal'
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
+  return classes.filter(Boolean).join(' ')
 }
 
 const tabs = [
-  { name: "Students", href: "#", current: true },
-  { name: "Enrollments", href: "#", current: false },
-];
+  {name: 'Students', href: '#', current: true},
+  {name: 'Enrollments', href: '#', current: false},
+]
 
 const tabs2 = [
-  { name: "Active", href: "#", count: "52", current: true },
-  { name: "Drafts", href: "#", count: "12", current: false },
-];
+  {name: 'Active', href: '#', count: '52', current: true},
+  {name: 'Drafts', href: '#', count: '12', current: false},
+]
 
 export default function ManageStudents() {
-  const dispatch = useDispatch();
-  const { classes, sections } = useSelector((state) => state.students);
-  const [studentList, setStudentList] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [filteredData, setFilteredData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
+  const dispatch = useDispatch()
+  const {classes, sections} = useSelector((state) => state.students)
+  const [studentList, setStudentList] = useState([])
+  const [open, setOpen] = useState(false)
+  const [filteredData, setFilteredData] = useState([])
+  const [showProfile, setShowProfile] = useState(false)
+  const [activeStudent, setActiveStudent] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const rowsPerPage = 10
 
-  const [clsOptions, setClsOptions] = useState([]);
-  const [sectionOptions, setSectionOptions] = useState([]);
+  const [clsOptions, setClsOptions] = useState([])
+  const [sectionOptions, setSectionOptions] = useState([])
   const genderOptions = [
-    { label: "Male", value: "male" },
-    { label: "Female", value: "female" },
-    { label: "Trans Gender", value: "transgender" },
-  ];
+    {label: 'Male', value: 'male'},
+    {label: 'Female', value: 'female'},
+    {label: 'Trans Gender', value: 'transgender'},
+  ]
   const getClassOptions = () => {
     return classes.map((cls) => ({
       label: cls.name,
       value: cls._id,
       id: cls._id,
-    }));
-  };
+    }))
+  }
   const getSectionOptions = () => {
     return sections.map((item) => ({
       label: item.section,
       value: item.section,
       class: item.class,
       id: item._id,
-    }));
-  };
+    }))
+  }
 
   useEffect(() => {
-    const clsTmp = getClassOptions();
-    const secTmp = getSectionOptions();
-    setClsOptions(clsTmp);
-    setSectionOptions(secTmp);
-  }, [classes, sections]);
+    const clsTmp = getClassOptions()
+    const secTmp = getSectionOptions()
+    setClsOptions(clsTmp)
+    setSectionOptions(secTmp)
+  }, [classes, sections])
 
   useEffect(() => {
-    dispatch(fetchInitialStudentData());
-    getStudents();
-  }, [dispatch]);
+    dispatch(fetchInitialStudentData())
+    getStudents()
+  }, [dispatch])
 
   const columns = [
-    { title: "Student Name", key: "name" },
-    { title: "Admission Number", key: "admissionNo" },
-    { title: "Class", key: "className" },
-    { title: "Section", key: "section" },
-    { title: "Phone Number", key: "phoneNumber" },
-    { title: "DOB", key: "date" },
-    { title: "Aadhar No", key: "aadharNo" },
-    { title: "Gender", key: "gender" },
-    { title: "Actions", key: "actions" },
-  ];
+    {title: 'Student Name', key: 'name'},
+    {title: 'Admission Number', key: 'admissionNo'},
+    {title: 'Class', key: 'className'},
+    {title: 'Section', key: 'section'},
+    {title: 'Phone Number', key: 'phoneNumber'},
+    {title: 'DOB', key: 'date'},
+    {title: 'Aadhar No', key: 'aadharNo'},
+    {title: 'Gender', key: 'gender'},
+    {title: 'Actions', key: 'actions'},
+  ]
 
   const getStudents = async () => {
     try {
-      const student = await getData(ACADEMICS);
-      const studentRes = student.data.data;
+      const student = await getData(ACADEMICS)
+      const studentRes = student.data.data
       const studentData = studentRes.map((item) => {
         return {
           _id: item.student._id,
           pic: item.student.profilePic?.Location,
-          name: item.student.firstName + " " + item.student.lastName,
+          name: item.student.firstName + ' ' + item.student.lastName,
           admissionNo: item.student.admissionNumber,
           className: item.class?.name,
           class: item.class?._id,
@@ -103,84 +106,94 @@ export default function ManageStudents() {
           gender: gender.find((gender) => gender.value === item.student.gender)
             .label,
           actions: [
-            { label: "Edit", actionHandler: onHandleEdit },
-            { label: "Delete", actionHandler: onDelete },
+            {label: 'Edit', actionHandler: onHandleEdit},
+            {label: 'Delete', actionHandler: onDelete},
           ],
-        };
-      });
-      setStudentList(studentData);
-      setFilteredData(studentData);
+        }
+      })
+      setStudentList(studentData)
+      setFilteredData(studentData)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   const onHandleEdit = async (studentId) => {
-    const studentDetails = await getData(STUDENT + "/details/" + studentId); 
-    dispatch(selectStudent(studentDetails.data.data));
-    handleOpen();
-  };
+    const studentDetails = await getData(STUDENT + '/details/' + studentId)
+    dispatch(selectStudent(studentDetails.data.data))
+    handleOpen()
+  }
 
   const onDelete = () => {
-    console.log("delete");
-  };
+    console.log('delete')
+  }
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
 
   const filterForm = {
-    class: "",
-    section: "",
-    gender: "",
-  };
+    class: '',
+    section: '',
+    gender: '',
+  }
 
   const filters = {
-    class: {options:clsOptions},
-    section:{options:sectionOptions, dependancy:true, dependancyKey:"class", filterOptions:true},
-    gender: {options:genderOptions},
-  };
+    class: {options: clsOptions},
+    section: {
+      options: sectionOptions,
+      dependancy: true,
+      dependancyKey: 'class',
+      filterOptions: true,
+    },
+    gender: {options: genderOptions},
+  }
 
   const handleSearch = (term) => {
     const filtered = studentList.filter((item) =>
       columns.some((col) =>
-        String(item[col.key]).toLowerCase().includes(term.toLowerCase())
-      )
-    );
-    setFilteredData(filtered);
-  };
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
 
-  const handleFilter = (values) => { 
-    let filtered = studentList;
+  const handleFilter = (values) => {
+    let filtered = studentList
     Object.entries(values).forEach(([key, value]) => {
       if (value) {
         filtered = filtered.filter((rec) =>
-          rec[key].toLowerCase().includes(value.toLowerCase())
-        );
+          rec[key].toLowerCase().includes(value.toLowerCase()),
+        )
       }
-    });
-    setFilteredData(filtered);
-  };
+    })
+    setFilteredData(filtered)
+  }
 
   const handleReset = (updatedValues) => {
-    setFilteredData(studentList);
-    updatedValues("gender", "");
-    updatedValues("class", "");
-    updatedValues("section", "");
-  };
+    setFilteredData(studentList)
+    updatedValues('gender', '')
+    updatedValues('class', '')
+    updatedValues('section', '')
+  }
 
   const handleAction = {
-    edit: (item) => console.log("Edit:", item),
-    delete: (item) => console.log("Delete:", item),
-  };
+    edit: (item) => console.log('Edit:', item),
+    delete: (item) => console.log('Delete:', item),
+  }
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+    setCurrentPage(page)
+  }
+
+  const showStudentProfile = (data) => {
+    setActiveStudent(data)
+    setShowProfile(true)
+  }
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+    currentPage * rowsPerPage,
+  )
 
   return (
     <div className="flow-root">
@@ -209,12 +222,12 @@ export default function ManageStudents() {
                 <a
                   key={tab.name}
                   href={tab.href}
-                  aria-current={tab.current ? "page" : undefined}
+                  aria-current={tab.current ? 'page' : undefined}
                   className={classNames(
                     tab.current
-                      ? "border-purple-500 text-purple-600"
-                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700",
-                    "whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                      ? 'border-purple-500 text-purple-600'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                    'whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium',
                   )}
                 >
                   {tab.name}
@@ -248,12 +261,12 @@ export default function ManageStudents() {
               <a
                 key={tab.name}
                 href={tab.href}
-                aria-current={tab.current ? "page" : undefined}
+                aria-current={tab.current ? 'page' : undefined}
                 className={classNames(
                   tab.current
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-gray-100 text-gray-500 hover:text-gray-700",
-                  "rounded-full px-3 py-2 text-sm font-medium"
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-gray-100 text-gray-500 hover:text-gray-700',
+                  'rounded-full px-3 py-2 text-sm font-medium',
                 )}
               >
                 {tab.name}
@@ -261,9 +274,9 @@ export default function ManageStudents() {
                   <span
                     className={classNames(
                       tab.current
-                        ? "bg-white text-purple-600"
-                        : "bg-gray-300 text-gray-900",
-                      "ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block"
+                        ? 'bg-white text-purple-600'
+                        : 'bg-gray-300 text-gray-900',
+                      'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
                     )}
                   >
                     {tab.count}
@@ -331,13 +344,21 @@ export default function ManageStudents() {
                   columns={columns}
                   data={paginatedData}
                   onAction={[
-                    { label: "Edit", handler: handleAction.edit },
-                    { label: "Delete", handler: handleAction.delete },
+                    {label: 'Edit', handler: handleAction.edit},
+                    {label: 'Delete', handler: handleAction.delete},
                   ]}
                   pagination={{
                     currentPage,
                     totalPages: Math.ceil(filteredData.length / rowsPerPage),
                     onPageChange: handlePageChange,
+                  }}
+                  showModal={showStudentProfile}
+                />
+                <StudentProfileModal
+                  data={activeStudent}
+                  show={showProfile}
+                  close={() => {
+                    setShowProfile(false)
                   }}
                 />
 
@@ -396,5 +417,5 @@ export default function ManageStudents() {
         <Student onClose={handleClose} />
       </Dialog>
     </div>
-  );
+  )
 }

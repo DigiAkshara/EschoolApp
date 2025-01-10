@@ -1,81 +1,84 @@
-import { DialogPanel, DialogTitle } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { FieldArray, Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
-import * as Yup from "yup";
-import { getData, postData } from "../app/api";
-import { ACADEMICYEAR, CLASSES, FEEGROUP, FEES } from "../app/url";
+import {DialogPanel, DialogTitle} from '@headlessui/react'
+import {XMarkIcon} from '@heroicons/react/24/outline'
+import {FieldArray, Form, Formik} from 'formik'
+import React, {useEffect, useState} from 'react'
+import * as Yup from 'yup'
+import {getData, postData} from '../app/api'
+import {ACADEMICYEAR, CLASSES, FEEGROUP, FEES} from '../app/url'
 import {
   applyFees,
   feeDiscount,
   feeduration,
   getAcademicYears,
   getFeeGroups,
-} from "../commonComponent/CommonFunctions";
-import CustomCheckBox from "../commonComponent/CustomCheckBox";
-import CustomDate from "../commonComponent/CustomDate";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomRadio from "../commonComponent/CustomRadio";
-import CustomSelect from "../commonComponent/CustomSelect";
+} from '../commonComponent/CommonFunctions'
+import CustomCheckBox from '../commonComponent/CustomCheckBox'
+import CustomDate from '../commonComponent/CustomDate'
+import CustomInput from '../commonComponent/CustomInput'
+import CustomRadio from '../commonComponent/CustomRadio'
+import CustomSelect from '../commonComponent/CustomSelect'
 
-function FeeCreation({ onClose }) {
-  const [feeDetails, setFeeDetails] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [academicYears, setAcademicYears] = useState([]);
-  const [feeGroups, setFeeGroups] = useState([]);
+function FeeCreation({onClose}) {
+  const [feeDetails, setFeeDetails] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [academicYears, setAcademicYears] = useState([])
+  const [feeGroups, setFeeGroups] = useState([])
 
   const getInitialValues = () => {
     return {
-      academicYear: "",
-      feeGroup: "",
-      feeTitle: "",
-      feeAmount: "",
+      academicYear: '',
+      feeGroup: '',
+      feeTitle: '',
+      feeAmount: '',
       fees: feeDetails.map((item) => ({
         name: item.name,
         _id: item._id,
         checked: false,
-        amount: "",
+        amount: '',
       })),
-    };
-  };
+    }
+  }
 
   const getValidationSchema = () => {
     return Yup.object({
-      academicYear: Yup.string().required("Academic year is required"),
-      feeGroup: Yup.string().required("Fee Group is required"),
-      feeTitle: Yup.string().required("Fee Title is required"),
+      academicYear: Yup.string().required('Academic year is required'),
+      feeGroup: Yup.string().required('Fee Group is required'),
+      feeTitle: Yup.string().required('Fee Title is required'),
       feeAmount: Yup.number(),
       fees: Yup.array().of(
-        Yup.object({
+        Yup.object().shape({
           checked: Yup.boolean(),
-          amount: Yup.string(),
-          // .when("checked", {
-          //   is: true,
-          //   then: Yup.string()
-          //     .required("Amount is required")
-          //     .matches(/^\d+$/, "Amount must be a valid number"),
-          //   otherwise: Yup.string().notRequired(),
-          // }),
+          amount: Yup.string().test(
+            "is-required-if-checked",
+            "Amount is required",
+            function (value) {
+              const { checked } = this.parent; // Access sibling field 'checked'
+              if (checked && (!value || isNaN(value))) {
+                return false; // Fail validation if checked but amount is invalid
+              }
+              return true; // Pass validation otherwise
+            }
+          ),
         })
       ),
-    });
-  };
+    })
+  }
 
   const handleSubmit = async (values) => {
     try {
-      const response = await postData(FEES, values);
+      const response = await postData(FEES, values)
       if (response.status === 200 || response.status === 201) {
-        onClose();
-        alert("Fees added successfully!");
+        onClose()
+        alert('Fees added successfully!')
       }
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   useEffect(() => {
-    getFeeDetails();
-  }, []);
+    getFeeDetails()
+  }, [])
 
   const getFeeDetails = async () => {
     try {
@@ -83,23 +86,23 @@ function FeeCreation({ onClose }) {
         getData(CLASSES),
         getData(FEEGROUP),
         getData(ACADEMICYEAR),
-      ]);
+      ])
       if (classRes.status === 200 || classRes.status === 201) {
-        setFeeDetails(classRes.data.data);
-        setLoading(false);
+        setFeeDetails(classRes.data.data)
+        setLoading(false)
       } else {
-        throw new Error(classRes.message);
+        throw new Error(classRes.message)
       }
       if (feeGroupRes.status === 200 || feeGroupRes.status === 201) {
         let feeGroupData = feeGroupRes.data.data.map((item) => {
           return {
             label: item.name, // Displayed text in the dropdown
             value: item._id,
-          };
-        });
-        setFeeGroups(feeGroupData);
+          }
+        })
+        setFeeGroups(feeGroupData)
       } else {
-        throw new Error(feeGroupRes.message);
+        throw new Error(feeGroupRes.message)
       }
       if (academicYearRes.status === 200 || academicYearRes.status === 201) {
         let academicYearData = [
@@ -107,38 +110,18 @@ function FeeCreation({ onClose }) {
             label: academicYearRes.data.data.year, // Displayed text in the dropdown
             value: academicYearRes.data.data._id,
           },
-        ];
-        setAcademicYears(academicYearData);
+        ]
+        setAcademicYears(academicYearData)
       } else {
-        throw new Error(academicYearRes.message);
+        throw new Error(academicYearRes.message)
       }
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
-
-  const selectAllFees = () => {
-    let dumpList = [];
-    values.fees.forEach((item) => {
-      dumpList.push({
-        ...item,
-        isChecked: !checked,
-      });
-    });
-    setFieldValue("fees", dumpList);
-    setCheckAll(!checkAll);
-  };
-
-  const handleFeeChecked = (e, index) => {
-    let dumpList = values.feesData;
-    dumpList[index].isChecked = e.target.checked;
-    let isAllChecked = dumpList.every((item) => item.isChecked);
-    setFieldValue("fees", dumpList);
-    setCheckAll(isAllChecked);
-  };
+  }
 
   if (loading || feeDetails.length === 0) {
-    return <p>Loading classes...</p>;
+    return <p>Loading classes...</p>
   }
 
   return (
@@ -149,9 +132,8 @@ function FeeCreation({ onClose }) {
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({ values, setFieldValue, errors }) => {
-          // console.log(values);
-          console.log("Validation Errors:", errors);
+        {({values, setFieldValue, errors}) => {
+          console.log('Validation Errors:', errors)
           return (
             <Form>
               <div className="fixed inset-0 overflow-hidden">
@@ -225,74 +207,6 @@ function FeeCreation({ onClose }) {
                                         placeholder="Enter Fee Amount"
                                       />
                                     </div>
-
-                                    {/* <div className="sm:col-span-1">
-                                      <CustomRadio
-                                        name="feeApplicable"
-                                        label="Apply this fees to Students"
-                                        required={true}
-                                        options={applyFees}
-                                      />
-                                    </div> */}
-
-                                    {/* <div className="sm:col-span-1">
-                                      <CustomSelect
-                                        name="feeDuration"
-                                        label="Fee Duration"
-                                        required={true}
-                                        options={feeduration}
-                                        onChange={(e) => {
-                                          const duration = Number(
-                                            e.target.value
-                                          );
-                                          setFeeDuration(duration); // Update fee duration state
-                                          setFieldValue(
-                                            "dueDates",
-                                            Array.from(
-                                              { length: duration },
-                                              (_, index) => ({
-                                                installment_no: index + 1,
-                                                dueDate: "",
-                                              })
-                                            ) // Reset dueDates array
-                                          );
-                                          setFieldValue(
-                                            "feeDuration",
-                                            duration
-                                          );
-                                        }}
-                                      />
-                                    </div> */}
-
-                                    {/* <FieldArray name="dueDates">
-                                      {() =>
-                                        values.dueDates.map((_, index) => (
-                                          <div
-                                            className="sm:col-span-1"
-                                            key={index}
-                                          >
-                                            <CustomDate
-                                              name={`dueDates.${index}.dueDate`}
-                                              label={
-                                                "" +
-                                                (index + 1) +
-                                                " Installment Due Date"
-                                              }
-                                              required={true}
-                                            />
-                                          </div>
-                                        ))
-                                      }
-                                    </FieldArray> */}
-
-                                    {/* <div className="sm:col-span-1">
-                                      <CustomSelect
-                                        name="discount"
-                                        label="One Time Discount Percentage"
-                                        required={true}
-                                        options={feeDiscount}
-                                      />
-                                    </div> */}
                                   </div>
                                 </div>
 
@@ -303,7 +217,24 @@ function FeeCreation({ onClose }) {
                                         scope="col"
                                         className="relative px-7 sm:w-12 sm:px-6"
                                       >
-                                        <CustomCheckBox name={"allClasses"} />
+                                        <CustomCheckBox
+                                          name="allClasses"
+                                          checked={values.allClasses}
+                                          onChange={() => {
+                                            let dumpList = []
+                                            values.fees.forEach((item) => {
+                                              dumpList.push({
+                                                ...item,
+                                                checked: !values.allClasses,
+                                              })
+                                            })
+                                            setFieldValue('fees', dumpList)
+                                            setFieldValue(
+                                              'allClasses',
+                                              !values.allClasses,
+                                            )
+                                          }}
+                                        />
                                       </th>
                                       <th
                                         scope="col"
@@ -339,6 +270,24 @@ function FeeCreation({ onClose }) {
                                               <td className="relative px-7 sm:w-12 sm:px-6">
                                                 <CustomCheckBox
                                                   name={`fees[${index}].checked`}
+                                                  checked={values.fees[index].checked}
+                                                  onChange={(e) => {
+                                                    let dumpList = values.fees
+                                                    dumpList[index].checked =
+                                                      !dumpList[index].checked
+                                                    let isAllChecked =
+                                                      dumpList.every(
+                                                        (item) => item.checked,
+                                                      )
+                                                    setFieldValue(
+                                                      'fees',
+                                                      dumpList,
+                                                    )
+                                                    setFieldValue(
+                                                      'allClasses',
+                                                      isAllChecked,
+                                                    )
+                                                  }}
                                                 />
                                               </td>
                                               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
@@ -347,9 +296,9 @@ function FeeCreation({ onClose }) {
                                               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
                                                 <CustomInput
                                                   name={`fees[${index}].amount`}
+                                                  disabled={!values.fees[index].checked}
                                                   placeholder="Enter Fee Amount"
                                                   type="number"
-                                                  disabled={!fee.checked}
                                                 />
                                               </td>
                                             </tr>
@@ -398,11 +347,11 @@ function FeeCreation({ onClose }) {
                 </div>
               </div>
             </Form>
-          );
+          )
         }}
       </Formik>
     </>
-  );
+  )
 }
 
-export default FeeCreation;
+export default FeeCreation

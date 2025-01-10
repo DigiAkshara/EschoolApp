@@ -10,6 +10,7 @@ const TableComponent = ({
   columns,
   data,
   pagination,
+  showModal
 }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
@@ -72,7 +73,7 @@ const TableComponent = ({
               </td>
               {columns.map((col, ind) =>
                 col.key === "name" ? (
-                  <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0" key={ind}>
+                  <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0" key={ind} onClick={() => showModal&&showModal(student)}>
                     <a
                       href="#"
                       className="text-purple-600 hover:text-purple-900"
