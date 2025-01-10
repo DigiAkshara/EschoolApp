@@ -100,6 +100,12 @@ const ManageStaffDailyAttendance = () => {
     setFieldValue("attendance", updatedAttendance); 
   };
 
+  const updateAttendance = (e, index, values, setFieldValue) => {
+    const updatedAttendance = [...values.attendance];
+    updatedAttendance[index].attendanceStatus = e.target.value;
+    setFieldValue("attendance", updatedAttendance);
+  }
+
 
   const handleSubmit = (values) => {
     console.log("submitting with values:", values);
@@ -273,9 +279,8 @@ const ManageStaffDailyAttendance = () => {
                                             { value: "leave", label: "Leave" },
                                           ]}
                                           value={values.attendance[index].attendanceStatus}
-                                          onChange={(value) =>
-                                            setFieldValue(`attendance.${index}.attendanceStatus`, value)
-                                          }
+                                          onChange={(e) => updateAttendance(e, index, values, setFieldValue)}
+                                            
                                         />
                                       </td>
                                     </tr>
