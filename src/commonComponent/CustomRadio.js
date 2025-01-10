@@ -13,6 +13,7 @@ export default function CustomRadio(props) {
           {options.map((option, index) => (
             <div key={index} className="flex items-center">
               <Field
+                {...props}
                 name={name}
                 type="radio"
                 value={option.value}

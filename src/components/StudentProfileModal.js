@@ -73,13 +73,13 @@ const StudentProfileModal = ({data, show, close}) => {
                       <div className="flex w-full justify-between space-x-6 p-6 col-span-1 rounded-lg bg-white shadow border border-gray-300">
                           <img
                             alt=""
-                            src={data.pic}
+                            src={data?.pic}
                             className="size-36 shrink-0 rounded-full bg-gray-300"
                           />
                         <div className="flex-1 truncate">
                           <div className="flex justify-between space-x-3">
                             <h3 className="truncate text-lg font-medium text-gray-900">
-                              {data.name}
+                              {data?.name}
                             </h3>
                             <div className="right-contact-btns grid grid-cols-2 gap-4">
                               <button
@@ -117,7 +117,7 @@ const StudentProfileModal = ({data, show, close}) => {
                                   Admission No
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {data.admissionNo}
+                                  {data?.admissionNo}
                                 </dd>
                               </div>
                               <div className="sm:col-span-1">
@@ -125,7 +125,7 @@ const StudentProfileModal = ({data, show, close}) => {
                                   Class & Section
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {data.className} / {data.section}
+                                  {data?.className} / {data?.section}
                                 </dd>
                               </div>
                               <div className="sm:col-span-1">
@@ -139,7 +139,7 @@ const StudentProfileModal = ({data, show, close}) => {
                               <div className="sm:col-span-1">
                                 <dt className="text-sm/6 text-gray-500">DOB</dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {moment(data.date).format("DD-MM-YYYY")}
+                                  {moment(data?.date).format("DD-MM-YYYY")}
                                 </dd>
                               </div>
                               <div className="sm:col-span-1">
@@ -147,7 +147,7 @@ const StudentProfileModal = ({data, show, close}) => {
                                   Gender
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {data.gender}
+                                  {data?.gender}
                                 </dd>
                               </div>
                               <div className="sm:col-span-1">
