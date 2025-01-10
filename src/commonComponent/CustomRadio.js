@@ -1,7 +1,7 @@
 import { ErrorMessage, Field } from "formik";
 
 export default function CustomRadio(props) {
-  const {name, label, required = false, options} = props
+  const {name, label, required = false, options, defaultValue='present'} = props
 
   return (
     <>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { Form, Formik } from "formik";
+import { FieldArray, Form, Formik, useFormikContext } from "formik";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   ArrowDownTrayIcon,
@@ -8,12 +8,15 @@ import {
 } from "@heroicons/react/24/outline";
 import AttendanceSidebar from "./AttendanceSidebar";
 import { getData } from "../app/api";
-import { STAFF } from "../app/url";
-import { designations } from "../commonComponent/CommonFunctions";
+import { ACADEMICYEAR, STAFF } from "../app/url";
+import {
+  attendanceOptions,
+  designations,
+} from "../commonComponent/CommonFunctions";
+import CustomRadio from "../commonComponent/CustomRadio";
 
 const ManageStaffDailyAttendance = () => {
-  const [date, setDate] = useState("");
-  const teacherOptions = ["Set attendance for all Teachers"];
+
   const [staffList, setStaffList] = useState([]);
   const [attendance, setAttendance] = useState({});
   const [filteredData, setFilteredData] = useState([]);
@@ -23,8 +26,15 @@ const ManageStaffDailyAttendance = () => {
   const getInitialValues = () => {
     return {
       date: "",
-      staffCategory: "",
-      attendance: [],
+      staffCategory: "teacher",
+      allAttendance: "",
+      attendance: staffList.map((item) => ({
+        name: item.name,
+        staffId: item.empId,
+        email: item.email,
+        pic: item.pic,
+        attendanceStatus: "present",
+      })),
     };
   };
 
@@ -32,13 +42,16 @@ const ManageStaffDailyAttendance = () => {
     return Yup.object({
       staffCategory: Yup.string(),
       date: Yup.date().nullable().required(" Date  is required"),
+      allAttendance:Yup.string(),
       attendance: Yup.array().of(
         Yup.object({
-          status: Yup.string(),
+           attendanceStatus: Yup.string(),
+       
         })
       ),
     });
   };
+  console.log("values are:", getInitialValues());
 
   useEffect(() => {
     getStaff();
@@ -53,7 +66,6 @@ const ManageStaffDailyAttendance = () => {
         _id: item._id,
         pic: item.profilePic?.Location,
         name: item.firstName + " " + item.lastName,
-        staffId: item.empId,
         email: item.email,
         empId: item.empId,
         date: item.DOJ,
@@ -61,7 +73,6 @@ const ManageStaffDailyAttendance = () => {
         designation: designations.find(
           (designations) => designations.value === item.designation
         ).label,
-        subjets: item.subjets,
         class: item.class,
       }));
       setStaffList(data);
@@ -69,24 +80,7 @@ const ManageStaffDailyAttendance = () => {
     }
   };
 
-  const handleSaveAttendance = () => {
-    const attendanceData = Object.entries(attendance).map(
-      ([staffId, isPresent]) => ({
-        staffId,
-        isPresent,
-      })
-    );
-    console.log("Attendance saved:", attendanceData);
-    // Send `attendanceData` to the backend.
-  };
-
-  const handleAttendanceChange = (staffId, status) => {
-    setAttendance((prevAttendance) => ({
-      ...prevAttendance,
-      [staffId]: status, // Updates the status for the specific staff member
-    }));
-  };
-
+ 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setFilteredData(
@@ -94,28 +88,43 @@ const ManageStaffDailyAttendance = () => {
     );
   };
 
-  const handleSubmit = (values) => {
-    // alert("Form submitted successfully!");
-    console.log("Form submitted with values:", values);
+  const handleRadioChange = (e, values, setFieldValue) => {
+
+    const selectedStatus = e.target.value; 
+      setFieldValue("allAttendance", selectedStatus); 
+      const updatedAttendance = values.attendance.map((data) => ({
+      ...data,
+      attendanceStatus: selectedStatus,
+    }));
+
+    setFieldValue("attendance", updatedAttendance); 
   };
 
+
+  const handleSubmit = (values) => {
+    console.log("submitting with values:", values);
+    
+  }
+  
+  
   return (
     <>
       <Formik
         initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
+        enableReinitialize
       >
-        {({ values, setFieldValue, errors, touched }) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               {/* Sidebar */}
               <AttendanceSidebar
-                date={date}
-                setDate={setDate}
-                teacherOptions={teacherOptions}
-                handleSaveAttendance={handleSaveAttendance}
+                values={values}
                 user="staff"
+                setFieldValue={setFieldValue}
+                handleRadioChange={handleRadioChange}
+                
               />
 
               {/* Main Content */}
@@ -217,116 +226,69 @@ const ManageStaffDailyAttendance = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
-                            {staffList.map((staff, index) => (
-                              <tr key={staff._id} className="bg-gray-50">
-                                {/* Checkbox Column */}
-                                <td className="relative px-7 sm:w-12 sm:px-6">
-                                  <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
-                                  <input
-                                    type="checkbox"
-                                    className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                                  />
-                                </td>
-
-                                {/* Staff Details Column */}
-                                <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
-                                  <div className="flex items-center">
-                                    {/* Staff Image */}
-                                    <div className="h-9 w-9 shrink-0">
-                                      <img
-                                        alt="Staff"
-                                        src="https://stu-images.mos.ap-southeast-2.sufybkt.com/1734344416163.jpeg"
-                                        className="h-9 w-9 rounded-full"
-                                      />
-                                    </div>
-                                    {/* Staff Details */}
-                                    <div className="ml-4">
-                                      <div className="font-medium text-gray-900 text-purple-600">
-                                        {staff.name}{" "}
-                                        {/* Replace 'staff.name' with the actual staff name field */}
-                                      </div>
-                                      <div className="mt-1 text-gray-500">
-                                        {staff.email}{" "}
-                                        {/* Replace 'staff.admissionNo' with the actual staff identifier */}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                  {staff.empId}
-                                </td>
-                                {/* <td>
-                          {["Present", "Absent", "Half Day", "Leave"].map(
-                            (option) => (
-                              <label
-                                key={`${staff._id}-${option.toLowerCase()}`}
-                                className="me-3"
-                              >
-                                <input
-                                  type="radio"
-                                  name={`attendance-${staff._id}`}
-                                  value={option.toLowerCase().replace(" ", "-")} // Format: present, absent, half-day, leave
-                                  checked={
-                                    attendance[staff._id] ===
-                                    option.toLowerCase().replace(" ", "-")
-                                  }
-                                  className="me-1"
-                                  onChange={() =>
-                                    handleAttendanceChange(
-                                      staff._id,
-                                      option.toLowerCase().replace(" ", "-")
-                                    )
-                                  }
-                                />
-                                {option}
-                              </label>
-                            )
-                          )}
-                        </td> */}
-
-                                <td>
-                                  <div className="flex flex-row space-x-4">
-                                    {[
-                                      "Present",
-                                      "Absent",
-                                      "Half Day",
-                                      "Leave",
-                                    ].map((option) => (
-                                      <label
-                                        key={`${
-                                          staff._id
-                                        }-${option.toLowerCase()}`}
-                                        className="flex items-center"
-                                      >
+                            {values.attendance.length >= 0 ? (
+                              <FieldArray name="attendance">
+                                {() =>
+                                  values.attendance.map((staff, index) => (
+                                    <tr
+                                      key={staff.staffId}
+                                      className="bg-gray-50"
+                                    >
+                                      <td className="relative px-7 sm:w-12 sm:px-6">
+                                        <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
                                         <input
-                                          type="radio"
-                                          name={`attendance-${staff._id}`}
-                                          value={option
-                                            .toLowerCase()
-                                            .replace(" ", "-")}
-                                          checked={
-                                            attendance[staff._id] ===
-                                            option
-                                              .toLowerCase()
-                                              .replace(" ", "-")
-                                          }
-                                          className="me-1"
-                                          onChange={() =>
-                                            handleAttendanceChange(
-                                              staff._id,
-                                              option
-                                                .toLowerCase()
-                                                .replace(" ", "-")
-                                            )
+                                          type="checkbox"
+                                          className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                                        />
+                                      </td>
+
+                                      <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
+                                        <div className="flex items-center">
+                                          <div className="h-9 w-9 shrink-0">
+                                            <img
+                                              alt="Staff"
+                                              src={staff.pic}
+                                              className="h-9 w-9 rounded-full"
+                                            />
+                                          </div>
+                                          <div className="ml-4">
+                                            <div className="font-medium text-gray-900 text-purple-600">
+                                              {staff.name}{" "}
+                                            </div>
+                                            <div className="mt-1 text-gray-500">
+                                              {staff.email}{" "}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                                        {staff.staffId}
+                                      </td>
+
+                                      <td>
+                                        <CustomRadio
+                                          name={`attendance.${index}.attendanceStatus`}
+                                          options={[
+                                            ...attendanceOptions,
+                                            { value: "leave", label: "Leave" },
+                                          ]}
+                                          value={values.attendance[index].attendanceStatus}
+                                          onChange={(value) =>
+                                            setFieldValue(`attendance.${index}.attendanceStatus`, value)
                                           }
                                         />
-                                        {option}
-                                      </label>
-                                    ))}
-                                  </div>
+                                      </td>
+                                    </tr>
+                                  ))
+                                }
+                              </FieldArray>
+                            ) : (
+                              <tr>
+                                <td colSpan={3} className="text-center">
+                                  No student data Found
                                 </td>
                               </tr>
-                            ))}
+                            )}
                           </tbody>
                         </table>
                       </div>

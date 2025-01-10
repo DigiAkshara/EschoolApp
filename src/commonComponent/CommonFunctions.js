@@ -1,6 +1,7 @@
 import { useDispatch } from "react-redux";
 import { getData, postData } from "../app/api";
 import { CLASSES, UPLOAD } from "../app/url"; 
+
 export const getAcademicYears = () => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -19,6 +20,11 @@ export const getAcademicYears = () => {
   }
   return academicYears;
 };
+
+export const formatDateRange = (date) => {
+    const formattedStartDate = new Date(date).toLocaleDateString("en-GB");
+  return formattedStartDate
+}
 
 export const getFeeGroups = [
   { value: "1", label: "Primary" },
@@ -186,6 +192,13 @@ export const designations = [
   { value: "cook", label: "Cook" },
   { value: "other", label: "Other" },
 ]
+
+export const attendanceOptions= [
+  { value: "present", label: "Present" },
+  { value: "absent", label: "Absent" },
+  { value: "half-day", label: "Half Day" },
+];
+
 
 export const uploadFile = async (file) => {
     try {

@@ -1,18 +1,32 @@
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { Form, Formik } from "formik";
+import {
+  Dialog,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+} from "@headlessui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   ArrowDownTrayIcon,
   ArrowsUpDownIcon,
+  EllipsisHorizontalIcon,
 } from "@heroicons/react/24/outline";
 import AttendanceSidebar from "./AttendanceSidebar";
 import { getData, postData } from "../app/api";
-import { ACADEMICS, HOLIDAYS, STAFF } from "../app/url";
-import { designations, gender } from "../commonComponent/CommonFunctions";
+import { ACADEMICS, ACADEMICYEAR, HOLIDAYS, STAFF } from "../app/url";
+import {
+  capitalizeWords,
+  designations,
+  formatDateRange,
+  gender,
+} from "../commonComponent/CommonFunctions";
 import ManageHolidatSidebar from "./ManageHolidatSidebar";
 
 const ManageHolidayAttendance = () => {
+  const [academicYears, setAcademicYears] = useState([]);
   const [holidaysData, setHolidaysData] = useState([]);
   const [studentList, setStudentList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -24,8 +38,7 @@ const ManageHolidayAttendance = () => {
       academicYear: "",
       startDate: "",
       endDate: "",
-      holidayName: "",
-      
+      name: "",
     };
   };
 
@@ -34,14 +47,34 @@ const ManageHolidayAttendance = () => {
       academicYear: Yup.string().required("Academic year is required"),
       startDate: Yup.date().nullable().required(" Date  is required"),
       endDate: Yup.date().nullable().required(" Date  is required"),
-      holidayName: Yup.string().required(" Holiday name is required"),
+      name: Yup.string().required(" Holiday name is required"),
     });
   };
 
   useEffect(() => {
+    academicyear();
+    getHolidayData();
   }, []);
 
-
+  const academicyear = async () => {
+    try {
+      const academicYearRes = await getData(ACADEMICYEAR);
+      console.log("data academic", academicYearRes.data);
+      if (academicYearRes.status === 200 || academicYearRes.status === 201) {
+        let academicYearData = [
+          {
+            label: academicYearRes.data.data.year, // Displayed text in the dropdown
+            value: academicYearRes.data.data._id,
+          },
+        ];
+        setAcademicYears(academicYearData);
+      } else {
+        throw new Error(academicYearRes.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
@@ -52,21 +85,37 @@ const ManageHolidayAttendance = () => {
     );
   };
 
+  const getHolidayData = async () => {
+    try {
+      const response = await getData(HOLIDAYS);
+      console.log("Holiday datas are:", response.data);
+      setHolidaysData(response.data.data);
+    } catch (error) {
+      console.error("Error getting data:", error);
+    }
+  };
 
   const handleSubmit = async (values) => {
     console.log("Form submitted with values:", values);
 
     try {
-      const response = await postData(HOLIDAYS, values); 
-      console.log("response from backend :",response.data);
-      
-      
+      const response = await postData(HOLIDAYS, values);
+      console.log("response from backend :", response.data);
+
       if (response.data) {
-        setHolidaysData((prevData) => [...prevData, response.data]);
+        setHolidaysData((prevData) => [...prevData, response.data.data]);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
     }
+  };
+
+  const formatHolidayDate = (startDate, endDate) => {
+    const formatStartDate = formatDateRange(startDate);
+    const formatEndDate = formatDateRange(endDate);
+    return formatStartDate === formatEndDate
+      ? formatStartDate
+      : `${formatStartDate} to ${formatEndDate}`;
   };
 
   return (
@@ -82,6 +131,7 @@ const ManageHolidayAttendance = () => {
               {/* Sidebar */}
               <ManageHolidatSidebar
                 values={values}
+                academicYears={academicYears}
               />
 
               {/* Main Content */}
@@ -125,7 +175,7 @@ const ManageHolidayAttendance = () => {
                         <table className="table-auto min-w-full divide-y divide-gray-300">
                           <thead className="sticky top-0 bg-purple-100 z-20">
                             <tr>
-                            <th
+                              <th
                                 scope="col"
                                 className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
                               >
@@ -139,7 +189,7 @@ const ManageHolidayAttendance = () => {
                                   </span>
                                 </a>
                               </th>
-                              
+
                               <th
                                 scope="col"
                                 className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
@@ -189,13 +239,76 @@ const ManageHolidayAttendance = () => {
                               >
                                 <a href="#" className="group inline-flex">
                                   Actions
-                                  
                                 </a>
                               </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
-                           
+                            {holidaysData.map((holiday, index) => (
+                              <tr key={holiday.id} className="bg-gray-50 ">
+                                <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-2">
+                                  {index + 1}
+                                </td>
+                                <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-2">
+                                  {capitalizeWords(holiday.name)}
+                                </td>
+                                <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-2">
+                                  {formatHolidayDate(
+                                    holiday.startDate,
+                                    holiday.endDate
+                                  )}
+                                </td>
+                                <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-2">
+                                  {Math.ceil(
+                                    (new Date(holiday.endDate) -
+                                      new Date(holiday.startDate)) /
+                                      (1000 * 60 * 60 * 24)
+                                  )}
+                                </td>
+                                <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
+                                  <Menu
+                                    as="div"
+                                    className="relative inline-block text-left"
+                                  >
+                                    <div>
+                                      <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
+                                        <span className="sr-only">
+                                          Open options
+                                        </span>
+                                        <EllipsisHorizontalIcon
+                                          aria-hidden="true"
+                                          className="size-5"
+                                        />
+                                      </MenuButton>
+                                    </div>
+
+                                    <MenuItems
+                                      transition
+                                      className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                                    >
+                                      <div className="py-1">
+                                        <MenuItem>
+                                          <a
+                                            href="#"
+                                            className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
+                                          >
+                                            Edit
+                                          </a>
+                                        </MenuItem>
+                                        <MenuItem>
+                                          <a
+                                            href="#"
+                                            className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
+                                          >
+                                            Delete
+                                          </a>
+                                        </MenuItem>
+                                      </div>
+                                    </MenuItems>
+                                  </Menu>
+                                </td>
+                              </tr>
+                            ))}
                           </tbody>
                         </table>
                       </div>

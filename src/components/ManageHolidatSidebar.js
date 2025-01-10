@@ -4,7 +4,7 @@ import {getAcademicYears} from "../commonComponent/CommonFunctions";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomDate from "../commonComponent/CustomDate";
 
-const ManageHolidatSidebar = () => {
+const ManageHolidatSidebar = ({academicYears}) => {
   return (
     <div className="bg-white border  rounded-lg p-6 w-full lg:w-1/4">
       <h2 className="text-xl font-semibold mb-4">Holiday Entry</h2>
@@ -14,7 +14,7 @@ const ManageHolidatSidebar = () => {
         <CustomSelect
           name="academicYear"
           label="Academic year"
-          options={getAcademicYears()}
+          options={academicYears}
           required={true}
         />
       </div>
@@ -32,7 +32,7 @@ const ManageHolidatSidebar = () => {
 
       <div className="mb-4">
         <CustomInput
-          name="holidayName"
+          name="name"
           label="Holiday Title"
           placeholder="Enter Holiday Title"
           required={true}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { Form, Formik } from "formik";
+import { FieldArray, Form, Formik } from "formik";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   ArrowDownTrayIcon,
@@ -9,7 +9,7 @@ import {
 import AttendanceSidebar from "./AttendanceSidebar";
 import { getData } from "../app/api";
 import { ACADEMICS, STAFF } from "../app/url";
-import { designations, gender } from "../commonComponent/CommonFunctions";
+import { attendanceOptions, designations, gender } from "../commonComponent/CommonFunctions";
 import CustomRadio from "../commonComponent/CustomRadio";
 
 const ManageStudentDailyAttendance = () => {
@@ -27,8 +27,13 @@ const ManageStudentDailyAttendance = () => {
       date: "",
       class: "",
       section: "",
-      name: "",
-      attendance: "",
+      allAttendance:"",
+      attendance: studentList.map((item) => ({
+        name: item.name,
+        admissionNo: item.admissionNo,
+        pic: item.pic,
+        attendanceStatus: "present",
+      })),
     };
   };
 
@@ -37,7 +42,13 @@ const ManageStudentDailyAttendance = () => {
       class: Yup.string(),
       section: Yup.string(),
       date: Yup.date().nullable().required(" Date  is required"),
-      attendance: Yup.string(),
+      allAttendance: Yup.string(),
+      attendance: Yup.array().of(
+        Yup.object({
+           attendanceStatus: Yup.string(),
+       
+        })
+      ),
     });
   };
 
@@ -120,16 +131,15 @@ const ManageStudentDailyAttendance = () => {
         initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
+        enableReinitialize
       >
         {({ values, setFieldValue, errors, touched }) => (
           <Form>
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
-              {/* Sidebar */}
+              
               <AttendanceSidebar
-                date={date}
-                setDate={setDate}
+                values={values}
                 teacherOptions={teacherOptions}
-                // handleSaveAttendance={handleSaveAttendance}
                 user="student"
                 setGlobalAttendance={setGlobalAttendance}
               />
@@ -233,9 +243,12 @@ const ManageStudentDailyAttendance = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
-                            {studentList.map((student, index) => (
+                          {values.attendance.length >= 0 ? (
+                              <FieldArray name="attendance">
+                                {() =>
+                                  values.attendance.map((student, index) => (
                               <tr key={student._id} className="bg-gray-50">
-                                {/* Checkbox Column */}
+                                
                                 <td className="relative px-7 sm:w-12 sm:px-6">
                                   <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
                                   <input
@@ -244,7 +257,7 @@ const ManageStudentDailyAttendance = () => {
                                   />
                                 </td>
 
-                                {/* Staff Details Column */}
+                                
                                 <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                   <div className="flex items-center">
                                     {/* Staff Image */}
@@ -259,7 +272,7 @@ const ManageStudentDailyAttendance = () => {
                                     <div className="ml-4">
                                       <div className="font-medium text-gray-900 text-purple-600">
                                         {student.name}{" "}
-                                        {/* Replace 'staff.name' with the actual staff name field */}
+                                        
                                       </div>
                                       {/* <div className="mt-1 text-gray-500">
                                 {student.email}{" "}
@@ -307,8 +320,8 @@ const ManageStudentDailyAttendance = () => {
                                     )
                                   )}
                                 </td> */}
-                                <td>
-                                  <div className="sm:col-span-2 flex flex-row space-x-4">
+                                
+                                  {/* <div className="sm:col-span-2 flex flex-row space-x-4">
                                     {["Present", "Absent", "Half Day"].map(
                                       (option) => (
                                         <CustomRadio
@@ -324,13 +337,37 @@ const ManageStudentDailyAttendance = () => {
                                               label: option,
                                             },
                                           ]}
+                                          defaultValue='present'
+
                                         />
                                       )
                                     )}
-                                  </div>
-                                </td>
+                                  </div> */}
+                                   <td>
+                                        <CustomRadio
+                                          name={`attendance.${index}.attendanceStatus`}
+                                          options={[
+                                            ...attendanceOptions,
+                                            { value: "leave", label: "Leave" },
+                                          ]}
+                                          value={values.attendance[index].attendanceStatus}
+                                          onChange={(value) =>
+                                            setFieldValue(`attendance.${index}.attendanceStatus`, value)
+                                          }
+                                        />
+                                      </td>
+                               
                               </tr>
-                            ))}
+                             ))
+                            }
+                          </FieldArray>
+                        ) : (
+                          <tr>
+                            <td colSpan={3} className="text-center">
+                              No student data Found
+                            </td>
+                          </tr>
+                        )}
                           </tbody>
                         </table>
                       </div>

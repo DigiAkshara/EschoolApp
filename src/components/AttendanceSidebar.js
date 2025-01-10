@@ -1,19 +1,16 @@
 import React from "react";
 import CustomSelect from "../commonComponent/CustomSelect";
-import { staffCategory } from "../commonComponent/CommonFunctions";
+import {
+  attendanceOptions,
+  staffCategory,
+} from "../commonComponent/CommonFunctions";
 import CustomDate from "../commonComponent/CustomDate";
+import CustomRadio from "../commonComponent/CustomRadio";
 
-const AttendanceSidebar = ({ date, setDate, handleSaveAttendance, user, setGlobalAttendance  }) => {  
+const AttendanceSidebar = ({ values, setFieldValue, user, handleRadioChange  }) => {
 
-  const handleRadioChange = (e) => {
-    const selectedStatus = e.target.value;
-    setGlobalAttendance((prevAttendance) => {
-      return Object.keys(prevAttendance).reduce((acc, studentId) => {
-        acc[studentId] = selectedStatus;
-        return acc;
-      }, {});
-    });
-  };
+
+  console.log("values updated:", values);
 
   return (
     <div className="bg-white border  rounded-lg p-6 w-full lg:w-1/4">
@@ -35,7 +32,7 @@ const AttendanceSidebar = ({ date, setDate, handleSaveAttendance, user, setGloba
           <CustomSelect
             name="staffCategory"
             options={staffCategory}
-            value="teacher"
+            defaultValue="teacher"
           />
         </div>
       )}
@@ -68,50 +65,78 @@ const AttendanceSidebar = ({ date, setDate, handleSaveAttendance, user, setGloba
         </div>
       )}
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">
-          {user === "staff"
-            ? "Set attendance for all Teacher"
-            : "Set attendance for all students"}
-        </label>
-        
-        <div className="flex flex-wrap gap-4 mt-2">
-  {user === "staff" ? (
-    ["Present", "Absent", "Half Day", "Leave"].map((status) => (
-      <label key={status} className="flex items-center gap-2 text-gray-700">
-        <input
-          type="radio"
-          name="attendance"
-          className="text-purple-500 focus:ring-purple-500"
-          value={status}
-          onChange={handleRadioChange}
-        />
-        {status}
-      </label>
-    ))
-  ) : (
-    ["Present", "Absent", "Half Day"].map((status) => (
-      <label key={status} className="flex items-center gap-2 text-gray-700">
-        <input
-          type="radio"
-          name="attendance"
-          className="text-purple-500 focus:ring-purple-500"
-          value={status}
-          onChange={handleRadioChange}
-        />
-        {status}
-      </label>
-    ))
-  )}
-</div>
+      {/* <div className="mb-4">
+        <div className="flex flex-wrap">
+          <div className="sm:col-span-2">
+            <CustomRadio
+              name="allAttendance"
+              label={
+                user === "staff"
+                  ? "Set attendance for all Teachers"
+                  : "Set attendance for all Students"
+              }
+              options={
+                user === "staff"
+                  ? [...attendanceStatus, { value: "leave", label: "Leave" }]
+                  : attendanceStatus
+              }
+              onChange={(e) => {
+                const status = e.target.value; 
+               
+                const updatedStaff = values.attendance.map((data) => ({
+                  ...data,
+                  attendanceStatus: status,
+                }));
 
+                setFieldValue("attendance", updatedStaff); 
+              }}
+            />
+          </div>
+          
+        </div>
+      </div> */}
+
+      <div className="mb-4">
+        <CustomRadio
+          name="allAttendance"
+          label={
+            user === "staff"
+              ? "Set attendance for all Teachers"
+              : "Set attendance for all Students"
+          }
+          options={
+            user === "staff"
+              ? [...attendanceOptions, { value: "leave", label: "Leave" }]
+              : attendanceOptions
+          }
+          value={values.allAttendance}
+        // onChange={handleRadioChange}
+        onChange= {(e)=>handleRadioChange(e,values,setFieldValue)}
+        
+        />
       </div>
+      {user === "student" && (
+        <div className="mb-4">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="sendSms"
+              name="sendSms"
+              className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+              onChange={(e) => setFieldValue("sendSms", e.target.checked)}
+            />
+            <label
+              htmlFor="sendSms"
+              className="ml-2 block text-sm text-gray-900"
+            >
+              Send SMS
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Save Button */}
-      <button
-        onClick={handleSaveAttendance}
-        className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600"
-      >
+      <button className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600">
         Save Attendance
       </button>
       {/* Summary */}
