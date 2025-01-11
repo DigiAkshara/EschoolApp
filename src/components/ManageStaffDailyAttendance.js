@@ -18,7 +18,7 @@ import CustomRadio from "../commonComponent/CustomRadio";
 const ManageStaffDailyAttendance = () => {
 
   const [staffList, setStaffList] = useState([]);
-  const [attendance, setAttendance] = useState({});
+  const [filteredStaff, setFilteredStaff] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
@@ -26,15 +26,9 @@ const ManageStaffDailyAttendance = () => {
   const getInitialValues = () => {
     return {
       date: "",
-      staffCategory: "teacher",
+      staffCategory: "teaching",
       allAttendance: "",
-      attendance: staffList.map((item) => ({
-        name: item.name,
-        staffId: item.empId,
-        email: item.email,
-        pic: item.pic,
-        attendanceStatus: "present",
-      })),
+      attendance: staffList.filter((staff) =>staff.category === 'teaching' )
     };
   };
 
@@ -53,9 +47,12 @@ const ManageStaffDailyAttendance = () => {
   };
   console.log("values are:", getInitialValues());
 
+
   useEffect(() => {
     getStaff();
   }, []);
+
+ 
 
   const getStaff = async () => {
     const response = await getData(STAFF);
@@ -68,6 +65,7 @@ const ManageStaffDailyAttendance = () => {
         name: item.firstName + " " + item.lastName,
         email: item.email,
         empId: item.empId,
+        category:item.staffType,
         date: item.DOJ,
         phoneNumber: item.mobileNumber,
         designation: designations.find(
@@ -76,10 +74,23 @@ const ManageStaffDailyAttendance = () => {
         class: item.class,
       }));
       setStaffList(data);
-      setFilteredData(data);
     }
   };
 
+  // function getStaffData (category) {
+  //   const staffData = staffList.filter((staff) =>staff.category === category )
+  //   setFilteredStaff(staffData)
+    
+  // }
+
+
+  const handleStaffCategory = (e,setFieldValue) =>{
+      const category = e.target.value
+      console.log("category value onchange", category);
+      const staffData = staffList.filter((staff) =>staff.category === category )
+      setFieldValue("staffCategory",category)
+      setFieldValue("attendance",staffData)
+  }
  
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
@@ -102,10 +113,19 @@ const ManageStaffDailyAttendance = () => {
 
   const updateAttendance = (e, index, values, setFieldValue) => {
     const updatedAttendance = [...values.attendance];
+<<<<<<< Updated upstream
+=======
+    console.log("updatedAttendance++++++++++",updatedAttendance);
+    
+>>>>>>> Stashed changes
     updatedAttendance[index].attendanceStatus = e.target.value;
     setFieldValue("attendance", updatedAttendance);
   }
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
   const handleSubmit = (values) => {
     console.log("submitting with values:", values);
@@ -130,6 +150,7 @@ const ManageStaffDailyAttendance = () => {
                 user="staff"
                 setFieldValue={setFieldValue}
                 handleRadioChange={handleRadioChange}
+                handleStaffCategory={handleStaffCategory}
                 
               />
 
@@ -279,8 +300,13 @@ const ManageStaffDailyAttendance = () => {
                                             { value: "leave", label: "Leave" },
                                           ]}
                                           value={values.attendance[index].attendanceStatus}
+<<<<<<< Updated upstream
                                           onChange={(e) => updateAttendance(e, index, values, setFieldValue)}
                                             
+=======
+                                         
+                                          onChange={(e) => updateAttendance(e, index, values, setFieldValue)}
+>>>>>>> Stashed changes
                                         />
                                       </td>
                                     </tr>

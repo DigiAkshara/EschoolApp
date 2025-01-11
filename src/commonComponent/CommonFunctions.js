@@ -121,8 +121,8 @@ export const occupation = [
 ]
 
 export const staffCategory = [
-  { value: "teacher", label: "Teacher" },
-  { value: "Non-teacher", label: "Non Teaching Staff" },
+  { value: "teaching", label: "Teacher" },
+  { value: "non-teaching", label: "Non Teaching Staff" },
 ]
 
 export const states = [

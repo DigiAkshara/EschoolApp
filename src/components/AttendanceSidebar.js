@@ -1,16 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CustomSelect from "../commonComponent/CustomSelect";
 import {
   attendanceOptions,
+  sections,
   staffCategory,
 } from "../commonComponent/CommonFunctions";
 import CustomDate from "../commonComponent/CustomDate";
 import CustomRadio from "../commonComponent/CustomRadio";
 
-const AttendanceSidebar = ({ values, setFieldValue, user, handleRadioChange  }) => {
+const AttendanceSidebar = ({
+  values,
+  setFieldValue,
+  user,
+  handleRadioChange,
+  handleStaffCategory,
+  handleClassChange,
+  handleSectionChange,
+  classes,
+}) => {
 
 
-  console.log("values updated:", values);
+  const attendanceCounts = values.attendance.reduce(
+    (acc, entry) => {
+      switch (entry.attendanceStatus) {
+        case "present":
+          acc.present += 1;
+          break;
+        case "absent":
+          acc.absent += 1;
+          break;
+        case "half-day":
+          acc.halfDay += 1;
+          break;
+        case "leave":
+          acc.leave += 1;
+          break;
+        default:
+          break;
+      }
+      return acc;
+    },
+    { present: 0, absent: 0, halfDay: 0, leave: 0 }
+  );
+
+  // console.log("values updated:", values);
 
   return (
     <div className="bg-white border  rounded-lg p-6 w-full lg:w-1/4">
@@ -32,69 +65,34 @@ const AttendanceSidebar = ({ values, setFieldValue, user, handleRadioChange  }) 
           <CustomSelect
             name="staffCategory"
             options={staffCategory}
-            defaultValue="teacher"
+            value={values.staffCategory}
+            onChange={(e) => handleStaffCategory(e, setFieldValue)}
           />
         </div>
       )}
 
       {user === "student" && (
         <div className="flex flex-col lg:flex-row mb-4 gap-2">
-          {/* Select box for Class */}
           <div className="w-full lg:w-1/2">
-            <select
-              id="class"
-              name="class"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              value="class1" // Set the initial value
-            >
-              <option value="class1">Class 1</option>
-            </select>
+            <CustomSelect name="class" 
+            value={classes.length > 0 ? classes[0].value : ""} 
+            options={classes}
+            onChange={(e) => handleClassChange(e,values, setFieldValue)}           
+            />
           </div>
 
-          {/* Select box for Section */}
+          
           <div className="w-full lg:w-1/2">
-            <select
-              id="section"
-              name="section"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              value="A" // Set the initial value
-            >
-              <option value="A">Section A</option>
-            </select>
+            <CustomSelect name="section" 
+            value={values.section} 
+            options={sections}
+            onChange={(e) =>
+              handleSectionChange(e,values, setFieldValue)
+            }
+             />
           </div>
         </div>
       )}
-
-      {/* <div className="mb-4">
-        <div className="flex flex-wrap">
-          <div className="sm:col-span-2">
-            <CustomRadio
-              name="allAttendance"
-              label={
-                user === "staff"
-                  ? "Set attendance for all Teachers"
-                  : "Set attendance for all Students"
-              }
-              options={
-                user === "staff"
-                  ? [...attendanceStatus, { value: "leave", label: "Leave" }]
-                  : attendanceStatus
-              }
-              onChange={(e) => {
-                const status = e.target.value; 
-               
-                const updatedStaff = values.attendance.map((data) => ({
-                  ...data,
-                  attendanceStatus: status,
-                }));
-
-                setFieldValue("attendance", updatedStaff); 
-              }}
-            />
-          </div>
-          
-        </div>
-      </div> */}
 
       <div className="mb-4">
         <CustomRadio
@@ -110,9 +108,7 @@ const AttendanceSidebar = ({ values, setFieldValue, user, handleRadioChange  }) 
               : attendanceOptions
           }
           value={values.allAttendance}
-        // onChange={handleRadioChange}
-        onChange= {(e)=>handleRadioChange(e,values,setFieldValue)}
-        
+          onChange={(e) => handleRadioChange(e, values, setFieldValue)}
         />
       </div>
       {user === "student" && (
@@ -144,20 +140,20 @@ const AttendanceSidebar = ({ values, setFieldValue, user, handleRadioChange  }) 
         <ul>
           <li className="flex justify-between border-b border-gray-300 pb-2">
             <span>{user === "staff" ? "Total Teachers:" : "Strength:"}</span>{" "}
-            <span>20</span>
+            <span>{values.attendance.length} </span>
           </li>
           <li className="flex justify-between border-b border-gray-300 pb-2">
-            <span>Present:</span> <span>18</span>
+            <span>Present:</span> <span>{attendanceCounts.present}</span>
           </li>
           <li className="flex justify-between border-b border-gray-300 pb-2">
-            <span>Absent:</span> <span>1</span>
+            <span>Absent:</span> <span>{attendanceCounts.absent}</span>
           </li>
           <li className="flex justify-between border-b border-gray-300 pb-2">
-            <span>Half Day:</span> <span>0</span>
+            <span>Half Day:</span> <span>{attendanceCounts.halfDay}</span>
           </li>
           {user === "staff" && (
             <li className="flex justify-between border-b border-gray-300 pb-2">
-              <span>Leave:</span> <span>1</span>
+              <span>Leave:</span> <span>{attendanceCounts.leave}</span>
             </li>
           )}
         </ul>

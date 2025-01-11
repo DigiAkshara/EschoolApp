@@ -8,27 +8,59 @@ import {
 } from "@heroicons/react/24/outline";
 import AttendanceSidebar from "./AttendanceSidebar";
 import { getData } from "../app/api";
-import { ACADEMICS, STAFF } from "../app/url";
+import { ACADEMICS, CLASSES, STAFF, STUDENT } from "../app/url";
 import { attendanceOptions, designations, gender } from "../commonComponent/CommonFunctions";
 import CustomRadio from "../commonComponent/CustomRadio";
 
 const ManageStudentDailyAttendance = () => {
-  const [date, setDate] = useState("");
-  const teacherOptions = ["Set attendance for all Teachers"];
+
   const [studentList, setStudentList] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
-  const [globalAttendance, setGlobalAttendance] = useState({});
-  const [attendance, setAttendance] = useState({});
+
+
+  const students = [
+    {
+      name: "Aryan Sharma",
+      admissionNumber: "ADM001",
+      class: "Play Group",
+      section: "A",
+    },
+    {
+      name: "Isha Patel",
+      admissionNumber: "ADM002",
+      class: "Play Group",
+      section: "B",
+    },
+    {
+      name: "Rahul Gupta",
+      admissionNumber: "ADM003",
+      class: "Nursery",
+      section: "A",
+    },
+    {
+      name: "Priya Singh",
+      admissionNumber: "ADM004",
+      class: "Nursery",
+      section: "C",
+    },
+    {
+      name: "Aman Verma",
+      admissionNumber: "ADM005",
+      class: "10",
+      section: "A",
+    },
+  ];
+  
 
   const getInitialValues = () => {
     return {
       date: "",
-      class: "",
-      section: "",
+      class: " ",
+      section: "a",
       allAttendance:"",
-      attendance: studentList.map((item) => ({
+      attendance:studentList.map((item) => ({
         name: item.name,
         admissionNo: item.admissionNo,
         pic: item.pic,
@@ -52,76 +84,114 @@ const ManageStudentDailyAttendance = () => {
     });
   };
 
+
+
   useEffect(() => {
     getStudents();
+    getClasses();
+   
   }, []);
 
-  const getStudents = async () => {
-    try {
-      const student = await getData(ACADEMICS);
-      const studentRes = student.data.data;
-      const studentData = studentRes.map((item) => {
-        return {
-          _id: item.student._id,
-          pic: item.student.profilePic?.Location,
-          name: item.student.firstName + " " + item.student.lastName,
-          admissionNo: item.student.admissionNumber,
-          class: item.class?.name,
-          section: item.section,
-          phoneNumber: item.student.fatherDetails.mobileNumber,
-          date: item.student.DOB,
-          aadharNo: item.student.aadharNumber,
-          gender: gender.find((gender) => gender.value === item.student.gender)
-            .label,
-        };
-      });
-      setStudentList(studentData);
-      setFilteredData(studentData);
-      setAttendance(
-        Object.fromEntries(studentData.map((student) => [student._id, ""]))
-      );
-      setGlobalAttendance(
-        Object.fromEntries(studentData.map((student) => [student._id, ""]))
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
-  //   const handleSaveAttendance = () => {
+  // const getStudents = async () => {
+  //   try {
+  //     const student = await getData(STUDENT);
+  //     const studentRes = student.data.data;
+  //     console.log("stu data $$$$$$$$$$$$$$$$$$$$$$",student.data);
+      
+  //     const studentData = studentRes.map((item) => {
+  //       return {
+  //         _id: item.student._id,
+  //         pic: item.student.profilePic?.Location,
+  //         name: item.student.firstName + " " + item.student.lastName,
+  //         admissionNo: item.student.admissionNumber,
+  //         class: item.class?.name,
+  //         section: item.section,
+  //         phoneNumber: item.student.fatherDetails.mobileNumber,
+  //         date: item.student.DOB,
+  //         aadharNo: item.student.aadharNumber,
+  //         gender: gender.find((gender) => gender.value === item.student.gender)
+  //           .label,
+  //       };
+  //     });
+  //     setStudentList(students);
+      
+  //     setAttendance(
+  //       Object.fromEntries(studentData.map((student) => [student._id, ""]))
+  //     );
+  //     setGlobalAttendance(
+  //       Object.fromEntries(studentData.map((student) => [student._id, ""]))
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  //     console.log("Attendance saved:", attendanceData);
-  //     // Send `attendanceData` to the backend.
-  //   };
+  const getStudents = async () =>{
+    setStudentList(students)
+  }
 
-  const handleAttendanceChange = (staffId, status) => {
-    setAttendance((prevAttendance) => ({
-      ...prevAttendance,
-      [staffId]: status, // Updates the status for the specific staff member
-    }));
-  };
 
-  useEffect(() => {
-    // Merge the globalAttendance with individual attendance states
-    const updatedAttendance = studentList.reduce((acc, student) => {
-      acc[student._id] =
-        globalAttendance[student._id] || attendance[student._id];
-      return acc;
-    }, {});
-    setAttendance(updatedAttendance);
-  }, [globalAttendance]);
+  const getClasses = async () => {
+    const res = await getData(CLASSES);
+     const classData = res.data.data.map((item) => {
+      return {
+        label: item.name, // Displayed text in the dropdown
+        value: item._id, 
+      }
+    })
+    console.log("class data is:",classData );
+    
+    setClasses(classData);
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setFilteredData(
-      studentList.filter((student) =>
-        student.name.toLowerCase().includes(query)
+  }
+
+
+const handleRadioChange = (e, values, setFieldValue) => {
+  const selectedStatus = e.target.value; 
+    setFieldValue("allAttendance", selectedStatus); 
+    const updatedAttendance = values.attendance.map((data) => ({
+    ...data,
+    attendanceStatus: selectedStatus,
+  }));
+  setFieldValue("attendance", updatedAttendance); 
+};
+
+
+const updateAttendance = (e, index, values, setFieldValue) => {
+  const updatedAttendance = [...values.attendance];
+  console.log("updatedAttendance++++++++++",updatedAttendance);
+  
+  updatedAttendance[index].attendanceStatus = e.target.value;
+  setFieldValue("attendance", updatedAttendance);
+}
+
+
+const handleClassChange = (e, values, setFieldValue) => {
+  const classValue  = e.target.value
+      console.log("selected value onchange", classValue);
+      const studentData = studentList.filter(
+        (student) =>
+          student.class === classValue && student.section === values.section
       )
-    );
-  };
+      setFieldValue("class",classValue)
+      setFieldValue("attendance",studentData)
+};
+
+const handleSectionChange = (e,values, setFieldValue) => {
+  const sectionValue  = e.target.value
+      console.log("selected value onchange", sectionValue);
+      const studentData = studentList.filter(
+        (student) =>
+          student.class === values.class && student.section === sectionValue
+      )
+      setFieldValue("section",sectionValue)
+      setFieldValue("attendance",studentData)
+};
+
+
 
   const handleSubmit = (values) => {
-    // alert("Form submitted successfully!");
     console.log("Form submitted with values:", values);
   };
 
@@ -133,15 +203,18 @@ const ManageStudentDailyAttendance = () => {
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, setFieldValue, errors, touched }) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               
               <AttendanceSidebar
                 values={values}
-                teacherOptions={teacherOptions}
+                classes={classes}
+                handleRadioChange={handleRadioChange}
+                setFieldValue={setFieldValue}
+                handleClassChange={handleClassChange}
+                handleSectionChange={handleSectionChange}
                 user="student"
-                setGlobalAttendance={setGlobalAttendance}
               />
 
               {/* Main Content */}
@@ -159,7 +232,7 @@ const ManageStudentDailyAttendance = () => {
                                   name="email"
                                   type="email"
                                   placeholder="Search"
-                                  onChange={handleSearch}
+                                  // onChange={handleSearch}
                                   className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
                                 />
                               </div>
@@ -282,7 +355,7 @@ const ManageStudentDailyAttendance = () => {
                                   </div>
                                 </td>
                                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                  {student.admissionNo}
+                                  {student.admissionNumber}
                                 </td>
                                 {/* <td>
                                   {["Present", "Absent", "Half Day"].map(
@@ -346,14 +419,10 @@ const ManageStudentDailyAttendance = () => {
                                    <td>
                                         <CustomRadio
                                           name={`attendance.${index}.attendanceStatus`}
-                                          options={[
-                                            ...attendanceOptions,
-                                            { value: "leave", label: "Leave" },
-                                          ]}
+                                          options={attendanceOptions}
                                           value={values.attendance[index].attendanceStatus}
-                                          onChange={(value) =>
-                                            setFieldValue(`attendance.${index}.attendanceStatus`, value)
-                                          }
+                                         
+                                          onChange={(e) => updateAttendance(e, index, values, setFieldValue)}
                                         />
                                       </td>
                                
