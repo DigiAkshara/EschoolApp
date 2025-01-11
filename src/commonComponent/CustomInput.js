@@ -15,6 +15,7 @@ export default function CustomInput(props) {
           </div>
         )}
         <Field
+          {...props}
           name={name}
           type={type ? type : "text"}
           placeholder={placeholder}

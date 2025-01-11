@@ -486,8 +486,7 @@ export default function ManageFeesStructure() {
 
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
-
-        {/* <FeeCreation onClose={handleClose} /> */}
+        <FeeCreation onClose={handleClose} />
       </Dialog>
     </div>
   );

@@ -14,6 +14,7 @@ export default function CustomRadio(props) {
             <div key={index} className="flex items-center">
               <Field
                 {...props}
+                required= {false}
                 name={name}
                 type="radio"
                 value={option.value}

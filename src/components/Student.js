@@ -87,7 +87,7 @@ function Student({ onClose }) {
       religion: Yup.string(),
       cast: Yup.string(),
       subCast: Yup.string(),
-      bloodGroup: Yup.string().required("bloodGroup is required"),
+      bloodGroup: Yup.string(),
       fatherDetails: Yup.object({
         name: Yup.string().required("Father's Name is required"),
         mobileNumber: Yup.string()
@@ -119,6 +119,7 @@ function Student({ onClose }) {
         .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
         .required("Aadhar number is required"),
       DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
+      profilePic: Yup.object().nullable(),
       aadharPic: Yup.object().nullable(),
       parentIdProof: Yup.object().nullable(),
     }),
@@ -137,7 +138,7 @@ function Student({ onClose }) {
         yearOfStudy: Yup.string(),
         totalMarks: Yup.number(),
         classStudied: Yup.string(),
-        studyProof: Yup.object(),
+        studyProof: Yup.object().nullable(),
       }),
     }),
     Yup.object({
@@ -146,6 +147,7 @@ function Student({ onClose }) {
           feeName: Yup.string().required("Fee name is required"),
           duration: Yup.string().required("Duration is required"),
           discount: Yup.string().required("Discount is required"),
+          dueDate: Yup.date().required("Due date is required"),
           installmentAmount: Yup.number().required(
             "Installment amount is required"
           ),

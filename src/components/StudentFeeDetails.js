@@ -1,6 +1,6 @@
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { FieldArray } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getData } from "../app/api";
 import { FEES } from "../app/url";
 import {
@@ -11,6 +11,7 @@ import {
 import CustomCheckBox from "../commonComponent/CustomCheckBox";
 import CustomInput from "../commonComponent/CustomInput";
 import CustomSelect from "../commonComponent/CustomSelect";
+import CustomDate from "../commonComponent/CustomDate";
 
 function StudentFeeDetails({ values, setFieldValue }) {
   const [checked, setChecked] = useState(false);
@@ -20,13 +21,11 @@ function StudentFeeDetails({ values, setFieldValue }) {
   const handleFeeChange = (e, index) => {
     let dumpLIst = values.feesData
     if (e.target.name.includes("duration")) {
-      let calAmount = calculateFees(e.target.value*1, values.feesData[index].discount*1, values.feesData[index].totalFee*1)
-      dumpLIst[index].duration = e.target.value*1
-      dumpLIst[index].installmentAmount = calAmount/e.target.value*1
+      dumpLIst[index].duration = e.target.value
     }else{
-      let calAmount = calculateFees(values.feesData[index].duration*1, e.target.value*1, values.feesData[index].totalFee*1)
-      dumpLIst[index].discount = e.target.value*1
-      dumpLIst[index].installmentAmount = Math.round(calAmount/values.feesData[index].duration*1)
+      // let calAmount = calculateFees(values.feesData[index].duration*1, e.target.value*1, values.feesData[index].totalFee*1)
+      dumpLIst[index].discount = e.target.value
+      dumpLIst[index].installmentAmount = values.feesData[index].totalFee - e.target.value;
     }
     setFieldValue("feesData", dumpLIst)
   };
@@ -35,27 +34,29 @@ function StudentFeeDetails({ values, setFieldValue }) {
     getfees();
   }, []);
 
-  const calculateFees = (duration, discount,FeeAmount) => {
-    return FeeAmount - (duration === 1 ? (FeeAmount * discount)/100 : 0)
-  };
-
   const getfees = async () => {
     const res = await getData(FEES + "/" + values.academicDetails.class);
     let dumpList = []
     res.data.data.forEach(item => {
+      let discount= 0;
       dumpList.push({
           id: item._id,
           isChecked: false,
-          feeName: item.name ,
-          duration:  item.feeInstallment*1,
-          discount: item.disCount*1 ,
-          installmentAmount: calculateFees(item.feeInstallment*1, item.disCount*1, item.amount*1), //installment fee
+          feeName: item.name , 
+          duration:  '',
+          dueDate: '',
+          discount: discount ,
+          installmentAmount: item.amount - discount, //installment fee
           totalFee: item.amount*1 //total fee
       })
     });
     setClassData({...res.data.data[0].class, section:values.academicDetails.section})
     setFieldValue("feesData", dumpList);
     setFees(res.data)
+  };
+
+  const getTotalFee = () => {
+    return values.feesData.filter(item => item.isChecked).reduce((acc, curr) => acc + curr.installmentAmount, 0);
   };
 
   const selectAllFees = () => {
@@ -71,10 +72,12 @@ function StudentFeeDetails({ values, setFieldValue }) {
   };
 
   const handleFeeChecked = (e, index) => {
+    console.log(e.target.checked, index)
     let dumpList = values.feesData
     dumpList[index].isChecked = e.target.checked
     let isAllChecked = dumpList.every(item => item.isChecked);
     setFieldValue("feesData", dumpList);
+    console.log(values.feesData)
     setChecked(isAllChecked)
   };
 
@@ -143,7 +146,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                   className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
                 >
                   <a href="#" className="group inline-flex">
-                    Installment Wise Fee
+                    Due Date
                   </a>
                 </th>
                 <th
@@ -151,7 +154,15 @@ function StudentFeeDetails({ values, setFieldValue }) {
                   className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
                 >
                   <a href="#" className="group inline-flex">
-                    Total Fee
+                  Actual Fee
+                  </a>
+                </th>
+                <th
+                  scope="col"
+                  className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
+                >
+                  <a href="#" className="group inline-flex">
+                    To Be Paid
                   </a>
                 </th>
               </tr>
@@ -175,15 +186,32 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           value={item.duration}
                           onChange={(e) => handleFeeChange(e, index)}
                           disabled = {!item.isChecked}
+                          label="Duration"
+                          isLabelRequired = {false}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
-                        <CustomSelect
+                        <CustomInput
                           name={`feesData.${index}.discount`}
-                          options={feeDiscount}
+                          type="number"
                           value={item.discount}
                           onChange={(e) => handleFeeChange(e, index)}
                           disabled = {!item.isChecked}
+                        />
+                      </td>
+                      <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
+                        <CustomDate
+                          name={`feesData.${index}.dueDate`}
+                          value={item.dueDate}
+                        />
+                      </td>
+                      <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
+                        <CustomInput
+                          name={`feesData.${index}.totalFee`}
+                          placeholder="Enter Total Fee"
+                          type="number"
+                          value={item.totalFee}
+                          disabled
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -194,20 +222,11 @@ function StudentFeeDetails({ values, setFieldValue }) {
                           disabled
                         />
                       </td>
-                      <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
-                        <CustomInput
-                          name={`feesData.${index}.totalFee`}
-                          placeholder="Enter Total Fee"
-                          type="number"
-                          value={item.amount}
-                          disabled
-                        />
-                      </td>
                     </tr>
                   ))
                 }
               </FieldArray>
-              <tr>
+              {/* <tr>
                 <td className="relative px-7 sm:w-12 sm:px-6"></td>
 
                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
@@ -223,10 +242,11 @@ function StudentFeeDetails({ values, setFieldValue }) {
                     placeholder="Enter Special Discount"
                   />
                 </td>
-              </tr>
+              </tr> */}
               <tr className="bg-purple-100">
                 <td className="relative px-7 sm:w-12 sm:px-6"></td>
 
+                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
@@ -234,7 +254,7 @@ function StudentFeeDetails({ values, setFieldValue }) {
                   Total Fee
                 </td>
                 <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 max-w-10">
-                  500
+                  {getTotalFee()}
                 </td>
               </tr>
             </tbody>

@@ -33,7 +33,7 @@ function BasicInfo({values, setFieldValue}) {
               htmlFor="first-name"
               className="block text-sm/6 font-regular text-gray-900"
             >
-              Passport Size Photo<span className="pl-1 text-red-500">*</span>
+              Passport Size Photo<span className="pl-1 text-red-500"></span>
             </label>
             <CustomFileUploader isProfile={true} name="profilePic" onChange={handleFileChange}/>
           </div>

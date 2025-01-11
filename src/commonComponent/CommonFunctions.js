@@ -41,9 +41,8 @@ export const applyFees = [
 ];
 
 export const feeduration = [
-  { value: "1", label: "One Time" },
-  { value: "2", label: "2 Installments" },
-  { value: "3", label: "3 Installments" },
+  { value: "onetime", label: "One Time" },
+  { value: "installments", label: "Installments" }
 ];
 
 export const roles = [
