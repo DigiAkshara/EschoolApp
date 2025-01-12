@@ -25,12 +25,8 @@ function ManageClass({onClose}) {
     getSubjects()
   }, [])
 
-  console.log('after seting DB subject:&&&&&&&&&&&&&:', subjects)
-
   const getClass = async () => {
     const res = await getData(CLASSES)
-    console.log('comming class data is:', res.data)
-
     const classData = res.data.data.map((item) => {
       return {
         label: item.name, // Displayed text in the dropdown
@@ -43,7 +39,6 @@ function ManageClass({onClose}) {
   const getSubjects = async () => {
     try {
       const res = await getData(SUBJECTS)
-      console.log('comming subject data is:', res.data)
       const fetchedSubjects = res.data.data
       const subData = fetchedSubjects.map((item) => {
         return {
@@ -143,23 +138,17 @@ function ManageClass({onClose}) {
   }
 
   const handleSubmit = async (values) => {
-    console.log('Handle submit')
     const processedValues = {
       ...values,
       theorySubjects: theorySubject.length > 0 ? theorySubject : '',
       extracurricular: extraCurricular.length > 0 ? extraCurricular : '',
       labSubject: labSubject.length > 0 ? labSubject : '',
     }
-
-    console.log('Form submitted with values:', processedValues)
     try {
       let response = await postData(NEWCLASS, processedValues)
-      console.log('respose is:', response)
       if (response.status === 201) {
-        console.log('Class added successfully!')
         navigate('/academics-class')
         alert(response.statusText)
-
         onClose()
       } else {
         alert(response.message)
@@ -205,16 +194,13 @@ function ManageClass({onClose}) {
       (subject) => subject.label === subjectName,
     )
     if (isSubjectPresent) {
-      console.log('Subject already exists in the subjects array.')
       setTheorySubject((prev) => [...prev, {label: subjectName}])
     } else {
-      console.log('Subject does not exist in the subjects array.')
       try {
         const response = await postData(SUBJECTS, {
           name: subjectName,
           category: 'theory',
         })
-        console.log('respose after adding backend is:', response.data)
         if (response.status === 200 || response.status === 201) {
           const newTheorySubject = {
             label: response.data.data.name, // Adjust this based on the response
@@ -239,16 +225,13 @@ function ManageClass({onClose}) {
       (subject) => subject.label === subjectName,
     )
     if (isSubjectPresent) {
-      console.log('Subject already exists in the subjects array.')
       setLabSubject((prev) => [...prev, {label: subjectName}])
     } else {
-      console.log('Subject does not exist in the subjects array.')
       try {
         const response = await postData(SUBJECTS, {
           name: subjectName,
           category: 'lab',
         })
-        console.log('respose after adding backend is:', response.data)
         if (response.status === 200 || response.status === 201) {
           const newLabSubject = {
             label: response.data.data.name, // Adjust this based on the response
@@ -273,16 +256,13 @@ function ManageClass({onClose}) {
       (subject) => subject.label === subjectName,
     )
     if (isSubjectPresent) {
-      console.log('Subject already exists in the subjects array.')
       setExtraCurricular((prev) => [...prev, {label: subjectName}])
     } else {
-      console.log('Subject does not exist in the subjects array.')
       try {
         const response = await postData(SUBJECTS, {
           name: subjectName,
           category: 'extraCurricular',
         })
-        console.log('respose after adding backend is:', response.data)
         if (response.status === 200 || response.status === 201) {
           const newLabSubject = {
             label: response.data.data.name, // Adjust this based on the response

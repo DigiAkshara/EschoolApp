@@ -40,7 +40,6 @@ export default function CustomSelect(props) {
           className={cls}
           defaultValue
         >
-          {/* <option value="">Select {label}</option> */}
           <option value="">
             {label ? `Select ${label}` : `Select ${placeholder}`}
           </option>

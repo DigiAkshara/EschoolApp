@@ -49,8 +49,6 @@ export default function ManageExams() {
   const getExamData = async () => {
     try {
       const response = await getData(EXAM)
-      console.log('response is:', response.data)
-
       if (response.status === 200) {
         const formatter = new Intl.DateTimeFormat('en-GB', {
           day: '2-digit',
@@ -87,18 +85,6 @@ export default function ManageExams() {
     } catch (error) {
       console.error('Error fetching exam data:', error)
     }
-  }
-
-  const handleViewDetails = (exam) => {
-    dispatch(selectExam(exam))
-    setOpen2(true)
-  }
-
-  const [animal, setAnimal] = useState(null)
-
-  const handleChange = (value) => {
-    console.log('value:', value)
-    setAnimal(value)
   }
 
   const handleClose = () => setOpen(false)

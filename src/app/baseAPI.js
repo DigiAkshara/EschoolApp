@@ -6,7 +6,7 @@ const createInstance = (URL) => {
   const instance = Axios.create({
     baseURL: URL,
     headers: {
-      Authorization: `Bearer ${localStorage.getItem('studentManagment') || ''}`,
+      Authorization: `Bearer ${localStorage.getItem('studentManagement') || ''}`,
       ['X-Academic-Year']: localStorage.getItem('academicYear'),
     },
   })
@@ -15,7 +15,7 @@ const createInstance = (URL) => {
     (config) => {
       config.headers['X-Academic-Year'] = localStorage.getItem('academicYear')
       config.headers.Authorization = `Bearer ${
-        localStorage.getItem('studentManagment') || ''
+        localStorage.getItem('studentManagement') || ''
       }`
       return config
     },

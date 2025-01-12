@@ -1,5 +1,22 @@
 import {createSlice} from '@reduxjs/toolkit'
 import navData from '../../assets/json/nav.json'
+
+const loadPermissions = (permissions) => {
+    let nav = []
+    permissions.forEach((item) => {
+      const menu = navData.find((menu) => menu.name === item.name)
+      if (menu&&item.read) {
+        nav.push({
+          ...item,
+          icon: menu.icon,
+          path: menu.path,
+          submenu: item.submenu?.filter((submenu) => submenu.read),
+        })
+      }
+    })
+    return nav
+  }
+
 const AppConfigSlice = createSlice({
   name: 'AppConfig',
   initialState: {
@@ -12,10 +29,8 @@ const AppConfigSlice = createSlice({
   },
   reducers: {
     loadNavConfig: (state, action) => {
-      let temNav = navData.filter((item) => {
-        return item //.role.includes(state.user.role.name)
-      })
-      state.navConfig = temNav
+      const nav  = loadPermissions(action.payload)
+      state.navConfig = nav
     },
     setActiveMenu: (state, action) => {
       state.activeMenu = action.payload
@@ -30,12 +45,6 @@ const AppConfigSlice = createSlice({
     setAcademicYear: (state, action) => {
       state.academicYear = action.payload.academicYear
     },
-    // loadNavConfig:(state, action)=>{
-    //   let temNav = navData.filter((item)=>{
-    //     return item.role.includes(state.user.role.name)
-    //   })
-    //   state.navConfig = temNav
-    // },
     setTenantId: (state, action) => {
       state.tenantId = action.payload
     },

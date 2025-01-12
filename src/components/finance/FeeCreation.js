@@ -124,7 +124,6 @@ function FeeCreation({onClose}) {
         onSubmit={handleSubmit}
       >
         {({values, setFieldValue, errors}) => {
-          console.log('Validation Errors:', errors)
           return (
             <Form>
               <div className="fixed inset-0 overflow-hidden">

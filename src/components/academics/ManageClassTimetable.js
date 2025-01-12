@@ -11,8 +11,6 @@ import CustomSelect from '../../commonComponent/CustomSelect'
 function ManageClassTimetable({values, setFieldValue}) {
   const [subjects, setSubjects] = useState()
 
-  console.log('values are :', values)
-
   const daysOfWeek = [
     'monday',
     'tuesday',
@@ -38,8 +36,6 @@ function ManageClassTimetable({values, setFieldValue}) {
 
   const getSubjects = async () => {
     const res = await getData(SUBJECTS)
-    console.log('comming subject data is:', res.data)
-
     const subData = res.data.data.map((item) => {
       return {
         label: item.name, // Displayed text in the dropdown

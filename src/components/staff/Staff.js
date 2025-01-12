@@ -118,8 +118,6 @@ function Staff({onClose}) {
   ]
 
   const handleNext = (values) => {
-    alert('handle next')
-    console.log('handle next')
     setFormData((prev) => ({...prev, ...values}))
     setCurrentStep((prev) => prev + 1)
   }
@@ -129,12 +127,8 @@ function Staff({onClose}) {
   }
 
   const handleSubmit = async (values) => {
-    alert('handle submit')
-    console.log('Submit clicked')
     try {
       const finalData = {...formData, ...values}
-      console.log('Final Data: ', finalData)
-      alert('Staff added successfully!')
       let response = await postData(STAFF, finalData)
       if (response.status === 200) {
         dispatch(clearFormData())
@@ -164,7 +158,6 @@ function Staff({onClose}) {
       >
         {({values, setFieldValue, errors}) => (
           <Form>
-            {console.log('Errors: ', errors)}
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">

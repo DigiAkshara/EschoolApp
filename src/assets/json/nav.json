@@ -1,6 +1,6 @@
 [
     {
-        "name": "Home",
+        "name": "home",
         "title": "Dashboard",
         "path": "/",
         "role": [
@@ -12,7 +12,7 @@
         "icon": "HomeIcon"
     },
     {
-        "name": "Staff",
+        "name": "staff",
         "title": "Staff",
         "path": "/staff",
         "role": [
@@ -46,7 +46,7 @@
         ]
     },
     {
-        "name": "Students",
+        "name": "students",
         "title": "Students",
         "path": "/students",
         "role": [
@@ -70,7 +70,7 @@
         ]
     },
     {
-        "name": "Attendance",
+        "name": "attendance",
         "title": "Attendance",
         "path": "/attendance",
         "role": [
@@ -99,7 +99,7 @@
         ]
     },
     {
-        "name": "Academics",
+        "name": "academics",
         "title": "Academics",
         "path": "/academics",
         "role": [
@@ -133,7 +133,7 @@
         ]
     },
     {
-        "name": "Finance",
+        "name": "finance",
         "title": "Finance",
         "path": "/finance",
         "role": [
@@ -187,7 +187,7 @@
         ]
     },
     {
-        "name": "Tenant",
+        "name": "tenant",
         "title": "Tenant",
         "path": "/tenant",
         "role": [
@@ -199,7 +199,7 @@
         "icon": "DocumentDuplicateIcon"
     },
     {
-        "name": "Reports and Analytics",
+        "name": "reports_and_analytics",
         "title": "Reports and Analytics",
         "path": "#",
         "role": [
@@ -211,7 +211,7 @@
         "icon": "ChartPieIcon"
     },
     {
-        "name": "Transportation",
+        "name": "transportation",
         "title": "Transportation",
         "path": "#",
         "role": [
@@ -223,7 +223,7 @@
         "icon": "ChartPieIcon"
     },
     {
-        "name": "Hostel Management",
+        "name": "hostel_management",
         "title": "Hostel Management",
         "path": "#",
         "role": [
@@ -255,7 +255,7 @@
         
     },
     {
-        "name": "Notice Board",
+        "name": "notice_board",
         "title": "Notice Board",
         "path": "#",
         "role": [

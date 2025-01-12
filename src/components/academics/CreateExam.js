@@ -58,8 +58,6 @@ function CreateExam({onClose}) {
 
   const getClass = async () => {
     const res = await getData(CLASSES)
-    console.log('comming class data is:', res.data)
-
     const classData = res.data.data.map((item) => {
       return {
         label: item.name, // Displayed text in the dropdown
@@ -70,12 +68,9 @@ function CreateExam({onClose}) {
   }
 
   const handleSubmit = async (values) => {
-    console.log('Exam values:', values)
     try {
       let response = await postData(EXAM, values)
-      console.log('respose is:', response)
       if (response.status === 201) {
-        console.log('Exam added successfully!')
         navigate('/academics-exams')
         alert(response.statusText)
 
@@ -98,7 +93,6 @@ function CreateExam({onClose}) {
       >
         {({values, setFieldValue, errors, touched}) => (
           <Form>
-            {console.log(errors)}
             <div className="fixed inset-0" />
 
             <div className="fixed inset-0 overflow-hidden">

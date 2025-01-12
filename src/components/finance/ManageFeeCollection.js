@@ -59,11 +59,8 @@ function ManageFeeCollection() {
   const getStudentData = async () => {
     try {
       const response = await getData(STUDENTFEE)
-      console.log('Student fee data:', response.data)
       const feedata = response.data.data // Access the correct array property
-
       const stuFees = []
-
       feedata.forEach((fee) => {
         // Find the index of the student in the `stuFees` array
         let index = stuFees.findIndex(
@@ -125,9 +122,6 @@ function ManageFeeCollection() {
           })
         }
       })
-
-      // Now you can display the `stuFees` array which will contain each student with their associated fees
-      console.log('stuFees:', stuFees)
       setStudentFee(stuFees)
     } catch (error) {
       console.error('Error fetching student fee data:', error)

@@ -11,7 +11,7 @@ function Header({updateSideBar}) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const logOut = () => {
-    localStorage.removeItem('studentManagment')
+    localStorage.removeItem('studentManagement')
     dispatch(clearSession())
     navigate('/login')
   }

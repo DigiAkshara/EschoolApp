@@ -67,7 +67,6 @@ export default function Class() {
   const getClassData = async () => {
     try {
       const response = await getData(NEWCLASS)
-      console.log('Response is:', response.data)
 
       if (response && response.data) {
         // Map through the fetched data to replace the category value with its label
@@ -94,21 +93,8 @@ export default function Class() {
     setIndeterminate(false)
   }
 
-  const [animal, setAnimal] = useState(null)
-
-  const handleChange = (value) => {
-    console.log('value:', value)
-    setAnimal(value)
-  }
   const handleClose = () => setOpen(false)
   const handleClose2 = () => setOpen2(false)
-
-  const handleTabChange = (event) => {
-    const selectedTab = tabs.find((tab) => tab.name === event.target.value)
-    if (selectedTab) {
-      navigate(selectedTab.path)
-    }
-  }
 
   const checkbox = useRef(null)
 

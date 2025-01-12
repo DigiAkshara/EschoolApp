@@ -82,40 +82,6 @@ const ManageStudentDailyAttendance = () => {
     getClasses()
   }, [])
 
-  // const getStudents = async () => {
-  //   try {
-  //     const student = await getData(STUDENT);
-  //     const studentRes = student.data.data;
-  //     console.log("stu data $$$$$$$$$$$$$$$$$$$$$$",student.data);
-
-  //     const studentData = studentRes.map((item) => {
-  //       return {
-  //         _id: item.student._id,
-  //         pic: item.student.profilePic?.Location,
-  //         name: item.student.firstName + " " + item.student.lastName,
-  //         admissionNo: item.student.admissionNumber,
-  //         class: item.class?.name,
-  //         section: item.section,
-  //         phoneNumber: item.student.fatherDetails.mobileNumber,
-  //         date: item.student.DOB,
-  //         aadharNo: item.student.aadharNumber,
-  //         gender: gender.find((gender) => gender.value === item.student.gender)
-  //           .label,
-  //       };
-  //     });
-  //     setStudentList(students);
-
-  //     setAttendance(
-  //       Object.fromEntries(studentData.map((student) => [student._id, ""]))
-  //     );
-  //     setGlobalAttendance(
-  //       Object.fromEntries(studentData.map((student) => [student._id, ""]))
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   const getStudents = async () => {
     setStudentList(students)
   }
@@ -128,8 +94,6 @@ const ManageStudentDailyAttendance = () => {
         value: item._id,
       }
     })
-    console.log('class data is:', classData)
-
     setClasses(classData)
   }
 
@@ -145,15 +109,12 @@ const ManageStudentDailyAttendance = () => {
 
   const updateAttendance = (e, index, values, setFieldValue) => {
     const updatedAttendance = [...values.attendance]
-    console.log('updatedAttendance++++++++++', updatedAttendance)
-
     updatedAttendance[index].attendanceStatus = e.target.value
     setFieldValue('attendance', updatedAttendance)
   }
 
   const handleClassChange = (e, values, setFieldValue) => {
     const classValue = e.target.value
-    console.log('selected value onchange', classValue)
     const studentData = studentList.filter(
       (student) =>
         student.class === classValue && student.section === values.section,
@@ -164,7 +125,6 @@ const ManageStudentDailyAttendance = () => {
 
   const handleSectionChange = (e, values, setFieldValue) => {
     const sectionValue = e.target.value
-    console.log('selected value onchange', sectionValue)
     const studentData = studentList.filter(
       (student) =>
         student.class === values.class && student.section === sectionValue,

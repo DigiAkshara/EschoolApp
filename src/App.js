@@ -19,18 +19,22 @@ import Sidebar from './components/Sidebar'
 import Staff from './components/Staff'
 import Students from './components/Students'
 import Tenants from './components/Tenants'
+import navData from './assets/json/nav.json'
 
 function App() {
   const {user} = useSelector((state) => state.appConfig)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const dispatch = useDispatch()
+
+  
   useEffect(() => {
     if (!user) {
-      const token = localStorage.getItem('studentManagment')
+      const token = localStorage.getItem('studentManagement')
       if (token) {
-        dispatch(setUser(jwtDecode(token)))
-        dispatch(loadNavConfig())
+        const user = jwtDecode(token)
+        dispatch(setUser(user))
+        dispatch(loadNavConfig(user.permissions.permissions))
         dispatch(setActiveMenu(window.location.pathname.split('/')[1]))
       }
     }

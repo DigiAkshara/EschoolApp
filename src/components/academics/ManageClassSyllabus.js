@@ -9,9 +9,6 @@ import CustomSelect from '../../commonComponent/CustomSelect'
 
 function ManageClassSyllabus({values, setFieldValue, touched, errors}) {
   const [subjects, setSubjects] = useState()
-
-  console.log('values are :', values)
-
   useEffect(() => {
     getSubjects()
     setFieldValue('syllabus', [
@@ -26,8 +23,6 @@ function ManageClassSyllabus({values, setFieldValue, touched, errors}) {
 
   const getSubjects = async () => {
     const res = await getData(SUBJECTS)
-    console.log('comming subject data is:', res.data)
-
     const subData = res.data.data.map((item) => {
       return {
         label: item.name, // Displayed text in the dropdown

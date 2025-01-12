@@ -50,7 +50,6 @@ const ManageHolidayAttendance = () => {
   const academicyear = async () => {
     try {
       const academicYearRes = await getData(ACADEMICYEAR)
-      console.log('data academic', academicYearRes.data)
       if (academicYearRes.status === 200 || academicYearRes.status === 201) {
         let academicYearData = [
           {
@@ -79,7 +78,6 @@ const ManageHolidayAttendance = () => {
   const getHolidayData = async () => {
     try {
       const response = await getData(HOLIDAYS)
-      console.log('Holiday datas are:', response.data)
       setHolidaysData(response.data.data)
     } catch (error) {
       console.error('Error getting data:', error)
@@ -87,12 +85,8 @@ const ManageHolidayAttendance = () => {
   }
 
   const handleSubmit = async (values) => {
-    console.log('Form submitted with values:', values)
-
     try {
       const response = await postData(HOLIDAYS, values)
-      console.log('response from backend :', response.data)
-
       if (response.data) {
         setHolidaysData((prevData) => [...prevData, response.data.data])
       }

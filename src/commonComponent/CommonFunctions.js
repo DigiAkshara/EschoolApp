@@ -233,6 +233,5 @@ export const getClasses = async () => {
     }
   } catch (error) {
     return []
-    console.log(error)
   }
 }

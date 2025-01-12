@@ -57,8 +57,6 @@ function ManageExamSchedules() {
   const getExamData = async () => {
     try {
       const response = await getData(EXAM)
-      console.log('response is:', response.data)
-
       if (response.status === 200) {
         const formatter = new Intl.DateTimeFormat('en-GB', {
           day: '2-digit',

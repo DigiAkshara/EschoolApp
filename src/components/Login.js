@@ -13,6 +13,7 @@ import {postData} from '../app/api'
 import {
   loadNavConfig,
   setAcademicYear,
+  setActiveMenu,
   setUser,
 } from '../app/reducers/appConfigSlice'
 import {LOGIN} from '../app/url'
@@ -43,19 +44,21 @@ export default function Login() {
   const handleSubmit = async (values) => {
     let response = await postData(LOGIN, values)
     if (response.status === 200 || response.status === 201) {
-      localStorage.setItem('studentManagment', response.data.token)
+      localStorage.setItem('studentManagement', response.data.token)
       localStorage.setItem('academicYear', response.data.academicYear._id)
-      dispatch(setUser(jwtDecode(response.data.token)))
+      const user = jwtDecode(response.data.token)
+      dispatch(setUser(user))
       dispatch(setAcademicYear(response.data.academicYear))
-      dispatch(loadNavConfig())
-      navigate(id ? `/tenant/${id}` : '/')
+      dispatch(setActiveMenu("home"))
+      dispatch(loadNavConfig(user.permissions.permissions))
+      navigate('/')
     } else {
       alert('Login Failed, please retry again')
     }
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('studentManagment')
+    const token = localStorage.getItem('studentManagement')
     if (token) {
       navigate('/')
     }

@@ -29,9 +29,7 @@ function FinanceCollectFees({onClose}) {
 
   const [activeTab, setActiveTab] = useState(0)
   const stuFees = useSelector((state) => state.stuFees.stuFees)
-  console.log('Redux student fees:', stuFees)
   const [feeList, setFeesList] = useState(stuFees.fees)
-  console.log('fees list:', feeList)
 
   const getInitialValues = () => {
     return {

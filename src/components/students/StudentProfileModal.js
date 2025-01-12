@@ -36,7 +36,6 @@ const studentInfotabs = [
 ]
 
 const StudentProfileModal = ({data, show, close}) => {
-  console.log(data)
   return (
     <Dialog open={show} onClose={close} className="relative z-50">
       <div className="fixed inset-0" />

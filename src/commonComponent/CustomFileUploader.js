@@ -4,7 +4,7 @@ import {useState} from 'react'
 export default function CustomFileUploader(props) {
   const {name, label, required = false, isProfile = false, onChange} = props
   const [preview, setPreview] = useState('/LoginImage.jpg')
-  // console.log(props)
+  
   return (
     <>
       <label

@@ -98,14 +98,14 @@ export default function Sidebar({sidebarOpen, updateSideBar}) {
                       <a
                         onClick={() => handleMenuClick(item)}
                         className={classNames(
-                          activeMenu.toLowerCase() === item.name.toLowerCase()
+                          activeMenu?.toLowerCase() === item.name?.toLowerCase()
                             ? 'bg-purple-700 text-white'
                             : 'text-purple-200 hover:bg-purple-700 hover:text-white',
                           'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold cursor-pointer',
                         )}
                       >
                         {getIcon(item)}
-                        {item.name}
+                        {item.title}
                       </a>
                     </li>
                   ))}

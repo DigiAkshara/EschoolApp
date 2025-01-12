@@ -11,8 +11,6 @@ import {useSelector} from 'react-redux'
 
 function ExamDetailsPage({onClose2}) {
   const selectedExam = useSelector((state) => state.exams.selectedExam)
-  console.log('redux data :', selectedExam)
-
   return (
     <>
       <div className="fixed inset-0" />

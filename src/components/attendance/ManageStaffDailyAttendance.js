@@ -40,8 +40,6 @@ const ManageStaffDailyAttendance = () => {
       ),
     })
   }
-  console.log('values are:', getInitialValues())
-
   useEffect(() => {
     getStaff()
   }, [])
@@ -49,8 +47,6 @@ const ManageStaffDailyAttendance = () => {
   const getStaff = async () => {
     const response = await getData(STAFF)
     if (response.status === 200) {
-      console.log('comming values are:', response.data)
-
       let data = response.data.data.map((item, index) => ({
         _id: item._id,
         pic: item.profilePic?.Location,
@@ -77,7 +73,6 @@ const ManageStaffDailyAttendance = () => {
 
   const handleStaffCategory = (e, setFieldValue) => {
     const category = e.target.value
-    console.log('category value onchange', category)
     const staffData = staffList.filter((staff) => staff.category === category)
     setFieldValue('staffCategory', category)
     setFieldValue('attendance', staffData)

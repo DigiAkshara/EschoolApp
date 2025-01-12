@@ -11,8 +11,6 @@ import {useSelector} from 'react-redux'
 
 function ManageViewClass({onClose}) {
   const selectedClass = useSelector((state) => state.class.selectedClass)
-  console.log('redux class data :', selectedClass)
-
   const timetables = selectedClass?.timetables || []
   const syllabus = selectedClass?.syllabus || []
 

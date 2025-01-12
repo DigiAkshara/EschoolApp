@@ -77,12 +77,10 @@ function StudentFeeDetails({values, setFieldValue}) {
   }
 
   const handleFeeChecked = (e, index) => {
-    console.log(e.target.checked, index)
     let dumpList = values.feesData
     dumpList[index].isChecked = e.target.checked
     let isAllChecked = dumpList.every((item) => item.isChecked)
     setFieldValue('feesData', dumpList)
-    console.log(values.feesData)
     setChecked(isAllChecked)
   }
 

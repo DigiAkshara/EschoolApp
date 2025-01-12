@@ -17,9 +17,6 @@ function FinancCollectFeesDetails({feeData, values, setFieldValue}) {
   const [allFees, setAllFees] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
 
-  // console.log("Redux fees data only:", reduxFees);
-  // console.log("allFees:",allFees);
-
   const getFeesData = async () => {
     try {
       const response = await getData(FEES)
@@ -67,7 +64,6 @@ function FinancCollectFeesDetails({feeData, values, setFieldValue}) {
     }
 
     let dummyList = [...values.fees, newFee]
-    console.log('dummy list :', dummyList)
     setNewRow([...newRows, newFee._id])
     setFieldValue('fees', dummyList)
 

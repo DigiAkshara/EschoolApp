@@ -14,13 +14,10 @@ import ManageAddMarks from './ManageAddMarks'
 function ManageExamMarks({onClose}) {
   const [classData, setClassData] = useState()
   const selectedExam = useSelector((state) => state.exams.selectedExam)
-  console.log('selected exam :', selectedExam)
-
   const subjects = selectedExam?.timeTable?.map((item) => ({
     label: item.subject,
     value: item.subject,
   }))
-  console.log(subjects)
 
   const students = [
     {
@@ -85,8 +82,6 @@ function ManageExamMarks({onClose}) {
 
   const getClass = async () => {
     const res = await getData(CLASSES)
-    console.log('comming class data is:', res.data)
-
     const classData = res.data.data.map((item) => {
       return {
         label: item.name,
@@ -97,7 +92,6 @@ function ManageExamMarks({onClose}) {
   }
 
   const handleSubmit = async (values) => {
-    console.log('Entered submit function')
     console.log('Exam values:', values)
   }
 
@@ -110,9 +104,7 @@ function ManageExamMarks({onClose}) {
       >
         {({values, setFieldValue, errors, touched}) => (
           <Form>
-            {console.log(errors)}
             <div className="fixed inset-0" />
-
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">

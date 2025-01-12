@@ -21,8 +21,6 @@ function ExamTimeTable({values, setFieldValue}) {
     })
     setSubjectOptions(subData)
   }
-  console.log('subjectOptions:::::::::::::::::::', subjectOptions)
-
   useEffect(() => {
     getSubjects()
 

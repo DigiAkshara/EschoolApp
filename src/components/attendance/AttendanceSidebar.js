@@ -41,8 +41,6 @@ const AttendanceSidebar = ({
     {present: 0, absent: 0, halfDay: 0, leave: 0},
   )
 
-  // console.log("values updated:", values);
-
   return (
     <div className="bg-white border  rounded-lg p-6 w-full lg:w-1/4">
       <h2 className="text-xl font-semibold mb-4">
