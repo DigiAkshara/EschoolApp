@@ -1,62 +1,65 @@
-import React, { useEffect } from "react";
 import {
   EnvelopeIcon,
   LockClosedIcon,
   UserIcon,
-} from "@heroicons/react/24/outline";
-import CustomInput from "../commonComponent/CustomInput";
-import CustomSelect from "../commonComponent/CustomSelect";
-import CustomButton from "../commonComponent/CustomButton";
-import { Form, Formik } from "formik";
-import * as Yup from "yup";
-import { postData } from "../app/api";
-import { LOGIN } from "../app/url";
-import { useDispatch } from "react-redux";
-import { jwtDecode } from "jwt-decode";
-import { setAcademicYear, setUser } from "../app/reducers/appConfigSlice";
-import { useNavigate, useParams } from "react-router-dom";
-import { roles } from "../commonComponent/CommonFunctions";
+} from '@heroicons/react/24/outline'
+import {Form, Formik} from 'formik'
+import {jwtDecode} from 'jwt-decode'
+import React, {useEffect} from 'react'
+import {useDispatch} from 'react-redux'
+import {useNavigate, useParams} from 'react-router-dom'
+import * as Yup from 'yup'
+import {postData} from '../app/api'
+import {
+  loadNavConfig,
+  setAcademicYear,
+  setUser,
+} from '../app/reducers/appConfigSlice'
+import {LOGIN} from '../app/url'
+import {roles} from '../commonComponent/CommonFunctions'
+import CustomButton from '../commonComponent/CustomButton'
+import CustomInput from '../commonComponent/CustomInput'
+import CustomSelect from '../commonComponent/CustomSelect'
 
 export default function Login() {
-  const { id } = useParams();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const initialValues= {
-    email: "",
-    password: "",
-    userType: "",
-  };
+  const {id} = useParams()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const initialValues = {
+    email: '',
+    password: '',
+    userType: '',
+  }
 
   const validationSchemas = Yup.object({
     email: Yup.string()
-      .email("Invalid email address")
-      .required("Email is required"),
+      .email('Invalid email address')
+      .required('Email is required'),
     password: Yup.string()
-      .max(20, "Must be 20 characters or less")
-      .required("Password is Required"),
-    userType: Yup.string().required("Role is required"),
-  });
-  const handleSubmit = async (values) => { 
-    let response = await postData(LOGIN, values); 
+      .max(20, 'Must be 20 characters or less')
+      .required('Password is Required'),
+    userType: Yup.string().required('Role is required'),
+  })
+  const handleSubmit = async (values) => {
+    let response = await postData(LOGIN, values)
     if (response.status === 200 || response.status === 201) {
-      localStorage.setItem("studentManagment", response.data.token);
-      localStorage.setItem("academicYear", response.data.academicYear._id);
-      dispatch(setUser(jwtDecode(response.data.token)));
+      localStorage.setItem('studentManagment', response.data.token)
+      localStorage.setItem('academicYear', response.data.academicYear._id)
+      dispatch(setUser(jwtDecode(response.data.token)))
       dispatch(setAcademicYear(response.data.academicYear))
-      navigate(id ? `/tenant/${id}` : "/");
+      dispatch(loadNavConfig())
+      navigate(id ? `/tenant/${id}` : '/')
     } else {
-      alert("Login Failed, please retry again");
+      alert('Login Failed, please retry again')
     }
   }
-   
-  
-  useEffect(()=>{
-    const token  = localStorage.getItem("studentManagment");
-    if(token){
-      navigate("/");
+
+  useEffect(() => {
+    const token = localStorage.getItem('studentManagment')
+    if (token) {
+      navigate('/')
     }
-  },[])
-  
+  }, [])
 
   return (
     <Formik
@@ -64,7 +67,7 @@ export default function Login() {
       validationSchema={validationSchemas}
       onSubmit={handleSubmit}
     >
-      {({ values }) => (
+      {({values}) => (
         <Form className="h-screen ">
           <div className="flex min-h-full flex-1">
             <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
@@ -87,7 +90,7 @@ export default function Login() {
                     label="Role"
                     icon={UserIcon}
                     options={roles}
-                    required = {true}                   
+                    required={true}
                   />
 
                   {/* Email Input */}
@@ -144,7 +147,7 @@ export default function Login() {
             <div className="relative hidden w-0 flex-1 lg:block">
               <img
                 alt=""
-                src={"/LoginImage.jpg"}
+                src={'/LoginImage.jpg'}
                 className="absolute inset-0 size-full object-cover"
               />
             </div>
@@ -152,5 +155,5 @@ export default function Login() {
         </Form>
       )}
     </Formik>
-  );
+  )
 }

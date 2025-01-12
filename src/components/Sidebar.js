@@ -3,47 +3,43 @@ import {
   DialogBackdrop,
   DialogPanel,
   TransitionChild,
-} from "@headlessui/react";
-import {
-  CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
-  HomeIcon,
-  UsersIcon,
-  XMarkIcon
-} from "@heroicons/react/24/outline";
-import { useLocation, useNavigate } from "react-router-dom";
+} from '@headlessui/react'
+import * as Icons from '@heroicons/react/24/outline'
+import {XMarkIcon} from '@heroicons/react/24/outline'
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: HomeIcon },
-  { name: "Staff", href: "/staff", icon: UsersIcon },
-  { name: "Students", href: "/students", icon: FolderIcon },
-  { name: "Attendance", href: "/attendance", icon: CalendarIcon },
-  { name: "Academics", href: "/academics", icon: DocumentDuplicateIcon },
-  { name: "Finance", href: "/finance", icon: DocumentDuplicateIcon },
-  { name: "Tenant", href: "/tenant", icon: DocumentDuplicateIcon },
-  { name: "Reports and Analytics", href: "#", icon: ChartPieIcon },
-  { name: "Transportation", href: "#", icon: ChartPieIcon },
-  { name: "Hostel Management", href: "#", icon: ChartPieIcon },
-  { name: "Admin Operations", href: "#", icon: ChartPieIcon },
-  { name: "Notice Board", href: "#", icon: ChartPieIcon },
-];
-const teams = [
-  { id: 1, name: "Heroicons", href: "#", initial: "H" },
-  { id: 2, name: "Tailwind Labs", href: "#", initial: "T" },
-  { id: 3, name: "Workcation", href: "#", initial: "W" },
-];
+import {useDispatch, useSelector} from 'react-redux'
+import {useNavigate} from 'react-router-dom'
+import {setActiveMenu} from '../app/reducers/appConfigSlice'
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
+  return classes.filter(Boolean).join(' ')
 }
 
-export default function Sidebar({ sidebarOpen, updateSideBar }) {
-  //   const [sidebarOpen, setSidebarOpen] = useState(sidebarOpen)
-  const location = useLocation();
-  const navigate = useNavigate();
-  
+export default function Sidebar({sidebarOpen, updateSideBar}) {
+  const {activeMenu, navConfig} = useSelector((state) => state.appConfig)
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  const handleMenuClick = (menu) => {
+    dispatch(setActiveMenu(menu.name))
+    navigate(menu.path)
+  }
+
+  const getIcon = (item) => {
+    const IconComponent = Icons[item.icon]
+    return IconComponent ? (
+      <IconComponent
+        aria-hidden="true"
+        className={classNames(
+          activeMenu.toLowerCase() === item.name.toLowerCase()
+            ? 'text-white'
+            : 'text-purple-200 group-hover:text-white',
+          'h-6 w-6 shrink-0',
+        )}
+      />
+    ) : null
+  }
+
   return (
     <>
       <Dialog
@@ -97,27 +93,18 @@ export default function Sidebar({ sidebarOpen, updateSideBar }) {
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
               <li>
                 <ul role="list" className="-mx-2 space-y-1">
-                  {navigation.map((item) => (
+                  {navConfig.map((item) => (
                     <li key={item.name}>
                       <a
-                        // href={item.href}
-                        onClick={() => navigate(item.href)}
+                        onClick={() => handleMenuClick(item)}
                         className={classNames(
-                          location.pathname === item.href
-                            ? "bg-purple-700 text-white"
-                            : "text-purple-200 hover:bg-purple-700 hover:text-white",
-                          "group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold cursor-pointer"
+                          activeMenu.toLowerCase() === item.name.toLowerCase()
+                            ? 'bg-purple-700 text-white'
+                            : 'text-purple-200 hover:bg-purple-700 hover:text-white',
+                          'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold cursor-pointer',
                         )}
                       >
-                        <item.icon
-                          aria-hidden="true"
-                          className={classNames(
-                            location.pathname === item.href
-                              ? "text-white"
-                              : "text-purple-200 group-hover:text-white",
-                            "h-6 w-6 shrink-0"
-                          )}
-                        />
+                        {getIcon(item)}
                         {item.name}
                       </a>
                     </li>
@@ -129,5 +116,5 @@ export default function Sidebar({ sidebarOpen, updateSideBar }) {
         </div>
       </div>
     </>
-  );
+  )
 }

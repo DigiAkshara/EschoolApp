@@ -1,35 +1,30 @@
-import { Menu, MenuButton, MenuItems } from "@headlessui/react";
+import {Menu, MenuButton, MenuItems} from '@headlessui/react'
 import {
   ArrowsUpDownIcon,
   EllipsisHorizontalIcon,
-} from "@heroicons/react/24/outline";
-import moment from "moment";
-import React, { useState } from "react";
-import PaginationComponent from "./PaginationComponent";
-const TableComponent = ({
-  columns,
-  data,
-  pagination,
-  showModal
-}) => {
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+} from '@heroicons/react/24/outline'
+import moment from 'moment'
+import React, {useState} from 'react'
+import PaginationComponent from './PaginationComponent'
+const TableComponent = ({columns, data, pagination, showModal}) => {
+  const [sortConfig, setSortConfig] = useState({key: null, direction: 'asc'})
 
   const handleSort = ({key}) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
+    let direction = 'asc'
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc'
     }
 
     const sortedData = [...data].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
+      if (a[key] < b[key]) return direction === 'asc' ? -1 : 1
+      if (a[key] > b[key]) return direction === 'asc' ? 1 : -1
+      return 0
+    })
 
-    setSortConfig({ key, direction });
-    return sortedData;
-  };
-  const sortedData = sortConfig.key ? handleSort(sortConfig.key) : data;
+    setSortConfig({key, direction})
+    return sortedData
+  }
+  const sortedData = sortConfig.key ? handleSort(sortConfig.key) : data
   return (
     <div>
       {/* Search */}
@@ -51,9 +46,15 @@ const TableComponent = ({
                 className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
                 key={index}
               >
-                <a className="group inline-flex" onClick={() => handleSort(col)}>
+                <a
+                  className="group inline-flex"
+                  onClick={() => handleSort(col)}
+                >
                   {col.title}
-                  <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200" onClick={() => handleSort(col)}>
+                  <span
+                    className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200"
+                    onClick={() => handleSort(col)}
+                  >
                     <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
                   </span>
                 </a>
@@ -72,8 +73,12 @@ const TableComponent = ({
                 />
               </td>
               {columns.map((col, ind) =>
-                col.key === "name" ? (
-                  <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0" key={ind} onClick={() => showModal&&showModal(student)}>
+                col.key === 'name' ? (
+                  <td
+                    className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0"
+                    key={ind}
+                    onClick={() => showModal && showModal(student)}
+                  >
                     <a
                       href="#"
                       className="text-purple-600 hover:text-purple-900"
@@ -97,46 +102,51 @@ const TableComponent = ({
                       </div>
                     </a>
                   </td>
-                ) : col.key === "actions" ? (
-                  <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3" key={ind}>
-                      <Menu as="div" className="relative inline-block text-left">
-                  <div>
-                    <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                      <span className="sr-only">Open options</span>
-                      <EllipsisHorizontalIcon
-                        aria-hidden="true"
-                        className="size-5"
-                      />
-                    </MenuButton>
-                  </div>
-
-                  <MenuItems
-                    transition
-                    className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                ) : col.key === 'actions' ? (
+                  <td
+                    className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3"
+                    key={ind}
                   >
-                    <div className="py-1">
-                      {student.actions.map((action,index) => (
-                        <a key={index}
-                          onClick={()=>action.actionHandler(student._id)}
-                          className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
-                        >
-                          {action.label}
-                        </a>
-                       ))}
+                    <Menu as="div" className="relative inline-block text-left">
+                      <div>
+                        <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
+                          <span className="sr-only">Open options</span>
+                          <EllipsisHorizontalIcon
+                            aria-hidden="true"
+                            className="size-5"
+                          />
+                        </MenuButton>
                       </div>
-                  </MenuItems>
-                </Menu> 
-                  </td>)
-                 :
-                  (<td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500" key={ind}>
-                    {col.key === "date"
-                      ? moment(student[col.key]).format("DD-MM-YYYY")
+
+                      <MenuItems
+                        transition
+                        className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                      >
+                        <div className="py-1">
+                          {student.actions.map((action, index) => (
+                            <a
+                              key={index}
+                              onClick={() => action.actionHandler(student._id)}
+                              className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
+                            >
+                              {action.label}
+                            </a>
+                          ))}
+                        </div>
+                      </MenuItems>
+                    </Menu>
+                  </td>
+                ) : (
+                  <td
+                    className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                    key={ind}
+                  >
+                    {col.key === 'date'
+                      ? moment(student[col.key]).format('DD-MM-YYYY')
                       : student[col.key]}
                   </td>
-                )
+                ),
               )}
-               
-              
             </tr>
           ))}
         </tbody>
@@ -152,7 +162,7 @@ const TableComponent = ({
         />
       )}
     </div>
-  );
-};
+  )
+}
 
-export default TableComponent;
+export default TableComponent

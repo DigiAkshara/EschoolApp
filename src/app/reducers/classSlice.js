@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit'
 
 const classSlice = createSlice({
   name: 'class',
@@ -8,13 +8,13 @@ const classSlice = createSlice({
   },
   reducers: {
     setClass(state, action) {
-      state.data = action.payload; // Update class data
+      state.data = action.payload // Update class data
     },
     setSelectedClass(state, action) {
-      state.selectedClass = action.payload; // Store selected class data
+      state.selectedClass = action.payload // Store selected class data
     },
   },
-});
+})
 
-export const { setClass, setSelectedClass } = classSlice.actions;
-export default classSlice.reducer;
+export const {setClass, setSelectedClass} = classSlice.actions
+export default classSlice.reducer

@@ -5,15 +5,22 @@ import {
   FunnelIcon,
   Squares2X2Icon,
 } from '@heroicons/react/24/outline'
-import CustomSelect from './CustomSelect'
 import {Form, Formik} from 'formik'
+import CustomSelect from './CustomSelect'
 
-const FilterComponent = ({onSearch, filters, filterForm,handleFilter, handleReset}) => {
-  const getOptions = (item, value) => { 
+const FilterComponent = ({
+  onSearch,
+  filters,
+  filterForm,
+  handleFilter,
+  handleReset,
+}) => {
+  const getOptions = (item, value) => {
     if (item.dependancy && item.filterOptions) {
-      return item.options.filter((option) => option[item.dependancyKey] === value)
-
-    }else return item.options
+      return item.options.filter(
+        (option) => option[item.dependancyKey] === value,
+      )
+    } else return item.options
   }
   return (
     <div className="relative table-tool-bar z-30">
@@ -31,88 +38,94 @@ const FilterComponent = ({onSearch, filters, filterForm,handleFilter, handleRese
                 name="search"
                 type="text"
                 placeholder="Search"
-                onChange={(e)=>onSearch(e.target.value)}
+                onChange={(e) => onSearch(e.target.value)}
                 className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
               />
             </div>
           </div>
           <Formik initialValues={filterForm} onSubmit={handleFilter}>
-          {({ values,setFieldValue }) => (
-          (
-            <Form>
-              <div className="right-action-btns-blk space-x-4">
-                <button
-                  type="button"
-                  className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                >
-                  <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
-                </button>
-
-                <Menu as="div" className="relative inline-block text-left">
-                  <div>
-                    <MenuButton className="inline-flex items-center rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                      <FunnelIcon aria-hidden="true" className="size-5" />
-                      Filters
-                    </MenuButton>
-                  </div>
-
-                  <MenuItems
-                    transition
-                    className="max-h-[430px] overflow-y-auto absolute right-0 z-10 mt-2 px-4 py-4 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+            {({values, setFieldValue}) => (
+              <Form>
+                <div className="right-action-btns-blk space-x-4">
+                  <button
+                    type="button"
+                    className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                   >
-                    <div className="grid gap-3 ">
-                      <MenuItem className="group mb-2">
-                        <div className="flex">
-                          <FunnelIcon aria-hidden="true" className="size-5" />
-                          <span className="pl-2">Select Filters</span>
-                        </div>
-                      </MenuItem>
-                      {Object.entries(values).map(([key])=>(
-                        <div key={key}>
-                          <CustomSelect
-                            label={key}
-                            name={key}
-                            options={getOptions(filters[key],values[filters[key].dependancyKey])}
-                            disabled={filters[key].dependancy&&!values[filters[key].dependancyKey]}
-                          />
-                        </div>))}
-                        
-                    <div className="flex">
-                      <button
-                        type="button"
-                        onClick={()=>{handleReset(setFieldValue)}}
-                        className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                      >
-                        Reset
-                      </button>
-                      <button
-                        type="submit"
-                        className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  
-                      
-                    </div>
-                  </MenuItems>
-                </Menu>
+                    <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
+                  </button>
 
-                <button
-                  type="button"
-                  className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                >
-                  <Squares2X2Icon aria-hidden="true" className="size-5" />
-                </button>
-                <button
-                  
-                  type="button"
-                  className="rounded bg-purple-600 px-2 py-1 text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-                >
-                  <ListBulletIcon aria-hidden="true" className="size-5" />
-                </button>
-              </div>
-            </Form>))}
+                  <Menu as="div" className="relative inline-block text-left">
+                    <div>
+                      <MenuButton className="inline-flex items-center rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <FunnelIcon aria-hidden="true" className="size-5" />
+                        Filters
+                      </MenuButton>
+                    </div>
+
+                    <MenuItems
+                      transition
+                      className="max-h-[430px] overflow-y-auto absolute right-0 z-10 mt-2 px-4 py-4 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+                    >
+                      <div className="grid gap-3 ">
+                        <MenuItem className="group mb-2">
+                          <div className="flex">
+                            <FunnelIcon aria-hidden="true" className="size-5" />
+                            <span className="pl-2">Select Filters</span>
+                          </div>
+                        </MenuItem>
+                        {Object.entries(values).map(([key]) => (
+                          <div key={key}>
+                            <CustomSelect
+                              label={key}
+                              name={key}
+                              options={getOptions(
+                                filters[key],
+                                values[filters[key].dependancyKey],
+                              )}
+                              disabled={
+                                filters[key].dependancy &&
+                                !values[filters[key].dependancyKey]
+                              }
+                            />
+                          </div>
+                        ))}
+
+                        <div className="flex">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleReset(setFieldValue)
+                            }}
+                            className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
+                          >
+                            Reset
+                          </button>
+                          <button
+                            type="submit"
+                            className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      </div>
+                    </MenuItems>
+                  </Menu>
+
+                  <button
+                    type="button"
+                    className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                  >
+                    <Squares2X2Icon aria-hidden="true" className="size-5" />
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded bg-purple-600 px-2 py-1 text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                  >
+                    <ListBulletIcon aria-hidden="true" className="size-5" />
+                  </button>
+                </div>
+              </Form>
+            )}
           </Formik>
         </div>
       </div>

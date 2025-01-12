@@ -1,31 +1,35 @@
-import { ErrorMessage, Field } from "formik";
+import {ErrorMessage, Field} from 'formik'
 
 export default function CustomMultiSelect(props) {
-  const { name, title, description, placeholder, label, required = false } = props;
+  const {name, title, description, placeholder, label, required = false} = props
 
   return (
     <>
       <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
-        {title}{required && <span className="pl-1 text-red-500">*</span>}
+        {title}
+        {required && <span className="pl-1 text-red-500">*</span>}
       </h2>
       <p className="text-base font-regular text-gray-900">{description}</p>
       <Field name={name}>
-        {({ field, form }) => {
-          const { value } = field; // Get the array of selected items from Formik's field value
-          const { setFieldValue } = form; // For updating Formik's field value
+        {({field, form}) => {
+          const {value} = field // Get the array of selected items from Formik's field value
+          const {setFieldValue} = form // For updating Formik's field value
 
           const handleAdd = (event) => {
-            event.preventDefault();
-            const input = event.target.previousSibling.value.trim();
+            event.preventDefault()
+            const input = event.target.previousSibling.value.trim()
             if (input && !value.includes(input)) {
-              setFieldValue(name, [...value, input]);
-              event.target.previousSibling.value = ""; // Clear the input field
+              setFieldValue(name, [...value, input])
+              event.target.previousSibling.value = '' // Clear the input field
             }
-          };
+          }
 
           const handleRemove = (item) => {
-            setFieldValue(name, value.filter((i) => i !== item));
-          };
+            setFieldValue(
+              name,
+              value.filter((i) => i !== item),
+            )
+          }
 
           return (
             <div className="flex items-center mt-4 gap-4">
@@ -67,10 +71,10 @@ export default function CustomMultiSelect(props) {
                 </button>
               </div>
             </div>
-          );
+          )
         }}
       </Field>
       <ErrorMessage name={name} component="div" className="text-red-500" />
     </>
-  );
+  )
 }

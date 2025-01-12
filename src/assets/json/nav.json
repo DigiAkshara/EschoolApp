@@ -1,0 +1,269 @@
+[
+    {
+        "name": "Home",
+        "title": "Dashboard",
+        "path": "/",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "HomeIcon"
+    },
+    {
+        "name": "Staff",
+        "title": "Staff",
+        "path": "/staff",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "UsersIcon",
+        "submenu": [
+            {
+                "title": "Staff",
+                "name": "staff",
+                "path": "/details"
+            },
+            {
+                "title": "Leaves",
+                "name": "leaves",
+                "path": "/leaves"
+            },
+            {
+                "title": "Time Tables",
+                "name": "time_tables",
+                "path": "/time_tables"
+            },
+            {
+                "title": "Administrative Tasks",
+                "name": "administrative_tasks",
+                "path": "/administrative_tasks"
+            }
+        ]
+    },
+    {
+        "name": "Students",
+        "title": "Students",
+        "path": "/students",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "FolderIcon",
+        "submenu": [
+            {
+                "title": "Students",
+                "name": "student_details",
+                "path": "/student_details"
+            },
+            {
+                "title": "Enrollments",
+                "name": "enrollments",
+                "path": "/student_enrollments"
+            }
+        ]
+    },
+    {
+        "name": "Attendance",
+        "title": "Attendance",
+        "path": "/attendance",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "CalendarIcon",
+        "submenu": [
+            {
+                "title": "Staff",
+                "name": "staff_attendance",
+                "path": "/staff_attendance"
+            },
+            {
+                "title": "Students",
+                "name": "student_attendance",
+                "path": "/student_attendance"
+            },
+            {
+                "title": "Holiday Entry",
+                "name": "holiday_entry",
+                "path": "/holiday_entry"
+            }
+        ]
+    },
+    {
+        "name": "Academics",
+        "title": "Academics",
+        "path": "/academics",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "DocumentDuplicateIcon",
+        "submenu": [
+            {
+                "title": "Daily Time Tables",
+                "name": "daily_time_tables",
+                "path": "/daily_time_tables"
+            },
+            {
+                "title": "Classes",
+                "name": "classes",
+                "path": "/classes"
+            },
+            {
+                "title": "Exams",
+                "name": "exams",
+                "path": "/exams"
+            },
+            {
+                "title": "Certificates",
+                "name": "certificates",
+                "path": "/certificates"
+            }
+        ]
+    },
+    {
+        "name": "Finance",
+        "title": "Finance",
+        "path": "/finance",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "DocumentDuplicateIcon",
+        "submenu": [
+            {
+                "title": "Overview",
+                "name": "overview",
+                "path": "/finance"
+            },
+            {
+                "title": "Fee Collections",
+                "name": "fee_collections",
+                "path": "/fee_collections"
+            },
+            {
+                "title": "Staff Salaries",
+                "name": "staff_salaries",
+                "path": "/staff_salaries"
+            },
+            {
+                "title": "Expenses",
+                "name": "expenses",
+                "path": "/expenses"
+            },
+            {
+                "title": "Fee Structures",
+                "name": "fee_structures",
+                "path": "/fee_structures"
+            },
+            {
+                "title": "School Bank Accounts",
+                "name": "bank_accounts",
+                "path": "/bank_accounts"
+            },
+            {
+                "title": "Discounts",
+                "name": "discounts",
+                "path": "/discounts"
+            },
+            {
+                "title": "Payrolls",
+                "name": "payrolls",
+                "path": "/payrolls"
+            }
+        ]
+    },
+    {
+        "name": "Tenant",
+        "title": "Tenant",
+        "path": "/tenant",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "DocumentDuplicateIcon"
+    },
+    {
+        "name": "Reports and Analytics",
+        "title": "Reports and Analytics",
+        "path": "#",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "ChartPieIcon"
+    },
+    {
+        "name": "Transportation",
+        "title": "Transportation",
+        "path": "#",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "ChartPieIcon"
+    },
+    {
+        "name": "Hostel Management",
+        "title": "Hostel Management",
+        "path": "#",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "ChartPieIcon"
+    },
+    {
+        "name": "Admin Operations",
+        "title": "Admin Operations",
+        "path": "/admin_operations",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "ChartPieIcon",
+        "submenu":[
+            {
+                "title": "Permissions",
+                "name": "permissions",
+                "path": "/permissions"
+            }
+        ]
+        
+    },
+    {
+        "name": "Notice Board",
+        "title": "Notice Board",
+        "path": "#",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "ChartPieIcon"
+    }
+]

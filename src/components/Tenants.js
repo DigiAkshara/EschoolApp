@@ -1,49 +1,47 @@
-import { useEffect, useState } from "react";
-import Tenant from "./Tenant";
-import { getData } from "../app/api";
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
-import { Dialog } from "@headlessui/react";
-import TableComponent from "../commonComponent/TableComponent";
-import { TENANT } from "../app/url";
+import {Dialog} from '@headlessui/react'
+import {PlusIcon} from '@heroicons/react/20/solid'
+import {useEffect, useState} from 'react'
+import {getData} from '../app/api'
+import {TENANT} from '../app/url'
+import TableComponent from '../commonComponent/TableComponent'
+import Tenant from './tenants/Tenant'
 
+export default function Tenants() {
+  const [tenantList, setTenantList] = useState([])
+  const [open, setOpen] = useState(false)
+  const [filteredData, setFilteredData] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const rowsPerPage = 10
 
-export default function Tenants () {
-  const [tenantList, setTenantList] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [filteredData, setFilteredData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
-
-  useEffect(()=>{
+  useEffect(() => {
     getTenants()
-  },[])
+  }, [])
 
   const columns = [
-    { title: "School Name", key: "name" },
-    { title: "Email", key: "email" },
-    { title: "Phone Number", key: "phoneNumber" },
-    { title: "Admin Name", key: "adminName" },
-    { title: "Mobile Number", key: "mobileNumber" },
-    { title: "Email", key: "email" },
-    { title: "Actions", key: "actions" },
-  ];
+    {title: 'School Name', key: 'name'},
+    {title: 'Email', key: 'email'},
+    {title: 'Phone Number', key: 'phoneNumber'},
+    {title: 'Admin Name', key: 'adminName'},
+    {title: 'Mobile Number', key: 'mobileNumber'},
+    {title: 'Email', key: 'email'},
+    {title: 'Actions', key: 'actions'},
+  ]
 
   const onHandleEdit = async (studentId) => {
-  
-      // const data = students.find((item) => item._id === Id);
-      // dispatch(selectStudent(data));
-      handleOpen();
-    };
-  
-    const onDelete = () => {
-      console.log("delete");
-    };
+    // const data = students.find((item) => item._id === Id);
+    // dispatch(selectStudent(data));
+    handleOpen()
+  }
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const onDelete = () => {
+    console.log('delete')
+  }
 
-  const classNames = (...classes)=> {
-    return classes.filter(Boolean).join(" ");
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
+
+  const classNames = (...classes) => {
+    return classes.filter(Boolean).join(' ')
   }
 
   const getTenants = async () => {
@@ -52,58 +50,58 @@ export default function Tenants () {
 
   const filters = [
     {
-      key: "age",
-      label: "Age Filter",
+      key: 'age',
+      label: 'Age Filter',
       options: [
-        { value: "20-30", label: "20-30" },
-        { value: "30-40", label: "30-40" },
+        {value: '20-30', label: '20-30'},
+        {value: '30-40', label: '30-40'},
       ],
     },
-  ];
+  ]
 
   const handleSearch = (term) => {
     const filtered = tenantList.filter((item) =>
       columns.some((col) =>
-        String(item[col.key]).toLowerCase().includes(term.toLowerCase())
-      )
-    );
-    setFilteredData(filtered);
-  };
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
 
   const handleFilter = (key, value) => {
-    let filtered = tenantList;
-    if (key === "age" && value) {
-      const [min, max] = value.split("-");
+    let filtered = tenantList
+    if (key === 'age' && value) {
+      const [min, max] = value.split('-')
       filtered = tenantList.filter(
-        (item) => item.age >= parseInt(min) && item.age <= parseInt(max)
-      );
+        (item) => item.age >= parseInt(min) && item.age <= parseInt(max),
+      )
     }
-    setFilteredData(filtered);
-  };
+    setFilteredData(filtered)
+  }
 
   const tabs = [
-    { name: "Students", href: "#", current: true },
-    { name: "Enrollments", href: "#", current: false },
-  ];
-  
+    {name: 'Students', href: '#', current: true},
+    {name: 'Enrollments', href: '#', current: false},
+  ]
+
   const tabs2 = [
-    { name: "Active", href: "#", count: "52", current: true },
-    { name: "Drafts", href: "#", count: "12", current: false },
-  ];
+    {name: 'Active', href: '#', count: '52', current: true},
+    {name: 'Drafts', href: '#', count: '12', current: false},
+  ]
 
   const handleAction = {
-    edit: (item) => console.log("Edit:", item),
-    delete: (item) => console.log("Delete:", item),
-  };
+    edit: (item) => console.log('Edit:', item),
+    delete: (item) => console.log('Delete:', item),
+  }
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+    setCurrentPage(page)
+  }
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
+    currentPage * rowsPerPage,
+  )
 
   return (
     <div className="flow-root">
@@ -250,8 +248,8 @@ export default function Tenants () {
                   onSearch={handleSearch}
                   onFilter={handleFilter}
                   onAction={[
-                    { label: "Edit", handler: handleAction.edit },
-                    { label: "Delete", handler: handleAction.delete },
+                    {label: 'Edit', handler: handleAction.edit},
+                    {label: 'Delete', handler: handleAction.delete},
                   ]}
                   pagination={{
                     currentPage,
@@ -315,5 +313,5 @@ export default function Tenants () {
         <Tenant onClose={handleClose} />
       </Dialog>
     </div>
-  );
+  )
 }

@@ -1,12 +1,27 @@
-import { ErrorMessage, Field } from "formik";
+import {ErrorMessage, Field} from 'formik'
 
 export default function CustomInput(props) {
-  const { value = "",name, placeholder, type, label, icon: Icon, required = false, disabled = false} = props
-  const cls = `block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6 ${Icon ? "pl-10" : ""}`
+  const {
+    value = '',
+    name,
+    placeholder,
+    type,
+    label,
+    icon: Icon,
+    required = false,
+    disabled = false,
+  } = props
+  const cls = `block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6 ${
+    Icon ? 'pl-10' : ''
+  }`
   return (
     <div>
-      <label htmlFor={name} className="block text-sm/6 font-regular text-gray-900">
-        {label}{required&&<span className="pl-1 text-red-500">*</span>}
+      <label
+        htmlFor={name}
+        className="block text-sm/6 font-regular text-gray-900"
+      >
+        {label}
+        {required && <span className="pl-1 text-red-500">*</span>}
       </label>
       <div className="relative mt-2">
         {Icon && (
@@ -17,7 +32,7 @@ export default function CustomInput(props) {
         <Field
           {...props}
           name={name}
-          type={type ? type : "text"}
+          type={type ? type : 'text'}
           placeholder={placeholder}
           disabled={disabled}
           className={cls}
@@ -25,5 +40,5 @@ export default function CustomInput(props) {
       </div>
       <ErrorMessage name={name} component="div" className="text-red-500" />
     </div>
-  );
+  )
 }
