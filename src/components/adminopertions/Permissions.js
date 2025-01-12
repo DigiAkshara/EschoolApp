@@ -1,12 +1,36 @@
 import {Form, Formik} from 'formik'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import navData from '../../assets/json/nav.json'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomSelect from '../../commonComponent/CustomSelect'
+import { getData } from '../../app/api'
+import { ROLES } from '../../app/url'
 const Permissions = () => {
   const [roles, setRoles] = useState([])
 
   const permissionValue = ['Read', 'Write', 'Delete']
+  const getRoles = async() => {
+    try{
+      const data = await getData(ROLES);
+      if(data.status === 200|| data.status === 201){
+        let roleData = data.data.data.map((item) => {
+          return {
+            label: item.name, // Displayed text in the dropdown
+            value: item._id,
+          }
+        })
+        setRoles(roleData)
+      }else{
+        throw new Error(data.message)
+      }
+      console.log('getRoles', data);
+    }catch(error){
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    getRoles()
+  },[])
   return (
     <Formik>
       <Form>

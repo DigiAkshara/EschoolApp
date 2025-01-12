@@ -235,7 +235,7 @@
         "icon": "ChartPieIcon"
     },
     {
-        "name": "Admin Operations",
+        "name": "admin_operations",
         "title": "Admin Operations",
         "path": "/admin_operations",
         "role": [
