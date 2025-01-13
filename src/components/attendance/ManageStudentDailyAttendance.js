@@ -1,141 +1,185 @@
-import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/20/solid'
-import {ArrowDownTrayIcon, ArrowsUpDownIcon} from '@heroicons/react/24/outline'
-import {FieldArray, Form, Formik} from 'formik'
-import React, {useEffect, useState} from 'react'
-import * as Yup from 'yup'
-import {getData} from '../../app/api'
-import {CLASSES} from '../../app/url'
-import {attendanceOptions} from '../../commonComponent/CommonFunctions'
-import CustomRadio from '../../commonComponent/CustomRadio'
-import AttendanceSidebar from './AttendanceSidebar'
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowDownTrayIcon,
+  ArrowsUpDownIcon,
+} from "@heroicons/react/24/outline";
+import { FieldArray, Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
+import * as Yup from "yup";
+import { getData } from "../../app/api";
+import {  ACADEMICS, CLASSES, SECTIONS, STUDENT } from "../../app/url";
+import { attendanceOptions } from "../../commonComponent/CommonFunctions";
+import CustomRadio from "../../commonComponent/CustomRadio";
+import AttendanceSidebar from "./AttendanceSidebar";
 
 const ManageStudentDailyAttendance = () => {
-  const [studentList, setStudentList] = useState([])
-  const [classes, setClasses] = useState([])
+  const [studentList, setStudentList] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [sections, setSections] = useState([]);
   const [currentPage, setCurrentPage] = useState(1)
-  const rowsPerPage = 5
+  const rowsPerPage = 10
 
   const students = [
     {
-      name: 'Aryan Sharma',
-      admissionNumber: 'ADM001',
-      class: 'Play Group',
-      section: 'A',
+      name: "Aryan Sharma",
+      admissionNumber: "ADM001",
+      class: "Play Group",
+      section: "A",
     },
     {
-      name: 'Isha Patel',
-      admissionNumber: 'ADM002',
-      class: 'Play Group',
-      section: 'B',
+      name: "Isha Patel",
+      admissionNumber: "ADM002",
+      class: "Play Group",
+      section: "B",
     },
     {
-      name: 'Rahul Gupta',
-      admissionNumber: 'ADM003',
-      class: 'Nursery',
-      section: 'A',
+      name: "Rahul Gupta",
+      admissionNumber: "ADM003",
+      class: "Nursery",
+      section: "A",
     },
     {
-      name: 'Priya Singh',
-      admissionNumber: 'ADM004',
-      class: 'Nursery',
-      section: 'C',
+      name: "Priya Singh",
+      admissionNumber: "ADM004",
+      class: "Nursery",
+      section: "B",
     },
     {
-      name: 'Aman Verma',
-      admissionNumber: 'ADM005',
-      class: '10',
-      section: 'A',
+      name: "Aman Verma",
+      admissionNumber: "ADM005",
+      class: "Play Group",
+      section: "A",
     },
-  ]
+  ];
 
   const getInitialValues = () => {
     return {
-      date: '',
-      class: ' ',
-      section: 'a',
-      allAttendance: '',
-      attendance: studentList.map((item) => ({
-        name: item.name,
-        admissionNo: item.admissionNo,
-        pic: item.pic,
-        attendanceStatus: 'present',
-      })),
-    }
-  }
+      date: new Date().toISOString().split("T")[0],
+      class: classes[0]?.value,
+      section: sections[0]?.value,
+      allAttendance: "",
+      attendance: []
+    };
+  };
 
   const getValidationSchema = () => {
     return Yup.object({
       class: Yup.string(),
       section: Yup.string(),
-      date: Yup.date().nullable().required(' Date  is required'),
+      date: Yup.date().nullable().required(" Date  is required"),
       allAttendance: Yup.string(),
       attendance: Yup.array().of(
         Yup.object({
           attendanceStatus: Yup.string(),
-        }),
+        })
       ),
-    })
-  }
+    });
+  };
 
   useEffect(() => {
-    getStudents()
-    getClasses()
-  }, [])
+    getStudents();
+    getClasses();
+  }, []);
 
-  const getStudents = async () => {
-    setStudentList(students)
-  }
+  const columns = [
+    {title: 'Student Name', key: 'name'},
+    {title: 'Admission Number', key: 'admissionNo'},
+    {title: 'Attendance', key: 'attendance'},
+    
+  ]
+
+  // const getStudents = async () => {
+  //   setStudentList(students)
+  // }
 
   const getClasses = async () => {
-    const res = await getData(CLASSES)
+    const res = await getData(CLASSES);
     const classData = res.data.data.map((item) => {
       return {
         label: item.name, // Displayed text in the dropdown
         value: item._id,
-      }
-    })
-    setClasses(classData)
-  }
+      };
+    });
+    setClasses(classData);
+    if (classData.length > 0) {
+      getSections(classData[0]?.value);
+    }
+    // getSections(classData[0]?.value);
+  };
+
+  const getSections = async (classId) => {
+    const response = await getData(SECTIONS + "/" + classId);
+    const sectionData = response.data.data.map((item) => {
+      return {
+        label: item.section, // Displayed text in the dropdown
+        value: item._id,
+      };
+    });
+    setSections(sectionData);
+    if (sectionData.length > 0) {
+      getStudents(classId, sectionData[0]?.value);
+    }
+    // getStudents();
+  };
+
+  const getStudents = async (classId, sectionID) => {
+    const res = await getData(ACADEMICS+"/"+classId+"/"+sectionID);
+    console.log("students data is:", res.data);
+
+    const stuData = res.data.data.map((item) => {
+      return {
+        _id: item.student._id,
+        pic: item.student.profilePic?.Location,
+        name: item.student.firstName + ' ' + item.student.lastName,
+        admissionNo: item.student.admissionNumber,
+        className: item.class?.name,
+        class: item.class?._id,
+        section: item.section,
+      };
+    });
+    console.log("student data is:", stuData);
+    
+    setStudentList(stuData);
+  };
 
   const handleRadioChange = (e, values, setFieldValue) => {
-    const selectedStatus = e.target.value
-    setFieldValue('allAttendance', selectedStatus)
+    const selectedStatus = e.target.value;
+    setFieldValue("allAttendance", selectedStatus);
     const updatedAttendance = values.attendance.map((data) => ({
       ...data,
       attendanceStatus: selectedStatus,
-    }))
-    setFieldValue('attendance', updatedAttendance)
-  }
+    }));
+    setFieldValue("attendance", updatedAttendance);
+  };
 
   const updateAttendance = (e, index, values, setFieldValue) => {
-    const updatedAttendance = [...values.attendance]
-    updatedAttendance[index].attendanceStatus = e.target.value
-    setFieldValue('attendance', updatedAttendance)
-  }
+    const updatedAttendance = [...values.attendance];
+    updatedAttendance[index].attendanceStatus = e.target.value;
+    setFieldValue("attendance", updatedAttendance);
+  };
 
   const handleClassChange = (e, values, setFieldValue) => {
-    const classValue = e.target.value
-    const studentData = studentList.filter(
-      (student) =>
-        student.class === classValue && student.section === values.section,
-    )
-    setFieldValue('class', classValue)
-    setFieldValue('attendance', studentData)
-  }
+    const classValue = e.target.value;
+    setFieldValue("class", classValue);
+    getSections(classValue);
+    
+  };
 
   const handleSectionChange = (e, values, setFieldValue) => {
-    const sectionValue = e.target.value
-    const studentData = studentList.filter(
-      (student) =>
-        student.class === values.class && student.section === sectionValue,
-    )
-    setFieldValue('section', sectionValue)
-    setFieldValue('attendance', studentData)
-  }
+    const sectionValue = e.target.value;
+    setFieldValue("section", sectionValue);
+    getStudents(values.class, sectionValue);
+    setFieldValue("attendance", studentList);
+  };
+
+  const paginatedData = studentList.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage,
+  )
 
   const handleSubmit = (values) => {
-    console.log('Form submitted with values:', values)
-  }
+    console.log("Form submitted with values:", values);
+  };
 
   return (
     <>
@@ -145,7 +189,7 @@ const ManageStudentDailyAttendance = () => {
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({values, setFieldValue, errors}) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               <AttendanceSidebar
@@ -155,6 +199,8 @@ const ManageStudentDailyAttendance = () => {
                 setFieldValue={setFieldValue}
                 handleClassChange={handleClassChange}
                 handleSectionChange={handleSectionChange}
+                sections={sections}
+                getSections={getSections}
                 user="student"
               />
 
@@ -286,7 +332,7 @@ const ManageStudentDailyAttendance = () => {
                                           {/* Staff Details */}
                                           <div className="ml-4">
                                             <div className="font-medium text-gray-900 text-purple-600">
-                                              {student.name}{' '}
+                                              {student.name}{" "}
                                             </div>
                                             {/* <div className="mt-1 text-gray-500">
                                 {student.email}{" "}
@@ -298,65 +344,7 @@ const ManageStudentDailyAttendance = () => {
                                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                                         {student.admissionNumber}
                                       </td>
-                                      {/* <td>
-                                  {["Present", "Absent", "Half Day"].map(
-                                    (option) => (
-                                      <label
-                                        key={`${
-                                          student._id
-                                        }-${option.toLowerCase()}`}
-                                        className="me-3"
-                                      >
-                                        <input
-                                          type="radio"
-                                          name={`attendance-${student._id}`}
-                                          value={option
-                                            .toLowerCase()
-                                            .replace(" ", "-")} // Format: present, absent, half-day, leave
-                                          checked={
-                                            attendance[student._id] ===
-                                            option
-                                              .toLowerCase()
-                                              .replace(" ", "-")
-                                          }
-                                          className="me-1"
-                                          onChange={() =>
-                                            handleAttendanceChange(
-                                              student._id,
-                                              option
-                                                .toLowerCase()
-                                                .replace(" ", "-")
-                                            )
-                                          }
-                                        />
-                                        {option}
-                                      </label>
-                                    )
-                                  )}
-                                </td> */}
-
-                                      {/* <div className="sm:col-span-2 flex flex-row space-x-4">
-                                    {["Present", "Absent", "Half Day"].map(
-                                      (option) => (
-                                        <CustomRadio
-                                          key={`attendance-${
-                                            student._id
-                                          }-${option.toLowerCase()}`}
-                                          name={`attendance-${student._id}`}
-                                          options={[
-                                            {
-                                              value: option
-                                                .toLowerCase()
-                                                .replace(" ", "-"),
-                                              label: option,
-                                            },
-                                          ]}
-                                          defaultValue='present'
-
-                                        />
-                                      )
-                                    )}
-                                  </div> */}
+                                    
                                       <td>
                                         <CustomRadio
                                           name={`attendance.${index}.attendanceStatus`}
@@ -370,7 +358,7 @@ const ManageStudentDailyAttendance = () => {
                                               e,
                                               index,
                                               values,
-                                              setFieldValue,
+                                              setFieldValue
                                             )
                                           }
                                         />
@@ -409,8 +397,8 @@ const ManageStudentDailyAttendance = () => {
                           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                             <div>
                               <p className="text-sm text-gray-700">
-                                Showing <span className="font-medium">1</span>{' '}
-                                to <span className="font-medium">10</span> of{' '}
+                                Showing <span className="font-medium">1</span>{" "}
+                                to <span className="font-medium">10</span> of{" "}
                                 <span className="font-medium">97</span> results
                               </p>
                             </div>
@@ -477,7 +465,7 @@ const ManageStudentDailyAttendance = () => {
         )}
       </Formik>
     </>
-  )
-}
+  );
+};
 
-export default ManageStudentDailyAttendance
+export default ManageStudentDailyAttendance;

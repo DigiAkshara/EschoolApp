@@ -21,7 +21,7 @@ const ManageStaffDailyAttendance = () => {
 
   const getInitialValues = () => {
     return {
-      date: '',
+      date: new Date().toISOString().split('T')[0],
       staffCategory: 'teaching',
       allAttendance: '',
       attendance: staffList.filter((staff) => staff.category === 'teaching'),

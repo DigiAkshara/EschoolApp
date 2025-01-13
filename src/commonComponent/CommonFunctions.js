@@ -130,6 +130,13 @@ export const states = [
   {value: 'tamilnadu', label: 'Tamil Nadu'},
 ]
 
+export const monthsName = [
+  {value: 'january', label: 'January'},
+  {value: 'february', label: 'February'},
+  {value: 'march', label: 'March'},
+  
+]
+
 export const capitalizeWords = (str) => {
   return str
     .split(' ') // Split the string into words
