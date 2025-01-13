@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {getData, postData} from '../../app/api'
-import {ACADEMICYEAR, CLASSES, SECTIONS, UPLOAD} from '../../app/url'
+import {ACADEMIC_YEAR, CLASSES, SECTIONS, UPLOAD} from '../../app/url'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
@@ -15,7 +15,7 @@ function StudentAcademicDetails({values, setFieldValue}) {
   }, [])
   const getAcademicData = async () => {
     const [academicResponse, classResponse] = await Promise.all([
-      getData(ACADEMICYEAR),
+      getData(ACADEMIC_YEAR),
       getData(CLASSES),
     ])
     const classData = classResponse.data.data.map((item) => {

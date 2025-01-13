@@ -18,9 +18,9 @@ import {useDispatch} from 'react-redux'
 import {useLocation, useNavigate} from 'react-router-dom'
 import {getData} from '../../app/api'
 import {setSelectedClass} from '../../app/reducers/classSlice'
-import {NEWCLASS} from '../../app/url'
+import {NEW_CLASS} from '../../app/url'
 import {classCategory} from '../../commonComponent/CommonFunctions'
-import ManageClass from './ManageClass'
+import AddClass from './AddClass'
 import ManageViewClass from './ManageViewClass'
 import {
   Button,
@@ -30,6 +30,7 @@ import {
   MenuItem,
   MenuItems,
 } from '@headlessui/react'
+import TableComponent from '../../commonComponent/TableComponent'
 
 const people = [
   {
@@ -59,6 +60,8 @@ export default function Class() {
   const [selectedPeople, setSelectedPeople] = useState([])
   const [classData, setClassData] = useState([])
   const dispatch = useDispatch() // Get the dispatch function
+  const [currentPage, setCurrentPage] = useState(1)
+  const rowsPerPage = 10
 
   useEffect(() => {
     getClassData()
@@ -66,8 +69,7 @@ export default function Class() {
 
   const getClassData = async () => {
     try {
-      const response = await getData(NEWCLASS)
-
+      const response = await getData(NEW_CLASS)
       if (response && response.data) {
         // Map through the fetched data to replace the category value with its label
         const transformedData = response.data.data.map((item) => {
@@ -77,6 +79,15 @@ export default function Class() {
           return {
             ...item,
             category: categoryObject ? categoryObject.label : item.category, // Use label or fallback to original value
+            time_table:"View",
+            className:item.class.name,
+            sectionName:item.section.section,
+            classTeacher:item.classTeacher?item.classTeacher.firstName + " " + item.classTeacher.lastName:"N/A",
+            totalStudents:item.totalStudents||0,
+            actions: [
+              {label: 'Edit', actionHandler: onHandleEdit},
+              {label: 'Delete', actionHandler: onDelete},
+            ],
           }
         })
 
@@ -86,6 +97,16 @@ export default function Class() {
       console.error('Error fetching class data:', error)
     }
   }
+
+  const onHandleEdit = async () => {
+    console.log("edit")
+  }
+
+  const onDelete = () => {
+    console.log('delete')
+  }
+
+
 
   function toggleAll() {
     setSelectedPeople(checked || indeterminate ? [] : people)
@@ -117,6 +138,32 @@ export default function Class() {
     dispatch(setSelectedClass(data)) // Save selected class in Redux
     setOpen2(true) // Navigate to the "View More" page
   }
+
+  const columns = [
+    {key:'board', title: 'Board'},
+    {key: 'className', title: 'Class'},
+    {key: 'sectionName', title: 'Section'},
+    {key: 'totalStudents', title: 'Total Students'},
+    {key: 'classTeacher', title: 'Class Teacher'},
+    {key: 'time_table', title: 'Time Table/ Syllabus'},
+    {key: 'actions', title: 'Actions'},
+  ]
+
+  const handleAction = {
+    edit: (item) => console.log('Edit:', item),
+    delete: (item) => console.log('Delete:', item),
+  }
+
+  const paginatedData = classData.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage,
+  )
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+  }
+
+
 
   return (
     <>
@@ -387,222 +434,17 @@ export default function Class() {
 
               <div className="table-container-main overflow-y-auto max-h-[56vh]">
                 {/* Table View */}
-
-                <table className="table-auto min-w-full divide-y divide-gray-300">
-                  <thead className="sticky top-0 bg-purple-100 z-20">
-                    <tr>
-                      <th className="relative px-7 sm:w-12 sm:px-6">
-                        <input
-                          type="checkbox"
-                          className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                          onChange={() => {}}
-                        />
-                      </th>
-                      <th className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900">
-                        Board
-                      </th>
-                      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Class
-                      </th>
-                      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Section
-                      </th>
-                      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Total Students
-                      </th>
-                      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Class Teacher
-                      </th>
-                      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Time Table & Syllabus
-                      </th>
-                      <th className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white z-1">
-                    {Object.entries(groupedData).map(([category, items]) => (
-                      <>
-                        {/* Category Row */}
-                        <tr key={category} className="border-t border-gray-200">
-                          <th
-                            scope="colgroup"
-                            colSpan={8}
-                            className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"
-                          >
-                            {category}
-                          </th>
-                        </tr>
-
-                        {/* Data Rows */}
-                        {items.map((data, index) => (
-                          <tr
-                            key={data._id || index}
-                            className="border-t border-gray-200"
-                          >
-                            <td className="relative px-7 sm:w-12 sm:px-6">
-                              <input
-                                type="checkbox"
-                                className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                              />
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                              {data.board}
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                              {data.class}
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                              {data.section}
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                              {data.totalStudents || '-'}
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                              {data.classTeacher || '-'}
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
-                              <a href="#" onClick={() => handleViewClick(data)}>
-                                View
-                              </a>
-                            </td>
-                            <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                              <Menu
-                                as="div"
-                                className="relative inline-block text-left"
-                              >
-                                <div>
-                                  <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-100">
-                                    <EllipsisHorizontalIcon
-                                      aria-hidden="true"
-                                      className="size-5"
-                                    />
-                                  </MenuButton>
-                                </div>
-                                <MenuItems className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none">
-                                  <div className="py-1">
-                                    <MenuItem>
-                                      <a
-                                        href="#"
-                                        className="block px-4 py-2 text-sm text-gray-700"
-                                      >
-                                        Edit
-                                      </a>
-                                    </MenuItem>
-                                    <MenuItem>
-                                      <a
-                                        href="#"
-                                        className="block px-4 py-2 text-sm text-gray-700"
-                                      >
-                                        Delete
-                                      </a>
-                                    </MenuItem>
-                                  </div>
-                                </MenuItems>
-                              </Menu>
-                            </td>
-                          </tr>
-                        ))}
-                      </>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="pagination">
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-3 py-3 sm:px-3">
-                  <div className="flex flex-1 justify-between sm:hidden">
-                    <a
-                      href="#"
-                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Previous
-                    </a>
-                    <a
-                      href="#"
-                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Next
-                    </a>
-                  </div>
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">1</span> to{' '}
-                        <span className="font-medium">10</span> of{' '}
-                        <span className="font-medium">97</span> results
-                      </p>
-                    </div>
-                    <div>
-                      <nav
-                        aria-label="Pagination"
-                        className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                      >
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          <span className="sr-only">Previous</span>
-                          <ChevronLeftIcon
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </a>
-                        {/* Current: "z-10 bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
-                        <a
-                          href="#"
-                          aria-current="page"
-                          className="relative z-10 inline-flex items-center bg-purple-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-                        >
-                          1
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          2
-                        </a>
-                        <a
-                          href="#"
-                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                        >
-                          3
-                        </a>
-                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-                          ...
-                        </span>
-                        <a
-                          href="#"
-                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                        >
-                          8
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          9
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          10
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          <span className="sr-only">Next</span>
-                          <ChevronRightIcon
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </a>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
+                <TableComponent 
+                  columns={columns}
+                  data={paginatedData}
+                  pagination={{
+                    currentPage,
+                    totalPages: Math.ceil(classData.length / rowsPerPage),
+                    onPageChange: handlePageChange,
+                  }}
+                  modalColumn="time_table"
+                  showModal={(data)=>handleViewClick(data)}
+                />
               </div>
             </div>
           </div>
@@ -614,7 +456,7 @@ export default function Class() {
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
 
-        <ManageClass onClose={handleClose} />
+        <AddClass onClose={handleClose} />
       </Dialog>
 
       <Dialog open={open2} onClose={setOpen2} className="relative z-50">

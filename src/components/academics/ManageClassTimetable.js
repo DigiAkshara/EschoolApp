@@ -8,8 +8,8 @@ import {teacher} from '../../commonComponent/CommonFunctions'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-function ManageClassTimetable({values, setFieldValue}) {
-  const [subjects, setSubjects] = useState()
+function ManageClassTimetable({values, setFieldValue, subjects, teachers}) {
+  // const [subjects, setSubjects] = useState()
 
   const daysOfWeek = [
     'monday',
@@ -21,7 +21,7 @@ function ManageClassTimetable({values, setFieldValue}) {
   ]
 
   useEffect(() => {
-    getSubjects()
+    // getSubjects()
     setFieldValue('timetables', [
       {
         period: 1,
@@ -34,17 +34,7 @@ function ManageClassTimetable({values, setFieldValue}) {
     ])
   }, [])
 
-  const getSubjects = async () => {
-    const res = await getData(SUBJECTS)
-    const subData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-      }
-    })
-    setSubjects(subData)
-  }
-
+  
   const [rows, setRows] = useState([
     {
       period: 1,
@@ -148,13 +138,17 @@ function ManageClassTimetable({values, setFieldValue}) {
                       className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
                     >
                       <CustomSelect
+                        isLabelRequired={false}
+                        label="Subject"
                         name={`timetables.${index}.days.${day}.subject`}
                         options={subjects}
                       />
 
                       <CustomSelect
+                        isLabelRequired={false}
+                        label="Teacher"
                         name={`timetables.${index}.days.${day}.teacher`}
-                        options={teacher}
+                        options={teachers}
                       />
                     </td>
                   ))}

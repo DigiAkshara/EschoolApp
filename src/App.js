@@ -4,6 +4,7 @@ import {useDispatch, useSelector} from 'react-redux'
 import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import {
   loadNavConfig,
+  setAcademicYear,
   setActiveMenu,
   setUser,
 } from './app/reducers/appConfigSlice'
@@ -20,6 +21,8 @@ import Staff from './components/Staff'
 import Students from './components/Students'
 import Tenants from './components/Tenants'
 import navData from './assets/json/nav.json'
+import { getData } from './app/api'
+import { ACADEMIC_YEAR } from './app/url'
 
 function App() {
   const {user} = useSelector((state) => state.appConfig)
@@ -36,9 +39,17 @@ function App() {
         dispatch(setUser(user))
         dispatch(loadNavConfig(user.permissions.permissions))
         dispatch(setActiveMenu(window.location.pathname.split('/')[1]))
+        getAcademicData()
       }
     }
   }, [])
+
+  const getAcademicData = async () => {
+    const res = await getData(ACADEMIC_YEAR)
+    if(res.status === 200 || res.status === 201) {
+      dispatch(setAcademicYear(res.data.data))
+    }
+  }
   return (
     <BrowserRouter>
       <div>

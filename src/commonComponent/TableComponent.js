@@ -6,7 +6,7 @@ import {
 import moment from 'moment'
 import React, {useState} from 'react'
 import PaginationComponent from './PaginationComponent'
-const TableComponent = ({columns, data, pagination, showModal}) => {
+const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
   const [sortConfig, setSortConfig] = useState({key: null, direction: 'asc'})
 
   const handleSort = ({key}) => {
@@ -143,7 +143,7 @@ const TableComponent = ({columns, data, pagination, showModal}) => {
                   >
                     {col.key === 'date'
                       ? moment(student[col.key]).format('DD-MM-YYYY')
-                      : student[col.key]}
+                      : modalColumn === col.key ?<a onClick={() => showModal && showModal(student)}>{student[col.key]}</a>: student[col.key]}
                   </td>
                 ),
               )}

@@ -9,7 +9,7 @@ import {Form, Formik} from 'formik'
 import React, {useEffect, useState} from 'react'
 import * as Yup from 'yup'
 import {getData, postData} from '../../app/api'
-import {ACADEMICYEAR, HOLIDAYS} from '../../app/url'
+import {ACADEMIC_YEAR, HOLIDAYS} from '../../app/url'
 import {
   capitalizeWords,
   formatDateRange,
@@ -49,7 +49,7 @@ const ManageHolidayAttendance = () => {
 
   const academicyear = async () => {
     try {
-      const academicYearRes = await getData(ACADEMICYEAR)
+      const academicYearRes = await getData(ACADEMIC_YEAR)
       if (academicYearRes.status === 200 || academicYearRes.status === 201) {
         let academicYearData = [
           {

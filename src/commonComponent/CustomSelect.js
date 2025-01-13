@@ -1,4 +1,5 @@
 import {ErrorMessage, Field} from 'formik'
+import { capitalizeWords } from './CommonFunctions'
 
 export default function CustomSelect(props) {
   const {
@@ -44,7 +45,7 @@ export default function CustomSelect(props) {
           </option>
           {options.map((option, index) => (
             <option key={index} value={option.value}>
-              {option.label}
+              {capitalizeWords(option.label)}
             </option>
           ))}
         </Field>

@@ -8,6 +8,7 @@ import {
 import {UserCircleIcon} from '@heroicons/react/24/solid'
 import React from 'react'
 import {useSelector} from 'react-redux'
+import { capitalizeWords } from '../../commonComponent/CommonFunctions'
 
 function ManageViewClass({onClose}) {
   const selectedClass = useSelector((state) => state.class.selectedClass)
@@ -30,6 +31,8 @@ function ManageViewClass({onClose}) {
       </div>
     )
   }
+
+  console.log(selectedClass)
 
   return (
     <>
@@ -109,7 +112,7 @@ function ManageViewClass({onClose}) {
                                   Class
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.class}
+                                  {selectedClass.class.name}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -117,7 +120,7 @@ function ManageViewClass({onClose}) {
                                   Section
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.section}
+                                  {selectedClass.section.section}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -125,7 +128,7 @@ function ManageViewClass({onClose}) {
                                   Class Teacher{' '}
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  nil
+                                  {selectedClass.classTeacher}
                                 </dd>
                               </div>
 
@@ -139,7 +142,7 @@ function ManageViewClass({onClose}) {
                                     ? selectedClass.theorySubjects.map(
                                         (subject, index) => (
                                           <span key={index} className="block">
-                                            {subject.label}
+                                            {capitalizeWords(subject.label)}
                                           </span>
                                         ),
                                       )

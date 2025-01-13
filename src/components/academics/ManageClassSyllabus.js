@@ -6,37 +6,31 @@ import {getData} from '../../app/api'
 import {SUBJECTS} from '../../app/url'
 import {getAcademicYears} from '../../commonComponent/CommonFunctions'
 import CustomSelect from '../../commonComponent/CustomSelect'
+import { useSelector } from 'react-redux'
 
-function ManageClassSyllabus({values, setFieldValue, touched, errors}) {
-  const [subjects, setSubjects] = useState()
+function ManageClassSyllabus({subjects, values, setFieldValue, touched, errors}) {
+  const {academicYear} = useSelector((state) => state.appConfig)
+  const [academicYearOptions, setAcademicYearOptions] = useState([])
+
   useEffect(() => {
-    getSubjects()
+    if(academicYear){
+      setAcademicYearOptions([{label:academicYear.year,value:academicYear._id}])
+    }
     setFieldValue('syllabus', [
       {
         id: 1,
-        academicYear: '2023-2024',
-        subject: 'Englisha',
+        academicYear: '',
+        subject: '',
         syllabusPic: null,
       },
     ])
   }, [])
 
-  const getSubjects = async () => {
-    const res = await getData(SUBJECTS)
-    const subData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-      }
-    })
-    setSubjects(subData)
-  }
-
   const [rows, setRows] = useState([
     {
       id: 1,
-      academicYear: '2023-2024',
-      subject: 'Englisha',
+      academicYear: '',
+      subject: '',
     },
   ])
 
@@ -45,8 +39,8 @@ function ManageClassSyllabus({values, setFieldValue, touched, errors}) {
       ...rows,
       {
         id: rows.length + 1, // Incrementing the ID for each new row
-        academicYear: '2023-2024',
-        subject: 'Englisha',
+        academicYear: '',
+        subject: '',
       },
     ]
     setRows(dummyList)
@@ -108,12 +102,16 @@ function ManageClassSyllabus({values, setFieldValue, touched, errors}) {
 
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     <CustomSelect
+                      isLabelRequired={false}
+                      label="Academic Year"
                       name={`syllabus.${index}.academicYear`}
-                      options={getAcademicYears()}
+                      options={academicYearOptions}
                     />
                   </td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     <CustomSelect
+                      isLabelRequired={false}
+                      label="Subject"
                       name={`syllabus.${index}.syllabusSubject`}
                       options={subjects}
                     />

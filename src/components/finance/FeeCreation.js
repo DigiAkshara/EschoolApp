@@ -4,7 +4,7 @@ import {FieldArray, Form, Formik} from 'formik'
 import React, {useEffect, useState} from 'react'
 import * as Yup from 'yup'
 import {getData, postData} from '../../app/api'
-import {ACADEMICYEAR, CLASSES, FEEGROUP, FEES} from '../../app/url'
+import {ACADEMIC_YEAR, CLASSES, FEEGROUP, FEES} from '../../app/url'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
@@ -76,7 +76,7 @@ function FeeCreation({onClose}) {
       const [classRes, feeGroupRes, academicYearRes] = await Promise.all([
         getData(CLASSES),
         getData(FEEGROUP),
-        getData(ACADEMICYEAR),
+        getData(ACADEMIC_YEAR),
       ])
       if (classRes.status === 200 || classRes.status === 201) {
         setFeeDetails(classRes.data.data)
