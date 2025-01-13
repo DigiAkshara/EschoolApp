@@ -17,7 +17,7 @@ import {
 } from "@headlessui/react";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import { getData } from "../../app/api";
-import { ACADEMICYEAR } from "../../app/url";
+import { ACADEMIC_YEAR } from "../../app/url";
 import { monthsName } from "../../commonComponent/CommonFunctions";
 
 function ManageStaffRegister() {
@@ -44,7 +44,7 @@ function ManageStaffRegister() {
 
   const academicyear = async () => {
     try {
-      const academicYearRes = await getData(ACADEMICYEAR);
+      const academicYearRes = await getData(ACADEMIC_YEAR);
       if (academicYearRes.status === 200 || academicYearRes.status === 201) {
         let academicYearData = [
           {
