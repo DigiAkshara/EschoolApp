@@ -1,110 +1,116 @@
-import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/20/solid'
-import {ArrowDownTrayIcon, ArrowsUpDownIcon} from '@heroicons/react/24/outline'
-import {FieldArray, Form, Formik} from 'formik'
-import React, {useEffect, useState} from 'react'
-import * as Yup from 'yup'
-import {getData} from '../../app/api'
-import {STAFF} from '../../app/url'
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
+import {
+  ArrowDownTrayIcon,
+  ArrowsUpDownIcon,
+} from "@heroicons/react/24/outline";
+import { FieldArray, Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
+import * as Yup from "yup";
+import { getData, postData } from "../../app/api";
+import { ATTENDANCE, STAFF } from "../../app/url";
 import {
   attendanceOptions,
   designations,
-} from '../../commonComponent/CommonFunctions'
-import CustomRadio from '../../commonComponent/CustomRadio'
-import AttendanceSidebar from './AttendanceSidebar'
+} from "../../commonComponent/CommonFunctions";
+import CustomRadio from "../../commonComponent/CustomRadio";
+import AttendanceSidebar from "./AttendanceSidebar";
 
 const ManageStaffDailyAttendance = () => {
-  const [staffList, setStaffList] = useState([])
-  const [filteredStaff, setFilteredStaff] = useState([])
-  const [filteredData, setFilteredData] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const rowsPerPage = 5
+  const [staffList, setStaffList] = useState([]);
+  const [filteredStaff, setFilteredStaff] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
 
   const getInitialValues = () => {
     return {
-      date: new Date().toISOString().split('T')[0],
-      staffCategory: 'teaching',
-      allAttendance: '',
-      attendance: staffList.filter((staff) => staff.category === 'teaching'),
-    }
-  }
+      date: new Date().toISOString().split("T")[0],
+      staffCategory: "teaching",
+      allAttendance: "",
+      attendance: staffList.filter((staff) => staff.category === "teaching"),
+    };
+  };
 
   const getValidationSchema = () => {
     return Yup.object({
       staffCategory: Yup.string(),
-      date: Yup.date().nullable().required(' Date  is required'),
+      date: Yup.date().nullable().required(" Date  is required"),
       allAttendance: Yup.string(),
       attendance: Yup.array().of(
         Yup.object({
           attendanceStatus: Yup.string(),
-        }),
+        })
       ),
-    })
-  }
+    });
+  };
   useEffect(() => {
-    getStaff()
-  }, [])
+    getStaff();
+  }, []);
 
   const getStaff = async () => {
-    const response = await getData(STAFF)
+    const response = await getData(STAFF);
     if (response.status === 200) {
       let data = response.data.data.map((item, index) => ({
         _id: item._id,
         pic: item.profilePic?.Location,
-        name: item.firstName + ' ' + item.lastName,
+        name: item.firstName + " " + item.lastName,
         email: item.email,
         empId: item.empId,
         category: item.staffType,
         date: item.DOJ,
         phoneNumber: item.mobileNumber,
         designation: designations.find(
-          (designations) => designations.value === item.designation,
+          (designations) => designations.value === item.designation
         ).label,
         class: item.class,
-      }))
-      setStaffList(data)
+      }));
+      setStaffList(data);
     }
-  }
+  };
 
-  // function getStaffData (category) {
-  //   const staffData = staffList.filter((staff) =>staff.category === category )
-  //   setFilteredStaff(staffData)
-
-  // }
 
   const handleStaffCategory = (e, setFieldValue) => {
-    const category = e.target.value
-    const staffData = staffList.filter((staff) => staff.category === category)
-    setFieldValue('staffCategory', category)
-    setFieldValue('attendance', staffData)
-  }
+    const category = e.target.value;
+    const staffData = staffList.filter((staff) => staff.category === category);
+    setFieldValue("staffCategory", category);
+    setFieldValue("attendance", staffData);
+  };
 
   const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase()
+    const query = e.target.value.toLowerCase();
     setFilteredData(
-      staffList.filter((staff) => staff.name.toLowerCase().includes(query)),
-    )
-  }
+      staffList.filter((staff) => staff.name.toLowerCase().includes(query))
+    );
+  };
 
   const handleRadioChange = (e, values, setFieldValue) => {
-    const selectedStatus = e.target.value
-    setFieldValue('allAttendance', selectedStatus)
+    const selectedStatus = e.target.value;
+    setFieldValue("allAttendance", selectedStatus);
     const updatedAttendance = values.attendance.map((data) => ({
       ...data,
       attendanceStatus: selectedStatus,
-    }))
+    }));
 
-    setFieldValue('attendance', updatedAttendance)
-  }
+    setFieldValue("attendance", updatedAttendance);
+  };
 
   const updateAttendance = (e, index, values, setFieldValue) => {
-    const updatedAttendance = [...values.attendance]
-    updatedAttendance[index].attendanceStatus = e.target.value
-    setFieldValue('attendance', updatedAttendance)
-  }
+    const updatedAttendance = [...values.attendance];
+    updatedAttendance[index].attendanceStatus = e.target.value;
+    setFieldValue("attendance", updatedAttendance);
+  };
 
-  const handleSubmit = (values) => {
-    console.log('submitting with values:', values)
-  }
+  const handleSubmit = async (values) => {
+    console.log("Form submitted with values:", values);
+    values["userType"] = "staff";
+
+    try {
+      const response = await postData(ATTENDANCE, values);
+      console.log("Data successfully posted:", response.data);
+    } catch (error) {
+      console.error("Error while posting data:", error);
+    }
+  };
 
   return (
     <>
@@ -114,7 +120,7 @@ const ManageStaffDailyAttendance = () => {
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({values, setFieldValue, errors}) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               {/* Sidebar */}
@@ -252,10 +258,10 @@ const ManageStaffDailyAttendance = () => {
                                           </div>
                                           <div className="ml-4">
                                             <div className="font-medium text-gray-900 text-purple-600">
-                                              {staff.name}{' '}
+                                              {staff.name}{" "}
                                             </div>
                                             <div className="mt-1 text-gray-500">
-                                              {staff.email}{' '}
+                                              {staff.email}{" "}
                                             </div>
                                           </div>
                                         </div>
@@ -269,7 +275,7 @@ const ManageStaffDailyAttendance = () => {
                                           name={`attendance.${index}.attendanceStatus`}
                                           options={[
                                             ...attendanceOptions,
-                                            {value: 'leave', label: 'Leave'},
+                                            { value: "leave", label: "Leave" },
                                           ]}
                                           value={
                                             values.attendance[index]
@@ -280,7 +286,7 @@ const ManageStaffDailyAttendance = () => {
                                               e,
                                               index,
                                               values,
-                                              setFieldValue,
+                                              setFieldValue
                                             )
                                           }
                                         />
@@ -319,8 +325,8 @@ const ManageStaffDailyAttendance = () => {
                           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                             <div>
                               <p className="text-sm text-gray-700">
-                                Showing <span className="font-medium">1</span>{' '}
-                                to <span className="font-medium">10</span> of{' '}
+                                Showing <span className="font-medium">1</span>{" "}
+                                to <span className="font-medium">10</span> of{" "}
                                 <span className="font-medium">97</span> results
                               </p>
                             </div>
@@ -387,7 +393,7 @@ const ManageStaffDailyAttendance = () => {
         )}
       </Formik>
     </>
-  )
-}
+  );
+};
 
-export default ManageStaffDailyAttendance
+export default ManageStaffDailyAttendance;

@@ -6,14 +6,15 @@ import {
 import { FieldArray, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { getData } from "../../app/api";
-import {  ACADEMICS, CLASSES, SECTIONS, STUDENT } from "../../app/url";
+import { getData, postData } from "../../app/api";
+import {  ACADEMICS, ATTENDANCE, CLASSES, HOLIDAYS, SECTIONS, STUDENT } from "../../app/url";
 import { attendanceOptions } from "../../commonComponent/CommonFunctions";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import AttendanceSidebar from "./AttendanceSidebar";
 
 const ManageStudentDailyAttendance = () => {
   const [studentList, setStudentList] = useState([]);
+  const [holidaysData, setHolidaysData] = useState([])
   const [classes, setClasses] = useState([]);
   const [sections, setSections] = useState([]);
   const [currentPage, setCurrentPage] = useState(1)
@@ -79,7 +80,10 @@ const ManageStudentDailyAttendance = () => {
   useEffect(() => {
     getStudents();
     getClasses();
+    getHolidayData();
   }, []);
+
+
 
   const columns = [
     {title: 'Student Name', key: 'name'},
@@ -88,9 +92,17 @@ const ManageStudentDailyAttendance = () => {
     
   ]
 
-  // const getStudents = async () => {
-  //   setStudentList(students)
-  // }
+  const getHolidayData = async () => {
+    try {
+      const response = await getData(HOLIDAYS)
+      console.log(response.data.data);
+      
+      setHolidaysData(response.data.data)
+    } catch (error) {
+      console.error('Error getting data:', error)
+    }
+  }
+
 
   const getClasses = async () => {
     const res = await getData(CLASSES);
@@ -104,43 +116,67 @@ const ManageStudentDailyAttendance = () => {
     if (classData.length > 0) {
       getSections(classData[0]?.value);
     }
-    // getSections(classData[0]?.value);
   };
+
 
   const getSections = async (classId) => {
-    const response = await getData(SECTIONS + "/" + classId);
-    const sectionData = response.data.data.map((item) => {
-      return {
-        label: item.section, // Displayed text in the dropdown
-        value: item._id,
-      };
-    });
-    setSections(sectionData);
-    if (sectionData.length > 0) {
-      getStudents(classId, sectionData[0]?.value);
+    try {
+      const response = await getData(SECTIONS + "/" + classId);
+      console.log("Sections data is:", response.data);
+  
+      if (response.data?.data?.length > 0) {
+        const sectionData = response.data.data.map((item) => ({
+          label: item.section, 
+          value: item._id, 
+        }));
+  
+        setSections(sectionData);
+  
+        
+        const firstSectionId = sectionData[0]?.value;
+        if (firstSectionId) {
+          await getStudents(classId, firstSectionId);
+        }
+      } else {
+        console.warn("No sections available for the selected class.");
+        setSections([]); 
+      }
+    } catch (error) {
+      console.error("Error fetching sections:", error);
+      setSections([]); 
     }
-    // getStudents();
   };
+  
+
 
   const getStudents = async (classId, sectionID) => {
-    const res = await getData(ACADEMICS+"/"+classId+"/"+sectionID);
-    console.log("students data is:", res.data);
-
-    const stuData = res.data.data.map((item) => {
-      return {
-        _id: item.student._id,
-        pic: item.student.profilePic?.Location,
-        name: item.student.firstName + ' ' + item.student.lastName,
-        admissionNo: item.student.admissionNumber,
-        className: item.class?.name,
-        class: item.class?._id,
-        section: item.section,
-      };
-    });
-    console.log("student data is:", stuData);
-    
-    setStudentList(stuData);
+    try {
+      const res = await getData(ACADEMICS+"/"+classId+"/"+sectionID);
+      console.log("students data is:", res.data);
+  
+      if (res.data?.data) {
+        const stuData = res.data.data.map((item) => ({
+          _id: item.student._id,
+          pic: item.student.profilePic?.Location || "", 
+          name: `${item.student.firstName} ${item.student.lastName}`,
+          admissionNo: item.student.admissionNumber,
+          className: item.class?.name || "N/A", 
+          class: item.class?._id || null, 
+          section: item.section || "N/A", 
+        }));
+  
+        console.log("student data is:", stuData);
+        setStudentList(stuData);
+      } else {
+        console.warn("No data found for the specified class and section.");
+        setStudentList([]); 
+      }
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+      setStudentList([]); 
+    }
   };
+  
 
   const handleRadioChange = (e, values, setFieldValue) => {
     const selectedStatus = e.target.value;
@@ -177,9 +213,20 @@ const ManageStudentDailyAttendance = () => {
     currentPage * rowsPerPage,
   )
 
-  const handleSubmit = (values) => {
-    console.log("Form submitted with values:", values);
+
+  const handleSubmit = async (values) => {
+        console.log("Form submitted with values:", values);
+        values["userType"] = "student";
+
+    try {
+      const response = await postData(ATTENDANCE, values);
+      console.log("Data successfully posted:", response.data);
+        
+         } catch (error) {
+      console.error("Error while posting data:", error);
+    }
   };
+  
 
   return (
     <>
@@ -194,6 +241,7 @@ const ManageStudentDailyAttendance = () => {
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               <AttendanceSidebar
                 values={values}
+                holidaysData={holidaysData}
                 classes={classes}
                 handleRadioChange={handleRadioChange}
                 setFieldValue={setFieldValue}
@@ -207,7 +255,7 @@ const ManageStudentDailyAttendance = () => {
               {/* Main Content */}
               <div className="-mx-2 -my-2  mt-0 overflow-x-auto sm:-mx-6  w-full lg:w-3/4">
                 <div className="inline-block min-w-full align-middle sm:px-6 ">
-                  <div className="relative">
+                  {/* <div className="relative"> */}
                     <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
                       <div className="relative table-tool-bar z-30">
                         <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
@@ -303,7 +351,7 @@ const ManageStudentDailyAttendance = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
-                            {values.attendance.length >= 0 ? (
+                            {values.attendance && values.attendance.length > 0 ? (
                               <FieldArray name="attendance">
                                 {() =>
                                   values.attendance.map((student, index) => (
@@ -369,7 +417,7 @@ const ManageStudentDailyAttendance = () => {
                               </FieldArray>
                             ) : (
                               <tr>
-                                <td colSpan={3} className="text-center">
+                                <td colSpan={5} className="text-center px-2 py-3.5  text-sm font-semibold text-gray-900">
                                   No student data Found
                                 </td>
                               </tr>
@@ -457,7 +505,7 @@ const ManageStudentDailyAttendance = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  {/* </div> */}
                 </div>
               </div>
             </div>

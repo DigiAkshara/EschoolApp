@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   attendanceOptions,
   staffCategory,
@@ -11,6 +11,7 @@ import CustomButton from "../../commonComponent/CustomButton";
 const AttendanceSidebar = ({
   values,
   setFieldValue,
+  holidaysData,
   user,
   handleRadioChange,
   handleStaffCategory,
@@ -20,6 +21,41 @@ const AttendanceSidebar = ({
   sections,
   getSections
 }) => {
+
+  const [holiday, setHoliday] = useState(false)
+
+  useEffect(() => {
+    checkHoliday();
+  }, [values.date, holidaysData]);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString); // Parse the ISO date string
+    const day = String(date.getDate()).padStart(2, "0"); // Get day and pad with 0 if needed
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Get month (0-based) and pad with 0
+    const year = date.getFullYear(); // Get full year
+    return `${day}/${month}/${year}`; // Combine into DD/MM/YYYY
+  };
+
+  const checkHoliday = () => {
+    const currentDate = formatDate(values.date )|| formatDate(new Date().toISOString());
+    console.log("Current date:", currentDate);
+    
+
+    const isHolidayToday = holidaysData?.some((holiday) => {
+      const holidayStart = formatDate(holiday.startDate);
+      const holidayEnd = formatDate(holiday.endDate);
+      return currentDate >= holidayStart && currentDate <= holidayEnd;
+    });
+
+    if (isHolidayToday) {
+      console.log("Today is a holiday!");
+      setHoliday(true);
+    } else {
+      console.log("Today is not a holiday.");
+      setHoliday(false);
+    }
+  };
+
   const attendanceCounts = values.attendance.reduce(
     (acc, entry) => {
       switch (entry.attendanceStatus) {
@@ -70,7 +106,7 @@ const AttendanceSidebar = ({
         </div>
       )}
 
-      {user === "student" && (
+      {!holiday && user === "student" && (
         <div className="flex flex-col lg:flex-row mb-4 gap-2">
           <div className="w-full lg:w-1/2">
             <CustomSelect
@@ -99,7 +135,8 @@ const AttendanceSidebar = ({
         </div>
       )}
 
-      <div className="mb-4">
+      {!holiday && (
+        <div className="mb-4">
         <CustomRadio
           name="allAttendance"
           label={
@@ -116,7 +153,26 @@ const AttendanceSidebar = ({
           onChange={(e) => handleRadioChange(e, values, setFieldValue)}
         />
       </div>
-      {user === "student" && (
+      )}
+
+      {/* <div className="mb-4">
+        <CustomRadio
+          name="allAttendance"
+          label={
+            user === "staff"
+              ? "Set attendance for all Teachers"
+              : "Set attendance for all Students"
+          }
+          options={
+            user === "staff"
+              ? [...attendanceOptions, { value: "leave", label: "Leave" }]
+              : attendanceOptions
+          }
+          value={values.allAttendance}
+          onChange={(e) => handleRadioChange(e, values, setFieldValue)}
+        />
+      </div> */}
+      {!holiday && user === "student" && (
         <div className="mb-4">
           <div className="flex items-center">
             <input
@@ -136,8 +192,15 @@ const AttendanceSidebar = ({
         </div>
       )}
 
-      {/* Save Button */}
+      {!holiday && (
       <CustomButton type="submit" label="Save Attendance" />
+
+      )}
+      {holiday && (
+  <div className="mt-4 text-center text-red-500 font-semibold">
+    Today Holiday
+  </div>
+)}
     
       <div className="mt-6">
         <ul>
