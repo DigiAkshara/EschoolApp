@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/outline'
 import {Form, Formik} from 'formik'
 import CustomSelect from './CustomSelect'
+import { capitalizeWords } from './CommonFunctions'
 
 const FilterComponent = ({
   onSearch,
@@ -16,9 +17,9 @@ const FilterComponent = ({
   handleReset,
 }) => {
   const getOptions = (item, value) => {
-    if (item.dependancy && item.filterOptions) {
+    if (item.dependency && item.filterOptions) {
       return item.options.filter(
-        (option) => option[item.dependancyKey] === value,
+        (option) => option[item.dependencyKey] === value,
       )
     } else return item.options
   }
@@ -74,20 +75,20 @@ const FilterComponent = ({
                           </div>
                         </MenuItem>
                         {Object.entries(values).map(([key]) => (
-                          <div key={key}>
                             <CustomSelect
-                              label={key}
+                              key={key}
+                              label={capitalizeWords(key)}
                               name={key}
                               options={getOptions(
                                 filters[key],
-                                values[filters[key].dependancyKey],
+                                values[filters[key].dependencyKey],
                               )}
                               disabled={
-                                filters[key].dependancy &&
-                                !values[filters[key].dependancyKey]
+                                filters[key].dependency &&
+                                !values[filters[key].dependencyKey]
                               }
                             />
-                          </div>
+                          
                         ))}
 
                         <div className="flex">

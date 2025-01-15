@@ -43,7 +43,6 @@ const AppConfigSlice = createSlice({
       state.academicYear = null
     },
     setAcademicYear: (state, action) => {
-      console.log(action.payload,"academicYear")
       state.academicYear = action.payload
     },
     setTenantId: (state, action) => {

@@ -9,7 +9,7 @@ import React, {useState} from 'react'
 import {useSelector} from 'react-redux'
 import * as Yup from 'yup'
 import {postData} from '../../app/api'
-import {STUDENTFEE} from '../../app/url'
+import {STUDENT_FEE} from '../../app/url'
 import {
   banks,
   payments,
@@ -135,7 +135,7 @@ function FinanceCollectFees({onClose}) {
   ]
   const handleSubmit = async (values) => {
     try {
-      const response = await postData(STUDENTFEE, values)
+      const response = await postData(STUDENT_FEE, values)
       if (response.status === 200 || response.status === 201) {
         onClose()
         alert('Fees added successfully!')

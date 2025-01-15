@@ -6,93 +6,23 @@ import {useNavigate} from 'react-router-dom'
 import * as Yup from 'yup'
 import {getData, postData} from '../../app/api'
 import {CLASS_CATEGORIES, CLASSES, NEW_CLASS, SECTIONS, STAFF, SUBJECTS} from '../../app/url'
-import {board, capitalizeWords, classCategory} from '../../commonComponent/CommonFunctions'
+import {boardOptions, capitalizeWords, classCategory} from '../../commonComponent/CommonFunctions'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import ManageClassSyllabus from './ManageClassSyllabus'
 import ManageClassTimetable from './ManageClassTimetable'
 
-function AddClass({onClose}) {
+function AddClass({onClose, classCategories, classOptions, sectionOptions, teacherOptions}) {
   const [subjects, setSubjects] = useState([])
-  const [classCategories, setClassCategories] = useState([])
-  const [teacherOptions, setTeacherOptions] = useState([])
-  const [sectionOptions, setSectionOptions] = useState([])
   const [theorySubject, setTheorySubject] = useState([])
   const [labSubject, setLabSubject] = useState([])
   const [extraCurricular, setExtraCurricular] = useState([])
-  const [classOptions, setClassOptions] = useState([])
   const navigate = useNavigate()
 
   useEffect(() => {
-    getClassCategories()
-    getSections()
-    getTeachers()
-    getClass()
     getSubjects()
   }, [])
 
-  const getClass = async () => {
-    const res = await getData(CLASSES)
-    const classData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-        category: item.classCategory
-      }
-    })
-    setClassOptions(classData)
-  }
-
-  const getSections = async () => {
-    const res = await getData(SECTIONS)
-    const sectionsData = res.data.data.map((item) => {
-      return {
-        label: item.section, // Displayed text in the dropdown
-        value: item._id,
-        class: item.class
-      }
-    })
-    setSectionOptions(sectionsData)
-  }
-
-  const getClassCategories = async () => {
-    try{
-      const res = await getData(CLASS_CATEGORIES)
-      if (res.status === 200 || res.status === 201) {
-        const categoryData = res.data.data.map((item) => {
-          return {
-            label: item.name, // Displayed text in the dropdown
-            value: item._id,
-          }
-        })
-        setClassCategories(categoryData)
-      } else {
-        throw new Error(res.message)
-      }
-    }catch(error){
-      console.log(error)
-    }
-  }
-
-
-  const getTeachers = async () => {
-    try{
-      const res = await getData(STAFF)
-      if (res.status === 200 || res.status === 201) {
-        const teacherData = res.data.data.map((item) => {
-          return {
-            label: item.firstName +' '+ item.lastName, // Displayed text in the dropdown
-            value: item._id,
-          }
-        })
-        setTeacherOptions(teacherData)
-      } else {
-        throw new Error(res.message)
-      }
-    }catch(error){
-      console.log(error)
-    }
-  }
 
   const getSubjects = async () => {
     try {
@@ -379,7 +309,7 @@ function AddClass({onClose}) {
                                 <CustomSelect
                                   label="Board"
                                   name="board"
-                                  options={board}
+                                  options={boardOptions}
                                   required
                                 />
                               </div>
@@ -395,7 +325,7 @@ function AddClass({onClose}) {
                                 <CustomSelect
                                   label="Class"
                                   name="class"
-                                  options={classOptions.filter((item) => item.category === values.category)}
+                                  options={classOptions.filter((item) => item.classCategory === values.category)}
                                   required
                                   disabled={values.category ? false : true}
                                 />

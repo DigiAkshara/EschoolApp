@@ -1,70 +1,46 @@
 'use client'
-
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  MagnifyingGlassIcon,
-  PlusIcon,
-} from '@heroicons/react/20/solid'
-import {
-  ArrowDownTrayIcon,
-  EllipsisHorizontalIcon,
-  FunnelIcon,
-} from '@heroicons/react/24/outline'
-import {useEffect, useRef, useState} from 'react'
-
-import React from 'react'
+import {PlusIcon} from '@heroicons/react/20/solid'
+import React, {useEffect, useState} from 'react'
 import {useDispatch} from 'react-redux'
 import {useLocation, useNavigate} from 'react-router-dom'
 import {getData} from '../../app/api'
 import {setSelectedClass} from '../../app/reducers/classSlice'
-import {NEW_CLASS} from '../../app/url'
-import {classCategory} from '../../commonComponent/CommonFunctions'
+import {
+  CLASS_CATEGORIES,
+  CLASSES,
+  NEW_CLASS,
+  SECTIONS,
+  STAFF,
+} from '../../app/url'
+import {boardOptions} from '../../commonComponent/CommonFunctions'
 import AddClass from './AddClass'
 import ManageViewClass from './ManageViewClass'
-import {
-  Button,
-  Dialog,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from '@headlessui/react'
+import {Button, Dialog} from '@headlessui/react'
 import TableComponent from '../../commonComponent/TableComponent'
-
-const people = [
-  {
-    name: 'Lindsay Walton',
-    title: 'Front-end Developer',
-    email: 'lindsay.walton@example.com',
-    role: 'Member',
-  },
-  // More people...
-]
-
-const tabs = [
-  {name: 'Daily Time table', path: '#'},
-  {name: 'Classes', path: '/classesNew'},
-  {name: 'Exams', path: '/exams'},
-  {name: 'Certificates', path: '/certificates'},
-]
+import FilterComponent from '../../commonComponent/FilterComponent'
 
 export default function Class() {
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  // const checkbox = useRef()
-  const [checked, setChecked] = useState(false)
-  const [indeterminate, setIndeterminate] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
   const [classData, setClassData] = useState([])
+  const [filteredData, setFilteredData] = useState([])
+  const [classCategories, setClassCategories] = useState([])
+  const [classOptions, setClassOptions] = useState([])
+  const [sectionOptions, setSectionOptions] = useState([])
+  const [teacherOptions, setTeacherOptions] = useState([])
   const dispatch = useDispatch() // Get the dispatch function
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
 
   useEffect(() => {
     getClassData()
+    getClassCategories()
+    getClass()
+    getSections()
+    getTeachers()
   }, [])
 
   const getClassData = async () => {
@@ -73,97 +49,190 @@ export default function Class() {
       if (response && response.data) {
         // Map through the fetched data to replace the category value with its label
         const transformedData = response.data.data.map((item) => {
-          const categoryObject = classCategory.find(
-            (cat) => cat.value === item.category,
-          )
           return {
             ...item,
-            category: categoryObject ? categoryObject.label : item.category, // Use label or fallback to original value
-            time_table:"View",
-            className:item.class.name,
-            sectionName:item.section.section,
-            classTeacher:item.classTeacher?item.classTeacher.firstName + " " + item.classTeacher.lastName:"N/A",
-            totalStudents:item.totalStudents||0,
+            categoryObject: item.category,
+            category: item.category._id, // category Id, used for filters
+            categoryName: item.category.name, // Use label or fallback to original value
+            time_table: 'View',
+            classObject: item.class,
+            class: item.class._id, //class Id
+            className: item.class.name,
+            sectionObject: item.section,
+            section: item.section._id, //section Id
+            sectionName: item.section.section,
+            classTeacherObject: item.classTeacher,
+            classTeacher: item.classTeacher ? item.classTeacher._id : '', //classTeacher Id
+            classTeacherName: item.classTeacher
+              ? item.classTeacher.firstName + ' ' + item.classTeacher.lastName
+              : 'N/A',
+            totalStudents: item.totalStudents || 0,
             actions: [
               {label: 'Edit', actionHandler: onHandleEdit},
               {label: 'Delete', actionHandler: onDelete},
             ],
           }
         })
-
         setClassData(transformedData)
+        setFilteredData(transformedData)
       }
     } catch (error) {
       console.error('Error fetching class data:', error)
     }
   }
 
+  const getClassCategories = async () => {
+    try {
+      const res = await getData(CLASS_CATEGORIES)
+      if (res.status === 200 || res.status === 201) {
+        const categoryData = res.data.data.map((item) => {
+          return {
+            label: item.name, // Displayed text in the dropdown
+            value: item._id,
+          }
+        })
+        setClassCategories(categoryData)
+      } else {
+        throw new Error(res.message)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getClass = async () => {
+    const res = await getData(CLASSES)
+    const classData = res.data.data.map((item) => {
+      return {
+        label: item.name, // Displayed text in the dropdown
+        value: item._id,
+        category: item.classCategory,
+      }
+    })
+    setClassOptions(classData)
+  }
+
+  const getSections = async () => {
+    const res = await getData(SECTIONS)
+    const sectionsData = res.data.data.map((item) => {
+      return {
+        label: item.section, // Displayed text in the dropdown
+        value: item._id,
+        class: item.class,
+      }
+    })
+    setSectionOptions(sectionsData)
+  }
+
+  const getTeachers = async () => {
+    try {
+      const res = await getData(STAFF)
+      if (res.status === 200 || res.status === 201) {
+        const teacherData = res.data.data.map((item) => {
+          return {
+            label: item.firstName + ' ' + item.lastName, // Displayed text in the dropdown
+            value: item._id,
+          }
+        })
+        setTeacherOptions(teacherData)
+      } else {
+        throw new Error(res.message)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const onHandleEdit = async () => {
-    console.log("edit")
+    console.log('edit')
   }
 
   const onDelete = () => {
     console.log('delete')
   }
 
-
-
-  function toggleAll() {
-    setSelectedPeople(checked || indeterminate ? [] : people)
-    setChecked(!checked && !indeterminate)
-    setIndeterminate(false)
-  }
-
   const handleClose = () => setOpen(false)
   const handleClose2 = () => setOpen2(false)
 
-  const checkbox = useRef(null)
-
-  useEffect(() => {
-    if (checkbox.current) {
-      checkbox.current.indeterminate =
-        selectedPeople.length > 0 && selectedPeople.length < people.length
-    }
-  }, [selectedPeople, people])
-
-  const groupedData = classData.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = []
-    }
-    acc[item.category].push(item)
-    return acc
-  }, {})
-
   const handleViewClick = (data) => {
-    dispatch(setSelectedClass(data)) // Save selected class in Redux
+    dispatch(setSelectedClass({...data, actions:null})) // Save selected class in Redux
     setOpen2(true) // Navigate to the "View More" page
   }
 
   const columns = [
-    {key:'board', title: 'Board'},
+    {key: 'board', title: 'Board'},
     {key: 'className', title: 'Class'},
     {key: 'sectionName', title: 'Section'},
     {key: 'totalStudents', title: 'Total Students'},
-    {key: 'classTeacher', title: 'Class Teacher'},
+    {key: 'classTeacherName', title: 'Class Teacher'},
     {key: 'time_table', title: 'Time Table/ Syllabus'},
     {key: 'actions', title: 'Actions'},
   ]
-
-  const handleAction = {
-    edit: (item) => console.log('Edit:', item),
-    delete: (item) => console.log('Delete:', item),
-  }
-
-  const paginatedData = classData.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage,
-  )
 
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
 
+  const filterForm = {
+    board: '',
+    category: '',
+    class: '',
+    section: '',
+    classTeacher: '',
+  }
 
+  const filters = {
+    board: {options: boardOptions},
+    category: {options: classCategories},
+    class: {
+      options: classOptions,
+      dependency: true,
+      dependencyKey: 'category',
+      filterOptions: true,
+    },
+    section: {
+      options: sectionOptions,
+      dependency: true,
+      dependencyKey: 'class',
+      filterOptions: true,
+    },
+    classTeacher: {options: teacherOptions},
+  }
+
+  const handleSearch = (term) => {
+    const filtered = classData.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
+
+  const handleFilter = (values) => {
+    let filtered = classData
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        filtered = filtered.filter((rec) =>
+          rec[key].toLowerCase().includes(value.toLowerCase()),
+        )
+      }
+    })
+    setFilteredData(filtered)
+  }
+
+  const handleReset = (updatedValues) => {
+    setFilteredData(classData)
+    updatedValues('category', '')
+    updatedValues('class', '')
+    updatedValues('section', '')
+    updatedValues('classTeacher', '')
+    updatedValues('board', '')
+  }
+
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage,
+  )
 
   return (
     <>
@@ -221,7 +290,7 @@ export default function Class() {
         </Button>
       </div>
 
-      <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
+      <div className="-mx-2 -my-2 mt-0 sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             {selectedPeople.length > 0 && (
@@ -234,207 +303,18 @@ export default function Class() {
                 </button>
               </div>
             )}
-            <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
-              <div className="relative table-tool-bar z-30">
-                <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <div className="relative rounded-md">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                          <MagnifyingGlassIcon
-                            aria-hidden="true"
-                            className="size-4 text-gray-400"
-                          />
-                        </div>
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="Search"
-                          className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="right-action-btns-blk space-x-4">
-                      <button
-                        type="button"
-                        className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                      >
-                        <ArrowDownTrayIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </button>
-                      <Menu
-                        as="div"
-                        className="relative inline-block text-left"
-                      >
-                        <div>
-                          <MenuButton className="relative inline-flex items-center rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                            <FunnelIcon aria-hidden="true" className="size-5" />
-                            Filters
-                            <span className="flex items-center justify-center text-center absolute w-5 h-5 rounded-full bg-red-500 text-white font-medium text-xs -right-2 -top-2">
-                              3
-                            </span>
-                          </MenuButton>
-                        </div>
-
-                        <MenuItems
-                          transition
-                          className="max-h-[430px] overflow-y-auto absolute right-0 z-10 mt-2 px-4 py-4 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                        >
-                          <div className="grid gap-3 ">
-                            <MenuItem className="group mb-2">
-                              <div className="flex">
-                                <FunnelIcon
-                                  aria-hidden="true"
-                                  className="size-5"
-                                />
-                                <span className="pl-2">Select Filters</span>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Class Category
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="2024-2025"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Class
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Section
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Class Teacher
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Male</option>
-                                    <option>Female</option>
-                                    <option>Other</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Board
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-
-                            <MenuItem>
-                              <div className="flex">
-                                <button
-                                  type="button"
-                                  onClick={() => setOpen(false)}
-                                  className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  type="submit"
-                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                                >
-                                  Apply
-                                </button>
-                              </div>
-                            </MenuItem>
-                          </div>
-                        </MenuItems>
-                      </Menu>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+            <div className=" shadow ring-1 ring-black/5 sm:rounded-lg">
               <div className="table-container-main overflow-y-auto max-h-[56vh]">
+                <FilterComponent
+                  onSearch={handleSearch}
+                  filters={filters}
+                  filterForm={filterForm}
+                  handleFilter={handleFilter}
+                  handleReset={handleReset}
+                />
+
                 {/* Table View */}
-                <TableComponent 
+                <TableComponent
                   columns={columns}
                   data={paginatedData}
                   pagination={{
@@ -443,7 +323,7 @@ export default function Class() {
                     onPageChange: handlePageChange,
                   }}
                   modalColumn="time_table"
-                  showModal={(data)=>handleViewClick(data)}
+                  showModal={(data) => handleViewClick(data)}
                 />
               </div>
             </div>
@@ -455,8 +335,13 @@ export default function Class() {
 
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
-
-        <AddClass onClose={handleClose} />
+        <AddClass
+          onClose={handleClose}
+          classCategories={classCategories}
+          classOptions={classOptions}
+          sectionOptions={sectionOptions}
+          teacherOptions={teacherOptions}
+        />
       </Dialog>
 
       <Dialog open={open2} onClose={setOpen2} className="relative z-50">

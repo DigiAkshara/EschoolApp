@@ -66,7 +66,7 @@ export const gender = [
   {value: 'other', label: 'Other'},
 ]
 
-export const board = [
+export const boardOptions = [
   {value: 'cbse', label: 'CBSE'},
   {value: 'state', label: 'State'},
   {value: 'icse', label: 'ICSE'},

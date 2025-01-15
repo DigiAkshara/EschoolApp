@@ -68,7 +68,7 @@ function ManageStudentRegister() {
     getHolidayData();
   }, []);
 
-  const academicyear = async () => {
+  const academicYear = async () => {
     try {
       const academicYearRes = await getData(ACADEMIC_YEAR);
       if (academicYearRes.status === 200 || academicYearRes.status === 201) {
@@ -77,15 +77,15 @@ function ManageStudentRegister() {
             label: academicYearRes.data.data.year, // Displayed text in the dropdown
             value: academicYearRes.data.data._id,
           },
-        ];
-        setAcademicYears(academicYearData);
+        ]
+        setAcademicYears(academicYearData)
       } else {
-        throw new Error(academicYearRes.message);
+        throw new Error(academicYearRes.message)
       }
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   const getClasses = async () => {
     const res = await getData(CLASSES);
@@ -159,9 +159,9 @@ function ManageStudentRegister() {
       // Set state with processed data
       setStudents(processedData);
     } catch (error) {
-      console.error("Error getting data:", error);
+      console.error('Error getting data:', error)
     }
-  };
+  }
 
   // const getStudentData = async (classId, sectionID) => {
   //   try {
@@ -220,21 +220,21 @@ function ManageStudentRegister() {
   };
 
   const daysInMonth = (month, year) => {
-    const daysArray = [];
-    const date = new Date(year, month - 1, 1); // month - 1 because JavaScript months are 0-based
-    const lastDay = new Date(year, month, 0).getDate(); // last day of the month
+    const daysArray = []
+    const date = new Date(year, month - 1, 1) // month - 1 because JavaScript months are 0-based
+    const lastDay = new Date(year, month, 0).getDate() // last day of the month
 
     for (let i = 1; i <= lastDay; i++) {
-      const day = new Date(year, month - 1, i);
-      const dayName = day.toLocaleString("en-us", { weekday: "short" }); // e.g., 'Wed'
+      const day = new Date(year, month - 1, i)
+      const dayName = day.toLocaleString('en-us', {weekday: 'short'}) // e.g., 'Wed'
       daysArray.push({
         day: i,
         dayName: dayName,
-      });
+      })
     }
 
-    return daysArray;
-  };
+    return daysArray
+  }
 
   const days = daysInMonth(parseInt(month), year);
   // console.log("Days in the month:", days);
@@ -287,8 +287,8 @@ function ManageStudentRegister() {
   };
 
   const handleSubmit = (values) => {
-    console.log("Form submitted with values:", values);
-  };
+    console.log('Form submitted with values:', values)
+  }
 
   return (
     <>
@@ -298,7 +298,7 @@ function ManageStudentRegister() {
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, setFieldValue, errors }) => (
+        {({values, setFieldValue, errors}) => (
           <Form>
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg px-3 py-3 mt-4 flex justify-between">
               <div className="left-form-blk flex space-x-4">
@@ -359,7 +359,7 @@ function ManageStudentRegister() {
                   Half Day: <span className="text-blue-800">F</span>
                 </div>
                 <div className="">
-                  {" "}
+                  {' '}
                   Holiday: <span className="text-purple-700">H</span>
                 </div>
               </div>
@@ -433,15 +433,15 @@ function ManageStudentRegister() {
                           new Date(
                             2025,
                             parseInt(month) - 1,
-                            dayObj.day
-                          ).getDay() === 0;
+                            dayObj.day,
+                          ).getDay() === 0
 
                         return (
                           <th
                             key={dayObj.day}
                             scope="col"
                             className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${
-                              isSunday ? "w-16 bg-red-100" : "w-40"
+                              isSunday ? 'w-16 bg-red-100' : 'w-40'
                             }`}
                           >
                             <a href="#" className="flex flex-col items-center">
@@ -449,7 +449,7 @@ function ManageStudentRegister() {
                               <div>{dayObj.day}</div>
                             </a>
                           </th>
-                        );
+                        )
                       })}
                     </tr>
                   </thead>
@@ -639,7 +639,7 @@ function ManageStudentRegister() {
                                 )}
                               </Menu>
                             </td>
-                          );
+                          )
                         })}
                       </tr>
                     ))}
@@ -665,8 +665,8 @@ function ManageStudentRegister() {
                   <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                     <div>
                       <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">1</span> to{" "}
-                        <span className="font-medium">10</span> of{" "}
+                        Showing <span className="font-medium">1</span> to{' '}
+                        <span className="font-medium">10</span> of{' '}
                         <span className="font-medium">97</span> results
                       </p>
                     </div>
@@ -746,7 +746,7 @@ function ManageStudentRegister() {
         )}
       </Formik>
     </>
-  );
+  )
 }
 
-export default ManageStudentRegister;
+export default ManageStudentRegister

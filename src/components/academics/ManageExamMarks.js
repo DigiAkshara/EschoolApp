@@ -6,7 +6,7 @@ import {useSelector} from 'react-redux'
 import * as Yup from 'yup'
 import {getData} from '../../app/api'
 import {CLASSES} from '../../app/url'
-import {board, classCategory} from '../../commonComponent/CommonFunctions'
+import {boardOptions, classCategory} from '../../commonComponent/CommonFunctions'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import ManageAddMarks from './ManageAddMarks'
@@ -149,7 +149,7 @@ function ManageExamMarks({onClose}) {
                                     <CustomSelect
                                       label="Board"
                                       name="board"
-                                      options={board}
+                                      options={boardOptions}
                                     />
                                   </div>
 

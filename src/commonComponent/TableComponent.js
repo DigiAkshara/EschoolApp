@@ -27,9 +27,6 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
   const sortedData = sortConfig.key ? handleSort(sortConfig.key) : data
   return (
     <div>
-      {/* Search */}
-      {/* <FilterComponent onSearch={handleSearch} filters={filters} filterForm={filterForm}/> */}
-
       {/* Table */}
       <table className="table-auto min-w-full divide-y divide-gray-300">
         <thead className="sticky top-0 bg-purple-100 z-20">

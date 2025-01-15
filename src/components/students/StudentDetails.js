@@ -51,7 +51,7 @@ export default function StudentDetails() {
   const getSectionOptions = () => {
     return sections.map((item) => ({
       label: item.section,
-      value: item.section,
+      value: item._id,
       class: item.class,
       id: item._id,
     }))
@@ -73,10 +73,10 @@ export default function StudentDetails() {
     {title: 'Student Name', key: 'name'},
     {title: 'Admission Number', key: 'admissionNo'},
     {title: 'Class', key: 'className'},
-    {title: 'Section', key: 'section'},
+    {title: 'Section', key: 'sectionName'},
     {title: 'Phone Number', key: 'phoneNumber'},
     {title: 'DOB', key: 'date'},
-    {title: 'Aadhar No', key: 'aadharNo'},
+    {title: 'Aadhar Number', key: 'aadharNumber'},
     {title: 'Gender', key: 'gender'},
     {title: 'Actions', key: 'actions'},
   ]
@@ -93,10 +93,11 @@ export default function StudentDetails() {
           admissionNo: item.student.admissionNumber,
           className: item.class?.name,
           class: item.class?._id,
-          section: item.section,
+          section: item.section?._id,
+          sectionName: item.section.section,
           phoneNumber: item.student.fatherDetails.mobileNumber,
           date: item.student.DOB,
-          aadharNo: item.student.aadharNumber,
+          aadharNumber: item.student.aadharNumber,
           gender: gender.find((gender) => gender.value === item.student.gender)
             .label,
           actions: [
@@ -135,8 +136,8 @@ export default function StudentDetails() {
     class: {options: clsOptions},
     section: {
       options: sectionOptions,
-      dependancy: true,
-      dependancyKey: 'class',
+      dependency: true,
+      dependencyKey: 'class',
       filterOptions: true,
     },
     gender: {options: genderOptions},
@@ -155,8 +156,10 @@ export default function StudentDetails() {
     let filtered = studentList
     Object.entries(values).forEach(([key, value]) => {
       if (value) {
-        filtered = filtered.filter((rec) =>
-          rec[key].toLowerCase().includes(value.toLowerCase()),
+        console.log(key, value)
+        filtered = filtered.filter((rec) =>{
+          console.log(rec[key])
+          return rec[key].toLowerCase().includes(value.toLowerCase())}
         )
       }
     })
@@ -259,7 +262,7 @@ export default function StudentDetails() {
         </div>
       </div>
 
-      <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
+      <div className="-mx-2 -my-2 mt-0 sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             {/* {selectedPeople.length > 0 && (
@@ -284,16 +287,17 @@ export default function StudentDetails() {
                 </button>
               </div>
             )} */}
-            <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
-              <div className="table-container-main overflow-y-auto max-h-[56vh]">
-                {/* Table View */}
-                <FilterComponent
+            <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
+            <FilterComponent
                   onSearch={handleSearch}
                   filters={filters}
                   filterForm={filterForm}
                   handleFilter={handleFilter}
                   handleReset={handleReset}
                 />
+              <div className="table-container-main overflow-y-auto max-h-[56vh]">
+                {/* Table View */}
+                
                 <TableComponent
                   columns={columns}
                   data={paginatedData}

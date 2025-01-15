@@ -14,25 +14,22 @@ function ManageViewClass({onClose}) {
   const selectedClass = useSelector((state) => state.class.selectedClass)
   const timetables = selectedClass?.timetables || []
   const syllabus = selectedClass?.syllabus || []
-
   // Utility to get subject and teacher details
   const getDayData = (day, daysData) => {
     const dayInfo = daysData[day.toLowerCase()]
     if (!dayInfo) return <div className="text-gray-500">N/A</div>
-
     // Example: Match subject label and return formatted content
     const subject =
       selectedClass.theorySubjects.find((s) => s.value === dayInfo.subject)
-        ?.label || 'Unknown'
+        ?.label || '-'
     return (
       <div className="flex flex-col">
         <span>{subject}</span>
-        <span>{dayInfo.teacher}</span>
+        <span>{dayInfo.teacher||"-"}</span>
       </div>
     )
   }
 
-  console.log(selectedClass)
 
   return (
     <>
@@ -71,10 +68,7 @@ function ManageViewClass({onClose}) {
                         role="list"
                         className="grid grid-cols-1 gap-x-4 gap-y-4"
                       >
-                        <li
-                          key="12"
-                          className="overflow-hidden rounded-xl border border-gray-300"
-                        >
+                        <li className="overflow-hidden rounded-xl border border-gray-300">
                           <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
                             <div className="flex items-center item-title-blk">
                               <div className="inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white">
@@ -104,7 +98,7 @@ function ManageViewClass({onClose}) {
                                   Class Category
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.category}
+                                  {selectedClass.categoryName}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -112,7 +106,7 @@ function ManageViewClass({onClose}) {
                                   Class
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.class.name}
+                                  {selectedClass.className}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -120,7 +114,7 @@ function ManageViewClass({onClose}) {
                                   Section
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.section.section}
+                                  {selectedClass.sectionName}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -128,7 +122,7 @@ function ManageViewClass({onClose}) {
                                   Class Teacher{' '}
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.classTeacher}
+                                  {selectedClass.classTeacherName}
                                 </dd>
                               </div>
 
@@ -154,7 +148,6 @@ function ManageViewClass({onClose}) {
                         </li>
 
                         <li
-                          key="12"
                           className="overflow-hidden rounded-xl border border-gray-300"
                         >
                           <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
@@ -172,122 +165,6 @@ function ManageViewClass({onClose}) {
                           </div>
 
                           <div className="px-4 py-4 text-sm/6">
-                            {/* <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
-                            <thead className="bg-purple-100">
-                              <tr>
-                                
-                                <th scope="col" className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 pl-4 w-18">
-                                  <a href="#" className="group inline-flex">
-                                  P. No
-                                  </a>
-                                </th>
-                                                                    
-                                <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                  <a href="#" className="group inline-flex">
-                                  Period  Time
-                                  </a>
-                                </th>
-                                <th scope="col" className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900">
-                                  <a href="#" className="group inline-flex">
-                                  Monday
-                                  </a>
-                                </th>
-                                                                    
-                                <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                  <a href="#" className="group inline-flex">
-                                  Tuesday
-                                  </a>
-                                </th>
-                                <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                  <a href="#" className="group inline-flex">
-                                  Wednesday
-                                  </a>
-                                </th>
-                                <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                  <a href="#" className="group inline-flex">
-                                  Thursday
-                                  </a>
-                                </th>
-                                <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                  <a href="#" className="group inline-flex">
-                                  Friday
-                                  </a>
-                                </th>
-                                <th scope="col" className="px-2 py-2 text-left text-sm font-semibold text-gray-900">
-                                  <a href="#" className="group inline-flex">
-                                  Saturday
-                                  </a>
-                                </th>
-                                
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 bg-white">
-                                <tr>
-                                  
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">1</td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  
-                                </tr>
-                                
-                                
-                                <tr className="border-t border-gray-200 bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">3</td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                  <td
-                                      scope="colgroup"
-                                      colSpan={6}
-                                      className="whitespace-nowrap px-2 py-2 text-sm text-gray-900"
-                                    >
-                                      Lunch Break
-                                  </td>
-
-                                </tr>
-                                
-                                <tr>
-                                  
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">4</td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">9:00 - 9:40</td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 flex flex-col">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                    <div className='flex flex-col'><span>English</span><span>Rama Krishna</span></div>
-                                  </td>
-                                  
-                                </tr>
-                                
-                            
-                              
-                              
-                            </tbody>
-                          </table> */}
-
                             <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
                               <thead className="bg-purple-100">
                                 <tr>
@@ -335,6 +212,7 @@ function ManageViewClass({onClose}) {
                                         key={day}
                                         className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
                                       >
+                                        
                                         {getDayData(day, timetable.days)}
                                       </td>
                                     ))}
@@ -346,7 +224,6 @@ function ManageViewClass({onClose}) {
                         </li>
 
                         <li
-                          key="12"
                           className="overflow-hidden rounded-xl border border-gray-300"
                         >
                           <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
@@ -363,78 +240,6 @@ function ManageViewClass({onClose}) {
                             </div>
                           </div>
 
-                          {/* <div className="px-4 py-4 text-sm/6">
-                            
-                          <ul role="list" className="grid grid-cols-4 gap-x-6 gap-y-8">
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                        <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                        <span>English</span>
-                                      </div>
-                                  </div>
-                                  <a href='#' className='text-gray-400'>
-                                    <EyeIcon aria-hidden="true" className="size-5" />
-                                  </a>
-                                </div>
-                              </li>
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                        <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                        <span>Telugu</span>
-                                      </div>
-                                  </div>
-                                  <a href='#' className='text-gray-400'>
-                                    <EyeIcon aria-hidden="true" className="size-5" />
-                                  </a>
-                                </div>
-                              </li>
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                        <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                        <span>Social</span>
-                                      </div>
-                                  </div>
-                                  <a href='#' className='text-gray-400'>
-                                    <EyeIcon aria-hidden="true" className="size-5" />
-                                  </a>
-                                </div>
-                              </li>
-                              <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
-                                <div className="flex items-center justify-between gap-x-4 px-4 py-4">
-                                  <div className='flex items-center item-title-blk'>
-                                      <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
-                                        <DocumentArrowDownIcon aria-hidden="true" className="size-5" />
-                                      </div>
-                                      <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                        <span>Science</span>
-                                      </div>
-                                  </div>
-                                  <a href='#' className='text-gray-400'>
-                                    <EyeIcon aria-hidden="true" className="size-5" />
-                                  </a>
-                                </div>
-                              </li>
-
-
-
-                           </ul>     
-                                
-                                
-                             
-                            
-                          </div> */}
                           <div className="px-4 py-4 text-sm/6">
                             <ul
                               role="list"

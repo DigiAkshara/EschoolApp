@@ -16,7 +16,7 @@ import React, {useEffect, useRef, useState} from 'react'
 import {useDispatch} from 'react-redux'
 import {getData} from '../../app/api'
 import {setStuFees} from '../../app/reducers/stuFeesSlice'
-import {STUDENTFEE} from '../../app/url'
+import {STUDENT_FEE} from '../../app/url'
 import FinanceCollectFees from './FinanceCollectFees'
 
 function classNames(...classes) {
@@ -58,7 +58,7 @@ function ManageFeeCollection() {
 
   const getStudentData = async () => {
     try {
-      const response = await getData(STUDENTFEE)
+      const response = await getData(STUDENT_FEE)
       const feedata = response.data.data // Access the correct array property
       const stuFees = []
       feedata.forEach((fee) => {

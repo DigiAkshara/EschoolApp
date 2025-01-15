@@ -6,7 +6,7 @@ import {useNavigate} from 'react-router-dom'
 import * as Yup from 'yup'
 import {getData, postData} from '../../app/api'
 import {CLASSES, EXAM} from '../../app/url'
-import {board, classCategory} from '../../commonComponent/CommonFunctions'
+import {boardOptions, classCategory} from '../../commonComponent/CommonFunctions'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
@@ -139,7 +139,7 @@ function CreateExam({onClose}) {
                                     <CustomSelect
                                       label="Board"
                                       name="board"
-                                      options={board}
+                                      options={boardOptions}
                                       required
                                     />
                                   </div>
