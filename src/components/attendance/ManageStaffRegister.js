@@ -1,28 +1,25 @@
 import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems
+} from "@headlessui/react";
+import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { Form, Formik } from "formik";
-import {
-  Button,
-  Dialog,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems,
-} from "@headlessui/react";
-import CustomSelect from "../../commonComponent/CustomSelect";
 import { getData, updateData } from "../../app/api";
 import { ACADEMIC_YEAR, ATTENDANCE, STAFF } from "../../app/url";
 import {
-  attendanceOptions,
   monthsName,
-  staffCategory,
+  staffCategory
 } from "../../commonComponent/CommonFunctions";
+import CustomSelect from "../../commonComponent/CustomSelect";
 
 function ManageStaffRegister() {
   const [academicYears, setAcademicYears] = useState([]);
@@ -54,12 +51,12 @@ function ManageStaffRegister() {
   };
 
   useEffect(() => {
-    academicyear();
+    academicYear();
     getStaffData();
     // getStaffDataB();
   }, []);
 
-  const academicyear = async () => {
+  const academicYear = async () => {
     try {
       const academicYearRes = await getData(ACADEMIC_YEAR)
       if (academicYearRes.status === 200 || academicYearRes.status === 201) {

@@ -62,7 +62,7 @@ function ManageStudentRegister() {
   };
 
   useEffect(() => {
-    academicyear();
+    academicYear();
     getClasses();
     getStudentData();
     getHolidayData();
