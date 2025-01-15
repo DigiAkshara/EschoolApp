@@ -1,45 +1,37 @@
-import {
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems
-} from "@headlessui/react";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
-import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
-import { Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
-import * as Yup from "yup";
-import { getData, updateData } from "../../app/api";
-import { ACADEMIC_YEAR, ATTENDANCE, STAFF } from "../../app/url";
-import {
-  monthsName,
-  staffCategory
-} from "../../commonComponent/CommonFunctions";
-import CustomSelect from "../../commonComponent/CustomSelect";
+} from '@heroicons/react/20/solid'
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
+import { Form, Formik } from 'formik'
+import React, { useEffect, useState } from 'react'
+import * as Yup from 'yup'
+import { getData, updateData } from '../../app/api'
+import { ACADEMIC_YEAR, ATTENDANCE, STAFF } from '../../app/url'
+import { monthsName, staffCategory } from '../../commonComponent/CommonFunctions'
+import CustomSelect from '../../commonComponent/CustomSelect'
 
 function ManageStaffRegister() {
-  const [academicYears, setAcademicYears] = useState([]);
-  const [holidaysData, setHolidaysData] = useState([]);
-  const [selectedAttendance, setSelectedAttendance] = useState(null);
-  const [openMenuDay, setOpenMenuDay] = useState(null); // Track the currently open menu
-  const [staffs, setStaffs] = useState([]);
-  const [staffList, setStaffList] = useState([]);
-  const [month, setMonth] = useState("1");
-  const [year, setYear] = useState("2025");
-  const [open, setOpen] = useState(false);
+  const [academicYears, setAcademicYears] = useState([])
+  const [holidaysData, setHolidaysData] = useState([])
+  const [selectedAttendance, setSelectedAttendance] = useState(null)
+  const [openMenuDay, setOpenMenuDay] = useState(null) // Track the currently open menu
+  const [staffs, setStaffs] = useState([])
+  const [staffList, setStaffList] = useState([])
+  const [month, setMonth] = useState('1')
+  const [year, setYear] = useState('2025')
+  const [open, setOpen] = useState(false)
 
   const getInitialValues = () => {
     return {
-      staffCategory: "teaching",
-      month: "1",
+      staffCategory: 'teaching',
+      month: '1',
       academicYear: academicYears[0]?.value,
-      attendance: "",
-    };
-  };
+      attendance: '',
+    }
+  }
 
   const getValidationSchema = () => {
     return Yup.object({
@@ -47,14 +39,14 @@ function ManageStaffRegister() {
       month: Yup.string(),
       year: Yup.string(),
       attendance: Yup.string(),
-    });
-  };
+    })
+  }
 
   useEffect(() => {
-    academicYear();
-    getStaffData();
+    academicYear()
+    getStaffData()
     // getStaffDataB();
-  }, []);
+  }, [])
 
   const academicYear = async () => {
     try {
@@ -85,55 +77,53 @@ function ManageStaffRegister() {
 
   const getStaffData = async () => {
     try {
-      const response = await getData(STAFF+"/attendance");
-      console.log("[STAFF-REGISTER] data for attendance:", response.data.data);
+      const response = await getData(STAFF + '/attendance')
+      console.log('[STAFF-REGISTER] data for attendance:', response.data.data)
 
       // Process data
       const processedData = response.data.data.map((staff) => {
         // Create an object to map dates to attendance statuses
-        const attendanceMap = {};
+        const attendanceMap = {}
         staff.attendance.forEach((record) => {
-          const date = new Date(record.date).getDate(); // Extract day of the month
+          const date = new Date(record.date).getDate() // Extract day of the month
           const statusMap = {
-                      present: "P",
-                      absent: "A",
-                      sick: "S",
-                      leave: "L",
-                      // Add other mappings if necessary
-                    };
+            present: 'P',
+            absent: 'A',
+            sick: 'S',
+            leave: 'L',
+            // Add other mappings if necessary
+          }
           // attendanceMap[date] = record.attendanceStatus; // Map day to status
-          attendanceMap[date] = statusMap[record.attendanceStatus] || "N/A";
-        });
+          attendanceMap[date] = statusMap[record.attendanceStatus] || 'N/A'
+        })
 
         return {
           _id: staff._id,
           name: `${staff.firstName} ${staff.lastName}`,
-          profilePicture: staff.profilePic || "default-profile-pic-url", // Default picture if null
-          category:staff.staffType,
+          profilePicture: staff.profilePic || 'default-profile-pic-url', // Default picture if null
+          category: staff.staffType,
           attendance: attendanceMap, // Attendance map by date
-        };
-      });
+        }
+      })
 
-      console.log("Processed student data:", processedData);
+      console.log('Processed student data:', processedData)
       // Set state with processed data
-      setStaffs(processedData);
+      setStaffs(processedData)
       const staffData = processedData?.filter(
-        (staffMember) => staffMember.category === "teaching"
-      );
-      setStaffList(staffData);
+        (staffMember) => staffMember.category === 'teaching',
+      )
+      setStaffList(staffData)
     } catch (error) {
       console.error('Error getting data:', error)
     }
   }
 
   const handleStaffCategory = (e, setFieldValue) => {
-    const category = e.target.value;
-    const staffData = staffs.filter((staff) => staff.category === category);
-    setFieldValue("staffCategory", category);
-    setStaffList(staffData);
-  };
-
-
+    const category = e.target.value
+    const staffData = staffs.filter((staff) => staff.category === category)
+    setFieldValue('staffCategory', category)
+    setStaffList(staffData)
+  }
 
   const daysInMonth = (month, year) => {
     const daysArray = []
@@ -152,7 +142,7 @@ function ManageStaffRegister() {
     return daysArray
   }
 
-  const days = daysInMonth(parseInt(month), year);
+  const days = daysInMonth(parseInt(month), year)
   // console.log("Days in the month:", days);
 
   // const staff = [
@@ -187,31 +177,31 @@ function ManageStaffRegister() {
   // ];
 
   const handleAttendanceChange = (e) => {
-    e.preventDefault();
-    setSelectedAttendance(e.target.value);
-    console.log("Selected Attendance:", e.target.value);
-  };
+    e.preventDefault()
+    setSelectedAttendance(e.target.value)
+    console.log('Selected Attendance:', e.target.value)
+  }
 
   const handleSave = async (day, id) => {
-    const formattedDate = new Date(day);
+    const formattedDate = new Date(day)
     const payload = {
       staffID: id, // Assuming staff has an _id field
       date: formattedDate, // Use the date or appropriate identifier
       status: selectedAttendance, // Selected attendance value
-    };
-    console.log("[Staff Payload]", payload);
+    }
+    console.log('[Staff Payload]', payload)
     try {
-      const response = await updateData(ATTENDANCE, payload);
+      const response = await updateData(ATTENDANCE, payload)
       if (response.status === 200) {
-        console.log("Attendance updated successfully");
-        getStaffData();
+        console.log('Attendance updated successfully')
+        getStaffData()
       } else {
-        console.error("Failed to update attendance");
+        console.error('Failed to update attendance')
       }
     } catch (error) {
-      console.error("An error occurred while updating attendance", error);
+      console.error('An error occurred while updating attendance', error)
     }
-  };
+  }
 
   return (
     <>
@@ -236,9 +226,9 @@ function ManageStaffRegister() {
                   placeholder=" Month"
                   options={monthsName}
                   onChange={(e) => {
-                    const selectedMonth = e.target.value;
-                    setFieldValue("month", selectedMonth);
-                    setMonth(selectedMonth);
+                    const selectedMonth = e.target.value
+                    setFieldValue('month', selectedMonth)
+                    setMonth(selectedMonth)
                   }}
                 />
 
@@ -427,29 +417,29 @@ function ManageStaffRegister() {
                           );
                         })} */}
                         {days.map((dayObj, index) => {
-                          const isSunday = dayObj.dayName === "Sun";
+                          const isSunday = dayObj.dayName === 'Sun'
 
                           const isHoliday = holidaysData?.some(
                             (holiday) =>
-                              new Date(holiday.date).getDate() === dayObj.day
-                          );
+                              new Date(holiday.date).getDate() === dayObj.day,
+                          )
 
                           const attendanceValue = isHoliday
-                            ? "H"
+                            ? 'H'
                             : staff.attendance[dayObj.day] ||
-                              (isSunday ? "S" : "N/A");
+                              (isSunday ? 'S' : 'N/A')
 
                           const attendanceClass = isHoliday
-                            ? "text-green-800 bg-green-100" // Holidays
+                            ? 'text-green-800 bg-green-100' // Holidays
                             : isSunday
-                            ? "bg-red-100 text-gray-900" // Sundays
-                            : attendanceValue === "P"
-                            ? "text-gray-500" // Present
-                            : attendanceValue === "A"
-                            ? "text-yellow-800 bg-yellow-100" // Absent
-                            : attendanceValue === "F"
-                            ? "text-gray-900 bg-blue-100" // Half Day
-                            : "text-gray-500";
+                            ? 'bg-red-100 text-gray-900' // Sundays
+                            : attendanceValue === 'P'
+                            ? 'text-gray-500' // Present
+                            : attendanceValue === 'A'
+                            ? 'text-yellow-800 bg-yellow-100' // Absent
+                            : attendanceValue === 'F'
+                            ? 'text-gray-900 bg-blue-100' // Half Day
+                            : 'text-gray-500'
 
                           return (
                             <td
@@ -465,7 +455,7 @@ function ManageStaffRegister() {
                                     className="flex items-center rounded-full text-gray-400"
                                     onClick={() =>
                                       setOpenMenuDay((prev) =>
-                                        prev === dayObj.day ? null : dayObj.day
+                                        prev === dayObj.day ? null : dayObj.day,
                                       )
                                     }
                                   >
@@ -473,7 +463,7 @@ function ManageStaffRegister() {
                                   </MenuButton>
                                 </div>
                                 {openMenuDay === dayObj.day &&
-                                  ["P", "A", "F"].includes(attendanceValue) && (
+                                  ['P', 'A', 'F'].includes(attendanceValue) && (
                                     <MenuItems className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                       <div className="py-1">
                                         <MenuItem>
@@ -554,7 +544,10 @@ function ManageStaffRegister() {
                                             <button
                                               type="button"
                                               onClick={() =>
-                                                handleSave(dayObj.day, staff._id)
+                                                handleSave(
+                                                  dayObj.day,
+                                                  staff._id,
+                                                )
                                               }
                                               className="w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500"
                                             >
