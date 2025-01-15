@@ -6,7 +6,7 @@ import {
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { FieldArray, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import {
   Button,
   Dialog,
@@ -16,38 +16,47 @@ import {
   MenuItems,
 } from "@headlessui/react";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { getData } from "../../app/api";
-<<<<<<< Updated upstream
-import { ACADEMIC_YEAR } from "../../app/url";
-=======
-import { ACADEMICYEAR, STAFF_ATTENDANCE } from "../../app/url";
->>>>>>> Stashed changes
-import { monthsName } from "../../commonComponent/CommonFunctions";
+import { getData, updateData } from "../../app/api";
+import { ACADEMIC_YEAR, ATTENDANCE, STAFF } from "../../app/url";
+import {
+  attendanceOptions,
+  monthsName,
+  staffCategory,
+} from "../../commonComponent/CommonFunctions";
 
 function ManageStaffRegister() {
   const [academicYears, setAcademicYears] = useState([]);
-  const [studentData, setStudentData] = useState([]);
+  const [holidaysData, setHolidaysData] = useState([]);
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [openMenuDay, setOpenMenuDay] = useState(null); // Track the currently open menu
+  const [staffs, setStaffs] = useState([]);
+  const [staffList, setStaffList] = useState([]);
   const [month, setMonth] = useState("1");
   const [year, setYear] = useState("2025");
   const [open, setOpen] = useState(false);
 
   const getInitialValues = () => {
     return {
-      class: "",
-      section: "",
+      staffCategory: "teaching",
+      month: "1",
+      academicYear: academicYears[0]?.value,
+      attendance: "",
     };
   };
 
   const getValidationSchema = () => {
     return Yup.object({
-      class: Yup.string(),
-      section: Yup.string(),
+      staffCategory: Yup.string(),
+      month: Yup.string(),
+      year: Yup.string(),
+      attendance: Yup.string(),
     });
   };
 
   useEffect(() => {
     academicyear();
-    getStudentData();
+    getStaffData();
+    // getStaffDataB();
   }, []);
 
   const academicyear = async () => {
@@ -69,16 +78,65 @@ function ManageStaffRegister() {
     }
   };
 
-  const getStudentData = async () => {
-    try {
-      const response = await getData(STAFF_ATTENDANCE);
-      console.log("response data for attandance:", response.data.data);
+  // const getStaffData = () => {
+  //   setStaffs(staff);
+  //   const staffData = staff?.filter(
+  //     (staffMember) => staffMember.category === "teaching"
+  //   );
+  //   setStaffList(staffData);
+  // };
 
-      setStudentData(response.data.data);
+  const getStaffData = async () => {
+    try {
+      const response = await getData(STAFF+"/attendance");
+      console.log("[STAFF-REGISTER] data for attendance:", response.data.data);
+
+      // Process data
+      const processedData = response.data.data.map((staff) => {
+        // Create an object to map dates to attendance statuses
+        const attendanceMap = {};
+        staff.attendance.forEach((record) => {
+          const date = new Date(record.date).getDate(); // Extract day of the month
+          const statusMap = {
+                      present: "P",
+                      absent: "A",
+                      sick: "S",
+                      leave: "L",
+                      // Add other mappings if necessary
+                    };
+          // attendanceMap[date] = record.attendanceStatus; // Map day to status
+          attendanceMap[date] = statusMap[record.attendanceStatus] || "N/A";
+        });
+
+        return {
+          _id: staff._id,
+          name: `${staff.firstName} ${staff.lastName}`,
+          profilePicture: staff.profilePic || "default-profile-pic-url", // Default picture if null
+          category:staff.staffType,
+          attendance: attendanceMap, // Attendance map by date
+        };
+      });
+
+      console.log("Processed student data:", processedData);
+      // Set state with processed data
+      setStaffs(processedData);
+      const staffData = processedData?.filter(
+        (staffMember) => staffMember.category === "teaching"
+      );
+      setStaffList(staffData);
     } catch (error) {
       console.error("Error getting data:", error);
     }
   };
+
+  const handleStaffCategory = (e, setFieldValue) => {
+    const category = e.target.value;
+    const staffData = staffs.filter((staff) => staff.category === category);
+    setFieldValue("staffCategory", category);
+    setStaffList(staffData);
+  };
+
+
 
   const daysInMonth = (month, year) => {
     const daysArray = [];
@@ -98,56 +156,64 @@ function ManageStaffRegister() {
   };
 
   const days = daysInMonth(parseInt(month), year);
-  console.log("Days in the month:", days);
+  // console.log("Days in the month:", days);
 
-  const students = [
-    {
-      id: 1,
-      name: "Janet Baker",
-      rollNumber: "112345",
-      profilePicture:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      attendance: [
-        { attendanceStatus: "P", date: "2025-01-01T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-02T00:00:00.000Z" },
-        { attendanceStatus: "A", date: "2025-01-03T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-04T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-05T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-06T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-07T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-08T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-09T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-10T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-11T00:00:00.000Z" },
-      ],
-    },
-    {
-      id: 2,
-      name: "Ravi Patel",
-      rollNumber: "112346",
-      profilePicture:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-      attendance: [
-        { attendanceStatus: "P", date: "2025-01-01T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-02T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-03T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-04T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-05T00:00:00.000Z" },
-        { attendanceStatus: "F", date: "2025-01-06T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-07T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-08T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-09T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-10T00:00:00.000Z" },
-        { attendanceStatus: "P", date: "2025-01-11T00:00:00.000Z" },
-      ],
-    },
-  ];
+  // const staff = [
+  //   {
+  //     id: "67823ef46936ff83452efe7e",
+  //     name: " Danial",
+  //     profilePicture: "default-profile-pic-url",
+  //     category: "teaching",
+  //     attendance: {
+  //       8: "P",
+  //       10: "P",
+  //       11: "P",
+  //       13: "P",
+  //       14: "P",
+  //       15: "A",
+  //     },
+  //   },
+  //   {
+  //     id: "78923af56936ff12345afc2e",
+  //     name: "John Doe",
+  //     profilePicture: "default-profile-pic-url",
+  //     category: "non-teaching",
+  //     attendance: {
+  //       8: "A",
+  //       10: "P",
+  //       11: "A",
+  //       13: "P",
+  //       14: "P",
+  //       15: "P",
+  //     },
+  //   },
+  // ];
 
-  // Now the attendance is an array of objects
-  console.log(students);
+  const handleAttendanceChange = (e) => {
+    e.preventDefault();
+    setSelectedAttendance(e.target.value);
+    console.log("Selected Attendance:", e.target.value);
+  };
 
-  const handleSubmit = (values) => {
-    console.log("Form submitted with values:", values);
+  const handleSave = async (day, id) => {
+    const formattedDate = new Date(day);
+    const payload = {
+      staffID: id, // Assuming staff has an _id field
+      date: formattedDate, // Use the date or appropriate identifier
+      status: selectedAttendance, // Selected attendance value
+    };
+    console.log("[Staff Payload]", payload);
+    try {
+      const response = await updateData(ATTENDANCE, payload);
+      if (response.status === 200) {
+        console.log("Attendance updated successfully");
+        getStaffData();
+      } else {
+        console.error("Failed to update attendance");
+      }
+    } catch (error) {
+      console.error("An error occurred while updating attendance", error);
+    }
   };
 
   return (
@@ -155,7 +221,7 @@ function ManageStaffRegister() {
       <Formik
         initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
-        onSubmit={handleSubmit}
+        // onSubmit={handleSubmit}
         enableReinitialize
       >
         {({ values, setFieldValue, errors }) => (
@@ -163,24 +229,20 @@ function ManageStaffRegister() {
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg px-3 py-3 mt-4 flex justify-between">
               <div className="left-form-blk flex space-x-4">
                 <CustomSelect
-                  name="class"
-                  placeholder=" Class"
-                  // label="Class"
-                  // required={true}
-                  // options={classes}
-                />
-                <CustomSelect
-                  name="section"
-                  placeholder=" Section"
-                  // label="Class"
-                  // required={true}
-                  // options={classes}
+                  name="staffCategory"
+                  options={staffCategory}
+                  value={values.staffCategory}
+                  onChange={(e) => handleStaffCategory(e, setFieldValue)}
                 />
                 <CustomSelect
                   name="month"
                   placeholder=" Month"
                   options={monthsName}
-                  onChange={(selectedOption) => setMonth(selectedOption.value)}
+                  onChange={(e) => {
+                    const selectedMonth = e.target.value;
+                    setFieldValue("month", selectedMonth);
+                    setMonth(selectedMonth);
+                  }}
                 />
 
                 <CustomSelect
@@ -266,7 +328,7 @@ function ManageStaffRegister() {
                         className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-40"
                       >
                         <a href="#" className="group inline-flex">
-                          Student Name
+                          Staff Name
                         </a>
                       </th>
 
@@ -305,131 +367,11 @@ function ManageStaffRegister() {
                       })}
                     </tr>
                   </thead>
-                  {/* <tbody className="divide-y divide-gray-200 bg-white">
-                          <tr>
-                           
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                              0
-                            </td>
-
-                            
-
-                            <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
-                              <Menu
-                                as="div"
-                                className="relative inline-block text-left"
-                              >
-                                <div>
-                                  <MenuButton className="flex items-center rounded-full  text-gray-400">
-                                    p
-                                  </MenuButton>
-                                </div>
-                                <MenuItems className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none">
-                                  <div className="py-1">
-                                    <MenuItem>
-                                      <a
-                                        href="#"
-                                        className="block px-4 py-2 text-sm text-gray-700"
-                                      >
-                                        Update Attendance
-                                      </a>
-                                    </MenuItem>
-                                    <MenuItem>
-                                      <label className="flex items-center text-sm text-gray-600 p-2">
-                                        <input
-                                          type="radio"
-                                          name="attendance"
-                                          value="P"
-                                          className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                        />
-                                        Present: P
-                                      </label>
-                                    </MenuItem>
-                                    <MenuItem>
-                                      <label className="flex items-center text-sm text-gray-600 p-2">
-                                        <input
-                                          type="radio"
-                                          name="attendance"
-                                          value="P"
-                                          className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                        />
-                                        Absent: A
-                                      </label>
-                                    </MenuItem>
-                                    <MenuItem>
-                                      <label className="flex items-center text-sm text-gray-600 p-2">
-                                        <input
-                                          type="radio"
-                                          name="attendance"
-                                          value="P"
-                                          className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                        />
-                                        Half Day: F
-                                      </label>
-                                    </MenuItem>
-                                    <MenuItem>
-                                      <label className="flex items-center text-sm text-gray-600 p-2">
-                                        <input
-                                          type="radio"
-                                          name="attendance"
-                                          value="P"
-                                          className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                        />
-                                         Leave: L
-                                      </label>
-                                    </MenuItem>
-                                    <MenuItem>
-                                      <div className="flex p-4">
-                                        <button
-                                          type="button"
-                                          onClick={() => setOpen(false)}
-                                          className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                                        >
-                                          Cancel
-                                        </button>
-                                        <button
-                                          type="submit"
-                                          className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                                        >
-                                          Apply
-                                        </button>
-                                      </div>
-                                    </MenuItem>
-                                  </div>
-                                </MenuItems>
-                              </Menu>
-                            </td>
-
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-center text-gray-500">
-                              P
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-center text-gray-500">
-                              P
-                            </td>
-
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-center text-gray-500">
-                              P
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-center text-gray-500">
-                              P
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-center text-gray-500">
-                              P
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-center text-gray-900 text-center bg-red-100">
-                              S
-                            </td>
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-900 text-center bg-purple-300">
-                              H
-                            </td>
-                          </tr>
-                        </tbody> */}
-                  
 
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {students.map((student) => (
-                      <tr key={student.id}>
-                        {/* Student Info */}
+                    {staffList?.map((staff) => (
+                      <tr key={staff.id}>
+                        {/* staff Info */}
                         <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm">
                           <a
                             href="#"
@@ -439,16 +381,16 @@ function ManageStaffRegister() {
                               <div className="size-9 shrink-0">
                                 <img
                                   alt=""
-                                  src={student.profilePicture}
+                                  src={staff.profilePicture}
                                   className="size-9 rounded-full"
                                 />
                               </div>
                               <div className="ml-4">
                                 <div className="font-medium text-gray-900 text-purple-600">
-                                  {student.name}
+                                  {staff.name}
                                 </div>
                                 <div className="mt-1 text-gray-500">
-                                  {student.rollNumber}
+                                  {staff.rollNumber}
                                 </div>
                               </div>
                             </div>
@@ -460,36 +402,173 @@ function ManageStaffRegister() {
                           0
                         </td>
 
-                        {/* Attendance Columns */}
-                        {days.map((dayObj, index) => {
+                        {/* {days.map((dayObj, index) => {
                           // Check if the day is a Sunday
                           const isSunday = dayObj.dayName === "Sun";
+                          const attendanceValue =
+                            student.attendance[dayObj.day] ||
+                            (isSunday ? "S" : "N/A");
+                          const attendanceClass = isSunday
+                            ? "bg-red-100 text-gray-900"
+                            : attendanceValue === "P"
+                            ? "text-gray-500" // Present
+                            : attendanceValue === "A"
+                            ? "text-yellow-800 bg-yellow-100"
+                            : attendanceValue === "S"
+                            ? "text-gray-900 bg-red-100"
+                            : attendanceValue === "F"
+                            ? "text-gray-900 bg-blue-100"
+                            : "text-gray-500";
 
                           return (
                             <td
                               key={dayObj.day}
-                              className={`whitespace-nowrap px-2 py-2 text-sm text-center ${
-                                isSunday
-                                  ? "bg-red-100 text-gray-900" // Sundays highlighted
-                                  : student.attendance[index]
-                                      ?.attendanceStatus === "P"
-                                  ? "text-gray-500"
-                                  : student.attendance[index]
-                                      ?.attendanceStatus === "A"
-                                  ? "text-yellow-800 bg-yellow-100"
-                                  : student.attendance[index]
-                                      ?.attendanceStatus === "S"
-                                  ? "text-gray-900 bg-red-100"
-                                  : student.attendance[index]
-                                      ?.attendanceStatus === "F"
-                                  ? "text-gray-900 bg-blue-100"
-                                  : "text-gray-500"
-                              }`}
+                              className={`whitespace-nowrap px-2 py-2 text-sm text-center ${attendanceClass}`}
                             >
-                              {isSunday
-                                ? "S"
-                                : student.attendance[index]?.attendanceStatus ||
-                                  "N/A"}
+                              {attendanceValue}
+                            </td>
+                          );
+                        })} */}
+                        {days.map((dayObj, index) => {
+                          const isSunday = dayObj.dayName === "Sun";
+
+                          const isHoliday = holidaysData?.some(
+                            (holiday) =>
+                              new Date(holiday.date).getDate() === dayObj.day
+                          );
+
+                          const attendanceValue = isHoliday
+                            ? "H"
+                            : staff.attendance[dayObj.day] ||
+                              (isSunday ? "S" : "N/A");
+
+                          const attendanceClass = isHoliday
+                            ? "text-green-800 bg-green-100" // Holidays
+                            : isSunday
+                            ? "bg-red-100 text-gray-900" // Sundays
+                            : attendanceValue === "P"
+                            ? "text-gray-500" // Present
+                            : attendanceValue === "A"
+                            ? "text-yellow-800 bg-yellow-100" // Absent
+                            : attendanceValue === "F"
+                            ? "text-gray-900 bg-blue-100" // Half Day
+                            : "text-gray-500";
+
+                          return (
+                            <td
+                              key={dayObj.day}
+                              className={`whitespace-nowrap px-2 py-2 text-sm text-center ${attendanceClass}`}
+                            >
+                              <Menu
+                                as="div"
+                                className="relative inline-block text-left"
+                              >
+                                <div>
+                                  <MenuButton
+                                    className="flex items-center rounded-full text-gray-400"
+                                    onClick={() =>
+                                      setOpenMenuDay((prev) =>
+                                        prev === dayObj.day ? null : dayObj.day
+                                      )
+                                    }
+                                  >
+                                    {attendanceValue}
+                                  </MenuButton>
+                                </div>
+                                {openMenuDay === dayObj.day &&
+                                  ["P", "A", "F"].includes(attendanceValue) && (
+                                    <MenuItems className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                      <div className="py-1">
+                                        <MenuItem>
+                                          <a
+                                            href="#"
+                                            className="block px-4 py-2 text-sm text-gray-700"
+                                          >
+                                            Update Attendance
+                                          </a>
+                                        </MenuItem>
+                                        <MenuItem>
+                                          <label className="flex items-center text-sm text-gray-600 p-2">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${dayObj.day}`}
+                                              value="present"
+                                              onClick={(e) =>
+                                                handleAttendanceChange(e)
+                                              }
+                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            Present: P
+                                          </label>
+                                        </MenuItem>
+                                        <MenuItem>
+                                          <label className="flex items-center text-sm text-gray-600 p-2">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${dayObj.day}`}
+                                              value="absent"
+                                              onClick={(e) =>
+                                                handleAttendanceChange(e)
+                                              }
+                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            Absent: A
+                                          </label>
+                                        </MenuItem>
+                                        <MenuItem>
+                                          <label className="flex items-center text-sm text-gray-600 p-2">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${dayObj.day}`}
+                                              value="half-day"
+                                              onClick={(e) =>
+                                                handleAttendanceChange(e)
+                                              }
+                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            Half Day: F
+                                          </label>
+                                        </MenuItem>
+                                        <MenuItem>
+                                          <label className="flex items-center text-sm text-gray-600 p-2">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${dayObj.day}`}
+                                              value="leave"
+                                              onClick={(e) =>
+                                                handleAttendanceChange(e)
+                                              }
+                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            Leave: L
+                                          </label>
+                                        </MenuItem>
+                                        <MenuItem>
+                                          <div className="flex p-4">
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                setOpenMenuDay(null)
+                                              }
+                                              className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
+                                            >
+                                              Cancel
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                handleSave(dayObj.day, staff._id)
+                                              }
+                                              className="w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500"
+                                            >
+                                              Save
+                                            </button>
+                                          </div>
+                                        </MenuItem>
+                                      </div>
+                                    </MenuItems>
+                                  )}
+                              </Menu>
                             </td>
                           );
                         })}

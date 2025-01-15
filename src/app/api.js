@@ -19,3 +19,13 @@ export const postData = async (url, payload) => {
     return error
   }
 }
+
+export const updateData = async (url, payload) => {
+  try {
+    const response = await backendAPI.put(url, payload)
+    return response
+  } catch (error) {
+    console.log('error', error)
+    return error
+  }
+}
