@@ -325,7 +325,7 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
                                 <CustomSelect
                                   label="Class"
                                   name="class"
-                                  options={classOptions.filter((item) => item.classCategory === values.category)}
+                                  options={classOptions.filter((item) => item.category === values.category)}
                                   required
                                   disabled={values.category ? false : true}
                                 />

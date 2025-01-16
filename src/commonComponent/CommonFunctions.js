@@ -1,5 +1,5 @@
 import {getData, postData} from '../app/api'
-import {CLASSES, UPLOAD} from '../app/url'
+import {CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD} from '../app/url'
 
 export const getAcademicYears = () => {
   const currentDate = new Date()
@@ -245,6 +245,45 @@ export const getClasses = async () => {
         }
       })
       return classData
+    } else {
+      throw new Error(res.message)
+    }
+  } catch (error) {
+    return []
+  }
+}
+
+export const getClassCategories = async () => {
+  try {
+    const res = await getData(CLASS_CATEGORIES)
+    if (res.status === 200 || res.status === 201) {
+      const categoryData = res.data.data.map((item) => {
+        return {
+          label: item.name, // Displayed text in the dropdown
+          value: item._id,
+        }
+      })
+      return categoryData
+    } else {
+      throw new Error(res.message)
+    }
+  } catch (error) {
+    return []
+  }
+}
+
+
+export const getSections = async () => {
+  try {
+    const res = await getData(SECTIONS)
+    if (res.status === 200 || res.status === 201) {
+      const sectionData = res.data.data.map((item) => {
+        return {
+          label: item.section, // Displayed text in the dropdown
+          value: item._id,
+        }
+      })
+      return sectionData
     } else {
       throw new Error(res.message)
     }

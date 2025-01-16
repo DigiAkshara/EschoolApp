@@ -1,29 +1,26 @@
 import {PlusIcon} from '@heroicons/react/20/solid'
 import {XMarkIcon} from '@heroicons/react/24/outline'
 import {FieldArray} from 'formik'
-import React, {useEffect, useState} from 'react'
+import React, {useEffect} from 'react'
+import {useSelector} from 'react-redux'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
-import {getData} from '../../app/api'
-import {SUBJECTS} from '../../app/url'
 
 function ExamTimeTable({values, setFieldValue}) {
-  const [subjectOptions, setSubjectOptions] = useState([])
+  const subjectOptions = useSelector((state) => state.academics.subjects)
 
-  const getSubjects = async () => {
-    const res = await getData(SUBJECTS)
-    const subData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-      }
-    })
-    setSubjectOptions(subData)
+  const makeDisable = () => {
+    return Object.entries(values)
+        .filter(([key]) => key !== 'timeTable') // Exclude 'timeTable'
+        .every(([_, value]) => 
+            value !== null && value !== undefined && value !== ''
+        );
   }
-  useEffect(() => {
-    getSubjects()
 
+  let disabled = makeDisable()
+  console.log("disabled", disabled)
+  useEffect(() => {
     setFieldValue('timeTable', [
       {
         subject: '',
@@ -37,17 +34,13 @@ function ExamTimeTable({values, setFieldValue}) {
     ])
   }, [])
 
-  // const [rows, setRows] = useState([
-  //   {
-  //     subject: "",
-  //     examDate: "",
-  //     startTime: "",
-  //     endTime: "",
-  //     passMark: "",
-  //     totalMark: "",
-  //     syllabus: "",
-  //   },
-  // ]);
+  const getSubjectOptions = () => { 
+    if(values.timeTable && values.timeTable.length > 0){
+      return subjectOptions.filter((option) => !values.timeTable.some((item) => item.subject === option.value))
+    }else{
+      return subjectOptions}
+    
+  }
 
   const addRow = () => {
     let dummyList = [
@@ -62,7 +55,6 @@ function ExamTimeTable({values, setFieldValue}) {
         syllabus: '',
       },
     ]
-    // setRows(dummyList);
     setFieldValue('timeTable', dummyList)
   }
 
@@ -106,12 +98,18 @@ function ExamTimeTable({values, setFieldValue}) {
                   <tr key={index}>
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                       <CustomSelect
+                        isLabelRequired={false}
+                        label="Subject"
                         name={`timeTable.${index}.subject`}
                         options={subjectOptions}
+                        disabled={!disabled}
                       />
                     </td>
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      <CustomDate name={`timeTable.${index}.examDate`} />
+                      <CustomDate name={`timeTable.${index}.examDate`} 
+                        maxDate={values.endDate}
+                        minDate={values.startDate}
+                        disabled={!disabled}/>
                     </td>
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                       <CustomInput

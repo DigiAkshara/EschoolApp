@@ -1,5 +1,7 @@
 'use client'
-import {useState} from 'react'
+import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { fetchInitialAcademicData } from '../app/reducers/academicSlice'
 import Class from './academics/Class'
 import ManageCertificates from './academics/ManageCertificates'
 import ManageDailyTimeTable from './academics/ManageDailyTimeTable'
@@ -7,7 +9,10 @@ import ManageExams from './academics/ManageExams'
 import Submenu from './Submenu'
 
 export default function Academics() {
+  const dispatch = useDispatch()
   const [activeTab, setActiveTab] = useState(null)
+
+
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -23,6 +28,11 @@ export default function Academics() {
         return <h2>No Content Available</h2>
     }
   }
+
+
+  useEffect(() => {
+    dispatch(fetchInitialAcademicData())
+  },[dispatch])
 
   return (
     <div className="flow-root">

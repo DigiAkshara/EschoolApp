@@ -2,7 +2,7 @@ import {ErrorMessage, Field} from 'formik'
 import Datepicker from 'react-tailwindcss-datepicker'
 
 export default function CustomDate(props) {
-  const {name, label, icon: Icon, required = false, max, value} = props
+  const {name, label, icon: Icon, required = false, max,minDate, value, disabled = false} = props
   const MAX_DATE = new Date()
   MAX_DATE.setDate(MAX_DATE.getDate())
   return (
@@ -19,9 +19,14 @@ export default function CustomDate(props) {
             const value = {startDate: field.value, endDate: field.value}
             return (
               <Datepicker
+                {...props}
                 value={value || null}
                 onChange={(newValue) => {
+                  if(props.onChange){
+                    props.onChange(newValue.startDate)
+                  }else{
                   setFieldValue(field.name, newValue.startDate)
+                  }
                 }}
                 inputClassName="inline-block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
                 primaryColor={'purple'}
@@ -30,6 +35,7 @@ export default function CustomDate(props) {
                 required={false}
                 displayFormat="DD/MM/YYYY"
                 id={field.name}
+                disabled={disabled}
                 // maxDate={MAX_DATE}
               />
             )

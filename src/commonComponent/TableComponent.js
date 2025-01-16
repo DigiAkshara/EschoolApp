@@ -60,7 +60,7 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white z-1">
-          {sortedData.map((student, indx) => (
+          {sortedData.map((record, indx) => (
             <tr key={indx} className="bg-gray-50">
               <td className="relative px-7 sm:w-12 sm:px-6">
                 <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
@@ -74,7 +74,7 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
                   <td
                     className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0"
                     key={ind}
-                    onClick={() => showModal && showModal(student)}
+                    onClick={() => showModal && showModal(record)}
                   >
                     <a
                       href="#"
@@ -84,16 +84,16 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
                         <div className="size-9 shrink-0">
                           <img
                             alt=""
-                            src={student.pic}
+                            src={record.pic}
                             className="size-9 rounded-full"
                           />
                         </div>
                         <div className="ml-4">
                           <div className="font-medium text-gray-900 text-purple-600">
-                            {student.name}
+                            {record.name}
                           </div>
                           <div className="mt-1 text-gray-500">
-                            {student.image}
+                            {record.image}
                           </div>
                         </div>
                       </div>
@@ -120,10 +120,10 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
                         className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
                       >
                         <div className="py-1">
-                          {student.actions.map((action, index) => (
+                          {record.actions.map((action, index) => (
                             <a
                               key={index}
-                              onClick={() => action.actionHandler(student._id)}
+                              onClick={() => action.actionHandler(record._id)}
                               className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
                             >
                               {action.label}
@@ -139,8 +139,8 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
                     key={ind}
                   >
                     {col.key === 'date'
-                      ? moment(student[col.key]).format('DD-MM-YYYY')
-                      : modalColumn === col.key ?<a onClick={() => showModal && showModal(student)}>{student[col.key]}</a>: student[col.key]}
+                      ? moment(record[col.key]).format('DD-MM-YYYY')
+                      : modalColumn === col.key ?<a onClick={() => showModal && showModal(record)}>{record[col.key]}</a>: record[col.key]}
                   </td>
                 ),
               )}

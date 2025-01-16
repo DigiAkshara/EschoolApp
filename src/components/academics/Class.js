@@ -1,47 +1,37 @@
 'use client'
+import {Button, Dialog} from '@headlessui/react'
 import {PlusIcon} from '@heroicons/react/20/solid'
 import React, {useEffect, useState} from 'react'
-import {useDispatch} from 'react-redux'
-import {useLocation, useNavigate} from 'react-router-dom'
+import {useDispatch, useSelector} from 'react-redux'
 import {getData} from '../../app/api'
 import {setSelectedClass} from '../../app/reducers/classSlice'
-import {
-  CLASS_CATEGORIES,
-  CLASSES,
-  NEW_CLASS,
-  SECTIONS,
-  STAFF,
-} from '../../app/url'
+import {NEW_CLASS} from '../../app/url'
 import {boardOptions} from '../../commonComponent/CommonFunctions'
+import FilterComponent from '../../commonComponent/FilterComponent'
+import TableComponent from '../../commonComponent/TableComponent'
 import AddClass from './AddClass'
 import ManageViewClass from './ManageViewClass'
-import {Button, Dialog} from '@headlessui/react'
-import TableComponent from '../../commonComponent/TableComponent'
-import FilterComponent from '../../commonComponent/FilterComponent'
 
 export default function Class() {
+  const {
+    classCategories,
+    classes: classOptions,
+    sections: sectionOptions,
+    teachers: teacherOptions,
+  } = useSelector((state) => state.academics)
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
-  const navigate = useNavigate()
-  const location = useLocation()
   const [selectedPeople, setSelectedPeople] = useState([])
   const [classData, setClassData] = useState([])
   const [filteredData, setFilteredData] = useState([])
-  const [classCategories, setClassCategories] = useState([])
-  const [classOptions, setClassOptions] = useState([])
-  const [sectionOptions, setSectionOptions] = useState([])
-  const [teacherOptions, setTeacherOptions] = useState([])
   const dispatch = useDispatch() // Get the dispatch function
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    getClassData()
-    getClassCategories()
-    getClass()
-    getSections()
-    getTeachers()
-  }, [])
+    getClassData();
+  }, []); // Intentionally omit getClassData
 
   const getClassData = async () => {
     try {
@@ -81,68 +71,6 @@ export default function Class() {
     }
   }
 
-  const getClassCategories = async () => {
-    try {
-      const res = await getData(CLASS_CATEGORIES)
-      if (res.status === 200 || res.status === 201) {
-        const categoryData = res.data.data.map((item) => {
-          return {
-            label: item.name, // Displayed text in the dropdown
-            value: item._id,
-          }
-        })
-        setClassCategories(categoryData)
-      } else {
-        throw new Error(res.message)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const getClass = async () => {
-    const res = await getData(CLASSES)
-    const classData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-        category: item.classCategory,
-      }
-    })
-    setClassOptions(classData)
-  }
-
-  const getSections = async () => {
-    const res = await getData(SECTIONS)
-    const sectionsData = res.data.data.map((item) => {
-      return {
-        label: item.section, // Displayed text in the dropdown
-        value: item._id,
-        class: item.class,
-      }
-    })
-    setSectionOptions(sectionsData)
-  }
-
-  const getTeachers = async () => {
-    try {
-      const res = await getData(STAFF)
-      if (res.status === 200 || res.status === 201) {
-        const teacherData = res.data.data.map((item) => {
-          return {
-            label: item.firstName + ' ' + item.lastName, // Displayed text in the dropdown
-            value: item._id,
-          }
-        })
-        setTeacherOptions(teacherData)
-      } else {
-        throw new Error(res.message)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   const onHandleEdit = async () => {
     console.log('edit')
   }
@@ -155,7 +83,7 @@ export default function Class() {
   const handleClose2 = () => setOpen2(false)
 
   const handleViewClick = (data) => {
-    dispatch(setSelectedClass({...data, actions:null})) // Save selected class in Redux
+    dispatch(setSelectedClass({...data, actions: null})) // Save selected class in Redux
     setOpen2(true) // Navigate to the "View More" page
   }
 

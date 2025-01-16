@@ -1,19 +1,25 @@
 import {DialogPanel, DialogTitle} from '@headlessui/react'
 import {IdentificationIcon, XMarkIcon} from '@heroicons/react/24/outline'
 import {Form, Formik} from 'formik'
-import React, {useEffect, useState} from 'react'
+import React from 'react'
+import {useSelector} from 'react-redux'
 import {useNavigate} from 'react-router-dom'
 import * as Yup from 'yup'
-import {getData, postData} from '../../app/api'
-import {CLASSES, EXAM} from '../../app/url'
-import {boardOptions, classCategory} from '../../commonComponent/CommonFunctions'
+import {postData} from '../../app/api'
+import {EXAM} from '../../app/url'
+import {boardOptions} from '../../commonComponent/CommonFunctions'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import ExamTimeTable from './ExamTimeTable'
 
 function CreateExam({onClose}) {
-  const [classData, setClassData] = useState()
+  const {
+    classCategories,
+    classes: classOptions,
+    sections: sectionOptions,
+  } = useSelector((state) => state.academics)
+
   const navigate = useNavigate()
 
   const getInitialValues = () => {
@@ -23,8 +29,8 @@ function CreateExam({onClose}) {
       class: '',
       section: '',
       name: '',
-      startDate: '',
-      endDate: '',
+      startDate: null,
+      endDate: null,
       timeTable: [],
     }
   }
@@ -52,28 +58,12 @@ function CreateExam({onClose}) {
     })
   }
 
-  useEffect(() => {
-    getClass()
-  }, [])
-
-  const getClass = async () => {
-    const res = await getData(CLASSES)
-    const classData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-      }
-    })
-    setClassData(classData)
-  }
-
   const handleSubmit = async (values) => {
     try {
       let response = await postData(EXAM, values)
       if (response.status === 201) {
-        navigate('/academics-exams')
+        // navigate('/academics-exams')
         alert(response.statusText)
-
         onClose()
       } else {
         alert(response.message)
@@ -83,7 +73,6 @@ function CreateExam({onClose}) {
     }
   }
 
-  const [value, setValue] = useState({})
   return (
     <>
       <Formik
@@ -94,7 +83,6 @@ function CreateExam({onClose}) {
         {({values, setFieldValue, errors, touched}) => (
           <Form>
             <div className="fixed inset-0" />
-
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
@@ -148,7 +136,7 @@ function CreateExam({onClose}) {
                                     <CustomSelect
                                       label="Class Category"
                                       name="classCategory"
-                                      options={classCategory}
+                                      options={classCategories}
                                       required
                                     />
                                   </div>
@@ -157,16 +145,27 @@ function CreateExam({onClose}) {
                                     <CustomSelect
                                       label="Class"
                                       name="class"
-                                      options={classData}
+                                      options={classOptions.filter(
+                                        (item) =>
+                                          item.category ===
+                                          values.classCategory,
+                                      )}
                                       required
+                                      disabled={
+                                        values.classCategory ? false : true
+                                      }
                                     />
                                   </div>
 
                                   <div className="sm:col-span-1">
-                                    <CustomInput
+                                    <CustomSelect
                                       label="Section"
                                       name="section"
+                                      options={sectionOptions.filter(
+                                        (item) => item.class === values.class,
+                                      )}
                                       required
+                                      disabled={values.class ? false : true}
                                     />
                                   </div>
 
@@ -184,6 +183,11 @@ function CreateExam({onClose}) {
                                       name="startDate"
                                       label="Exam Start Date"
                                       required={true}
+                                      onChange={(newValue) => {
+                                        console.log(newValue, "startDate")
+                                        setFieldValue('startDate', newValue)
+                                        setFieldValue('endDate', null)
+                                      }}
                                     />
                                   </div>
                                   <div className="sm:col-span-1">
@@ -191,6 +195,8 @@ function CreateExam({onClose}) {
                                       name="endDate"
                                       label="Exam End Date"
                                       required={true}
+                                      disabled={values.startDate ? false : true}
+                                      minDate ={values.startDate}
                                     />
                                   </div>
                                 </div>

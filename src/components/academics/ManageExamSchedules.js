@@ -30,25 +30,9 @@ function ManageExamSchedules() {
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
 
-  const checkbox = useRef()
-  const [checked, setChecked] = useState(false)
-  const [indeterminate, setIndeterminate] = useState(false)
   const [examData, setExamData] = useState([])
   const dispatch = useDispatch()
   const exams = useSelector((state) => state.exams.exams)
-
-  // useLayoutEffect(() => {
-  //     const isIndeterminate = selectedPeople.length > 0 && selectedPeople.length < people.length
-  //     setChecked(selectedPeople.length === people.length)
-  //     setIndeterminate(isIndeterminate)
-  //     checkbox.current.indeterminate = isIndeterminate
-  //   }, [selectedPeople])
-
-  //   function toggleAll() {
-  //     setSelectedPeople(checked || indeterminate ? [] : people)
-  //     setChecked(!checked && !indeterminate)
-  //     setIndeterminate(false)
-  //   }
 
   useEffect(() => {
     getExamData()
@@ -78,7 +62,12 @@ function ManageExamSchedules() {
           return {
             id: index + 1,
             name: item.name,
-            section: item.section,
+            class: item.class?._id,
+            className: item.class?.name,
+            classObject: item.class,
+            section: item.section?._id,
+            sectionName: item.section?.section,
+            sectionObject: item.section,
             examDates: `${formatter.format(
               new Date(item.startDate),
             )} - ${formatter.format(new Date(item.endDate))}`,
@@ -158,7 +147,7 @@ function ManageExamSchedules() {
               </div>
             )}
             <div className="relative shadow ring-1 ring-black/5 sm:rounded-lg">
-              {/* /Removed overflow-hidden cloass */}
+              {/* /Removed overflow-hidden class */}
               <div className="relative table-tool-bar z-30">
                 <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
                   <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -312,7 +301,7 @@ function ManageExamSchedules() {
                 </div>
               </div>
 
-              <div className="table-container-main overflow-y-auto max-h-[56vh]">
+              <div className="table-container-main max-h-[56vh]">
                 {/* Table View */}
                 <table className="table-auto min-w-full divide-y divide-gray-300">
                   <thead className="sticky top-0 bg-purple-100 z-20">
@@ -456,15 +445,16 @@ function ManageExamSchedules() {
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                           {data.name}
                         </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          {data.section}
+                          {data.className}</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {data.sectionName}
                         </td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                           {data.examDates}
                         </td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          5
+                          {data.timeTable.length}
                         </td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
                           <a href="#" onClick={() => handleViewDetails(data)}>

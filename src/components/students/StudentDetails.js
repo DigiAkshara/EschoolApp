@@ -156,9 +156,7 @@ export default function StudentDetails() {
     let filtered = studentList
     Object.entries(values).forEach(([key, value]) => {
       if (value) {
-        console.log(key, value)
         filtered = filtered.filter((rec) =>{
-          console.log(rec[key])
           return rec[key].toLowerCase().includes(value.toLowerCase())}
         )
       }

@@ -19,11 +19,6 @@ function classNames(...classes) {
 export default function ManageExams() {
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
-
-  const checkbox = useRef()
-  const [checked, setChecked] = useState(false)
-  const [indeterminate, setIndeterminate] = useState(false)
-  const [selectedPeople, setSelectedPeople] = useState([])
   const [examData, setExamData] = useState([])
   const dispatch = useDispatch()
   const exams = useSelector((state) => state.exams.exams)
