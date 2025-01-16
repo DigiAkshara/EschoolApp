@@ -1,37 +1,40 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
-} from '@heroicons/react/20/solid'
-import { ArrowDownTrayIcon } from '@heroicons/react/24/outline'
-import { Form, Formik } from 'formik'
-import React, { useEffect, useState } from 'react'
-import * as Yup from 'yup'
-import { getData, updateData } from '../../app/api'
-import { ACADEMIC_YEAR, ATTENDANCE, STAFF } from '../../app/url'
-import { monthsName, staffCategory } from '../../commonComponent/CommonFunctions'
-import CustomSelect from '../../commonComponent/CustomSelect'
+} from "@heroicons/react/20/solid";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
+import * as Yup from "yup";
+import { getData, updateData } from "../../app/api";
+import { ACADEMIC_YEAR, ATTENDANCE, STAFF } from "../../app/url";
+import {
+  monthsName,
+  staffCategory,
+} from "../../commonComponent/CommonFunctions";
+import CustomSelect from "../../commonComponent/CustomSelect";
 
 function ManageStaffRegister() {
-  const [academicYears, setAcademicYears] = useState([])
-  const [holidaysData, setHolidaysData] = useState([])
-  const [selectedAttendance, setSelectedAttendance] = useState(null)
-  const [openMenuDay, setOpenMenuDay] = useState(null) // Track the currently open menu
-  const [staffs, setStaffs] = useState([])
-  const [staffList, setStaffList] = useState([])
-  const [month, setMonth] = useState('1')
-  const [year, setYear] = useState('2025')
-  const [open, setOpen] = useState(false)
+  const [academicYears, setAcademicYears] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredData, setFilteredData] = useState([])
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [openMenuDay, setOpenMenuDay] = useState(null); // Track the currently open menu
+  const [staffs, setStaffs] = useState([]);
+  const [staffList, setStaffList] = useState([]);
+  const [month, setMonth] = useState("1");
+  const [year, setYear] = useState("2025");
 
   const getInitialValues = () => {
     return {
-      staffCategory: 'teaching',
-      month: '1',
+      staffCategory: "teaching",
+      month: "1",
       academicYear: academicYears[0]?.value,
-      attendance: '',
-    }
-  }
+      attendance: "",
+    };
+  };
 
   const getValidationSchema = () => {
     return Yup.object({
@@ -39,169 +42,146 @@ function ManageStaffRegister() {
       month: Yup.string(),
       year: Yup.string(),
       attendance: Yup.string(),
-    })
-  }
+    });
+  };
 
   useEffect(() => {
-    academicYear()
-    getStaffData()
-    // getStaffDataB();
-  }, [])
+    academicYear();
+    getStaffData();
+  }, []);
+
+
+
+  const handleSearch = (event) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+    if (term === "") {
+      // If the search term is empty, reset the staff list to the original list
+      setStaffList(filteredData);
+    } else {
+      // Filter staff list based on the search term
+      const filtered = filteredData.filter((item) =>
+        item.name.toLowerCase().includes(term.toLowerCase()) // Access 'name' property
+      );
+      setStaffList(filtered);
+  };
+}
 
   const academicYear = async () => {
     try {
-      const academicYearRes = await getData(ACADEMIC_YEAR)
+      const academicYearRes = await getData(ACADEMIC_YEAR);
       if (academicYearRes.status === 200 || academicYearRes.status === 201) {
         let academicYearData = [
           {
             label: academicYearRes.data.data.year, // Displayed text in the dropdown
             value: academicYearRes.data.data._id,
           },
-        ]
-        setAcademicYears(academicYearData)
+        ];
+        setAcademicYears(academicYearData);
       } else {
-        throw new Error(academicYearRes.message)
+        throw new Error(academicYearRes.message);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
-
-  // const getStaffData = () => {
-  //   setStaffs(staff);
-  //   const staffData = staff?.filter(
-  //     (staffMember) => staffMember.category === "teaching"
-  //   );
-  //   setStaffList(staffData);
-  // };
+  };
 
   const getStaffData = async () => {
     try {
-      const response = await getData(STAFF + '/attendance')
-      console.log('[STAFF-REGISTER] data for attendance:', response.data.data)
+      const response = await getData(STAFF + "/attendance");
+      console.log("[STAFF-REGISTER] data for attendance:", response.data.data);
 
-      // Process data
       const processedData = response.data.data.map((staff) => {
         // Create an object to map dates to attendance statuses
-        const attendanceMap = {}
+        const attendanceMap = {};
         staff.attendance.forEach((record) => {
-          const date = new Date(record.date).getDate() // Extract day of the month
+          const date = new Date(record.date).getDate(); 
           const statusMap = {
-            present: 'P',
-            absent: 'A',
-            sick: 'S',
-            leave: 'L',
-            // Add other mappings if necessary
-          }
-          // attendanceMap[date] = record.attendanceStatus; // Map day to status
-          attendanceMap[date] = statusMap[record.attendanceStatus] || 'N/A'
-        })
+            present: "P",
+            absent: "A",
+            sick: "S",
+            leave: "L",
+          };
+          attendanceMap[date] = statusMap[record.attendanceStatus] || "N/A";
+        });
 
         return {
           _id: staff._id,
           name: `${staff.firstName} ${staff.lastName}`,
-          profilePicture: staff.profilePic || 'default-profile-pic-url', // Default picture if null
+          profilePicture: staff.profilePic || "default-profile-pic-url", // Default picture if null
           category: staff.staffType,
-          attendance: attendanceMap, // Attendance map by date
-        }
-      })
+          attendance: attendanceMap, 
+        };
+      });
 
-      console.log('Processed student data:', processedData)
-      // Set state with processed data
-      setStaffs(processedData)
+      // console.log("Processed student data:", processedData);
+      setStaffs(processedData);
       const staffData = processedData?.filter(
-        (staffMember) => staffMember.category === 'teaching',
-      )
-      setStaffList(staffData)
+        (staffMember) => staffMember.category === "teaching"
+      );
+      setStaffList(staffData);
+      setFilteredData(staffData)
     } catch (error) {
-      console.error('Error getting data:', error)
+      console.error("Error getting data:", error);
     }
-  }
+  };
 
   const handleStaffCategory = (e, setFieldValue) => {
-    const category = e.target.value
-    const staffData = staffs.filter((staff) => staff.category === category)
-    setFieldValue('staffCategory', category)
-    setStaffList(staffData)
-  }
+    const category = e.target.value;
+    const staffData = staffs.filter((staff) => staff.category === category);
+    setFieldValue("staffCategory", category);
+    setStaffList(staffData);
+    setFilteredData(staffData)
+  };
 
   const daysInMonth = (month, year) => {
-    const daysArray = []
-    const date = new Date(year, month - 1, 1) // month - 1 because JavaScript months are 0-based
-    const lastDay = new Date(year, month, 0).getDate() // last day of the month
+    const daysArray = [];
+    const date = new Date(year, month - 1, 1); 
+    const lastDay = new Date(year, month, 0).getDate(); 
 
     for (let i = 1; i <= lastDay; i++) {
-      const day = new Date(year, month - 1, i)
-      const dayName = day.toLocaleString('en-us', {weekday: 'short'}) // e.g., 'Wed'
+      const day = new Date(year, month - 1, i);
+      const dayName = day.toLocaleString("en-us", { weekday: "short" }); // e.g., 'Wed'
       daysArray.push({
         day: i,
         dayName: dayName,
-      })
+      });
     }
 
-    return daysArray
-  }
+    return daysArray;
+  };
 
-  const days = daysInMonth(parseInt(month), year)
+  const days = daysInMonth(parseInt(month), year);
   // console.log("Days in the month:", days);
 
-  // const staff = [
-  //   {
-  //     id: "67823ef46936ff83452efe7e",
-  //     name: " Danial",
-  //     profilePicture: "default-profile-pic-url",
-  //     category: "teaching",
-  //     attendance: {
-  //       8: "P",
-  //       10: "P",
-  //       11: "P",
-  //       13: "P",
-  //       14: "P",
-  //       15: "A",
-  //     },
-  //   },
-  //   {
-  //     id: "78923af56936ff12345afc2e",
-  //     name: "John Doe",
-  //     profilePicture: "default-profile-pic-url",
-  //     category: "non-teaching",
-  //     attendance: {
-  //       8: "A",
-  //       10: "P",
-  //       11: "A",
-  //       13: "P",
-  //       14: "P",
-  //       15: "P",
-  //     },
-  //   },
-  // ];
+
 
   const handleAttendanceChange = (e) => {
-    e.preventDefault()
-    setSelectedAttendance(e.target.value)
-    console.log('Selected Attendance:', e.target.value)
-  }
+    e.preventDefault();
+    setSelectedAttendance(e.target.value);
+    console.log("Selected Attendance:", e.target.value);
+  };
 
   const handleSave = async (day, id) => {
-    const formattedDate = new Date(day)
+    const formattedDate = new Date(year, month - 1, day);
     const payload = {
-      staffID: id, // Assuming staff has an _id field
+      userId: id, // Assuming staff has an _id field
       date: formattedDate, // Use the date or appropriate identifier
-      status: selectedAttendance, // Selected attendance value
-    }
-    console.log('[Staff Payload]', payload)
+      attendanceStatus: selectedAttendance, // Selected attendance value
+    };
+    console.log("[Staff Payload]", payload);
     try {
-      const response = await updateData(ATTENDANCE, payload)
+      const response = await updateData(ATTENDANCE, payload);
       if (response.status === 200) {
-        console.log('Attendance updated successfully')
-        getStaffData()
+        console.log("Attendance updated successfully");
+        getStaffData();
       } else {
-        console.error('Failed to update attendance')
+        console.error("Failed to update attendance");
       }
     } catch (error) {
-      console.error('An error occurred while updating attendance', error)
+      console.error("An error occurred while updating attendance", error);
     }
-  }
+  };
 
   return (
     <>
@@ -211,7 +191,7 @@ function ManageStaffRegister() {
         // onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({values, setFieldValue, errors}) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg px-3 py-3 mt-4 flex justify-between">
               <div className="left-form-blk flex space-x-4">
@@ -226,9 +206,9 @@ function ManageStaffRegister() {
                   placeholder=" Month"
                   options={monthsName}
                   onChange={(e) => {
-                    const selectedMonth = e.target.value
-                    setFieldValue('month', selectedMonth)
-                    setMonth(selectedMonth)
+                    const selectedMonth = e.target.value;
+                    setFieldValue("month", selectedMonth);
+                    setMonth(selectedMonth);
                   }}
                 />
 
@@ -260,8 +240,8 @@ function ManageStaffRegister() {
                   Half Day: <span className="text-blue-800">F</span>
                 </div>
                 <div className="">
-                  {' '}
-                  Holiday: <span className="text-purple-700">H</span>
+                  {" "}
+                  Leave: <span className="text-purple-700">L</span>
                 </div>
               </div>
             </div>
@@ -281,10 +261,12 @@ function ManageStaffRegister() {
                           />
                         </div>
                         <input
-                          id="email"
-                          name="email"
-                          type="email"
+                          id="search"
+                          name="search"
+                          type="text"
                           placeholder="Search"
+                          value={searchTerm}
+          onChange={handleSearch}
                           className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
                         />
                       </div>
@@ -334,15 +316,15 @@ function ManageStaffRegister() {
                           new Date(
                             2025,
                             parseInt(month) - 1,
-                            dayObj.day,
-                          ).getDay() === 0
+                            dayObj.day
+                          ).getDay() === 0;
 
                         return (
                           <th
                             key={dayObj.day}
                             scope="col"
                             className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${
-                              isSunday ? 'w-16 bg-red-100' : 'w-40'
+                              isSunday ? "w-16 bg-red-100" : "w-40"
                             }`}
                           >
                             <a href="#" className="flex flex-col items-center">
@@ -350,220 +332,202 @@ function ManageStaffRegister() {
                               <div>{dayObj.day}</div>
                             </a>
                           </th>
-                        )
+                        );
                       })}
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {staffList?.map((staff) => (
-                      <tr key={staff.id}>
-                        {/* staff Info */}
-                        <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm">
-                          <a
-                            href="#"
-                            className="text-purple-600 hover:text-purple-900"
-                          >
-                            <div className="flex items-center">
-                              <div className="size-9 shrink-0">
-                                <img
-                                  alt=""
-                                  src={staff.profilePicture}
-                                  className="size-9 rounded-full"
-                                />
-                              </div>
-                              <div className="ml-4">
-                                <div className="font-medium text-gray-900 text-purple-600">
-                                  {staff.name}
-                                </div>
-                                <div className="mt-1 text-gray-500">
-                                  {staff.rollNumber}
-                                </div>
-                              </div>
-                            </div>
-                          </a>
+                    {staffList.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={days.length + 2} // Adjust the colspan based on the total number of columns
+                          className="whitespace-nowrap py-4 px-6 text-center text-sm text-gray-500"
+                        >
+                          No staff data
                         </td>
-
-                        {/* Total Absents */}
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          0
-                        </td>
-
-                        {/* {days.map((dayObj, index) => {
-                          // Check if the day is a Sunday
-                          const isSunday = dayObj.dayName === "Sun";
-                          const attendanceValue =
-                            student.attendance[dayObj.day] ||
-                            (isSunday ? "S" : "N/A");
-                          const attendanceClass = isSunday
-                            ? "bg-red-100 text-gray-900"
-                            : attendanceValue === "P"
-                            ? "text-gray-500" // Present
-                            : attendanceValue === "A"
-                            ? "text-yellow-800 bg-yellow-100"
-                            : attendanceValue === "S"
-                            ? "text-gray-900 bg-red-100"
-                            : attendanceValue === "F"
-                            ? "text-gray-900 bg-blue-100"
-                            : "text-gray-500";
-
-                          return (
-                            <td
-                              key={dayObj.day}
-                              className={`whitespace-nowrap px-2 py-2 text-sm text-center ${attendanceClass}`}
-                            >
-                              {attendanceValue}
-                            </td>
-                          );
-                        })} */}
-                        {days.map((dayObj, index) => {
-                          const isSunday = dayObj.dayName === 'Sun'
-
-                          const isHoliday = holidaysData?.some(
-                            (holiday) =>
-                              new Date(holiday.date).getDate() === dayObj.day,
-                          )
-
-                          const attendanceValue = isHoliday
-                            ? 'H'
-                            : staff.attendance[dayObj.day] ||
-                              (isSunday ? 'S' : 'N/A')
-
-                          const attendanceClass = isHoliday
-                            ? 'text-green-800 bg-green-100' // Holidays
-                            : isSunday
-                            ? 'bg-red-100 text-gray-900' // Sundays
-                            : attendanceValue === 'P'
-                            ? 'text-gray-500' // Present
-                            : attendanceValue === 'A'
-                            ? 'text-yellow-800 bg-yellow-100' // Absent
-                            : attendanceValue === 'F'
-                            ? 'text-gray-900 bg-blue-100' // Half Day
-                            : 'text-gray-500'
-
-                          return (
-                            <td
-                              key={dayObj.day}
-                              className={`whitespace-nowrap px-2 py-2 text-sm text-center ${attendanceClass}`}
-                            >
-                              <Menu
-                                as="div"
-                                className="relative inline-block text-left"
-                              >
-                                <div>
-                                  <MenuButton
-                                    className="flex items-center rounded-full text-gray-400"
-                                    onClick={() =>
-                                      setOpenMenuDay((prev) =>
-                                        prev === dayObj.day ? null : dayObj.day,
-                                      )
-                                    }
-                                  >
-                                    {attendanceValue}
-                                  </MenuButton>
-                                </div>
-                                {openMenuDay === dayObj.day &&
-                                  ['P', 'A', 'F'].includes(attendanceValue) && (
-                                    <MenuItems className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                                      <div className="py-1">
-                                        <MenuItem>
-                                          <a
-                                            href="#"
-                                            className="block px-4 py-2 text-sm text-gray-700"
-                                          >
-                                            Update Attendance
-                                          </a>
-                                        </MenuItem>
-                                        <MenuItem>
-                                          <label className="flex items-center text-sm text-gray-600 p-2">
-                                            <input
-                                              type="radio"
-                                              name={`attendance-${dayObj.day}`}
-                                              value="present"
-                                              onClick={(e) =>
-                                                handleAttendanceChange(e)
-                                              }
-                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                            />
-                                            Present: P
-                                          </label>
-                                        </MenuItem>
-                                        <MenuItem>
-                                          <label className="flex items-center text-sm text-gray-600 p-2">
-                                            <input
-                                              type="radio"
-                                              name={`attendance-${dayObj.day}`}
-                                              value="absent"
-                                              onClick={(e) =>
-                                                handleAttendanceChange(e)
-                                              }
-                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                            />
-                                            Absent: A
-                                          </label>
-                                        </MenuItem>
-                                        <MenuItem>
-                                          <label className="flex items-center text-sm text-gray-600 p-2">
-                                            <input
-                                              type="radio"
-                                              name={`attendance-${dayObj.day}`}
-                                              value="half-day"
-                                              onClick={(e) =>
-                                                handleAttendanceChange(e)
-                                              }
-                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                            />
-                                            Half Day: F
-                                          </label>
-                                        </MenuItem>
-                                        <MenuItem>
-                                          <label className="flex items-center text-sm text-gray-600 p-2">
-                                            <input
-                                              type="radio"
-                                              name={`attendance-${dayObj.day}`}
-                                              value="leave"
-                                              onClick={(e) =>
-                                                handleAttendanceChange(e)
-                                              }
-                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                            />
-                                            Leave: L
-                                          </label>
-                                        </MenuItem>
-                                        <MenuItem>
-                                          <div className="flex p-4">
-                                            <button
-                                              type="button"
-                                              onClick={() =>
-                                                setOpenMenuDay(null)
-                                              }
-                                              className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                                            >
-                                              Cancel
-                                            </button>
-                                            <button
-                                              type="button"
-                                              onClick={() =>
-                                                handleSave(
-                                                  dayObj.day,
-                                                  staff._id,
-                                                )
-                                              }
-                                              className="w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500"
-                                            >
-                                              Save
-                                            </button>
-                                          </div>
-                                        </MenuItem>
-                                      </div>
-                                    </MenuItems>
-                                  )}
-                              </Menu>
-                            </td>
-                          )
-                        })}
                       </tr>
-                    ))}
+                    ) : (
+                      staffList?.map((staff) => (
+                        <tr key={staff.id}>
+                          {/* staff Info */}
+                          <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm">
+                            <a
+                              href="#"
+                              className="text-purple-600 hover:text-purple-900"
+                            >
+                              <div className="flex items-center">
+                                <div className="size-9 shrink-0">
+                                  <img
+                                    alt=""
+                                    src={staff.profilePicture}
+                                    className="size-9 rounded-full"
+                                  />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="font-medium text-gray-900 text-purple-600">
+                                    {staff.name}
+                                  </div>
+                                  <div className="mt-1 text-gray-500">
+                                    {staff.rollNumber}
+                                  </div>
+                                </div>
+                              </div>
+                            </a>
+                          </td>
+
+                          {/* Total Absents */}
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                            0
+                          </td>
+
+                          {days.map((dayObj, index) => {
+                            const isSunday = dayObj.dayName === "Sun";
+
+                        
+                            const attendanceValue =
+                            staff.attendance[dayObj.day] ||
+                            (isSunday ? "S" : "N/A");
+
+                            
+                            const attendanceClass = isSunday
+                              ? "bg-red-100 text-gray-900" // Sundays
+                              : attendanceValue === "P"
+                              ? "text-gray-500" // Present
+                              : attendanceValue === "A"
+                              ? "text-yellow-800 bg-yellow-100" // Absent
+                              : attendanceValue === "F"
+                              ? "text-gray-900 bg-blue-100" // Half Day
+                              : "text-gray-500";
+
+                            return (
+                              <td
+                                key={dayObj.day}
+                                className={`whitespace-nowrap px-2 py-2 text-sm text-center ${attendanceClass}`}
+                              >
+                                <Menu
+                                  as="div"
+                                  className="relative inline-block text-left"
+                                >
+                                  <div>
+                                    <MenuButton
+                                      className="flex items-center rounded-full text-gray-400"
+                                      onClick={() =>
+                                        setOpenMenuDay((prev) =>
+                                          prev === dayObj.day
+                                            ? null
+                                            : dayObj.day
+                                        )
+                                      }
+                                    >
+                                      {attendanceValue}
+                                    </MenuButton>
+                                  </div>
+                                  {openMenuDay === dayObj.day &&
+                                    ["P", "A", "F"].includes(
+                                      attendanceValue
+                                    ) && (
+                                      <MenuItems className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <div className="py-1">
+                                          <MenuItem>
+                                            <a
+                                              href="#"
+                                              className="block px-4 py-2 text-sm text-gray-700"
+                                            >
+                                              Update Attendance
+                                            </a>
+                                          </MenuItem>
+                                          <MenuItem>
+                                            <label className="flex items-center text-sm text-gray-600 p-2">
+                                              <input
+                                                type="radio"
+                                                name={`attendance-${dayObj.day}`}
+                                                value="present"
+                                                onClick={(e) =>
+                                                  handleAttendanceChange(e)
+                                                }
+                                                className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                              />
+                                              Present: P
+                                            </label>
+                                          </MenuItem>
+                                          <MenuItem>
+                                            <label className="flex items-center text-sm text-gray-600 p-2">
+                                              <input
+                                                type="radio"
+                                                name={`attendance-${dayObj.day}`}
+                                                value="absent"
+                                                onClick={(e) =>
+                                                  handleAttendanceChange(e)
+                                                }
+                                                className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                              />
+                                              Absent: A
+                                            </label>
+                                          </MenuItem>
+                                          <MenuItem>
+                                            <label className="flex items-center text-sm text-gray-600 p-2">
+                                              <input
+                                                type="radio"
+                                                name={`attendance-${dayObj.day}`}
+                                                value="half-day"
+                                                onClick={(e) =>
+                                                  handleAttendanceChange(e)
+                                                }
+                                                className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                              />
+                                              Half Day: F
+                                            </label>
+                                          </MenuItem>
+                                          <MenuItem>
+                                            <label className="flex items-center text-sm text-gray-600 p-2">
+                                              <input
+                                                type="radio"
+                                                name={`attendance-${dayObj.day}`}
+                                                value="leave"
+                                                onClick={(e) =>
+                                                  handleAttendanceChange(e)
+                                                }
+                                                className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                              />
+                                              Leave: L
+                                            </label>
+                                          </MenuItem>
+                                          <MenuItem>
+                                            <div className="flex p-4">
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  setOpenMenuDay(null)
+                                                }
+                                                className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
+                                              >
+                                                Cancel
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  handleSave(
+                                                    dayObj.day,
+                                                    staff._id
+                                                  )
+                                                }
+                                                className="w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500"
+                                              >
+                                                Save
+                                              </button>
+                                            </div>
+                                          </MenuItem>
+                                        </div>
+                                      </MenuItems>
+                                    )}
+                                </Menu>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -586,8 +550,8 @@ function ManageStaffRegister() {
                   <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                     <div>
                       <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">1</span> to{' '}
-                        <span className="font-medium">10</span> of{' '}
+                        Showing <span className="font-medium">1</span> to{" "}
+                        <span className="font-medium">10</span> of{" "}
                         <span className="font-medium">97</span> results
                       </p>
                     </div>
@@ -667,7 +631,7 @@ function ManageStaffRegister() {
         )}
       </Formik>
     </>
-  )
+  );
 }
 
-export default ManageStaffRegister
+export default ManageStaffRegister;
