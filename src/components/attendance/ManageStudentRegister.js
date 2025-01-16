@@ -276,6 +276,7 @@ function ManageStudentRegister() {
         dayName: dayName,
       });
     }
+    console.log("Days in the month:", daysArray);
 
     return daysArray;
   };
@@ -293,6 +294,56 @@ function ManageStudentRegister() {
       console.error("Error getting data:", error);
     }
   };
+
+  // Filter holidays for the selected month
+  const getHolidaysForMonth = (holidays, month) => {
+    return holidays.filter((holiday) => {
+      const holidayStartDate = new Date(holiday.startDate);
+      const holidayEndDate = new Date(holiday.endDate);
+
+      // Check if the holiday falls within the selected month
+      return (
+        holidayStartDate.getMonth() + 1 === month ||
+        holidayEndDate.getMonth() + 1 === month
+      );
+    });
+  };
+
+  // In your component rendering:
+  const holidaysForMonth = getHolidaysForMonth(holidaysData, parseInt(month));
+
+  const holiday = [];
+
+  // const getHolidayData = async () => {
+  //   try {
+  //     const response = await getData(HOLIDAYS);
+  //     console.log("Response data for holidays:", response.data.data);
+  //     const uniqueDates = new Set();
+
+  //     // Iterate through the response data to extract startDate and endDate
+  //     response.data.data.forEach((holidayData) => {
+  //       const startDate = new Date(holidayData.startDate);
+  //       const endDate = holidayData.endDate
+  //         ? new Date(holidayData.endDate)
+  //         : startDate;
+
+  //       // Get all the dates in between startDate and endDate (inclusive)
+  //       let currentDate = new Date(startDate);
+  //       while (currentDate <= endDate) {
+  //         uniqueDates.add(currentDate.getDate());
+  //         currentDate.setDate(currentDate.getDate() + 1);
+  //       }
+  //     });
+
+  //     // Convert the Set to an array and store it in the `holiday` variable
+  //     const uniqueDatesArray = Array.from(uniqueDates);
+  //     holiday.push(...uniqueDatesArray);
+
+  //     console.log("Extracted holidays without duplicates:", holiday);
+  //   } catch (error) {
+  //     console.error("Error getting data:", error);
+  //   }
+  // };
 
   const isHoliday = (date) => {
     return holidaysData.some(
@@ -542,49 +593,35 @@ function ManageStudentRegister() {
                             0
                           </td>
 
-                          {/* {days.map((dayObj, index) => {
-                          // Check if the day is a Sunday
-                          const isSunday = dayObj.dayName === "Sun";
-                          const attendanceValue =
-                            student.attendance[dayObj.day] ||
-                            (isSunday ? "S" : "N/A");
-                          const attendanceClass = isSunday
-                            ? "bg-red-100 text-gray-900"
-                            : attendanceValue === "P"
-                            ? "text-gray-500" // Present
-                            : attendanceValue === "A"
-                            ? "text-yellow-800 bg-yellow-100"
-                            : attendanceValue === "S"
-                            ? "text-gray-900 bg-red-100"
-                            : attendanceValue === "F"
-                            ? "text-gray-900 bg-blue-100"
-                            : "text-gray-500";
-
-                          return (
-                            <td
-                              key={dayObj.day}
-                              className={`whitespace-nowrap px-2 py-2 text-sm text-center ${attendanceClass}`}
-                            >
-                              {attendanceValue}
-                            </td>
-                          );
-                        })} */}
                           {days.map((dayObj, index) => {
                             const isSunday = dayObj.dayName === "Sun";
 
-                            const isHoliday = holidaysData?.some(
-                              (holiday) =>
-                                new Date(holiday.date).getDate() === dayObj.day
+                            // const attendanceValue =
+                            //   student.attendance[dayObj.day] ||
+                            //   (isSunday ? "S" : "N/A");
+
+                            const isHoliday = holidaysForMonth.some(
+                              (holiday) => {
+                                const holidayStart = new Date(
+                                  holiday.startDate
+                                ).getDate();
+                                const holidayEnd = new Date(
+                                  holiday.endDate
+                                ).getDate();
+                                return (
+                                  dayObj.day >= holidayStart &&
+                                  dayObj.day <= holidayEnd
+                                );
+                              }
                             );
 
                             const attendanceValue = isHoliday
                               ? "H"
-                              : student.attendance[dayObj.day] ||
-                                (isSunday ? "S" : "N/A");
-
-                            const attendanceClass = isHoliday
-                              ? "text-green-800 bg-green-100" // Holidays
                               : isSunday
+                              ? "S"
+                              : student.attendance[dayObj.day] || "N/A";
+
+                            const attendanceClass = isSunday
                               ? "bg-red-100 text-gray-900" // Sundays
                               : attendanceValue === "P"
                               ? "text-gray-500" // Present
@@ -597,7 +634,11 @@ function ManageStudentRegister() {
                             return (
                               <td
                                 key={dayObj.day}
-                                className={`whitespace-nowrap px-2 py-2 text-sm text-center ${attendanceClass}`}
+                                className={`whitespace-nowrap px-2 py-2 text-sm text-center ${
+                                  holiday.includes(dayObj.day)
+                                    ? "text-red-500"
+                                    : attendanceClass
+                                }`}
                               >
                                 <Menu
                                   as="div"
@@ -617,7 +658,7 @@ function ManageStudentRegister() {
                                       {attendanceValue}
                                     </MenuButton>
                                   </div>
-                                  {openMenuDay === dayObj.day &&
+                                  {openMenuDay == dayObj.day &&
                                     ["P", "A", "F"].includes(
                                       attendanceValue
                                     ) && (

@@ -211,6 +211,7 @@ const ManageStudentDailyAttendance = () => {
 
 
   const handleSubmit = async (values) => {
+        console.log("Form submitted with values:", values);
         values["userType"] = "student";
 
     try {
