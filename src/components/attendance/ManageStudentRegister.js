@@ -135,13 +135,20 @@ function ManageStudentRegister() {
         // Create an object to map dates to attendance statuses
         const attendanceMap = {}
         student.attendance.forEach((record) => {
+<<<<<<< Updated upstream
           const date = new Date(record.date).getDate() // Extract day of the month
           attendanceMap[date] = record.attendanceStatus // Map day to status
         })
+=======
+          const date = new Date(record.date).getDate(); 
+          attendanceMap[date] = record.attendanceStatus; 
+        });
+>>>>>>> Stashed changes
 
         return {
           id: student._id,
           name: `${student.firstName} ${student.lastName}`,
+<<<<<<< Updated upstream
           profilePicture: student.profilePic || 'default-profile-pic-url', // Default picture if null
           attendance: attendanceMap, // Attendance map by date
         }
@@ -150,6 +157,15 @@ function ManageStudentRegister() {
       console.log('Processed student data:', processedData)
       // Set state with processed data
       setStudents(processedData)
+=======
+          profilePicture: student.profilePic || "default-profile-pic-url", 
+          attendance: attendanceMap, 
+        };
+      });
+
+      console.log("Processed student data:", processedData);
+      setStudents(processedData);
+>>>>>>> Stashed changes
     } catch (error) {
       console.error('Error getting data:', error)
     }

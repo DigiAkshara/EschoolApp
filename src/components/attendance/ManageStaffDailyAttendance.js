@@ -101,12 +101,10 @@ const ManageStaffDailyAttendance = () => {
   };
 
   const handleSubmit = async (values) => {
-    console.log("Form submitted with values:", values);
     values["userType"] = "staff";
 
     try {
       const response = await postData(ATTENDANCE, values);
-      console.log("Data successfully posted:", response.data);
     } catch (error) {
       console.error("Error while posting data:", error);
     }

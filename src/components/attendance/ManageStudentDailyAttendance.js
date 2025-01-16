@@ -95,7 +95,6 @@ const ManageStudentDailyAttendance = () => {
   const getHolidayData = async () => {
     try {
       const response = await getData(HOLIDAYS)
-      console.log(response.data.data);
       
       setHolidaysData(response.data.data)
     } catch (error) {
@@ -122,7 +121,6 @@ const ManageStudentDailyAttendance = () => {
   const getSections = async (classId) => {
     try {
       const response = await getData(SECTIONS + "/" + classId);
-      console.log("Sections data is:", response.data);
   
       if (response.data?.data?.length > 0) {
         const sectionData = response.data.data.map((item) => ({
@@ -152,7 +150,6 @@ const ManageStudentDailyAttendance = () => {
   const getStudents = async (classId, sectionID) => {
     try {
       const res = await getData(ACADEMICS+"/"+classId+"/"+sectionID);
-      console.log("students data is:", res.data);
   
       if (res.data?.data) {
         const stuData = res.data.data.map((item) => ({
@@ -165,7 +162,6 @@ const ManageStudentDailyAttendance = () => {
           section: item.section || "N/A", 
         }));
   
-        console.log("student data is:", stuData);
         setStudentList(stuData);
       } else {
         console.warn("No data found for the specified class and section.");
@@ -215,12 +211,10 @@ const ManageStudentDailyAttendance = () => {
 
 
   const handleSubmit = async (values) => {
-        console.log("Form submitted with values:", values);
         values["userType"] = "student";
 
     try {
       const response = await postData(ATTENDANCE, values);
-      console.log("Data successfully posted:", response.data);
         
          } catch (error) {
       console.error("Error while posting data:", error);
