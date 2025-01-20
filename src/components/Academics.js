@@ -12,8 +12,6 @@ export default function Academics() {
   const dispatch = useDispatch()
   const [activeTab, setActiveTab] = useState(null)
 
-
-
   const renderTabContent = () => {
     switch (activeTab) {
       case 'daily_time_tables':

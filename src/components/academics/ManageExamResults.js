@@ -1,15 +1,13 @@
-'use client'
+"use client";
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  MagnifyingGlassIcon,
-} from '@heroicons/react/20/solid'
+  MagnifyingGlassIcon
+} from "@heroicons/react/20/solid";
 import {
   ArrowDownTrayIcon,
   ArrowsUpDownIcon,
   FunnelIcon,
-} from '@heroicons/react/24/outline'
-import React, {useEffect, useRef, useState} from 'react'
+} from "@heroicons/react/24/outline";
+import React, { useEffect, useState } from "react";
 
 import {
   Button,
@@ -18,89 +16,102 @@ import {
   MenuButton,
   MenuItem,
   MenuItems,
-} from '@headlessui/react'
+} from "@headlessui/react";
 
-import {useDispatch, useSelector} from 'react-redux'
-import {getData} from '../../app/api'
-import {selectExam, setExams} from '../../app/reducers/examSlice'
-import {EXAM} from '../../app/url'
-import ExamMarkDetailsPage from './ExamMarkDetailsPage'
-import ManageExamMarks from './ManageExamMarks'
+import moment from "moment";
+import { useDispatch, useSelector } from "react-redux";
+import { selectExam } from "../../app/reducers/examSlice";
+import ExamMarkDetailsPage from "./ExamMarkDetailsPage";
+import ManageExamMarks from "./ManageExamMarks";
 
 const people = [
   {
-    name: 'Lindsay Walton',
-    title: 'Front-end Developer',
-    email: 'lindsay.walton@example.com',
-    role: 'Member',
+    name: "Lindsay Walton",
+    title: "Front-end Developer",
+    email: "lindsay.walton@example.com",
+    role: "Member",
   },
   // More people...
-]
+];
 
 function ManageExamResults() {
-  const [selectedPeople, setSelectedPeople] = useState([])
-  const [open, setOpen] = useState(false)
-  const [open2, setOpen2] = useState(false)
-
-  const checkbox = useRef()
-  const [checked, setChecked] = useState(false)
-  const [indeterminate, setIndeterminate] = useState(false)
-  const [examData, setExamData] = useState([])
-  const dispatch = useDispatch()
-  const exams = useSelector((state) => state.exams.exams)
-
+  const exams = useSelector((state) => state.exams.exams);
+  const dispatch = useDispatch();
+  const [selectedPeople, setSelectedPeople] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [examData, setExamData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+  const columns = [
+    { key: "examName", title: "Exam Name" },
+    { key: "className", title: "Class" },
+    { key: "sectionName", title: "Section" },
+    { key: "examDates", title: "Exam Dates" },
+    { key: "markStatus", title: "Marks Status" },
+    { key: "passPercentage", title: "Pass Percentage" },
+    { key: "results", title: "Results" }, 
+  ];
   useEffect(() => {
-    getExamData()
-  }, [])
+    formatExamData();
+  }, []);
 
-  const getExamData = async () => {
-    try {
-      const response = await getData(EXAM)
-      if (response.status === 200) {
-        const formatter = new Intl.DateTimeFormat('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })
-        const data = response.data.data.map((item, index) => {
-          // Formatting the timeTable data
-          const timeTableFormatted = item.timeTable.map((t) => ({
-            subject: t.subject,
-            examDate: formatter.format(new Date(t.examDate)),
-            startTime: t.startTime,
-            endTime: t.endTime,
-            passMark: t.passMark,
-            totalMark: t.totalMark,
-            syllabus: t.syllabus,
-          }))
+  const formatExamData = async () => {
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+    const data = exams.map((item, index) => {
+      // Formatting the timeTable data
+      const timeTableFormatted = item.timeTable.map((t) => ({
+        subject: t.subject,
+        examDate: formatter.format(new Date(t.examDate)),
+        startTime: t.startTime,
+        endTime: t.endTime,
+        passMark: t.passMark,
+        totalMark: t.totalMark,
+        syllabus: t.syllabus,
+      }));
 
-          return {
-            id: index + 1,
-            name: item.name,
-            section: item.section,
-            examDates: `${formatter.format(
-              new Date(item.startDate),
-            )} - ${formatter.format(new Date(item.endDate))}`,
-            board: item.board,
-            classCategory: item.classCategory,
-            timeTable: timeTableFormatted, // Add the formatted timeTable data
-          }
-        })
-        setExamData(data)
-        dispatch(setExams(data))
+      const isPassed = moment().isAfter(moment(item.endDate, "YYYY-MM-DD"));
+      const markStatus =  isPassed ? item.examStatus?"Completed":"Pending" : "Not Yet Started";
+      const passPercentage = "-"
+      if(item.examStatus){
+        passPercentage = getPercentage(item.timeTable)
       }
-    } catch (error) {
-      console.error('Error fetching exam data:', error)
-    }
-  }
+      return {
+        id: index + 1,
+        examName: item.name,
+        category: item.classCategory?._id,
+        categoryObject: item.classCategory,
+        categoryName: item.classCategory?.name,
+        class: item.class?._id,
+        className: item.class?.name,
+        classObject: item.class,
+        section: item.section?._id,
+        sectionName: item.section?.section,
+        sectionObject: item.section,
+        examDates: `${formatter.format(new Date(item.startDate))} - ${formatter.format(new Date(item.endDate))}`,
+        board: item.board,
+        timeTable: timeTableFormatted, // Add the formatted timeTable data
+        markStatus:markStatus,
+        passPercentage: "",
+        results: "",
+      };
+    });
+    setExamData(data);
+    setFilteredData(data)
+  };
 
-  const handleClose = () => setOpen(false)
-  const handleClose2 = () => setOpen2(false)
+  const handleClose = () => setOpen(false);
+  const handleClose2 = () => setOpen2(false);
 
   const handleAddButton = (data) => {
-    dispatch(selectExam(data))
-    setOpen(true)
-  }
+    dispatch(selectExam(data));
+    setOpen(true);
+  };
 
   return (
     <>
@@ -312,7 +323,7 @@ function ManageExamResults() {
                 </div>
               </div>
 
-              <div className="table-container-main overflow-y-auto max-h-[56vh]">
+              <div className="table-container-main max-h-[56vh]">
                 {/* Table View */}
                 <table className="table-auto min-w-full divide-y divide-gray-300">
                   <thead className="sticky top-0 bg-purple-100 z-20">
@@ -430,7 +441,7 @@ function ManageExamResults() {
                         A
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                        {' '}
+                        {" "}
                         03/12/2024 - 09/12/2024
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
@@ -453,7 +464,7 @@ function ManageExamResults() {
                         key={data.email}
                         className={
                           selectedPeople.includes(data)
-                            ? 'bg-gray-50'
+                            ? "bg-gray-50"
                             : undefined
                         }
                       >
@@ -470,14 +481,14 @@ function ManageExamResults() {
                               setSelectedPeople(
                                 e.target.checked
                                   ? [...selectedPeople, data]
-                                  : selectedPeople.filter((p) => p !== data),
+                                  : selectedPeople.filter((p) => p !== data)
                               )
                             }
                           />
                         </td>
 
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          {data.name}
+                          {data.examName}
                         </td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
@@ -505,101 +516,6 @@ function ManageExamResults() {
                   </tbody>
                 </table>
               </div>
-              <div className="pagination">
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-3 py-3 sm:px-3">
-                  <div className="flex flex-1 justify-between sm:hidden">
-                    <a
-                      href="#"
-                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Previous
-                    </a>
-                    <a
-                      href="#"
-                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Next
-                    </a>
-                  </div>
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">1</span> to{' '}
-                        <span className="font-medium">10</span> of{' '}
-                        <span className="font-medium">97</span> results
-                      </p>
-                    </div>
-                    <div>
-                      <nav
-                        aria-label="Pagination"
-                        className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                      >
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          <span className="sr-only">Previous</span>
-                          <ChevronLeftIcon
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </a>
-                        {/* Current: "z-10 bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
-                        <a
-                          href="#"
-                          aria-current="page"
-                          className="relative z-10 inline-flex items-center bg-purple-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-                        >
-                          1
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          2
-                        </a>
-                        <a
-                          href="#"
-                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                        >
-                          3
-                        </a>
-                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-                          ...
-                        </span>
-                        <a
-                          href="#"
-                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                        >
-                          8
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          9
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          10
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          <span className="sr-only">Next</span>
-                          <ChevronRightIcon
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </a>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -611,7 +527,7 @@ function ManageExamResults() {
         <ExamMarkDetailsPage onClose={handleClose2} />
       </Dialog>
     </>
-  )
+  );
 }
 
-export default ManageExamResults
+export default ManageExamResults;

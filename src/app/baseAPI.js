@@ -26,7 +26,6 @@ const createInstance = (URL) => {
     (response) => response,
     (error) => Promise.reject(error),
   )
-
   return instance
 }
 

@@ -232,7 +232,7 @@ export default function Class() {
               </div>
             )}
             <div className=" shadow ring-1 ring-black/5 sm:rounded-lg">
-              <div className="table-container-main overflow-y-auto max-h-[56vh]">
+              <div className="table-container-main max-h-[56vh]">
                 <FilterComponent
                   onSearch={handleSearch}
                   filters={filters}
@@ -250,7 +250,7 @@ export default function Class() {
                     totalPages: Math.ceil(classData.length / rowsPerPage),
                     onPageChange: handlePageChange,
                   }}
-                  modalColumn="time_table"
+                  modalColumn={["time_table"]}
                   showModal={(data) => handleViewClick(data)}
                 />
               </div>

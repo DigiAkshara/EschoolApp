@@ -1,16 +1,19 @@
-import {DialogPanel, DialogTitle} from '@headlessui/react'
-import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/20/solid'
+import { DialogPanel, DialogTitle } from "@headlessui/react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   DocumentArrowDownIcon,
   EyeIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline'
-import {UserCircleIcon} from '@heroicons/react/24/solid'
-import React from 'react'
-import {useSelector} from 'react-redux'
+} from "@heroicons/react/24/outline";
+import { UserCircleIcon } from "@heroicons/react/24/solid";
+import React from "react";
+import { useSelector } from "react-redux";
+import { capitalizeWords } from "../../commonComponent/CommonFunctions";
 
-function ExamDetailsPage({onClose2}) {
-  const selectedExam = useSelector((state) => state.exams.selectedExam)
+function ExamDetailsPage({ onClose }) {
+  const selectedExam = useSelector((state) => state.exams.selectedExam);
+  const subjects = useSelector((state) => state.academics.subjects);
+  console.log(selectedExam, "selectedExam");
   return (
     <>
       <div className="fixed inset-0" />
@@ -32,7 +35,7 @@ function ExamDetailsPage({onClose2}) {
                       <div className="ml-3 flex h-7 items-center">
                         <button
                           type="button"
-                          onClick={onClose2}
+                          onClick={onClose}
                           className="relative rounded-md text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
                           <span className="absolute -inset-2.5" />
@@ -81,7 +84,7 @@ function ExamDetailsPage({onClose2}) {
                                   Class Category
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.board}
+                                  {selectedExam.classCategory?.name}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -89,7 +92,7 @@ function ExamDetailsPage({onClose2}) {
                                   Class
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  Class 1
+                                  {selectedExam.className}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -97,15 +100,15 @@ function ExamDetailsPage({onClose2}) {
                                   Section
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.section}
+                                  {selectedExam.sectionName}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
-                                  Exam Name{' '}
+                                  Exam Name{" "}
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.name}
+                                  {selectedExam.examName}
                                 </dd>
                               </div>
 
@@ -134,7 +137,7 @@ function ExamDetailsPage({onClose2}) {
                                 />
                               </div>
                               <div className="text-lg pl-4 font-medium text-gray-900">
-                                {' '}
+                                {" "}
                                 Exam Time Table
                               </div>
                             </div>
@@ -199,7 +202,15 @@ function ExamDetailsPage({onClose2}) {
                                 {selectedExam.timeTable.map((exam, index) => (
                                   <tr Key={index}>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">
-                                      {exam.subject}
+                                      {subjects.map((subject) => {
+                                        if (subject.value === exam.subject) {
+                                          return (
+                                            <span>
+                                              {capitalizeWords(subject.label)}
+                                            </span>
+                                          );
+                                        }
+                                      })}
                                     </td>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                                       {exam.examDate}
@@ -280,7 +291,7 @@ function ExamDetailsPage({onClose2}) {
                 <div className="flex shrink-0 items-center justify-between px-4 py-4 bg-gray-100">
                   <div>
                     <p className="text-sm text-gray-700">
-                      Showing <span className="font-medium">1</span> out of{' '}
+                      Showing <span className="font-medium">1</span> out of{" "}
                       <span className="font-medium">122</span> results
                     </p>
                   </div>
@@ -319,7 +330,7 @@ function ExamDetailsPage({onClose2}) {
         </div>
       </div>
     </>
-  )
+  );
 }
 
-export default ExamDetailsPage
+export default ExamDetailsPage;

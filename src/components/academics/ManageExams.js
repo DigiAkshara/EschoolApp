@@ -5,7 +5,7 @@ import {PlusIcon} from '@heroicons/react/20/solid'
 import React, {useEffect, useRef, useState} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 import {getData} from '../../app/api'
-import {selectExam, setExams} from '../../app/reducers/examSlice'
+import {fetchExamData, selectExam, setExams} from '../../app/reducers/examSlice'
 import {EXAM} from '../../app/url'
 import CreateExam from './CreateExam'
 import ExamDetailsPage from './ExamDetailsPage'
@@ -18,10 +18,8 @@ function classNames(...classes) {
 
 export default function ManageExams() {
   const [open, setOpen] = useState(false)
-  const [open2, setOpen2] = useState(false)
-  const [examData, setExamData] = useState([])
+  const [open2, setOpen2] = useState(false) 
   const dispatch = useDispatch()
-  const exams = useSelector((state) => state.exams.exams)
   const [activeTab, setActiveTab] = useState(0)
 
   const tabs2 = [
@@ -38,50 +36,9 @@ export default function ManageExams() {
   ]
 
   useEffect(() => {
-    getExamData()
-  }, [])
-
-  const getExamData = async () => {
-    try {
-      const response = await getData(EXAM)
-      if (response.status === 200) {
-        const formatter = new Intl.DateTimeFormat('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })
-        const data = response.data.data.map((item, index) => {
-          // Formatting the timeTable data
-          const timeTableFormatted = item.timeTable.map((t) => ({
-            subject: t.subject,
-            examDate: formatter.format(new Date(t.examDate)),
-            startTime: t.startTime,
-            endTime: t.endTime,
-            passMark: t.passMark,
-            totalMark: t.totalMark,
-            syllabus: t.syllabus,
-          }))
-
-          return {
-            id: index + 1,
-            name: item.name,
-            section: item.section,
-            examDates: `${formatter.format(
-              new Date(item.startDate),
-            )} - ${formatter.format(new Date(item.endDate))}`,
-            board: item.board,
-            classCategory: item.classCategory,
-            timeTable: timeTableFormatted, // Add the formatted timeTable data
-          }
-        })
-        setExamData(data)
-        dispatch(setExams(data))
-      }
-    } catch (error) {
-      console.error('Error fetching exam data:', error)
-    }
-  }
-
+    dispatch(fetchExamData())
+  },[dispatch])
+ 
   const handleClose = () => setOpen(false)
   const handleClose2 = () => setOpen2(false)
 

@@ -34,7 +34,7 @@ const academicSlice = createSlice({
     sections: [],
     teachers: [],
     subjects: [],
-    selectedClass: null,
+    selectedClass: null
   },
   reducers: {
     updateSelectedClass: (state, action) => {
