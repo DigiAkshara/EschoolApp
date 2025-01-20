@@ -85,7 +85,7 @@ function ManageExamResults() {
 
       const isPassed = moment().isAfter(moment(item.endDate, "YYYY-MM-DD"));
       const markStatus =  isPassed ? item.examStatus?"Completed":"Pending" : "Not Yet Started";
-      const passPercentage = "-"
+      let passPercentage = "-"
       if(item.examStatus){
         passPercentage = getPercentage(item.timeTable)
       }

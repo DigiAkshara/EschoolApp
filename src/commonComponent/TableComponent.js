@@ -140,7 +140,7 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
                   >
                     {col.key === 'date'
                       ? moment(record[col.key]).format('DD-MM-YYYY')
-                      : modalColumn.includes(col.key)?<a onClick={() => showModal && showModal(record)}>{record[col.key]}</a>: record[col.key]}
+                      : modalColumn?.includes(col.key)?<a onClick={() => showModal && showModal(record)}>{record[col.key]}</a>: record[col.key]}
                   </td>
                 ),
               )}
