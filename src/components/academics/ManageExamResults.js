@@ -57,6 +57,14 @@ function ManageExamResults() {
     formatExamData();
   }, []);
 
+  const getPercentage = (timeTable) => {
+    const totalSubjects = timeTable.length;
+    const passedSubjects = timeTable.filter(
+      (subject) => subject.totalMark >= subject.passMark
+    ).length;
+    return ((passedSubjects / totalSubjects) * 100).toFixed(2);
+  }
+
   const formatExamData = async () => {
     const formatter = new Intl.DateTimeFormat("en-GB", {
       day: "2-digit",
