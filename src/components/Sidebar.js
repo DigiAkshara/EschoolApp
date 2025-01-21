@@ -21,6 +21,7 @@ export default function Sidebar({sidebarOpen, updateSideBar}) {
   const dispatch = useDispatch()
 
   const handleMenuClick = (menu) => {
+    updateSideBar(false)
     dispatch(setActiveMenu(menu.name))
     navigate(menu.path)
   }
@@ -38,6 +39,45 @@ export default function Sidebar({sidebarOpen, updateSideBar}) {
         )}
       />
     ) : null
+  }
+
+  const navMenu = ()=>{
+    return(
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-purple-900 px-6 pb-4">
+          <div className="flex h-16 shrink-0 items-center">
+            <img
+              alt="Your Company"
+              src="https://tailwindui.com/plus/img/logos/mark.svg?color=white"
+              className="h-8 w-auto"
+            />
+            <h5 className="px-4 text-white">DigiAkshara</h5>
+          </div>
+          <nav className="flex flex-1 flex-col">
+            <ul role="list" className="flex flex-1 flex-col gap-y-7">
+              <li>
+                <ul role="list" className="-mx-2 space-y-1">
+                  {navConfig.map((item) => (
+                    <li key={item.name}>
+                      <a
+                        onClick={() => handleMenuClick(item)}
+                        className={classNames(
+                          activeMenu?.toLowerCase() === item.name?.toLowerCase()
+                            ? 'bg-purple-700 text-white'
+                            : 'text-purple-200 hover:bg-purple-700 hover:text-white',
+                          'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold cursor-pointer',
+                        )}
+                      >
+                        {getIcon(item)}
+                        {item.title}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            </ul>
+          </nav>
+        </div>
+    )
   }
 
   return (
@@ -72,7 +112,9 @@ export default function Sidebar({sidebarOpen, updateSideBar}) {
                 </button>
               </div>
             </TransitionChild>
+            
             {/* Sidebar component, swap this element with another sidebar if you like */}
+            {navMenu()}
           </DialogPanel>
         </div>
       </Dialog>
@@ -80,40 +122,7 @@ export default function Sidebar({sidebarOpen, updateSideBar}) {
       {/* Static sidebar for desktop */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         {/* Sidebar component, swap this element with another sidebar if you like */}
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-purple-900 px-6 pb-4">
-          <div className="flex h-16 shrink-0 items-center">
-            <img
-              alt="Your Company"
-              src="https://tailwindui.com/plus/img/logos/mark.svg?color=white"
-              className="h-8 w-auto"
-            />
-            <h5 className="px-4 text-white">DigiAkshara</h5>
-          </div>
-          <nav className="flex flex-1 flex-col">
-            <ul role="list" className="flex flex-1 flex-col gap-y-7">
-              <li>
-                <ul role="list" className="-mx-2 space-y-1">
-                  {navConfig.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        onClick={() => handleMenuClick(item)}
-                        className={classNames(
-                          activeMenu?.toLowerCase() === item.name?.toLowerCase()
-                            ? 'bg-purple-700 text-white'
-                            : 'text-purple-200 hover:bg-purple-700 hover:text-white',
-                          'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold cursor-pointer',
-                        )}
-                      >
-                        {getIcon(item)}
-                        {item.title}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        {navMenu()}
       </div>
     </>
   )
