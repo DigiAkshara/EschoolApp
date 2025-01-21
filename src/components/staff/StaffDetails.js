@@ -59,7 +59,7 @@ export default function StaffDetails() {
         designation: designations.find(
           (designations) => designations.value === item.designation,
         ).label,
-        subjects: item.subjects,
+        subjects: item.subjects?.name,
         class: item.class,
         actions: [
           {label: 'Edit', actionHandler: onHandleEdit},

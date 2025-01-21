@@ -12,7 +12,7 @@ import {getData, postData} from '../../app/api'
 import {ACADEMIC_YEAR, HOLIDAYS} from '../../app/url'
 import {
   capitalizeWords,
-  formatDateRange,
+  formatDate,
 } from '../../commonComponent/CommonFunctions'
 import ManageHolidaySidebar from './ManageHolidaySidebar'
 
@@ -96,8 +96,8 @@ const ManageHolidayAttendance = () => {
   }
 
   const formatHolidayDate = (startDate, endDate) => {
-    const formatStartDate = formatDateRange(startDate)
-    const formatEndDate = formatDateRange(endDate)
+    const formatStartDate = formatDate(startDate)
+    const formatEndDate = formatDate(endDate)
     return formatStartDate === formatEndDate
       ? formatStartDate
       : `${formatStartDate} to ${formatEndDate}`

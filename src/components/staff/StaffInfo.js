@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {getData} from '../../app/api'
 import {SUBJECTS} from '../../app/url'
-import {designations} from '../../commonComponent/CommonFunctions'
+import {designations, staffType} from '../../commonComponent/CommonFunctions'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
@@ -59,7 +59,7 @@ function StaffInfo() {
           </div>
 
           <div className="sm:col-span-2">
-            <CustomDate name="DOJ" label="Date Of Joining" required={true} />
+            <CustomDate name="DOJ" label="Date Of Joining" required={true}/>
           </div>
         </div>
       </div>
@@ -71,6 +71,15 @@ function StaffInfo() {
               name="workEmail"
               label="Work Email"
               placeholder="Enter email"
+              required={true}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <CustomSelect
+              name="staffType"
+              label="Staff Type"
+              options={staffType}
               required={true}
             />
           </div>

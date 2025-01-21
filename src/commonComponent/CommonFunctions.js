@@ -1,3 +1,4 @@
+import moment from 'moment'
 import {getData, postData} from '../app/api'
 import {CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD} from '../app/url'
 
@@ -20,23 +21,14 @@ export const getAcademicYears = () => {
   return academicYears
 }
 
-export const formatDateRange = (date) => {
-  const formattedStartDate = new Date(date).toLocaleDateString('en-GB')
-  return formattedStartDate
+export const formatDate = (date) => {
+  const formattedDate = moment(date).format('YYYY-MM-DD');
+  return formattedDate
 }
 
-export const getFeeGroups = [
-  {value: '1', label: 'Primary'},
-  {value: '2', label: 'Secondary'},
-  {value: '3', label: 'Tertiary'},
-  {value: '4', label: 'Quaternary'},
-  {value: '5', label: 'Quinary'},
-]
-
-export const applyFees = [
-  {value: 'all', label: 'All'},
-  {value: 'old', label: 'Old Students'},
-  {value: 'new', label: 'New Students'},
+export const staffType = [
+  {value: 'teching', label: 'Teaching'},
+  {value: 'non-teaching', label: 'Non-Teaching'}
 ]
 
 export const feeduration = [
@@ -48,16 +40,6 @@ export const roles = [
   {value: 'staff', label: 'Staff'},
   {value: 'student', label: 'student'},
   {value: 'other', label: 'other'},
-]
-
-export const feeDiscount = [
-  {value: '0', label: '0%'},
-  {value: '5', label: '5%'},
-  {value: '10', label: '10%'},
-  {value: '15', label: '15%'},
-  {value: '20', label: '20%'},
-  {value: '25', label: '25%'},
-  {value: '30', label: '30%'},
 ]
 
 export const gender = [

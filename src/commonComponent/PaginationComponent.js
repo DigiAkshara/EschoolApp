@@ -2,10 +2,26 @@ import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/20/solid'
 
 const PaginationComponent = ({
   currentPage,
-  totalPages,
-  pageSize,
+  totalCount,
   onPageChange,
 }) => {
+  function calculatePagination(totalCount, currentPage, itemsPerPage=10) {
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage - 1, totalCount - 1);
+
+    return {
+        totalPages,
+        startIndex,
+        endIndex,
+        currentPage,
+        hasNextPage: currentPage < totalPages,
+        hasPrevPage: currentPage > 1,
+    };
+}
+
+const pagination = calculatePagination(totalCount, currentPage);
+
   return (
     <>
       <div className="pagination">
@@ -29,10 +45,10 @@ const PaginationComponent = ({
               <p className="text-sm text-gray-700">
                 Showing{' '}
                 <span className="font-medium">
-                  {(currentPage - 1) * pageSize + 1}
+                  {pagination.startIndex + 1}
                 </span>{' '}
-                to <span className="font-medium">{currentPage * pageSize}</span>{' '}
-                of <span className="font-medium">{totalPages}</span> results
+                to <span className="font-medium">{pagination.endIndex + 1}</span>{' '}
+                of <span className="font-medium">{totalCount}</span> results
               </p>
             </div>
             <div>
@@ -48,14 +64,14 @@ const PaginationComponent = ({
                   <ChevronLeftIcon aria-hidden="true" className="size-5" />
                 </a>
                 {/* Current: "z-10 bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
-                {Array.from({length: totalPages}, (_, index) => index + 1).map(
+                {Array.from({length: pagination.totalPages}, (_, index) => index + 1).map(
                   (page) => (
                     <a
                       key={page}
                       href="#"
-                      aria-current={page === currentPage ? 'page' : undefined}
+                      aria-current={page === pagination.currentPage ? 'page' : undefined}
                       className={`relative z-10 inline-flex items-center ${
-                        page === currentPage
+                        page === pagination.currentPage
                           ? 'bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600'
                           : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0'
                       } px-4 py-2 text-sm font-semibold`}
@@ -68,8 +84,8 @@ const PaginationComponent = ({
                 <a
                   href="#"
                   className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                  disabled={currentPage === totalPages}
-                  onClick={() => onPageChange(currentPage + 1)}
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  onClick={() => onPageChange(pagination.currentPage + 1)}
                 >
                   <span className="sr-only">Next</span>
                   <ChevronRightIcon aria-hidden="true" className="size-5" />
