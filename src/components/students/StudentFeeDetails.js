@@ -1,5 +1,5 @@
 import {InformationCircleIcon} from '@heroicons/react/24/outline'
-import {FieldArray} from 'formik'
+import {FieldArray, ErrorMessage} from 'formik'
 import React, {useEffect, useState} from 'react'
 import {getData} from '../../app/api'
 import {FEES} from '../../app/url'
@@ -12,7 +12,7 @@ import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-function StudentFeeDetails({values, setFieldValue}) {
+function StudentFeeDetails({values, setFieldValue,errors}) {
   const [checked, setChecked] = useState(false)
   const [fees, setFees] = useState([])
   const [classData, setClassData] = useState(null)
@@ -55,7 +55,7 @@ function StudentFeeDetails({values, setFieldValue}) {
       section: values.academicDetails.section,
     })
     setFieldValue('feesData', dumpList)
-    setFees(res.data)
+    // setFees(res.data)
   }
 
   const getTotalFee = () => {
@@ -84,6 +84,8 @@ function StudentFeeDetails({values, setFieldValue}) {
     setChecked(isAllChecked)
   }
 
+  console.log(errors, values.feesData)
+
   return (
     <>
       <div className="">
@@ -106,6 +108,9 @@ function StudentFeeDetails({values, setFieldValue}) {
               </div>
             </div>
           </div>
+          {errors.feesData && typeof errors.feesData === 'string' && (
+            <div className="text-red-500">{errors.feesData}</div>
+          )}
 
           <table className="mt-4 min-w-full table-fixed divide-y divide-gray-300 border border-gray-300">
             <thead className="bg-purple-100">

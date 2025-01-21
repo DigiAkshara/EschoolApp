@@ -20,7 +20,6 @@ function FeeCreation({onClose}) {
       academicYear: '',
       feeGroup: '',
       feeTitle: '',
-      feeAmount: '',
       fees: feeDetails.map((item) => ({
         name: item.name,
         _id: item._id,
@@ -35,7 +34,6 @@ function FeeCreation({onClose}) {
       academicYear: Yup.string().required('Academic year is required'),
       feeGroup: Yup.string().required('Fee Group is required'),
       feeTitle: Yup.string().required('Fee Title is required'),
-      feeAmount: Yup.number(),
       fees: Yup.array().of(
         Yup.object().shape({
           checked: Yup.boolean(),
@@ -186,15 +184,6 @@ function FeeCreation({onClose}) {
                                         label="Fee Title"
                                         placeholder="Enter Fee Title"
                                         required={true}
-                                      />
-                                    </div>
-
-                                    <div className="sm:col-span-1">
-                                      <CustomInput
-                                        type="number"
-                                        name="feeAmount"
-                                        label="Fee Amount"
-                                        placeholder="Enter Fee Amount"
                                       />
                                     </div>
                                   </div>

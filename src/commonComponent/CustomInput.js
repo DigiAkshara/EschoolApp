@@ -36,6 +36,7 @@ export default function CustomInput(props) {
           placeholder={placeholder}
           disabled={disabled}
           className={cls}
+          required={false}
         />
       </div>
       <ErrorMessage name={name} component="div" className="text-red-500" />

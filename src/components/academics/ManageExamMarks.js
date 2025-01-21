@@ -12,12 +12,15 @@ import CustomSelect from '../../commonComponent/CustomSelect'
 import ManageAddMarks from './ManageAddMarks'
 
 function ManageExamMarks({onClose}) {
-  const [classData, setClassData] = useState()
+  const { classCategories:categoryOptions, classes: classOptions, sections: sectionOptions } = useSelector(
+    (state) => state.academics
+  ); 
   const selectedExam = useSelector((state) => state.exams.selectedExam)
-  const subjects = selectedExam?.timeTable?.map((item) => ({
+  console.log(selectedExam, "selectedExam")
+  const subjects = selectedExam?selectedExam?.timeTable?.map((item) => ({
     label: item.subject,
     value: item.subject,
-  }))
+  })):[]
 
   const students = [
     {
@@ -36,7 +39,7 @@ function ManageExamMarks({onClose}) {
   const initialMarks = students.map((student) => ({
     student: student.name,
     marks: subjects.map((subject) => ({
-      subject: subject.label,
+      subject: subject.su,
       mark: '',
     })),
     marksObt: '',
@@ -44,13 +47,13 @@ function ManageExamMarks({onClose}) {
     percentage: '',
   }))
 
-  const getInitialValues = (subjects, students) => {
+  const getInitialValues = () => {
     return {
       board: selectedExam?.board || '',
-      classCategory: selectedExam?.classCategory || '',
+      classCategory: selectedExam?.category || '',
       class: selectedExam?.class || '',
       section: selectedExam?.section || '',
-      name: selectedExam?.name || '',
+      name: selectedExam?.examName || '',
       marks: initialMarks,
     }
   }
@@ -75,21 +78,9 @@ function ManageExamMarks({onClose}) {
       ),
     })
   }
+ 
 
-  useEffect(() => {
-    getClass()
-  }, [])
-
-  const getClass = async () => {
-    const res = await getData(CLASSES)
-    const classData = res.data.data.map((item) => {
-      return {
-        label: item.name,
-        value: item._id,
-      }
-    })
-    setClassData(classData)
-  }
+ 
 
   const handleSubmit = async (values) => {
     console.log('Exam values:', values)
@@ -98,7 +89,7 @@ function ManageExamMarks({onClose}) {
   return (
     <>
       <Formik
-        initialValues={getInitialValues(subjects, students)}
+        initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
@@ -157,7 +148,7 @@ function ManageExamMarks({onClose}) {
                                     <CustomSelect
                                       label="Class Category"
                                       name="classCategory"
-                                      options={classCategory}
+                                      options={categoryOptions}
                                     />
                                   </div>
 
@@ -165,14 +156,15 @@ function ManageExamMarks({onClose}) {
                                     <CustomSelect
                                       label="Class"
                                       name="class"
-                                      options={classData}
+                                      options={classOptions}
                                     />
                                   </div>
 
                                   <div className="sm:col-span-1">
-                                    <CustomInput
+                                    <CustomSelect
                                       label="Section"
                                       name="section"
+                                      options={sectionOptions}
                                     />
                                   </div>
 

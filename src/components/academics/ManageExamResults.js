@@ -23,6 +23,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectExam } from "../../app/reducers/examSlice";
 import ExamMarkDetailsPage from "./ExamMarkDetailsPage";
 import ManageExamMarks from "./ManageExamMarks";
+import TableComponent from "../../commonComponent/TableComponent";
+import FilterComponent from "../../commonComponent/FilterComponent";
 
 const people = [
   {
@@ -35,13 +37,17 @@ const people = [
 ];
 
 function ManageExamResults() {
+  const { classes: classOptions, sections: sectionOptions,subjects } = useSelector(
+    (state) => state.academics
+  );
   const exams = useSelector((state) => state.exams.exams);
   const dispatch = useDispatch();
-  const [selectedPeople, setSelectedPeople] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [open2, setOpen2] = useState(false);
+  const [selectedPeople, setSelectedPeople] = useState([]); 
   const [examData, setExamData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [showAddMarksModal, setShowAddMarksModal] = useState(false);
+  const [showExamDetailsModal, setShowExamDetailsModal] = useState(false);
+  const [examOptions, setExamOptions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const columns = [
@@ -53,6 +59,25 @@ function ManageExamResults() {
     { key: "passPercentage", title: "Pass Percentage" },
     { key: "results", title: "Results" }, 
   ];
+
+  const filterForm = {
+    examName: "",
+    class: "",
+    section: "",
+  };
+
+  const filters = {
+    examName: { options: examOptions },
+    class: {
+      options: classOptions,
+    },
+    section: {
+      options: sectionOptions,
+      dependency: true,
+      dependencyKey: "class",
+      filterOptions: true,
+    },
+  };
   useEffect(() => {
     formatExamData();
   }, []);
@@ -65,16 +90,23 @@ function ManageExamResults() {
     return ((passedSubjects / totalSubjects) * 100).toFixed(2);
   }
 
+  const getSubjectName = (subject) => {
+    const subjectOption = subjects.find((option) => option.value === subject);
+    return subjectOption ? subjectOption.label : "";
+  }
+
   const formatExamData = async () => {
     const formatter = new Intl.DateTimeFormat("en-GB", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
+    let dumpList = []
     const data = exams.map((item, index) => {
       // Formatting the timeTable data
       const timeTableFormatted = item.timeTable.map((t) => ({
         subject: t.subject,
+        subjectName: getSubjectName(t.subject),
         examDate: formatter.format(new Date(t.examDate)),
         startTime: t.startTime,
         endTime: t.endTime,
@@ -82,11 +114,14 @@ function ManageExamResults() {
         totalMark: t.totalMark,
         syllabus: t.syllabus,
       }));
-
+      dumpList.push({
+        label:item.name,
+        value:item.name
+      })
       const isPassed = moment().isAfter(moment(item.endDate, "YYYY-MM-DD"));
       const markStatus =  isPassed ? item.examStatus?"Completed":"Pending" : "Not Yet Started";
       let passPercentage = "-"
-      if(item.examStatus){
+      if(markStatus === "Completed"){
         passPercentage = getPercentage(item.timeTable)
       }
       return {
@@ -105,21 +140,69 @@ function ManageExamResults() {
         board: item.board,
         timeTable: timeTableFormatted, // Add the formatted timeTable data
         markStatus:markStatus,
-        passPercentage: "",
-        results: "",
+        passPercentage: passPercentage,
+        results: markStatus==="Completed"?"View":"Add",
       };
     });
+    setExamOptions(dumpList)
     setExamData(data);
     setFilteredData(data)
   };
 
-  const handleClose = () => setOpen(false);
-  const handleClose2 = () => setOpen2(false);
-
-  const handleAddButton = (data) => {
-    dispatch(selectExam(data));
-    setOpen(true);
+  const handleModalClose = () => {
+    setShowAddMarksModal(false);
+    setShowExamDetailsModal(false)
+    dispatch(selectExam(null));
   };
+ 
+ 
+
+
+  const handleViewDetails = (exam) => {
+    dispatch(selectExam({ ...exam, actions: null }));
+    if(exam.markStatus==="Completed"){
+      setShowExamDetailsModal(true)
+    }else{
+      setShowAddMarksModal(true);}
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleSearch = (term) => {
+    const filtered = examData.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase())
+      )
+    );
+    setFilteredData(filtered);
+  };
+
+
+  const handleFilter = (values) => {
+    let filtered = examData;
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        filtered = filtered.filter((rec) =>
+          rec[key].toLowerCase().includes(value.toLowerCase())
+        );
+      }
+    });
+    setFilteredData(filtered);
+  };
+
+  const handleReset = (updatedValues) => {
+    setFilteredData(examData);
+    updatedValues("examName", "");
+    updatedValues("class", "");
+    updatedValues("section", "");
+  };
+
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   return (
     <>
@@ -178,161 +261,16 @@ function ManageExamResults() {
             )}
             <div className="relative shadow ring-1 ring-black/5 sm:rounded-lg">
               {/* /Removed overflow-hidden cloass */}
-              <div className="relative table-tool-bar z-30">
-                <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <div className="relative rounded-md">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                          <MagnifyingGlassIcon
-                            aria-hidden="true"
-                            className="size-4 text-gray-400"
-                          />
-                        </div>
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="Search"
-                          className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="right-action-btns-blk space-x-4">
-                      <button
-                        type="button"
-                        className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                      >
-                        <ArrowDownTrayIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </button>
-                      <Menu
-                        as="div"
-                        className="relative inline-block text-left"
-                      >
-                        <div>
-                          <MenuButton className="relative inline-flex items-center rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                            <FunnelIcon aria-hidden="true" className="size-5" />
-                            Filters
-                            <span className="flex items-center justify-center text-center absolute w-5 h-5 rounded-full bg-red-500 text-white font-medium text-xs -right-2 -top-2">
-                              3
-                            </span>
-                          </MenuButton>
-                        </div>
-
-                        <MenuItems
-                          transition
-                          className="max-h-[430px] z-40 overflow-y-auto absolute right-0 z-10 mt-2 px-4 py-4 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                        >
-                          <div className="grid gap-3 ">
-                            <MenuItem className="group mb-2">
-                              <div className="flex">
-                                <FunnelIcon
-                                  aria-hidden="true"
-                                  className="size-5"
-                                />
-                                <span className="pl-2">Select Filters</span>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Exam Name
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="2024-2025"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Class
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Section
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-
-                            <MenuItem>
-                              <div className="flex">
-                                <button
-                                  type="button"
-                                  onClick={() => setOpen(false)}
-                                  className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  type="submit"
-                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                                >
-                                  Apply
-                                </button>
-                              </div>
-                            </MenuItem>
-                          </div>
-                        </MenuItems>
-                      </Menu>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <FilterComponent
+                onSearch={handleSearch}
+                filters={filters}
+                filterForm={filterForm}
+                handleFilter={handleFilter}
+                handleReset={handleReset}
+              />
 
               <div className="table-container-main max-h-[56vh]">
-                {/* Table View */}
+                {/* Table View 
                 <table className="table-auto min-w-full divide-y divide-gray-300">
                   <thead className="sticky top-0 bg-purple-100 z-20">
                     <tr>
@@ -522,17 +460,29 @@ function ManageExamResults() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table>*/}
+
+                <TableComponent
+                  columns={columns}
+                  data={paginatedData}
+                  pagination={{
+                    currentPage,
+                    totalPages: Math.ceil(examData.length / rowsPerPage),
+                    onPageChange: handlePageChange,
+                  }}
+                  modalColumn={["results"]}
+                  showModal={(data) => handleViewDetails(data)}
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
-      <Dialog open={open} onClose={setOpen} className="relative z-50">
-        <ManageExamMarks onClose={handleClose} />
+      <Dialog open={showAddMarksModal} onClose={handleModalClose} className="relative z-50">
+        <ManageExamMarks onClose={handleModalClose} />
       </Dialog>
-      <Dialog open={open2} onClose={setOpen2} className="relative z-50">
-        <ExamMarkDetailsPage onClose={handleClose2} />
+      <Dialog open={showExamDetailsModal} onClose={handleModalClose} className="relative z-50">
+        <ExamMarkDetailsPage onClose={handleModalClose} />
       </Dialog>
     </>
   );

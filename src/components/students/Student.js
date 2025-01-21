@@ -1,88 +1,88 @@
-import {DialogPanel, DialogTitle} from '@headlessui/react'
-import {CheckIcon} from '@heroicons/react/20/solid'
-import {XMarkIcon} from '@heroicons/react/24/outline'
-import {Form, Formik} from 'formik'
-import React, {useState} from 'react'
-import {useSelector} from 'react-redux'
-import * as Yup from 'yup'
-import {postData} from '../../app/api'
-import {STUDENT} from '../../app/url'
-import SchoolDetailsTab from './StudentAcademicDetails'
-import BasicInfo from './StudentBasicInfo'
-import FeeDetailsTab from './StudentFeeDetails'
+import { DialogPanel, DialogTitle } from "@headlessui/react";
+import { CheckIcon } from "@heroicons/react/20/solid";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import * as Yup from "yup";
+import { postData } from "../../app/api";
+import { STUDENT } from "../../app/url";
+import SchoolDetailsTab from "./StudentAcademicDetails";
+import BasicInfo from "./StudentBasicInfo";
+import FeeDetailsTab from "./StudentFeeDetails";
 
-function Student({onClose}) {
-  const {selectedStudent} = useSelector((state) => state.students)
-  const [currentStep, setCurrentStep] = useState(1)
+function Student({ onClose }) {
+  const { selectedStudent } = useSelector((state) => state.students);
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     profilePic: null,
-    firstName: '',
-    lastName: '',
-    DOB: '',
-    gender: '',
-    nationality: '',
-    religion: '',
-    cast: '',
-    subCast: '',
-    bloodGroup: '',
-    aadharNumber: '',
+    firstName: "",
+    lastName: "",
+    DOB: "",
+    gender: "",
+    nationality: "",
+    religion: "",
+    cast: "",
+    subCast: "",
+    bloodGroup: "",
+    aadharNumber: "",
     aadharPic: null,
     fatherDetails: {
-      name: '',
-      mobileNumber: '',
-      occupation: '',
-      email: '',
+      name: "",
+      mobileNumber: "",
+      occupation: "",
+      email: "",
     },
     motherDetails: {
-      name: '',
-      mobileNumber: '',
-      occupation: '',
-      email: '',
+      name: "",
+      mobileNumber: "",
+      occupation: "",
+      email: "",
     },
     presentAddress: {
-      area: '',
-      city: '',
-      state: '',
-      pincode: '',
+      area: "",
+      city: "",
+      state: "",
+      pincode: "",
     },
     isSameAsPresent: false,
     permanentAddress: {
-      area: '',
-      city: '',
-      state: '',
-      pincode: '',
+      area: "",
+      city: "",
+      state: "",
+      pincode: "",
     },
     parentIdProof: null,
     //academic tab
     academicDetails: {
-      academicYear: '',
-      class: '',
-      section: '',
+      academicYear: "",
+      class: "",
+      section: "",
     },
-    admissionNumber: '',
-    admissionDate: '',
+    admissionNumber: "",
+    admissionDate: "",
     previousSchool: {
-      schoolName: '',
-      yearOfStudy: '',
-      totalMarks: '',
-      classStudied: '',
+      schoolName: "",
+      yearOfStudy: "",
+      totalMarks: "",
+      classStudied: "",
       studyProof: null,
     },
     //fees tab
     feesData: [],
     ...(selectedStudent && selectedStudent),
-  })
+  });
 
   // Validation schemas for each step
   const validationSchemas = [
     Yup.object({
       firstName: Yup.string()
-        .min(3, 'First Name must be at least 3 characters')
-        .required('First Name is required'),
+        .min(3, "First Name must be at least 3 characters")
+        .required("First Name is required"),
       lastName: Yup.string()
-        .min(3, 'Last Name must be at least 3 characters')
-        .required('Last Name is required'),
-      gender: Yup.string().required('Gender is required'),
+        .min(3, "Last Name must be at least 3 characters")
+        .required("Last Name is required"),
+      gender: Yup.string().required("Gender is required"),
       nationality: Yup.string(),
       religion: Yup.string(),
       cast: Yup.string(),
@@ -91,8 +91,8 @@ function Student({onClose}) {
       fatherDetails: Yup.object({
         name: Yup.string().required("Father's Name is required"),
         mobileNumber: Yup.string()
-          .matches(/^[0-9]{10}$/, 'Mobile number must be 10 digits')
-          .required('Fathers mobile number is required'),
+          .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
+          .required("Fathers mobile number is required"),
         occupation: Yup.string(),
         email: Yup.string(),
       }),
@@ -100,41 +100,41 @@ function Student({onClose}) {
         name: Yup.string(),
         mobileNumber: Yup.string().matches(
           /^[0-9]{10}$/,
-          'Mobile number must be 10 digits',
+          "Mobile number must be 10 digits"
         ),
         occupation: Yup.string(),
         email: Yup.string(),
       }),
       presentAddress: Yup.object({
-        area: Yup.string().required('Area is required'),
-        city: Yup.string().required('City is required'),
-        state: Yup.string().required('State is required'),
-        pincode: Yup.string().required('Pincode is required'),
+        area: Yup.string().required("Area is required"),
+        city: Yup.string().required("City is required"),
+        state: Yup.string().required("State is required"),
+        pincode: Yup.string().required("Pincode is required"),
       }),
       permanentAddress: Yup.object({
-        area: Yup.string().required('Permanent Area is required'),
-        city: Yup.string().required('Permanent city is required'),
-        state: Yup.string().required('Permanent state is required'),
-        pincode: Yup.string().required('Permanent Pincode is required'),
+        area: Yup.string().required("Permanent Area is required"),
+        city: Yup.string().required("Permanent city is required"),
+        state: Yup.string().required("Permanent state is required"),
+        pincode: Yup.string().required("Permanent Pincode is required"),
       }),
       aadharNumber: Yup.string()
-        .matches(/^[0-9]{12}$/, 'Aadhar number must be 12 digits')
-        .required('Aadhar number is required'),
-      DOB: Yup.date().nullable().required('Date of Birth is required'), // For invalid dates
+        .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
+        .required("Aadhar number is required"),
+      DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
       profilePic: Yup.object().nullable(),
       aadharPic: Yup.object().nullable(),
       parentIdProof: Yup.object().nullable(),
     }),
     Yup.object({
       academicDetails: Yup.object({
-        academicYear: Yup.string().required('Academic year is required'),
-        class: Yup.string().required('Class is required'),
-        section: Yup.string().required('Section is required'),
+        academicYear: Yup.string().required("Academic year is required"),
+        class: Yup.string().required("Class is required"),
+        section: Yup.string().required("Section is required"),
       }),
-      admissionNumber: Yup.string().required('Admission number is required'),
+      admissionNumber: Yup.string().required("Admission number is required"),
       admissionDate: Yup.date()
         .nullable()
-        .required('Admission date is required'),
+        .required("Admission date is required"),
       previousSchool: Yup.object({
         schoolName: Yup.string(),
         yearOfStudy: Yup.string(),
@@ -144,58 +144,83 @@ function Student({onClose}) {
       }),
     }),
     Yup.object({
-      feesData: Yup.array().of(
-        Yup.object({
-          feeName: Yup.string().required('Fee name is required'),
-          duration: Yup.string().required('Duration is required'),
-          discount: Yup.string().required('Discount is required'),
-          dueDate: Yup.date().required('Due date is required'),
-          installmentAmount: Yup.number().required(
-            'Installment amount is required',
-          ),
-          totalFee: Yup.number().required('Total fee is required'),
-        }),
-      ),
+      feesData: Yup.array()
+        .of(
+          Yup.object({
+            isChecked: Yup.boolean(),
+            discount: Yup.string(),
+            feeName: Yup.string(),
+            installmentAmount: Yup.number(),
+            totalFee: Yup.number(),
+            duration: Yup.string().test(
+              "is-required-if-isChecked",
+              "Duration is required",
+              function (value) {
+                const { isChecked } = this.parent; // Access sibling field 'checked'
+                if (isChecked && (!value || isNaN(value))) {
+                  return false; // Fail validation if checked but amount is invalid
+                }
+                return true; // Pass validation otherwise
+              }
+            ),
+            dueDate: Yup.string().test(
+              "is-required-if-isChecked",
+              "Due date is required",
+              function (value) {
+                const { isChecked } = this.parent; // Access sibling field 'checked'
+                if (isChecked && (!value || isNaN(value))) {
+                  return false; // Fail validation if checked but amount is invalid
+                }
+                return true; // Pass validation otherwise
+              }
+            ),
+          })
+        )
+        .test(
+          "at-least-one-checked",
+          "At least one fee must be selected",
+          (items) => items.some((item) => item.isChecked)
+        ),
     }),
-  ]
+  ];
 
   const handleNext = (values) => {
-    setFormData((prev) => ({...prev, ...values}))
-    setCurrentStep((prev) => prev + 1)
-  }
+    setFormData((prev) => ({ ...prev, ...values }));
+    setCurrentStep((prev) => prev + 1);
+  };
 
   const handleBack = () => {
-    setCurrentStep((prev) => prev - 1)
-  }
+    setCurrentStep((prev) => prev - 1);
+  };
 
   const handleSubmit = async (values) => {
-    const finalData = {...formData, ...values}
+    const finalData = { ...formData, ...values };
     try {
-      let response = await postData(STUDENT, finalData)
+      let response = await postData(STUDENT, finalData);
       if (response.status === 200) {
-        console.log('Student added successfully!')
+        console.log("Student added successfully!");
       } else {
-        throw new Error(response)
+        throw new Error(response);
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        console.error('400 Bad Request:', error.response.data)
+        console.error("400 Bad Request:", error.response.data);
         // Handle the error gracefully
       } else {
-        console.error('An unexpected error occurred:', error)
+        console.error("An unexpected error occurred:", error);
       }
     }
-  }
+  };
 
   const stepContent = [
-    {id: '01', name: 'Basic Info', href: '#', status: 'current'},
-    {id: '02', name: 'Academic Details', href: '#', status: 'upcoming'},
-    {id: '03', name: 'Fee details', href: '#', status: 'upcoming'},
-  ]
+    { id: "01", name: "Basic Info", href: "#", status: "current" },
+    { id: "02", name: "Academic Details", href: "#", status: "upcoming" },
+    { id: "03", name: "Fee details", href: "#", status: "upcoming" },
+  ];
 
   // const [open, setOpen] = useState(false);
   function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
+    return classes.filter(Boolean).join(" ");
   }
 
   return (
@@ -205,7 +230,7 @@ function Student({onClose}) {
         validationSchema={validationSchemas[currentStep - 1]}
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
-        {({values, setFieldValue, errors}) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
@@ -255,15 +280,15 @@ function Student({onClose}) {
                                     <div
                                       className={classNames(
                                         stepIdx === 0
-                                          ? 'rounded-t-md border-b-0'
-                                          : '',
+                                          ? "rounded-t-md border-b-0"
+                                          : "",
                                         stepIdx === stepContent.length - 1
-                                          ? 'rounded-b-md border-t-0'
-                                          : '',
-                                        'overflow-hidden border border-gray-200 lg:border-0',
+                                          ? "rounded-b-md border-t-0"
+                                          : "",
+                                        "overflow-hidden border border-gray-200 lg:border-0"
                                       )}
                                     >
-                                      {step.status === 'complete' ? (
+                                      {step.status === "complete" ? (
                                         <a href={step.href} className="group">
                                           <span
                                             aria-hidden="true"
@@ -271,8 +296,8 @@ function Student({onClose}) {
                                           />
                                           <span
                                             className={classNames(
-                                              stepIdx !== 0 ? 'lg:pl-9' : '',
-                                              'flex items-center px-4 py-2 text-sm font-medium',
+                                              stepIdx !== 0 ? "lg:pl-9" : "",
+                                              "flex items-center px-4 py-2 text-sm font-medium"
                                             )}
                                           >
                                             <span className="shrink-0">
@@ -290,7 +315,7 @@ function Student({onClose}) {
                                             </span>
                                           </span>
                                         </a>
-                                      ) : step.status === 'current' ? (
+                                      ) : step.status === "current" ? (
                                         <a href={step.href} aria-current="step">
                                           <span
                                             aria-hidden="true"
@@ -298,8 +323,8 @@ function Student({onClose}) {
                                           />
                                           <span
                                             className={classNames(
-                                              stepIdx !== 0 ? 'lg:pl-9' : '',
-                                              'flex items-center px-4 py-2 text-xs font-medium',
+                                              stepIdx !== 0 ? "lg:pl-9" : "",
+                                              "flex items-center px-4 py-2 text-xs font-medium"
                                             )}
                                           >
                                             <span className="shrink-0">
@@ -324,8 +349,8 @@ function Student({onClose}) {
                                           />
                                           <span
                                             className={classNames(
-                                              stepIdx !== 0 ? 'lg:pl-9' : '',
-                                              'flex items-center px-4 py-2 text-xs font-medium',
+                                              stepIdx !== 0 ? "lg:pl-9" : "",
+                                              "flex items-center px-4 py-2 text-xs font-medium"
                                             )}
                                           >
                                             <span className="shrink-0">
@@ -386,6 +411,7 @@ function Student({onClose}) {
                             )}
                             {currentStep === 3 && (
                               <FeeDetailsTab
+                                errors={errors}
                                 values={values}
                                 setFieldValue={setFieldValue}
                               />
@@ -413,7 +439,7 @@ function Student({onClose}) {
                             type="submit"
                             className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm"
                           >
-                            {currentStep === 3 ? 'Submit' : 'Next'}
+                            {currentStep === 3 ? "Submit" : "Next"}
                           </button>
                         </div>
                       </div>
@@ -426,7 +452,7 @@ function Student({onClose}) {
         )}
       </Formik>
     </>
-  )
+  );
 }
 
-export default Student
+export default Student;

@@ -11,18 +11,12 @@ import {
   ArrowsUpDownIcon,
   EllipsisHorizontalIcon,
 } from '@heroicons/react/24/outline'
-import React, {useLayoutEffect, useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import FeeCreation from './FeeCreation'
+import { getData } from '../../app/api'
+import { FEES } from '../../app/url'
+import TableComponent from '../../commonComponent/TableComponent'
 
-const people = [
-  {
-    name: 'Lindsay Walton',
-    title: 'Front-end Developer',
-    email: 'lindsay.walton@example.com',
-    role: 'Member',
-  },
-  // More people...
-]
 
 export default function ManageFeesStructure() {
   const [open, setOpen] = useState(false)
@@ -30,19 +24,65 @@ export default function ManageFeesStructure() {
   const [checked, setChecked] = useState(false)
   const [indeterminate, setIndeterminate] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
+  const [fees, setFees] = useState([])
+  const [filteredData, setFilteredData] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const rowsPerPage = 10
 
-  useLayoutEffect(() => {
-    const isIndeterminate =
-      selectedPeople.length > 0 && selectedPeople.length < people.length
-    setChecked(selectedPeople.length === people.length)
-    setIndeterminate(isIndeterminate)
-    checkbox.current.indeterminate = isIndeterminate
-  }, [selectedPeople])
+  const columns = [
+    {title: 'Academic Year', key: 'academicYear'},
+    {title: 'Fee Group', key: 'feeGroup'},
+    {title: 'Fee Name', key: 'feeName'},
+    {title: 'Class Wise Fee', key: 'classWiseFee'},
+    {title: 'Applicable To', key: 'applicableTo'},
+    {title: 'Fee Amount', key: 'feeAmount'},
+    {title: 'Creation Date', key: 'creationDate'},
+    {title: 'Actions', key: 'actions'},
+  ]
 
-  function toggleAll() {
-    setSelectedPeople(checked || indeterminate ? [] : people)
-    setChecked(!checked && !indeterminate)
-    setIndeterminate(false)
+  useEffect(() => {
+    getFees()
+  }, [])
+
+  const getFees = async () => {
+    const res = await getData(FEES)
+    const feeResponse = res.data.data
+    const data = feeResponse.map((item) => {
+      return {
+        _id: item._id,
+        academicYear: item.academicYear,
+        feeGroup: item.feeGroup,
+        feeName: item.name,
+        classWiseFee: item.classWiseFee,
+        applicableTo: item.applicableTo,
+        feeAmount: item.amount,
+        creationDate: item.createdAt,
+        actions: [
+          {label: 'Edit', actionHandler: onHandleEdit},
+          {label: 'Delete', actionHandler: onDelete},
+        ]
+      }
+    })
+    console.log(feeResponse)
+    setFees(feeResponse)
+    setFilteredData(data)
+  }
+
+  const handleAction = {
+    edit: (item) => console.log('Edit:', item),
+    delete: (item) => console.log('Delete:', item),
+  }
+
+  const onHandleEdit = async () => {
+    console.log('edit')
+  }
+  
+    const onDelete = () => {
+      console.log('delete')
+    }
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
   }
 
   const handleClose = () => setOpen(false)
@@ -119,7 +159,20 @@ export default function ManageFeesStructure() {
 
               <div className="table-container-main overflow-y-auto max-h-[56vh]">
                 {/* Table View */}
-                <table className="table-auto min-w-full divide-y divide-gray-300">
+                <TableComponent
+                  columns={columns}
+                  data={fees}
+                  onAction={[
+                    {label: 'Edit', handler: handleAction.edit},
+                    {label: 'Delete', handler: handleAction.delete},
+                  ]}
+                  pagination={{
+                    currentPage,
+                    totalPages: Math.ceil(filteredData.length / rowsPerPage),
+                    onPageChange: handlePageChange,
+                  }}
+                />
+                {/* <table className="table-auto min-w-full divide-y divide-gray-300">
                   <thead className="sticky top-0 bg-purple-100 z-20">
                     <tr>
                       <th scope="col" className="relative px-7 sm:w-12 sm:px-6">
@@ -335,7 +388,7 @@ export default function ManageFeesStructure() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table> */}
               </div>
               <div className="pagination">
                 <div className="flex items-center justify-between border-t border-gray-200 bg-white px-3 py-3 sm:px-3">
