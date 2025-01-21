@@ -92,13 +92,11 @@ export default function StaffDetails() {
       aadharPic: item.aadharPic?.Location,
       panNumber: item.panNumber,
       panCardPic: item.panCardPic?.Location,
-      bankDetails: {
-        accountNumber: item.bankDetails.accountNumber,
-        reAccountNumber: item.bankDetails.reAccountNumber,
-        ifscCode: item.bankDetails.ifscCode,
-        bankName: item.bankDetails.bankName,
-        passBookPic: item.bankDetails.passBookPic?.Location,
-      },
+      accountNumber: item.bankDetails?.accountNumber,
+        ifscCode: item.bankDetails?.ifscCode,
+        bankName: item.bankDetails?.bankName,
+        passBookPic: item.bankDetails?.passBookPic?.Location,
+     
       salary: item.amount,
         actions: [
           {label: 'Edit', actionHandler: onHandleEdit},
@@ -166,100 +164,6 @@ export default function StaffDetails() {
   const downloadList = () => {
     handleDownload(filteredData, "StaffList", ["_id","pic", "actions"]);
   };
-
-  // const handleFileUpload = (event) => {
-  //   const file = event.target.files[0];
-  
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = (e) => {
-  //       const data = new Uint8Array(e.target.result);
-  //       const workbook = XLSX.read(data, { type: "array" });
-  
-  //       // Assuming the first sheet contains the data
-  //       const sheetName = workbook.SheetNames[0];
-  //       const worksheet = workbook.Sheets[sheetName];
-  //       const jsonData = XLSX.utils.sheet_to_json(worksheet);
-  
-  //       console.log("Uploaded Staff Data:", jsonData);
-  
-  //       // Parse the uploaded data into the required format
-  //       const newStaffData = jsonData.map((item) => ({
-  //         firstName: item.firstName || "",
-  //         lastName: item.lastName || "",
-  //         empId: item.staffId || "",
-  //         DOJ: item.DOJ || "",
-  //         DOB: item.DOB || "",
-  //         mobileNumber: item.mobileNumber || "",
-  //         email: item.email || "",
-  //         workEmail: item.workEmail || "",
-  //         gender: item.gender || "",
-  //         designation: item.designation || "",
-  //         staffType: item.staffType || "",
-  //         subjects: item.subjects || "",
-  //         guardian: item.guardian || "",
-  //         permanentAddress: {
-  //           area: item.permanentArea || "",
-  //           city: item.permanentCity || "",
-  //           state: item.permanentState || "",
-  //           pincode: item.permanentPin || "",
-  //         },
-  //         presentAddress: {
-  //           area: item.presentArea || "",
-  //           city: item.presentCity || "",
-  //           state: item.presentState || "",
-  //           pincode: item.presentPin || "",
-  //         },
-  //         aadharNumber: item.aadharNumber || "",
-  //         aadharPic: item.aadharPic || "",
-  //         panNumber: item.panNumber || "",
-  //         bankDetails: {
-  //           accountNumber: item.accountNumber || "",
-  //           ifscCode: item.ifscCode || "",
-  //           bankName: item.bankName || "",
-  //         },
-  //         amount: item.salary || "",
-         
-  //       }));
-  
-  //       console.log("Parsed Staff Data:", newStaffData);
-  //       const requiredFields = ["firstName", "lastName", "empId", "workEmail", "designation", "email"];
-  //       const existingEmpIds = bulkUploadList.map((staff) => staff.empId); // Assuming you have the existing list
-  
-  //       const validStaffData = [];
-  //       const invalidStaffData = [];
-  
-  //       newStaffData.forEach((staff) => {
-  //         const missingFields = requiredFields.filter((field) => !staff[field]);
-  
-  //         if (missingFields.length > 0) {
-  //           // Staff with missing required fields
-  //           invalidStaffData.push({
-  //             ...staff,
-  //             missingFields: `Missing fields: ${missingFields.join(", ")}`,
-  //           });
-  //         } else if (existingEmpIds.includes(staff.empId)) {
-  //           // Skip duplicate employee data based on empId
-  //           console.warn(`Duplicate entry skipped for empId: ${staff.empId}`);
-  //         } else {
-  //           // Valid staff data
-  //           validStaffData.push(staff);
-  //         }
-  //       });
-  
-  //       if (invalidStaffData.length > 0) {
-  //         console.error("Invalid Staff Data:", invalidStaffData);
-  //         console.log("Invalid Staff Data:", invalidStaffData);
-          
-  //         alert(`Some records are invalid.`);
-  //       }
-  
-  //       setBulkUploadList(newStaffData);
-  //     };
-  
-  //     reader.readAsArrayBuffer(file);
-  //   }
-  // };
 
   
   

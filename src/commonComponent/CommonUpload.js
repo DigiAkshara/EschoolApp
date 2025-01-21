@@ -4,9 +4,12 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import React, { useState } from "react";
+import { postData } from "../app/api";
+import { STUDENT } from "../app/url";
 
 function CommonUpload({ onClose2, user }) {
   const [bulkUploadList, setBulkUploadList] = useState([]);
+  const [validationError, setValidationError] = useState("");
 
   const handleUpload = (event) => {
     const file = event.target.files[0];
@@ -29,7 +32,8 @@ function CommonUpload({ onClose2, user }) {
 
         if (user === "student") {
           newData = jsonData.map((item) => ({
-            name: item.name || "",
+            firstName: item.firstName || "",
+            lastName: item.lastName || "",
             admissionNumber: item.admissionNo || "",
             class: item.className || "",
             section: item.sectionName || "",
@@ -113,14 +117,51 @@ function CommonUpload({ onClose2, user }) {
 
         const requiredFields =
           user === "student"
-            ? ["name", "admissionNumber", "class", "section"]
+            ? [
+                "firstName",
+                "lastName",
+                "gender",
+                //    "fatherName",
+                //    "fatherMobile",
+                //    "area",
+                //    "city",
+                //    "state",
+                //    "pincode",
+                //    "permanentArea",
+                //    "permanentCity",
+                //    "permanentState",
+                //    "permanentPin",
+                //    "dateOfBirth",
+                //    "aadharNumber",
+                //    "admissionNo",
+              ]
             : [
                 "firstName",
                 "lastName",
-                "empId",
+                "staffId",
                 "workEmail",
                 "designation",
                 "email",
+                "dateOfBirth",
+                "dateOfJoining",
+                "subjects",
+                "phoneNumber",
+                "guardian",
+                "gender",
+                "aadharNumber",
+                "panNumber",
+                "permanentCity",
+                "permanentArea",
+                "permanentState",
+                "permanentPincode",
+                "presentArea",
+                "presentCity",
+                "presentPincode",
+                "presentState",
+                "accountNumber",
+                "ifscCode",
+                "bankName",
+                // "passBookPic",
               ];
 
         // Validation logic
@@ -135,6 +176,15 @@ function CommonUpload({ onClose2, user }) {
 
         newData.forEach((item) => {
           const missingFields = requiredFields.filter((field) => !item[field]);
+
+          // const missingFields = requiredFields.filter((field) => {
+          //     const fieldParts = field.split(".");
+          //     let value = item;
+          //     fieldParts.forEach((part) => {
+          //       value = value?.[part];
+          //     });
+          //     return !value;
+          //   });
 
           if (missingFields.length > 0) {
             invalidData.push({
@@ -170,11 +220,26 @@ function CommonUpload({ onClose2, user }) {
         });
 
         if (invalidData.length > 0) {
+          setValidationError("Please add required fields for all students.");
           console.error(
             `Invalid ${user === "student" ? "Student" : "Staff"} Data:`,
             invalidData
           );
-          alert(`Some records are invalid. Check the console for details.`);
+          //   alert(`Some records are invalid. Check the console for details.`);
+        } else {
+          const StudentBulkData = async () => {
+            try {
+              const response = await postData(STUDENT + "/bulk", validData);
+              if (response?.status === 200) {
+                alert("Data uploaded successfully!");
+              }
+            } catch (error) {
+              console.error("Error while sending data to backend:", error);
+              alert("An error occurred while uploading data.");
+            }
+          };
+          StudentBulkData();
+          setValidationError("Staff  list added successfully!");
         }
 
         console.log(
@@ -270,6 +335,11 @@ function CommonUpload({ onClose2, user }) {
                         Maximum File Size: 5 MB | File Format: .xls, .xlsx, .csv
                       </p>
                     </label>
+                    {validationError && (
+                      <p style={{ color: "red", fontWeight: "bold" }}>
+                        {validationError}
+                      </p>
+                    )}
                   </div>
 
                   {/* Duplicate Entries */}

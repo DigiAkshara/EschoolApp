@@ -136,9 +136,9 @@ function Student({ onClose, loadStudents }) {
         .nullable()
         .required("Admission date is required"),
       aadharNumber: Yup.string()
-      .matches(/^[0-9]{12}$/, 'Aadhar number must be 12 digits')
-      .required('Aadhar number is required'),
-    DOB: Yup.date().nullable().required('Date of Birth is required'), // For invalid dates
+        .matches(/^[0-9]{12}$/, 'Aadhar number must be 12 digits')
+        .required('Aadhar number is required'),
+      DOB: Yup.date().nullable().required('Date of Birth is required'), // For invalid dates
       previousSchool: Yup.object({
         schoolName: Yup.string(),
         yearOfStudy: Yup.string(),
