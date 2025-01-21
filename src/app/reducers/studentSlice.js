@@ -39,8 +39,17 @@ const studentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchInitialStudentData.fulfilled, (state, action) => {
-      state.classes = action.payload.classRes
-      state.sections = action.payload.sectionRes
+      state.classes = action.payload.classRes.map((cls) => ({
+        label: cls.name,
+        value: cls._id,
+        id: cls._id,
+      }))
+      state.sections = action.payload.sectionRes.map((item) => ({
+        label: item.section,
+        value: item._id,
+        class: item.class,
+        id: item._id,
+      }))
     })
   },
 })

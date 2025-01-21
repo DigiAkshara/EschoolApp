@@ -1,15 +1,15 @@
-import {Menu, MenuButton, MenuItems} from '@headlessui/react'
+import { Menu, MenuButton, MenuItems } from '@headlessui/react'
 import {
   ArrowsUpDownIcon,
   EllipsisHorizontalIcon,
 } from '@heroicons/react/24/outline'
 import moment from 'moment'
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import PaginationComponent from './PaginationComponent'
-const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
-  const [sortConfig, setSortConfig] = useState({key: null, direction: 'asc'})
+const TableComponent = ({ columns, data, pagination, showModal, modalColumn }) => {
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
 
-  const handleSort = ({key}) => {
+  const handleSort = ({ key }) => {
     let direction = 'asc'
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc'
@@ -21,7 +21,7 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
       return 0
     })
 
-    setSortConfig({key, direction})
+    setSortConfig({ key, direction })
     return sortedData
   }
   const sortedData = sortConfig.key ? handleSort(sortConfig.key) : data
@@ -82,13 +82,19 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
                         className="text-purple-600 hover:text-purple-900"
                       >
                         <div className="flex items-center">
-                          <div className="size-9 shrink-0">
-                            <img
-                              alt=""
-                              src={record.pic}
-                              className="size-9 rounded-full"
-                            />
-                          </div>
+                          {record.pic ?
+                            <div className="size-9 shrink-0">
+                              <img
+                                alt=""
+                                src={record.pic}
+                                className="size-9 rounded-full"
+                              />
+                            </div> :
+                            <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                              <span className="font-medium text-gray-600 dark:text-gray-300">{record.name.charAt(0)}</span>
+                            </div>}
+
+
                           <div className="ml-4">
                             <div className="font-medium text-gray-900 text-purple-600">
                               {record.name}
@@ -141,7 +147,7 @@ const TableComponent = ({columns, data, pagination, showModal,modalColumn}) => {
                     >
                       {col.key === 'date'
                         ? moment(record[col.key]).format('DD-MM-YYYY')
-                        : modalColumn?.includes(col.key)?<a onClick={() => showModal && showModal(record)}>{record[col.key]}</a>: record[col.key]}
+                        : modalColumn?.includes(col.key) ? <a onClick={() => showModal && showModal(record)}>{record[col.key]}</a> : record[col.key]}
                     </td>
                   ),
                 )}

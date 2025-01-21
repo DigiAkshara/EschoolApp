@@ -11,7 +11,7 @@ import SchoolDetailsTab from "./StudentAcademicDetails";
 import BasicInfo from "./StudentBasicInfo";
 import FeeDetailsTab from "./StudentFeeDetails";
 
-function Student({ onClose }) {
+function Student({ onClose, loadStudents }) {
   const { selectedStudent } = useSelector((state) => state.students);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -126,7 +126,6 @@ function Student({ onClose }) {
       parentIdProof: Yup.object().nullable(),
     }),
     Yup.object({
-<<<<<<< Updated upstream
       academicDetails: Yup.object({
         academicYear: Yup.string().required("Academic year is required"),
         class: Yup.string().required("Class is required"),
@@ -136,12 +135,10 @@ function Student({ onClose }) {
       admissionDate: Yup.date()
         .nullable()
         .required("Admission date is required"),
-=======
       aadharNumber: Yup.string()
       .matches(/^[0-9]{12}$/, 'Aadhar number must be 12 digits')
       .required('Aadhar number is required'),
     DOB: Yup.date().nullable().required('Date of Birth is required'), // For invalid dates
->>>>>>> Stashed changes
       previousSchool: Yup.object({
         schoolName: Yup.string(),
         yearOfStudy: Yup.string(),
@@ -153,29 +150,29 @@ function Student({ onClose }) {
     Yup.object({
       feesData: Yup.array()
         .of(
-          Yup.object({
+          Yup.object().shape({
             isChecked: Yup.boolean(),
             discount: Yup.string(),
             feeName: Yup.string(),
             installmentAmount: Yup.number(),
             totalFee: Yup.number(),
-            duration: Yup.string().test(
-              "is-required-if-isChecked",
+            feeType: Yup.string().test(
+              "is-required-if-checked",
               "Duration is required",
               function (value) {
                 const { isChecked } = this.parent; // Access sibling field 'checked'
-                if (isChecked && (!value || isNaN(value))) {
+                if (isChecked && (!value)) {
                   return false; // Fail validation if checked but amount is invalid
                 }
                 return true; // Pass validation otherwise
               }
             ),
             dueDate: Yup.string().test(
-              "is-required-if-isChecked",
+              "is-required-if-checked",
               "Due date is required",
               function (value) {
                 const { isChecked } = this.parent; // Access sibling field 'checked'
-                if (isChecked && (!value || isNaN(value))) {
+                if (isChecked && (!value)) {
                   return false; // Fail validation if checked but amount is invalid
                 }
                 return true; // Pass validation otherwise
@@ -204,14 +201,17 @@ function Student({ onClose }) {
     const finalData = { ...formData, ...values };
     try {
       let response = await postData(STUDENT, finalData);
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         console.log("Student added successfully!");
+        loadStudents()
+        onClose()
       } else {
         throw new Error(response);
       }
     } catch (error) {
       if (error.response && error.response.status === 400) {
         console.error("400 Bad Request:", error.response.data);
+        alert("Student not created,Please try again")
         // Handle the error gracefully
       } else {
         console.error("An unexpected error occurred:", error);

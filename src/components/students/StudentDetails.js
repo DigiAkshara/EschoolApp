@@ -23,12 +23,12 @@ function classNames(...classes) {
 
 const tabs2 = [
   {name: 'Active', href: '#', count: '52', current: true},
-  {name: 'Drafts', href: '#', count: '12', current: false},
+  // {name: 'Drafts', href: '#', count: '12', current: false},
 ]
 
 export default function StudentDetails() {
   const dispatch = useDispatch()
-  const {classes, sections} = useSelector((state) => state.students)
+  const {classes:clsOptions, sections:sectionOptions} = useSelector((state) => state.students)
   const [studentList, setStudentList] = useState([])
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
@@ -37,9 +37,6 @@ export default function StudentDetails() {
   const [activeStudent, setActiveStudent] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
-
-  const [clsOptions, setClsOptions] = useState([])
-  const [sectionOptions, setSectionOptions] = useState([])
   const[bulkUploadList, setBulkUploadList] = useState([])
   const fileInputRef = useRef(null);
 
@@ -51,28 +48,6 @@ export default function StudentDetails() {
     {label: 'Female', value: 'female'},
     {label: 'Trans Gender', value: 'transgender'},
   ]
-  const getClassOptions = () => {
-    return classes.map((cls) => ({
-      label: cls.name,
-      value: cls._id,
-      id: cls._id,
-    }))
-  }
-  const getSectionOptions = () => {
-    return sections.map((item) => ({
-      label: item.section,
-      value: item._id,
-      class: item.class,
-      id: item._id,
-    }))
-  }
-
-  useEffect(() => {
-    const clsTmp = getClassOptions()
-    const secTmp = getSectionOptions()
-    setClsOptions(clsTmp)
-    setSectionOptions(secTmp)
-  }, [classes, sections])
 
   useEffect(() => {
     dispatch(fetchInitialStudentData())
@@ -95,8 +70,6 @@ export default function StudentDetails() {
     try {
       const student = await getData(ACADEMICS)
       const studentRes = student.data.data
-      console.log(studentRes);
-      
       const studentData = studentRes.map((item) => {
         return {
           _id: item.student._id,
@@ -290,7 +263,6 @@ export default function StudentDetails() {
             state: item.permanentState || "",
           }
         }));
-        console.log("newStudentData", newStudentData);
         
       // Validation logic
       const requiredFields = ["name", "admissionNumber", "class", "section"];
@@ -338,11 +310,11 @@ export default function StudentDetails() {
     <>
       {/* Secondary Tabs */}
       <div className="mt-4 flex justify-between">
+        {/* active tab with count block */}
         <div className="sm:hidden">
-          <label htmlFor="tabs2" className="sr-only">
+          {/* <label htmlFor="tabs2" className="sr-only">
             Select a tab
           </label>
-          {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
           <select
             id="tabs2"
             name="tabs2"
@@ -352,10 +324,10 @@ export default function StudentDetails() {
             {tabs2.map((tab) => (
               <option key={tab.name}>{tab.name}</option>
             ))}
-          </select>
+          </select> */}
         </div>
         <div className="hidden sm:block">
-          <nav aria-label="Tabs2" className="flex space-x-4">
+          {/* <nav aria-label="Tabs2" className="flex space-x-4">
             {tabs2.map((tab) => (
               <a
                 key={tab.name}
@@ -383,8 +355,10 @@ export default function StudentDetails() {
                 ) : null}
               </a>
             ))}
-          </nav>
+          </nav> */}
         </div>
+
+
         <div className="right-btns-blk space-x-4">
           <button
             type="button"
@@ -516,7 +490,7 @@ export default function StudentDetails() {
 
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
-        <Student onClose={handleClose} />
+        <Student onClose={handleClose} loadStudents={getStudents} />
       </Dialog>
       <Dialog open={open2} onClose={setOpen2} className="relative z-50">
         <CommonUpload onClose2={handleClose2} user="student"  />

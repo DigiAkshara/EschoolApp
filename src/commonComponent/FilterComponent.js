@@ -22,7 +22,8 @@ const FilterComponent = ({
       return item.options.filter(
         (option) => option[item.dependencyKey] === value,
       )
-    } else return item.options
+    } else{
+      return item.options}
   }
   return (
     <div className="relative table-tool-bar z-30">
@@ -89,6 +90,16 @@ const FilterComponent = ({
                                 filters[key].dependency &&
                                 !values[filters[key].dependencyKey]
                               }
+                              onChange={(e)=>{
+                                setFieldValue(key, e.target.value)
+                                if(key == 'category'){
+                                  setFieldValue('class','')
+                                  setFieldValue('section','')
+                                }
+                                if(key == 'class'){
+                                  setFieldValue('section','')
+                                }
+                              }}
                             />
                           
                         ))}

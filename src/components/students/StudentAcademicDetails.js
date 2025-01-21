@@ -1,38 +1,24 @@
 import React, {useEffect, useState} from 'react'
 import {getData, postData} from '../../app/api'
-import {ACADEMIC_YEAR, CLASSES, SECTIONS, UPLOAD} from '../../app/url'
+import {ACADEMIC_YEAR, CLASSES, FEES, SECTIONS, UPLOAD} from '../../app/url'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
+import { useSelector } from 'react-redux'
 
 function StudentAcademicDetails({values, setFieldValue}) {
-  const [classes, setClasses] = useState([])
+  const {classes, sections} = useSelector((state) => state.students)
+  const academicYear = useSelector((state)=>state.appConfig.academicYear)
   const [academicYears, setAcademicYears] = useState([])
-  const [sections, setSections] = useState([])
+
   useEffect(() => {
-    getAcademicData()
-  }, [])
-  const getAcademicData = async () => {
-    const [academicResponse, classResponse] = await Promise.all([
-      getData(ACADEMIC_YEAR),
-      getData(CLASSES),
-    ])
-    const classData = classResponse.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-      }
-    })
-    const academicData = [
-      {
-        label: academicResponse.data.data.year, // Displayed text in the dropdown
-        value: academicResponse.data.data._id,
-      },
-    ]
-    setClasses(classData)
-    setAcademicYears(academicData)
-  }
+    setAcademicYears([{
+      label: academicYear.year, // Displayed text in the dropdown
+      value: academicYear._id,
+    }])
+  }, [academicYear])
+  
   const handleFileChange = async (e) => {
     try {
       const formData = new FormData()
@@ -52,17 +38,26 @@ function StudentAcademicDetails({values, setFieldValue}) {
     }
   }
 
-  const getSections = async (classId) => {
-    const response = await getData(SECTIONS + '/' + classId)
-    const sectionData = response.data.data.map((item) => {
-      return {
-        label: item.section, // Displayed text in the dropdown
-        value: item._id,
-      }
+  const getfees = async (classId) => {
+    const res = await getData(FEES + '/' + classId)
+    let dumpList = []
+    res.data.data.forEach((item) => {
+      let discount = 0
+      dumpList.push({
+        id: item._id,
+        isChecked: false,
+        feeName: item.name,
+        feeType: '',
+        dueDate: '',
+        discount: discount,
+        installmentAmount: item.amount - discount, //installment fee
+        totalFee: item.amount * 1, //total fee
+      })
     })
     setFieldValue('academicDetails.class', classId)
-    setSections(sectionData)
+    setFieldValue('feesData', dumpList)
   }
+
   return (
     <div className="">
       <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -103,7 +98,7 @@ function StudentAcademicDetails({values, setFieldValue}) {
               required={true}
               options={classes}
               onChange={(e) => {
-                getSections(e.target.value)
+                getfees(e.target.value)
               }}
             />
           </div>
@@ -113,7 +108,8 @@ function StudentAcademicDetails({values, setFieldValue}) {
               name="academicDetails.section"
               label="Section"
               required={true}
-              options={sections}
+              options={sections.filter(item=>item.class==values.academicDetails.class)}
+              disabled = {!values.academicDetails.class}
             />
           </div>
         </div>
