@@ -126,6 +126,7 @@ function Student({ onClose }) {
       parentIdProof: Yup.object().nullable(),
     }),
     Yup.object({
+<<<<<<< Updated upstream
       academicDetails: Yup.object({
         academicYear: Yup.string().required("Academic year is required"),
         class: Yup.string().required("Class is required"),
@@ -135,6 +136,12 @@ function Student({ onClose }) {
       admissionDate: Yup.date()
         .nullable()
         .required("Admission date is required"),
+=======
+      aadharNumber: Yup.string()
+      .matches(/^[0-9]{12}$/, 'Aadhar number must be 12 digits')
+      .required('Aadhar number is required'),
+    DOB: Yup.date().nullable().required('Date of Birth is required'), // For invalid dates
+>>>>>>> Stashed changes
       previousSchool: Yup.object({
         schoolName: Yup.string(),
         yearOfStudy: Yup.string(),

@@ -1,6 +1,6 @@
 import {Dialog} from '@headlessui/react'
 import {ArrowUpTrayIcon, PlusIcon} from '@heroicons/react/20/solid'
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 import {getData} from '../../app/api'
 import {
@@ -8,11 +8,14 @@ import {
   selectStudent,
 } from '../../app/reducers/studentSlice'
 import {ACADEMICS, STUDENT} from '../../app/url'
-import {gender} from '../../commonComponent/CommonFunctions'
+import {gender, handleDownload} from '../../commonComponent/CommonFunctions'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
 import Student from './Student'
 import StudentProfileModal from './StudentProfileModal'
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import CommonUpload from '../../commonComponent/CommonUpload'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -28,6 +31,7 @@ export default function StudentDetails() {
   const {classes, sections} = useSelector((state) => state.students)
   const [studentList, setStudentList] = useState([])
   const [open, setOpen] = useState(false)
+  const [open2, setOpen2] = useState(false)
   const [filteredData, setFilteredData] = useState([])
   const [showProfile, setShowProfile] = useState(false)
   const [activeStudent, setActiveStudent] = useState(null)
@@ -36,6 +40,12 @@ export default function StudentDetails() {
 
   const [clsOptions, setClsOptions] = useState([])
   const [sectionOptions, setSectionOptions] = useState([])
+  const[bulkUploadList, setBulkUploadList] = useState([])
+  const fileInputRef = useRef(null);
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
   const genderOptions = [
     {label: 'Male', value: 'male'},
     {label: 'Female', value: 'female'},
@@ -85,6 +95,8 @@ export default function StudentDetails() {
     try {
       const student = await getData(ACADEMICS)
       const studentRes = student.data.data
+      console.log(studentRes);
+      
       const studentData = studentRes.map((item) => {
         return {
           _id: item.student._id,
@@ -100,6 +112,32 @@ export default function StudentDetails() {
           aadharNumber: item.student.aadharNumber,
           gender: gender.find((gender) => gender.value === item.student.gender)
             .label,
+
+            dateOfBirth: item.student.DOB,
+            aadharNumber: item.student.aadharNumber,
+            fatherName: item.student.fatherDetails?.name,
+            fatherMobile: item.student.fatherDetails?.mobileNumber,
+            fatherOccupation: item.student.fatherDetails?.occupation || 'N/A',
+            religion: item.student.religion,
+            cast: item.student.cast,
+            subCast: item.student.subCast,
+            nationality: item.student.nationality,
+            bloodGroup: item.student.bloodGroup,
+            motherName: item.student.motherDetails?.name,
+            motherMobile: item.student.motherDetails?.mobileNumber,
+            motherOccupation: item.student.motherDetails?.occupation || 'N/A',
+            presentArea: item.student.presentAddress?.area,
+            presentCity: item.student.presentAddress?.city,
+            presentState: item.student.presentAddress?.state,
+            presentPincode: item.student.presentAddress?.pincode,
+            permanentArea: item.student.permanentAddress?.area,
+            permanentCity: item.student.permanentAddress?.city,
+            permanentState: item.student.permanentAddress?.state,
+            permanentPincode: item.student.permanentAddress?.pincode,
+            previousSchool: item.student.previousSchool?.schoolName,
+            previousClass: item.student.previousSchool?.classStudied,
+            previousstudyProof: item.student.previousSchool?.studyProof,
+            previousSchoolyearOfStudy: item.student.previousSchool?.yearOfStudy,
           actions: [
             {label: 'Edit', actionHandler: onHandleEdit},
             {label: 'Delete', actionHandler: onDelete},
@@ -125,6 +163,8 @@ export default function StudentDetails() {
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+  const handleClose2 = () => setOpen2(false)
+
 
   const filterForm = {
     class: '',
@@ -190,6 +230,110 @@ export default function StudentDetails() {
     currentPage * rowsPerPage,
   )
 
+
+  const downloadList = () => {
+    handleDownload(filteredData, "StudentList", ["class", "section", "actions"]);
+  };
+
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+  
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+  
+        // Assuming the first sheet contains the data
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  
+        console.log("Uploaded Data:", jsonData);
+  
+        // Update state or handle the parsed data
+        const newStudentData = jsonData.map((item) => ({
+           name: item.name || "",
+           admissionNumber: item.admissionNo || "",
+          class: item.className || "",
+          section: item.sectionName || "",
+          DOB: item.dateOfBirth || "",
+          aadharNumber: item.aadharNumber || "",
+          gender: item.gender || "",
+          fatherDetails: {
+            email: item.fatherEmail || "",
+            mobileNumber: item.fatherMobile || "",
+            name: item.fatherName|| "",
+            occupation: item.fatherOccupation || ""
+          },
+          motherDetails: {
+            email: item.motherEmail || "",
+            mobileNumber: item.motherMobile || "",
+            name: item.motherName || "",
+            occupation: item.motherOccupation || ""
+          },
+          nationality: item.nationality || "",
+          religion: item.religion || "",
+          cast: item.cast || "",
+          subCast: item.subCast || "",
+          presentAddress: {
+            area: item.area || "",
+            city: item.city || "",
+            pincode: item.pincode || "",
+            state: item.state || "",
+          },
+          permanentAddress: {
+            area: item.permanentArea || "",
+            city: item.permanentCity || "",
+            pincode: item.permanentPin|| "",
+            state: item.permanentState || "",
+          }
+        }));
+        console.log("newStudentData", newStudentData);
+        
+      // Validation logic
+      const requiredFields = ["name", "admissionNumber", "class", "section"];
+      const existingAdmissionNumbers = bulkUploadList.map((student) => student.admissionNumber); // Existing student data
+
+      const validStudentData = [];
+      const invalidStudentData = [];
+
+      newStudentData.forEach((student) => {
+        const missingFields = requiredFields.filter((field) => !student[field]);
+
+        if (missingFields.length > 0) {
+          // Student with missing required fields
+          invalidStudentData.push({
+            ...student,
+            missingFields: `Missing fields: ${missingFields.join(", ")}`,
+          });
+        } else if (existingAdmissionNumbers.includes(student.admissionNumber)) {
+          // Skip duplicate student data based on admissionNumber
+          console.warn(`Duplicate entry skipped for admissionNumber: ${student.admissionNumber}`);
+        } else {
+          // Valid student data
+          validStudentData.push(student);
+        }
+      });
+
+      if (invalidStudentData.length > 0) {
+        console.error("Invalid Student Data:", invalidStudentData);
+        alert(`Some records are invalid. Check the console for details.`);
+      }
+
+      console.log("Valid Student Data:", validStudentData);
+        // Merge the old and new data
+      setBulkUploadList(newStudentData)     
+     };
+       
+  
+      reader.readAsArrayBuffer(file);
+    }
+  };
+  
+
+
   return (
     <>
       {/* Secondary Tabs */}
@@ -250,8 +394,10 @@ export default function StudentDetails() {
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Add Student
           </button>
+          
           <button
             type="button"
+            onClick={() => setOpen2(true)}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
@@ -292,6 +438,7 @@ export default function StudentDetails() {
                   filterForm={filterForm}
                   handleFilter={handleFilter}
                   handleReset={handleReset}
+                  downloadList={downloadList}
                 />
               <div className="table-container-main overflow-y-auto max-h-[56vh]">
                 {/* Table View */}
@@ -370,6 +517,9 @@ export default function StudentDetails() {
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
         <Student onClose={handleClose} />
+      </Dialog>
+      <Dialog open={open2} onClose={setOpen2} className="relative z-50">
+        <CommonUpload onClose2={handleClose2} user="student"  />
       </Dialog>
     </>
   )

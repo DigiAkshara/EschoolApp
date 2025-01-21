@@ -1,6 +1,8 @@
 import moment from 'moment'
 import {getData, postData} from '../app/api'
 import {CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD} from '../app/url'
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export const getAcademicYears = () => {
   const currentDate = new Date()
@@ -273,3 +275,33 @@ export const getSections = async () => {
     return []
   }
 }
+
+export const handleDownload = (filteredData, fileName, excludedFields = []) => {
+  try {
+    console.log("Download started");
+
+    // Filter data to exclude unnecessary fields
+    const exportData = filteredData.map((item) => {
+      const filteredItem = { ...item };
+      excludedFields.forEach((field) => delete filteredItem[field]);
+      return filteredItem;
+    });
+
+    // Convert data to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Create a workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+
+    // Write workbook to binary and create a Blob
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+    // Save the file
+    saveAs(dataBlob, `${fileName}.xlsx`);
+    console.log("Download complete");
+  } catch (error) {
+    console.error("Error during download:", error);
+  }
+};

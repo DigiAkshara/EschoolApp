@@ -1,15 +1,19 @@
 'use client'
 
 import {ArrowUpTrayIcon, PlusIcon} from '@heroicons/react/20/solid'
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 
 import {Dialog} from '@headlessui/react'
 
 import {getData} from '../../app/api'
 import {STAFF} from '../../app/url'
-import {designations} from '../../commonComponent/CommonFunctions'
+import {designations, handleDownload} from '../../commonComponent/CommonFunctions'
 import TableComponent from '../../commonComponent/TableComponent'
+import FilterComponent from '../../commonComponent/FilterComponent'
 import Staff from './Staff'
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import CommonUpload from '../../commonComponent/CommonUpload'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -22,14 +26,22 @@ const tabs2 = [
 
 export default function StaffDetails() {
   const [open, setOpen] = useState(false)
+  const [open2, setOpen2] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
   const [staffList, setStaffList] = useState([])
   const [filteredData, setFilteredData] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 5
+  const[bulkUploadList, setBulkUploadList] = useState([])
+  const fileInputRef = useRef(null);
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
+  const handleClose2 = () => setOpen2(false)
 
   useEffect(() => {
     getStaff()
@@ -49,6 +61,8 @@ export default function StaffDetails() {
   const getStaff = async () => {
     const response = await getData(STAFF)
     if (response.status === 200) {
+      console.log("Response data for staff:", response.data.data);
+      
       let data = response.data.data.map((item, index) => ({
         _id: item._id,
         pic: item.profilePic?.Location,
@@ -61,6 +75,31 @@ export default function StaffDetails() {
         ).label,
         subjects: item.subjects?.name,
         class: item.class,
+        staffType: item.staffType,
+        guardian: item.guardian,
+        email: item.email,
+      workEmail: item.workEmail,
+      gender: item.gender,
+      permanentArea: item.permanentAddress?.area,
+      permanentCity: item.permanentAddress?.city,
+      permanentPincode: item.permanentAddress?.pincode,
+      permanentState: item.permanentAddress?.state,
+      presentArea: item.presentAddress?.area,
+      presentCity: item.presentAddress?.city,
+      presentPincode: item.presentAddress?.pincode,
+      presentState: item.presentAddress?.state,
+      aadharNumber: item.aadharNumber,
+      aadharPic: item.aadharPic?.Location,
+      panNumber: item.panNumber,
+      panCardPic: item.panCardPic?.Location,
+      bankDetails: {
+        accountNumber: item.bankDetails.accountNumber,
+        reAccountNumber: item.bankDetails.reAccountNumber,
+        ifscCode: item.bankDetails.ifscCode,
+        bankName: item.bankDetails.bankName,
+        passBookPic: item.bankDetails.passBookPic?.Location,
+      },
+      salary: item.amount,
         actions: [
           {label: 'Edit', actionHandler: onHandleEdit},
           {label: 'Delete', actionHandler: onDelete},
@@ -124,6 +163,107 @@ export default function StaffDetails() {
     currentPage * rowsPerPage,
   )
 
+  const downloadList = () => {
+    handleDownload(filteredData, "StaffList", ["_id","pic", "actions"]);
+  };
+
+  // const handleFileUpload = (event) => {
+  //   const file = event.target.files[0];
+  
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       const data = new Uint8Array(e.target.result);
+  //       const workbook = XLSX.read(data, { type: "array" });
+  
+  //       // Assuming the first sheet contains the data
+  //       const sheetName = workbook.SheetNames[0];
+  //       const worksheet = workbook.Sheets[sheetName];
+  //       const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  
+  //       console.log("Uploaded Staff Data:", jsonData);
+  
+  //       // Parse the uploaded data into the required format
+  //       const newStaffData = jsonData.map((item) => ({
+  //         firstName: item.firstName || "",
+  //         lastName: item.lastName || "",
+  //         empId: item.staffId || "",
+  //         DOJ: item.DOJ || "",
+  //         DOB: item.DOB || "",
+  //         mobileNumber: item.mobileNumber || "",
+  //         email: item.email || "",
+  //         workEmail: item.workEmail || "",
+  //         gender: item.gender || "",
+  //         designation: item.designation || "",
+  //         staffType: item.staffType || "",
+  //         subjects: item.subjects || "",
+  //         guardian: item.guardian || "",
+  //         permanentAddress: {
+  //           area: item.permanentArea || "",
+  //           city: item.permanentCity || "",
+  //           state: item.permanentState || "",
+  //           pincode: item.permanentPin || "",
+  //         },
+  //         presentAddress: {
+  //           area: item.presentArea || "",
+  //           city: item.presentCity || "",
+  //           state: item.presentState || "",
+  //           pincode: item.presentPin || "",
+  //         },
+  //         aadharNumber: item.aadharNumber || "",
+  //         aadharPic: item.aadharPic || "",
+  //         panNumber: item.panNumber || "",
+  //         bankDetails: {
+  //           accountNumber: item.accountNumber || "",
+  //           ifscCode: item.ifscCode || "",
+  //           bankName: item.bankName || "",
+  //         },
+  //         amount: item.salary || "",
+         
+  //       }));
+  
+  //       console.log("Parsed Staff Data:", newStaffData);
+  //       const requiredFields = ["firstName", "lastName", "empId", "workEmail", "designation", "email"];
+  //       const existingEmpIds = bulkUploadList.map((staff) => staff.empId); // Assuming you have the existing list
+  
+  //       const validStaffData = [];
+  //       const invalidStaffData = [];
+  
+  //       newStaffData.forEach((staff) => {
+  //         const missingFields = requiredFields.filter((field) => !staff[field]);
+  
+  //         if (missingFields.length > 0) {
+  //           // Staff with missing required fields
+  //           invalidStaffData.push({
+  //             ...staff,
+  //             missingFields: `Missing fields: ${missingFields.join(", ")}`,
+  //           });
+  //         } else if (existingEmpIds.includes(staff.empId)) {
+  //           // Skip duplicate employee data based on empId
+  //           console.warn(`Duplicate entry skipped for empId: ${staff.empId}`);
+  //         } else {
+  //           // Valid staff data
+  //           validStaffData.push(staff);
+  //         }
+  //       });
+  
+  //       if (invalidStaffData.length > 0) {
+  //         console.error("Invalid Staff Data:", invalidStaffData);
+  //         console.log("Invalid Staff Data:", invalidStaffData);
+          
+  //         alert(`Some records are invalid.`);
+  //       }
+  
+  //       setBulkUploadList(newStaffData);
+  //     };
+  
+  //     reader.readAsArrayBuffer(file);
+  //   }
+  // };
+
+  
+  
+
   return (
     <>
       {/* Secondary Tabs */}
@@ -185,12 +325,22 @@ export default function StaffDetails() {
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Add Staff
           </button>
+         
           <button
             type="button"
+            onClick={() => setOpen2(true)}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Bulk Upload Staff
+          </button>
+          <button
+            type="button"
+            onClick={downloadList}
+            className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+          >
+            <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
+            Download
           </button>
         </div>
       </div>
@@ -221,6 +371,10 @@ export default function StaffDetails() {
               </div>
             )}
             <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
+            {/* <FilterComponent
+                handleDownload={handleDownload}
+                /> */}
+
               <div className="table-container-main overflow-y-auto max-h-[56vh]">
                 {/* Table View */}
                 <TableComponent
@@ -251,6 +405,9 @@ export default function StaffDetails() {
         <div className="fixed inset-0" />
 
         <Staff onClose={handleClose} />
+      </Dialog>
+      <Dialog open={open2} onClose={setOpen2} className="relative z-50">
+        <CommonUpload onClose2={handleClose2} user="staff"  />
       </Dialog>
     </>
   )

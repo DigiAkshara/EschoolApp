@@ -104,20 +104,7 @@ function ManageStudentRegister() {
     }
   };
 
-  // const getClasses = async () => {
-  //   const res = await getData(CLASSES);
-  //   const classData = res.data.data.map((item) => {
-  //     return {
-  //       label: item.name, // Displayed text in the dropdown
-  //       value: item._id,
-  //     };
-  //   });
-  //   setClasses(classData);
-  //   if (classData.length > 0) {
-  //     getSections(classData[0]?.value);
-  //     // filterSection(classData[0]?.value);
-  //   }
-  // };
+
 
   const getClasses = async () => {
     try {
@@ -137,6 +124,21 @@ function ManageStudentRegister() {
       console.error("Error fetching classes:", error);
     }
   };
+
+    // const getClasses = async () => {
+  //   const res = await getData(CLASSES);
+  //   const classData = res.data.data.map((item) => {
+  //     return {
+  //       label: item.name, // Displayed text in the dropdown
+  //       value: item._id,
+  //     };
+  //   });
+  //   setClasses(classData);
+  //   if (classData.length > 0) {
+  //     getSections(classData[0]?.value);
+  //     // filterSection(classData[0]?.value);
+  //   }
+  // };
 
   // const getAllSection = async () => {
   //   const res = await getData(SECTIONS);
@@ -207,6 +209,7 @@ function ManageStudentRegister() {
       const processedData = response.data.data.map((student) => {
         // Create an object to map dates to attendance statuses
         const attendanceMap = {};
+        let totalAbsents = 0; 
         student.attendance.forEach((record) => {
           const date = new Date(record.date).getDate();
           const statusMap = {
@@ -215,7 +218,12 @@ function ManageStudentRegister() {
             "half-day": "F",
             leave: "L",
           };
-          attendanceMap[date] = statusMap[record.attendanceStatus] || "N/A";
+          const attendanceStatus = statusMap[record.attendanceStatus] || "N/A";
+          // attendanceMap[date] = statusMap[record.attendanceStatus] || "N/A";
+          if (attendanceStatus === "A") {
+            totalAbsents++;
+          }
+          attendanceMap[date] = attendanceStatus;
         });
         const classId = student.academics.classDetails?._id || null;
         const sectionId = student.academics.sectionDetails?._id || null;
@@ -225,13 +233,13 @@ function ManageStudentRegister() {
           name: `${student.firstName} ${student.lastName}`,
           profilePicture: student.profilePic || "default-profile-pic-url",
           attendance: attendanceMap,
+          totalAbsents,
           classId,
           sectionId,
         };
       });
 
       // console.log("Processed student data:", processedData);
-      //console.log("before setting student data ",classes[0].value);
 
       setStudentsData(processedData);
     } catch (error) {
@@ -314,44 +322,7 @@ function ManageStudentRegister() {
 
   const holiday = [];
 
-  // const getHolidayData = async () => {
-  //   try {
-  //     const response = await getData(HOLIDAYS);
-  //     console.log("Response data for holidays:", response.data.data);
-  //     const uniqueDates = new Set();
 
-  //     // Iterate through the response data to extract startDate and endDate
-  //     response.data.data.forEach((holidayData) => {
-  //       const startDate = new Date(holidayData.startDate);
-  //       const endDate = holidayData.endDate
-  //         ? new Date(holidayData.endDate)
-  //         : startDate;
-
-  //       // Get all the dates in between startDate and endDate (inclusive)
-  //       let currentDate = new Date(startDate);
-  //       while (currentDate <= endDate) {
-  //         uniqueDates.add(currentDate.getDate());
-  //         currentDate.setDate(currentDate.getDate() + 1);
-  //       }
-  //     });
-
-  //     // Convert the Set to an array and store it in the `holiday` variable
-  //     const uniqueDatesArray = Array.from(uniqueDates);
-  //     holiday.push(...uniqueDatesArray);
-
-  //     console.log("Extracted holidays without duplicates:", holiday);
-  //   } catch (error) {
-  //     console.error("Error getting data:", error);
-  //   }
-  // };
-
-  const isHoliday = (date) => {
-    return holidaysData.some(
-      (holiday) =>
-        new Date(holiday.startDate) <= new Date(date) &&
-        new Date(holiday.endDate) >= new Date(date)
-    );
-  };
 
   const handleAttendanceChange = (e) => {
     e.preventDefault();
@@ -590,7 +561,7 @@ function ManageStudentRegister() {
 
                           {/* Total Absents */}
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                            0
+                          {student.totalAbsents}
                           </td>
 
                           {days.map((dayObj, index) => {
