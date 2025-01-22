@@ -23,6 +23,7 @@ import Tenants from './components/Tenants'
 import navData from './assets/json/nav.json'
 import { getData } from './app/api'
 import { ACADEMIC_YEAR } from './app/url'
+import { ToastContainer } from 'react-toastify'
 
 function App() {
   const {user} = useSelector((state) => state.appConfig)
@@ -53,6 +54,9 @@ function App() {
   return (
     <BrowserRouter>
       <div>
+        <div className='toastcls'>
+        <ToastContainer/>
+        </div>
         {user && (
           <Sidebar
             sidebarOpen={sidebarOpen}

@@ -3,6 +3,7 @@ import {getData, postData} from '../app/api'
 import {CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD} from '../app/url'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { toast } from 'react-toastify';
 
 export const getAcademicYears = () => {
   const currentDate = new Date()
@@ -313,4 +314,27 @@ export const handleDownloadCSV = (headers, fileName = "data.csv") => {
   const csvContent = headers.join(",") + "\n";
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   saveAs(blob, fileName);
-};
+}
+export const handleApiResponse = (res,type="error") => {
+  let message = ''
+  const options ={theme: 'colored',className:"text-xs"}
+  if(type === 'error'){
+    if (res.response) {
+      // Server responded with a status code out of range [200, 299]
+      console.error('API Error:', res.response.data);
+      message = res.response.data.message || 'Something went wrong!'
+    } else if (res.request) {
+      // Request was made but no response was received
+      console.error('Network Error:', res.request);
+      message= 'Network error, please try again later.'
+    } else {
+      // Something happened in setting up the request
+      console.error('Unknown Error:', res.message);
+      message= 'An unexpected error occurred. Please try again.'
+    }
+    toast.error(message,options)
+  }else{
+    message = res
+    toast.success(message,options)
+  }
+}

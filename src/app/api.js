@@ -5,8 +5,7 @@ export const getData = async (url) => {
     const response = await backendAPI.get(url)
     return response
   } catch (error) {
-    console.log('error', error)
-    return error
+    throw error
   }
 }
 
@@ -15,8 +14,7 @@ export const postData = async (url, payload) => {
     const response = await backendAPI.post(url, payload)
     return response
   } catch (error) {
-    console.log('error', error)
-    return error
+    throw error
   }
 }
 
@@ -25,7 +23,15 @@ export const updateData = async (url, payload) => {
     const response = await backendAPI.put(url, payload)
     return response
   } catch (error) {
-    console.log('error', error)
-    return error
+    throw error
+  }
+}
+
+export const deleteData = async (url, payload) => {
+  try {
+    const response = await backendAPI.delete(url, payload)
+    return response
+  } catch (error) {
+    throw error
   }
 }

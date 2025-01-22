@@ -25,6 +25,7 @@
     "react-scripts": "5.0.1",
     "react-tailwindcss-datepicker": "^1.7.2",
     "react-tailwindcss-select": "^1.8.5",
+    "react-toastify": "^11.0.3",
     "recharts": "^2.13.3",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5",

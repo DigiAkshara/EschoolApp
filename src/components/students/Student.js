@@ -5,11 +5,12 @@ import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
-import { postData } from "../../app/api";
+import { postData, updateData } from "../../app/api";
 import { STUDENT } from "../../app/url";
 import SchoolDetailsTab from "./StudentAcademicDetails";
 import BasicInfo from "./StudentBasicInfo";
 import FeeDetailsTab from "./StudentFeeDetails";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
 function Student({ onClose, loadStudents }) {
   const { selectedStudent } = useSelector((state) => state.students);
@@ -207,22 +208,12 @@ function Student({ onClose, loadStudents }) {
   const handleSubmit = async (values) => {
     const finalData = { ...formData, ...values };
     try {
-      let response = await postData(STUDENT, finalData);
-      if (response.status === 200 || response.status === 201) {
-        console.log("Student added successfully!");
-        loadStudents()
-        onClose()
-      } else {
-        throw new Error(response);
-      }
+      let response = values._id?await updateData(STUDENT, finalData):await postData(STUDENT, finalData)
+      handleApiResponse(response.data.message,'success')
+      loadStudents()
+      onClose()
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        console.error("400 Bad Request:", error.response.data);
-        alert("Student not created,Please try again")
-        // Handle the error gracefully
-      } else {
-        console.error("An unexpected error occurred:", error);
-      }
+      handleApiResponse(error)
     }
   };
 
@@ -232,7 +223,6 @@ function Student({ onClose, loadStudents }) {
     { id: 3, name: "Fee details", href: "#", status: "upcoming" },
   ];
 
-  // const [open, setOpen] = useState(false);
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
   }
@@ -246,7 +236,6 @@ function Student({ onClose, loadStudents }) {
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
         {({ values, setFieldValue, errors }) => (
-          console.log(errors),
           <Form>
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
