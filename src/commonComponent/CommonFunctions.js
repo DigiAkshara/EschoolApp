@@ -305,3 +305,12 @@ export const handleDownload = (filteredData, fileName, excludedFields = []) => {
     console.error("Error during download:", error);
   }
 };
+
+
+
+export const handleDownloadCSV = (headers, fileName = "data.csv") => {
+  // Generate CSV content with headers
+  const csvContent = headers.join(",") + "\n";
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  saveAs(blob, fileName);
+};

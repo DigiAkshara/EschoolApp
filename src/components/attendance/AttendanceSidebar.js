@@ -19,7 +19,8 @@ const AttendanceSidebar = ({
   handleSectionChange,
   classes,
   sections,
-  getSections
+  getSections,
+  attendanceMessage
 }) => {
 
   const [holiday, setHoliday] = useState(false)
@@ -99,6 +100,7 @@ const AttendanceSidebar = ({
           <CustomSelect
             name="staffCategory"
             options={staffCategory}
+            label="Select Staff Type"
             value={values.staffCategory}
             onChange={(e) => 
               handleStaffCategory(e, setFieldValue)}
@@ -107,7 +109,11 @@ const AttendanceSidebar = ({
       )}
 
       {!holiday && user === "student" && (
+          <div className="mb-4">
+          {/* Heading */}
+          <h2 className="block text-sm/6 font-regular text-gray-900">Select Class and Section</h2>
         <div className="flex flex-col lg:flex-row mb-4 gap-2">
+          
           <div className="w-full lg:w-1/2">
             <CustomSelect
               name="class"
@@ -133,6 +139,7 @@ const AttendanceSidebar = ({
           </div>
           
         </div>
+        </div>
       )}
 
       {!holiday && (
@@ -141,7 +148,7 @@ const AttendanceSidebar = ({
           name="allAttendance"
           label={
             user === "staff"
-              ? "Set attendance for all Teachers"
+              ? "Set attendance for all Staffs"
               : "Set attendance for all Students"
           }
           options={
@@ -225,9 +232,17 @@ const AttendanceSidebar = ({
         </ul>
       </div>
       {/* Attendance Marked */}
-      <div className="mt-4 p-2 bg-green-100 text-green-600 rounded-md">
-        Attendance Marked
-      </div>
+      {attendanceMessage && (
+        <div
+          className={`mt-4 p-2 rounded-md ${
+            attendanceMessage === "Attendance Marked"
+              ? "bg-green-100 text-green-600"
+              : "bg-red-100 text-red-600"
+          }`}
+        >
+          {attendanceMessage}
+        </div>
+      )}
     </div>
   );
 };

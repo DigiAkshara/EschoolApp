@@ -21,6 +21,7 @@ const ManageStaffDailyAttendance = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
+  const [attendanceMessage, setAttendanceMessage] = useState("");
 
   const getInitialValues = () => {
     return {
@@ -38,14 +39,24 @@ const ManageStaffDailyAttendance = () => {
       allAttendance: Yup.string(),
       attendance: Yup.array().of(
         Yup.object({
-          attendanceStatus: Yup.string(),
+          attendanceStatus: Yup.string().required(" Attendance Status is required"),
         })
       ),
     });
   };
   useEffect(() => {
     getStaff();
+    getStaffData();
   }, []);
+
+  const getStaffData = async () => {
+    try {
+      const response = await getData(STAFF + "/attendance");
+      console.log("[STAFF-REGISTER] data for attendance:", response.data.data);
+    } catch (error) {
+      
+    }
+  }
 
   const getStaff = async () => {
     const response = await getData(STAFF);
@@ -105,8 +116,17 @@ const ManageStaffDailyAttendance = () => {
 
     try {
       const response = await postData(ATTENDANCE, values);
+      if (response.status === 200) {
+        setAttendanceMessage("Attendance Marked");
+      } else {
+        setAttendanceMessage("Failed to mark attendance. Please try again.");
+      }
+      setTimeout(() => {
+        setAttendanceMessage("");
+      }, 5000);
     } catch (error) {
       console.error("Error while posting data:", error);
+      setAttendanceMessage("An error occurred. Please try again later.");
     }
   };
 
@@ -128,6 +148,7 @@ const ManageStaffDailyAttendance = () => {
                 setFieldValue={setFieldValue}
                 handleRadioChange={handleRadioChange}
                 handleStaffCategory={handleStaffCategory}
+                attendanceMessage={attendanceMessage}
               />
 
               {/* Main Content */}
