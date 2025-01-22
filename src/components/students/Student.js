@@ -2,7 +2,7 @@ import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { postData } from "../../app/api";
@@ -54,7 +54,7 @@ function Student({ onClose, loadStudents }) {
     },
     parentIdProof: null,
     //academic tab
-    academicDetails: {
+    academics: {
       academicYear: "",
       class: "",
       section: "",
@@ -69,8 +69,15 @@ function Student({ onClose, loadStudents }) {
       studyProof: null,
     },
     //fees tab
-    feesData: [],
+    fees: [],
     ...(selectedStudent && selectedStudent),
+    ...(selectedStudent && {
+      academics:{
+        ...selectedStudent.academics,
+        class: selectedStudent.academics.class?._id,
+        classObj: selectedStudent.academics.class
+      }
+    })
   });
 
   // Validation schemas for each step
@@ -126,7 +133,7 @@ function Student({ onClose, loadStudents }) {
       parentIdProof: Yup.object().nullable(),
     }),
     Yup.object({
-      academicDetails: Yup.object({
+      academics: Yup.object({
         academicYear: Yup.string().required("Academic year is required"),
         class: Yup.string().required("Class is required"),
         section: Yup.string().required("Section is required"),
@@ -142,17 +149,17 @@ function Student({ onClose, loadStudents }) {
       previousSchool: Yup.object({
         schoolName: Yup.string(),
         yearOfStudy: Yup.string(),
-        totalMarks: Yup.number(),
+        totalMarks: Yup.number().nullable(),
         classStudied: Yup.string(),
         studyProof: Yup.object().nullable(),
       }),
     }),
     Yup.object({
-      feesData: Yup.array()
+      fees: Yup.array()
         .of(
           Yup.object().shape({
             isChecked: Yup.boolean(),
-            discount: Yup.string(),
+            discount: Yup.number(),
             feeName: Yup.string(),
             installmentAmount: Yup.number(),
             totalFee: Yup.number(),
@@ -220,15 +227,16 @@ function Student({ onClose, loadStudents }) {
   };
 
   const stepContent = [
-    { id: "01", name: "Basic Info", href: "#", status: "current" },
-    { id: "02", name: "Academic Details", href: "#", status: "upcoming" },
-    { id: "03", name: "Fee details", href: "#", status: "upcoming" },
+    { id: 1, name: "Basic Info", href: "#", status: "current" },
+    { id: 2, name: "Academic Details", href: "#", status: "upcoming" },
+    { id: 3, name: "Fee details", href: "#", status: "upcoming" },
   ];
 
   // const [open, setOpen] = useState(false);
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
   }
+
 
   return (
     <>
@@ -238,6 +246,7 @@ function Student({ onClose, loadStudents }) {
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
         {({ values, setFieldValue, errors }) => (
+          console.log(errors),
           <Form>
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
@@ -295,7 +304,7 @@ function Student({ onClose, loadStudents }) {
                                         "overflow-hidden border border-gray-200 lg:border-0"
                                       )}
                                     >
-                                      {step.status === "complete" ? (
+                                      {step.id < currentStep ? (
                                         <a href={step.href} className="group">
                                           <span
                                             aria-hidden="true"
@@ -322,7 +331,7 @@ function Student({ onClose, loadStudents }) {
                                             </span>
                                           </span>
                                         </a>
-                                      ) : step.status === "current" ? (
+                                      ) : step.id === currentStep ? (
                                         <a href={step.href} aria-current="step">
                                           <span
                                             aria-hidden="true"

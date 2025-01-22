@@ -1,6 +1,6 @@
 import { InformationCircleIcon } from '@heroicons/react/24/outline'
 import { FieldArray } from 'formik'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import {
   capitalizeWords,
@@ -12,54 +12,92 @@ import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
 function StudentFeeDetails({ values, setFieldValue, errors }) {
+  const { selectedStudent, fees: allFees } = useSelector((state) => state.students);
   const { classes, sections } = useSelector((state) => state.students)
   const [checked, setChecked] = useState(false)
 
+  useEffect(() => {
+    let dumpLIst = []
+    allFees.forEach(item => {
+      if (item.isGlobal || item.class?._id === values.academics.class) {
+        let discount = 0
+        dumpLIst.push({
+          id: item._id,
+          isChecked: false,
+          feeName: item.name,
+          feeType: '',
+          dueDate: '',
+          discount: discount,
+          installmentAmount: item.amount - discount, //installment fee
+          totalFee: item.amount * 1, //total fee
+        })
+      }
+    })
+    if (selectedStudent) {
+      selectedStudent.fees.forEach(item => {
+        let index = dumpLIst.findIndex(obj => obj.id === item.fees);
+        if (index != -1) {
+          dumpLIst[index].isChecked = true
+          dumpLIst[index].feeType = item.feeType
+          dumpLIst[index].dueDate = item.dueDate
+          dumpLIst[index].discount = item.discount * 1
+          dumpLIst[index].installmentAmount = item.amount * 1 - item.discount * 1 //installment fee
+          dumpLIst[index].totalFee = item.amount * 1 //total fee
+        }
+      })
+    }
+    setFieldValue("fees", dumpLIst)
+
+  }, [])
+
   const handleFeeChange = (e, index) => {
-    let dumpLIst = values.feesData
+    let dumpLIst = values.fees
     if (e.target.name.includes('feeType')) {
       dumpLIst[index].feeType = e.target.value
     } else {
-      dumpLIst[index].discount = e.target.value
-      dumpLIst[index].installmentAmount =
-        values.feesData[index].totalFee - e.target.value
+      let limit = values.fees[index].totalFee * 1 / 4
+      if (e.target.value * 1 <= limit) {
+        dumpLIst[index].discount = e.target.value
+        dumpLIst[index].installmentAmount =
+          values.fees[index].totalFee - e.target.value
+      }
     }
-    setFieldValue('feesData', dumpLIst)
+    setFieldValue('fees', dumpLIst)
   }
 
   const getTotalFee = () => {
-    return values.feesData
+    return values.fees
       .filter((item) => item.isChecked)
       .reduce((acc, curr) => acc + curr.installmentAmount, 0)
   }
 
   const selectAllFees = () => {
     let dumpList = []
-    values.feesData.forEach((item) => {
+    values.fees.forEach((item) => {
       dumpList.push({
         ...item,
         isChecked: !checked,
       })
     })
-    setFieldValue('feesData', dumpList)
+    setFieldValue('fees', dumpList)
     setChecked(!checked)
   }
 
   const handleFeeChecked = (e, index) => {
-    let dumpList = values.feesData
+    let dumpList = values.fees
     dumpList[index].isChecked = e.target.checked
     let isAllChecked = dumpList.every((item) => item.isChecked)
-    setFieldValue('feesData', dumpList)
+    setFieldValue('fees', dumpList)
     setChecked(isAllChecked)
   }
 
   const getClassName = () => {
-    const cls = classes.filter(item => item.value === values.academicDetails.class)
+    const cls = classes.filter(item => item.value === values.academics.class)
     return cls[0].label
   }
 
   const getSectionName = () => {
-    const sec = sections.filter(item => item.value === values.academicDetails.section)
+    const sec = sections.filter(item => item.value === values.academics.section)
     return sec[0].label
   }
 
@@ -85,8 +123,8 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
               </div>
             </div>
           </div>
-          {errors.feesData && typeof errors.feesData === 'string' && (
-            <div className="text-red-500">{errors.feesData}</div>
+          {errors.fees && typeof errors.fees === 'string' && (
+            <div className="text-red-500">{errors.fees}</div>
           )}
 
           <table className="mt-4 min-w-full table-fixed divide-y divide-gray-300 border border-gray-300">
@@ -139,7 +177,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                   className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
                 >
                   <a href="#" className="group inline-flex">
-                    Actual Fee
+                    Actual Amount
                   </a>
                 </th>
                 <th
@@ -147,15 +185,15 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                   className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
                 >
                   <a href="#" className="group inline-flex">
-                    To Be Paid
+                    Amount After Discount
                   </a>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              <FieldArray name="feesData">
+              <FieldArray name="fees">
                 {() =>
-                  values.feesData.map((item, index) => (
+                  values.fees.map((item, index) => (
                     <tr key={item.id}>
                       <td className="relative px-7 sm:w-12 sm:px-6">
                         <CustomCheckBox
@@ -170,7 +208,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                         <CustomSelect
-                          name={`feesData.${index}.feeType`}
+                          name={`fees.${index}.feeType`}
                           options={feeduration}
                           value={item.feeType}
                           onChange={(e) => handleFeeChange(e, index)}
@@ -181,7 +219,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
                         <CustomInput
-                          name={`feesData.${index}.discount`}
+                          name={`fees.${index}.discount`}
                           type="number"
                           value={item.discount}
                           onChange={(e) => handleFeeChange(e, index)}
@@ -190,13 +228,13 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
                         <CustomDate
-                          name={`feesData.${index}.dueDate`}
+                          name={`fees.${index}.dueDate`}
                           value={item.dueDate}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
                         <CustomInput
-                          name={`feesData.${index}.totalFee`}
+                          name={`fees.${index}.totalFee`}
                           placeholder="Enter Total Fee"
                           type="number"
                           value={item.totalFee}
@@ -205,7 +243,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
                         <CustomInput
-                          name={`feesData.${index}.installmentAmount`}
+                          name={`fees.${index}.installmentAmount`}
                           type="number"
                           value={item.installmentAmount}
                           disabled

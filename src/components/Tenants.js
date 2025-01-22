@@ -146,8 +146,7 @@ export default function Tenants() {
       <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
-            <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
-              <div className="table-container-main overflow-y-auto max-h-[56vh]">
+            <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
                 {/* Table View */}
                 <TableComponent
                   columns={columns}
@@ -161,12 +160,10 @@ export default function Tenants() {
                   ]}
                   pagination={{
                     currentPage,
-                    totalPages: Math.ceil(filteredData.length / rowsPerPage),
+                    totalCount: filteredData.length,
                     onPageChange: handlePageChange,
                   }}
                 />
-
-               </div>
             </div>
           </div>
         </div>

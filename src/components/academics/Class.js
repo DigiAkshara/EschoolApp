@@ -232,7 +232,6 @@ export default function Class() {
               </div>
             )}
             <div className=" shadow ring-1 ring-black/5 sm:rounded-lg">
-              <div className="table-container-main max-h-[56vh]">
                 <FilterComponent
                   onSearch={handleSearch}
                   filters={filters}
@@ -247,13 +246,12 @@ export default function Class() {
                   data={paginatedData}
                   pagination={{
                     currentPage,
-                    totalPages: Math.ceil(classData.length / rowsPerPage),
+                    totalCount: filteredData.length,
                     onPageChange: handlePageChange,
                   }}
                   modalColumn={["time_table"]}
                   showModal={(data) => handleViewClick(data)}
                 />
-              </div>
             </div>
           </div>
         </div>

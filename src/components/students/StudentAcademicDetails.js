@@ -1,16 +1,18 @@
-import React, {useEffect, useState} from 'react'
-import {getData, postData} from '../../app/api'
-import {ACADEMIC_YEAR, CLASSES, FEES, SECTIONS, UPLOAD} from '../../app/url'
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { getData, postData } from '../../app/api'
+import { ACADEMIC_YEAR, UPLOAD } from '../../app/url'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
-import { useSelector } from 'react-redux'
+import moment from 'moment'
 
-function StudentAcademicDetails({values, setFieldValue}) {
-  const {classes, sections} = useSelector((state) => state.students)
-  const academicYear = useSelector((state)=>state.appConfig.academicYear)
+function StudentAcademicDetails({ values, setFieldValue }) {
+  const { classes, sections } = useSelector((state) => state.students)
+  const academicYear = useSelector((state) => state.appConfig.academicYear)
   const [academicYears, setAcademicYears] = useState([])
+  const [prevAcademicOpts, setPrevAcademicOpts] = useState([])
 
   useEffect(() => {
     setAcademicYears([{
@@ -18,7 +20,11 @@ function StudentAcademicDetails({values, setFieldValue}) {
       value: academicYear._id,
     }])
   }, [academicYear])
-  
+
+  useEffect(() => {
+    getPrevAcademicYears()
+  }, [])
+
   const handleFileChange = async (e) => {
     try {
       const formData = new FormData()
@@ -38,24 +44,27 @@ function StudentAcademicDetails({values, setFieldValue}) {
     }
   }
 
-  const getfees = async (classId) => {
-    const res = await getData(FEES + '/' + classId)
-    let dumpList = []
-    res.data.data.forEach((item) => {
-      let discount = 0
-      dumpList.push({
-        id: item._id,
-        isChecked: false,
-        feeName: item.name,
-        feeType: '',
-        dueDate: '',
-        discount: discount,
-        installmentAmount: item.amount - discount, //installment fee
-        totalFee: item.amount * 1, //total fee
-      })
-    })
-    setFieldValue('academicDetails.class', classId)
-    setFieldValue('feesData', dumpList)
+  const getPrevAcademicYears = async() => {
+    try {
+      let res = await getData(ACADEMIC_YEAR + '/all')
+      if (res.status === 200 || res.status === 201) {
+        const curYear = moment().year()
+        let list = []
+        res.data.data.forEach(year => 
+        {
+          let end = year.year.split("-")[1].trim()
+          if(end*1 < curYear*1){
+            list.push({ label: year.year, value: year._id })
+          }
+        })
+        setPrevAcademicOpts(list)
+      } else {
+        throw new Error(res)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
   }
 
   return (
@@ -67,7 +76,7 @@ function StudentAcademicDetails({values, setFieldValue}) {
         <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
           <div className="sm:col-span-2">
             <CustomSelect
-              name="academicDetails.academicYear"
+              name="academics.academicYear"
               label="Academic year"
               options={academicYears}
               required={true}
@@ -93,23 +102,20 @@ function StudentAcademicDetails({values, setFieldValue}) {
 
           <div className="sm:col-span-1">
             <CustomSelect
-              name="academicDetails.class"
+              name="academics.class"
               label="Class"
               required={true}
               options={classes}
-              onChange={(e) => {
-                getfees(e.target.value)
-              }}
             />
           </div>
 
           <div className="sm:col-span-1">
             <CustomSelect
-              name="academicDetails.section"
+              name="academics.section"
               label="Section"
               required={true}
-              options={sections.filter(item=>item.class==values.academicDetails.class)}
-              disabled = {!values.academicDetails.class}
+              options={sections.filter(item => item.class == values.academics.class)}
+              disabled={!values.academics.class}
             />
           </div>
         </div>
@@ -124,7 +130,7 @@ function StudentAcademicDetails({values, setFieldValue}) {
             <CustomSelect
               name="previousSchool.yearOfStudy"
               label="Year of study"
-              options={academicYears}
+              options={prevAcademicOpts}
             />
           </div>
 

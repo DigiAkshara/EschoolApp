@@ -1,17 +1,18 @@
 // src/redux/examSlice.js
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import {getData} from '../api'
-import {CLASSES, SECTIONS} from '../url'
+import {CLASSES, FEES, SECTIONS} from '../url'
 
 export const fetchInitialStudentData = createAsyncThunk(
   'data/fetchInitialStudentData',
   async (_, {rejectWithValue}) => {
     try {
-      const [classRes, secRes] = await Promise.all([
+      const [classRes, secRes, feeRes] = await Promise.all([
         getData(CLASSES),
         getData(SECTIONS),
+        getData(FEES)
       ]) // Replace with your API endpoint
-      return {classRes: classRes.data.data, sectionRes: secRes.data.data}
+      return {classRes: classRes.data.data, sectionRes: secRes.data.data, feesRes:feeRes.data.data}
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to load data')
     }
@@ -25,6 +26,7 @@ const studentSlice = createSlice({
     selectedStudent: null, // Stores details of the clicked exam
     classes: [],
     sections: [],
+    fees:[]
   },
   reducers: {
     setStudents: (state, action) => {
@@ -50,6 +52,7 @@ const studentSlice = createSlice({
         class: item.class,
         id: item._id,
       }))
+      state.fees = action.payload.feesRes
     })
   },
 })

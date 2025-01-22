@@ -214,20 +214,17 @@ function ManageExamSchedules() {
                 handleFilter={handleFilter}
                 handleReset={handleReset}
               />
-
-              <div className="table-container-main max-h-[56vh]">
                 <TableComponent
                   columns={columns}
                   data={paginatedData}
                   pagination={{
                     currentPage,
-                    totalPages: Math.ceil(examData.length / rowsPerPage),
+                    totalCount: filteredData.length,
                     onPageChange: handlePageChange,
                   }}
                   modalColumn={["timeTableSyllabus", "hallTickets"]}
                   showModal={(data) => handleViewDetails(data)}
                 />
-              </div>
             </div>
           </div>
         </div>

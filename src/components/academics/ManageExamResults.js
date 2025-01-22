@@ -269,7 +269,6 @@ function ManageExamResults() {
                 handleReset={handleReset}
               />
 
-              <div className="table-container-main max-h-[56vh]">
                 {/* Table View 
                 <table className="table-auto min-w-full divide-y divide-gray-300">
                   <thead className="sticky top-0 bg-purple-100 z-20">
@@ -467,13 +466,12 @@ function ManageExamResults() {
                   data={paginatedData}
                   pagination={{
                     currentPage,
-                    totalPages: Math.ceil(examData.length / rowsPerPage),
+                    totalCount: filteredData.length,
                     onPageChange: handlePageChange,
                   }}
                   modalColumn={["results"]}
                   showModal={(data) => handleViewDetails(data)}
                 />
-              </div>
             </div>
           </div>
         </div>

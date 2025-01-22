@@ -274,12 +274,11 @@ export default function StaffDetails() {
                 </button>
               </div>
             )}
-            <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
+            <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
             {/* <FilterComponent
                 handleDownload={handleDownload}
                 /> */}
 
-              <div className="table-container-main overflow-y-auto max-h-[56vh]">
                 {/* Table View */}
                 <TableComponent
                   columns={columns}
@@ -293,11 +292,10 @@ export default function StaffDetails() {
                   ]}
                   pagination={{
                     currentPage,
-                    totalPages: Math.ceil(filteredData.length / rowsPerPage),
+                    totalCount: filteredData.length,
                     onPageChange: handlePageChange,
                   }}
                 />
-              </div>
             </div>
           </div>
         </div>
