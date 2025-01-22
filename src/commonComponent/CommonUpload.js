@@ -6,10 +6,105 @@ import { saveAs } from "file-saver";
 import React, { useState } from "react";
 import { postData } from "../app/api";
 import { STUDENT } from "../app/url";
+import { handleDownload, handleDownloadCSV } from "./CommonFunctions";
 
 function CommonUpload({ onClose2, user }) {
   const [bulkUploadList, setBulkUploadList] = useState([]);
   const [validationError, setValidationError] = useState("");
+
+  const csvHeadersStudent = [
+    "firstName",
+    "lastName",
+    "admissionNo",
+    "dateOfBirth",
+    "aadharNumber",
+    "gender",
+    "fatherName",
+    "fatherMobile",
+    "fatherOccupation",
+    "fatherEmail",
+    "area",
+    "city",
+    "state",
+    "pincode",
+    "nationality",   
+    "religion",       
+    "cast",           
+    "subCast",        
+    "bloodGroup",    
+    "motherName",    
+    "motherMobile",   
+    "motherOccupation",
+    "motherEmail",   
+    "parentIdProof",  
+    "academicYear",  
+    "class",          
+    "section",       
+    "admissionDate", 
+    "presentArea",
+    "presentCity",
+    "presentState",
+    "presentPincode",
+    "permanentArea",
+    "permanentCity",
+    "permanentState",
+    "permanentPincode", 
+    "previousSchoolName", 
+    "previousSchoolYearOfStudy"
+  ];
+  
+
+  const csvHeadersStaff = [
+    "firstName",
+    "lastName",
+    "empId",
+    "workEmail",
+    "designation",
+    "subjects",
+    "aadharNumber",
+    "gender",
+    "DOJ",
+    "mobileNumber",
+    "profilePic",
+    "email",
+    "guardian",
+    "DOB",
+    "presentArea",
+    "presentCity",
+    "presentState",
+    "presentPincode",
+    "permanentArea",
+    "permanentCity",
+    "permanentState",
+    "permanentPincode",
+    "panNumber",
+    "aadharPic",
+    "panCardPic",
+    "accountNumber",
+    
+    "ifscCode",
+    "bankName",
+    "passBookPic",
+    "amount",
+  ];
+  
+
+  const downloadSampleCSV = () => {
+    if (user === "student") {
+      handleDownloadCSV(csvHeadersStudent, "sample-student-data.csv");
+    } else if (user === "staff") {
+      handleDownloadCSV(csvHeadersStaff, "sample-staff-data.csv");
+    }
+  };
+
+  const downloadSampleXLS = () => {
+    if (user === "student") {
+      
+      handleDownload(csvHeadersStudent, "sample-student-data");
+    } else if (user === "staff") {
+      handleDownload(csvHeadersStaff, "sample-staff-data");
+    }
+  };
 
   const handleUpload = (event) => {
     const file = event.target.files[0];
@@ -298,11 +393,11 @@ function CommonUpload({ onClose2, user }) {
                   <div>
                     <p className="text-sm text-gray-500">
                       Download a sample{" "}
-                      <a href="#" className="text-blue-600 underline">
+                      <a href="#" className="text-blue-600 underline" onClick={downloadSampleCSV}>
                         .csv format
                       </a>{" "}
                       or{" "}
-                      <a href="#" className="text-blue-600 underline">
+                      <a href="#" className="text-blue-600 underline" onClick={downloadSampleXLS}>
                         .xls format
                       </a>{" "}
                       file and compare it with your import file to ensure that

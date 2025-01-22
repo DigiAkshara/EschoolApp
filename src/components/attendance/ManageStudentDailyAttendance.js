@@ -19,6 +19,8 @@ const ManageStudentDailyAttendance = () => {
   const [sections, setSections] = useState([]);
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
+  const [attendanceMessage, setAttendanceMessage] = useState("");
+
 
   const students = [
     {
@@ -214,8 +216,28 @@ const ManageStudentDailyAttendance = () => {
         console.log("Form submitted with values:", values);
         values["userType"] = "student";
 
+        const incompleteAttendance = values.attendance.some(
+          (student) => !student.attendanceStatus
+        );
+      
+        if (incompleteAttendance) {
+          setAttendanceMessage("Please add attendance for all the students.");
+          setTimeout(() => {
+            setAttendanceMessage("");
+          }, 5000);
+          return; // Stop execution if validation fails
+        }
+
     try {
       const response = await postData(ATTENDANCE, values);
+      if (response.status === 200) {
+        setAttendanceMessage("Attendance Marked");
+      } else {
+        setAttendanceMessage("Failed to mark attendance. Please try again.");
+      }
+      setTimeout(() => {
+        setAttendanceMessage("");
+      }, 5000);
         
          } catch (error) {
       console.error("Error while posting data:", error);
@@ -244,6 +266,7 @@ const ManageStudentDailyAttendance = () => {
                 handleSectionChange={handleSectionChange}
                 sections={sections}
                 getSections={getSections}
+                attendanceMessage={attendanceMessage}
                 user="student"
               />
 
