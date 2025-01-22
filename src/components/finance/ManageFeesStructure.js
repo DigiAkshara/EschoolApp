@@ -1,102 +1,152 @@
-'use client'
-import {Dialog, Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/react'
+"use client";
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  MagnifyingGlassIcon,
-  PlusIcon,
-} from '@heroicons/react/20/solid'
+  Dialog
+} from "@headlessui/react";
 import {
-  ArrowDownTrayIcon,
-  ArrowsUpDownIcon,
-  EllipsisHorizontalIcon,
-} from '@heroicons/react/24/outline'
-import React, {useEffect, useRef, useState} from 'react'
-import FeeCreation from './FeeCreation'
-import { getData } from '../../app/api'
-import { FEES } from '../../app/url'
-import TableComponent from '../../commonComponent/TableComponent'
-import { formatDate } from '../../commonComponent/CommonFunctions'
-
+  PlusIcon
+} from "@heroicons/react/20/solid";
+import React, { useEffect, useState } from "react";
+import { getData } from "../../app/api";
+import { FEES } from "../../app/url";
+import { formatDate } from "../../commonComponent/CommonFunctions";
+import FilterComponent from "../../commonComponent/FilterComponent";
+import Toast from "../../commonComponent/Toast";
+import TableComponent from "../../commonComponent/TableComponent";
+import FeeCreation from "./FeeCreation";
 
 export default function ManageFeesStructure() {
-  const [open, setOpen] = useState(false)
-  const checkbox = useRef()
-  const [checked, setChecked] = useState(false)
-  const [indeterminate, setIndeterminate] = useState(false)
-  const [selectedPeople, setSelectedPeople] = useState([])
-  const [fees, setFees] = useState([])
-  const [filteredData, setFilteredData] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const rowsPerPage = 10
+  const [open, setOpen] = useState(false);
+  const [fees, setFees] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+  const [toasts, setToasts] = useState([]);
 
   const columns = [
-    {title: 'Academic Year', key: 'academicYear'},
-    {title: 'Fee Group', key: 'feeGroup'},
-    {title: 'Fee Name', key: 'feeName'},
-    {title: 'Class', key: 'class'},
-    {title: 'Applicable To', key: 'applicableTo'},
-    {title: 'Fee Amount', key: 'feeAmount'},
-    {title: 'Creation Date', key: 'creationDate'},
-    {title: 'Actions', key: 'actions'},
-  ]
+    { title: "Academic Year", key: "academicYear" },
+    { title: "Fee Group", key: "feeGroup" },
+    { title: "Fee Name", key: "feeName" },
+    { title: "Class", key: "class" },
+    { title: "Applicable To", key: "applicableTo" },
+    { title: "Fee Amount", key: "feeAmount" },
+    { title: "Creation Date", key: "creationDate" },
+    { title: "Actions", key: "actions" },
+  ];
 
   useEffect(() => {
-    getFees()
-  }, [])
+    getFees();
+  }, []);
+
+  const addToast = (message, type = "success", ttl = 3000) => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type, ttl }]);
+  };
+
+  const removeToast = (id) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
 
   const getFees = async () => {
-    const res = await getData(FEES)
-    const feeResponse = res.data.data
-    const data = feeResponse.map((item) => {
-      return {
-        _id: item._id,
-        academicYear: item.academicYear?.year,
-        feeGroup: item.feeGroup?.name,
-        feeName: item.name,
-        class: item.class?.name || '-',
-        applicableTo: item.isGlobal ? 'All' : 'Class Wise',
-        feeAmount: item.amount,
-        creationDate: formatDate(item.createdAt),
-        actions: [
-          {label: 'Edit', actionHandler: onHandleEdit},
-          {label: 'Delete', actionHandler: onDelete},
-        ]
+    try {
+      const res = await getData(FEES);
+      const feeResponse = res.data.data;
+      const data = feeResponse.map((item) => {
+        return {
+          _id: item._id,
+          academicYear: item.academicYear?.year,
+          feeGroup: item.feeGroup?.name,
+          feeName: item.name,
+          class: item.class?.name || "-",
+          applicableTo: item.isGlobal ? "All" : "Class Wise",
+          feeAmount: item.amount,
+          creationDate: formatDate(item.createdAt),
+          actions: [
+            { label: "Edit", actionHandler: onHandleEdit },
+            { label: "Delete", actionHandler: onDelete },
+          ],
+        };
+      });
+      setFees(data);
+      setFilteredData(data);
+      addToast("Fees fetched successfully", "success", 5000)
+    } catch (error) {
+      console.log(error);
+
+    }
+  };
+
+  const handleSearch = (term) => {
+    const filtered = fees.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
+
+  const filterForm = {
+    class: '',
+    section: '',
+    gender: '',
+  }
+
+  const filters = {
+    class: {options: []},
+    section: {
+      options: [],
+      dependency: true,
+      dependencyKey: 'class',
+      filterOptions: true,
+    },
+    gender: {options: []},
+  }
+
+  const handleFilter = (values) => {
+    let filtered = fees
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        filtered = filtered.filter((rec) =>{
+          return rec[key].toLowerCase().includes(value.toLowerCase())}
+        )
       }
     })
-    console.log(feeResponse)
-    setFees(feeResponse)
-    setFilteredData(data)
+    setFilteredData(filtered)
+  }
+
+  const handleReset = (updatedValues) => {
+    setFilteredData(fees)
+    updatedValues('gender', '')
+    updatedValues('class', '')
+    updatedValues('section', '')
   }
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage,
-  )
+    currentPage * rowsPerPage
+  );
 
   const handleAction = {
-    edit: (item) => console.log('Edit:', item),
-    delete: (item) => console.log('Delete:', item),
-  }
+    edit: (item) => console.log("Edit:", item),
+    delete: (item) => console.log("Delete:", item),
+  };
 
   const onHandleEdit = async () => {
-    console.log('edit')
-  }
-  
-    const onDelete = () => {
-      console.log('delete')
-    }
+    console.log("edit");
+  };
+
+  const onDelete = () => {
+    console.log("delete");
+  };
 
   const handlePageChange = (page) => {
-    setCurrentPage(page)
-  }
+    setCurrentPage(page);
+  };
 
-  const handleClose = () => setOpen(false)
+  const handleClose = () => setOpen(false);
 
   return (
     <div className="flow-root">
       {/* Primary Tabs */}
-      <div></div>
 
       <div className="mt-4 flex justify-between">
         <div className="text-lg text-gray-900 font-medium">Fee Structure</div>
@@ -116,79 +166,47 @@ export default function ManageFeesStructure() {
       <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
-            {selectedPeople.length > 0 && (
-              <div className="absolute left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
             <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
-              <div className="relative table-tool-bar z-30">
-                <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <div className="relative rounded-md">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                          <MagnifyingGlassIcon
-                            aria-hidden="true"
-                            className="size-4 text-gray-400"
-                          />
-                        </div>
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="Search"
-                          className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="right-action-btns-blk space-x-4">
-                      <button
-                        type="button"
-                        className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                      >
-                        <ArrowDownTrayIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-                {/* Table View */}
-                <TableComponent
-                  columns={columns}
-                  data={paginatedData}
-                  onAction={[
-                    {label: 'Edit', handler: handleAction.edit},
-                    {label: 'Delete', handler: handleAction.delete},
-                  ]}
-                  pagination={{
-                    currentPage,
-                    totalCount: filteredData.length,
-                    onPageChange: handlePageChange,
-                  }}
-                />
-             
+              <FilterComponent
+                onSearch={handleSearch}
+                filters={filters}
+                filterForm={filterForm}
+                handleFilter={handleFilter}
+                handleReset={handleReset}
+                // downloadList={downloadList}
+              />
+              {/* Table View */}
+              <TableComponent
+                columns={columns}
+                data={paginatedData}
+                onAction={[
+                  { label: "Edit", handler: handleAction.edit },
+                  { label: "Delete", handler: handleAction.delete },
+                ]}
+                pagination={{
+                  currentPage,
+                  totalCount: filteredData.length,
+                  onPageChange: handlePageChange,
+                }}
+              />
             </div>
           </div>
         </div>
       </div>
-
       {/* Student Onboarding Modal */}
-
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
         <FeeCreation onClose={handleClose} />
       </Dialog>
+      {toasts.map((toast) => (
+            <Toast
+              key={toast.id}
+              message={toast.message}
+              type={toast.type}
+              ttl={toast.ttl}
+              onClose={() => removeToast(toast.id)}
+            />
+          ))}
     </div>
-  )
+  );
 }
