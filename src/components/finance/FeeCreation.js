@@ -8,8 +8,9 @@ import {ACADEMIC_YEAR, CLASSES, FEE_GROUP, FEES} from '../../app/url'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
+import { handleApiResponse } from '../../commonComponent/CommonFunctions'
 
-function FeeCreation({onClose}) {
+function FeeCreation({onClose, getFees}) {
   const [feeDetails, setFeeDetails] = useState([])
   const [loading, setLoading] = useState(true)
   const [academicYears, setAcademicYears] = useState([])
@@ -56,12 +57,11 @@ function FeeCreation({onClose}) {
   const handleSubmit = async (values) => {
     try {
       const response = await postData(FEES, values)
-      if (response.status === 200 || response.status === 201) {
-        onClose()
-        alert('Fees added successfully!')
-      }
+      getFees()
+      handleApiResponse(response.data.message, 'success')
+      onClose()
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -76,13 +76,8 @@ function FeeCreation({onClose}) {
         getData(FEE_GROUP),
         getData(ACADEMIC_YEAR),
       ])
-      if (classRes.status === 200 || classRes.status === 201) {
         setFeeDetails(classRes.data.data)
-        setLoading(false)
-      } else {
-        throw new Error(classRes.message)
-      }
-      if (feeGroupRes.status === 200 || feeGroupRes.status === 201) {
+        
         let feeGroupData = feeGroupRes.data.data.map((item) => {
           return {
             label: item.name, // Displayed text in the dropdown
@@ -90,10 +85,6 @@ function FeeCreation({onClose}) {
           }
         })
         setFeeGroups(feeGroupData)
-      } else {
-        throw new Error(feeGroupRes.message)
-      }
-      if (academicYearRes.status === 200 || academicYearRes.status === 201) {
         let academicYearData = [
           {
             label: academicYearRes.data.data.year, // Displayed text in the dropdown
@@ -101,11 +92,10 @@ function FeeCreation({onClose}) {
           },
         ]
         setAcademicYears(academicYearData)
-      } else {
-        throw new Error(academicYearRes.message)
-      }
+        setLoading(false)
     } catch (error) {
-      console.log(error)
+      setLoading(false)
+      handleApiResponse(error)
     }
   }
 

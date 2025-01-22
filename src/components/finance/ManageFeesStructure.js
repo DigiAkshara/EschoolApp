@@ -8,7 +8,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { getData } from "../../app/api";
 import { FEES } from "../../app/url";
-import { formatDate } from "../../commonComponent/CommonFunctions";
+import { formatDate, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import FilterComponent from "../../commonComponent/FilterComponent";
 import TableComponent from "../../commonComponent/TableComponent";
 import FeeCreation from "./FeeCreation";
@@ -38,8 +38,7 @@ export default function ManageFeesStructure() {
   const getFees = async () => {
     try {
       const res = await getData(FEES);
-      const feeResponse = res.data.data;
-      const data = feeResponse.map((item) => {
+      const feeResponse = res.data.data.map((item) => {
         return {
           _id: item._id,
           academicYear: item.academicYear?.year,
@@ -55,10 +54,10 @@ export default function ManageFeesStructure() {
           ],
         };
       });
-      setFees(data);
-      setFilteredData(data);
+      setFees(feeResponse);
+      setFilteredData(feeResponse);
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 
@@ -183,7 +182,7 @@ export default function ManageFeesStructure() {
       {/* Student Onboarding Modal */}
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
-        <FeeCreation onClose={handleClose} />
+        <FeeCreation onClose={handleClose} getFees={getFees}/>
       </Dialog>
     </div>
   );

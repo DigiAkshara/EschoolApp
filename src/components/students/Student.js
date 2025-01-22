@@ -208,7 +208,7 @@ function Student({ onClose, loadStudents }) {
   const handleSubmit = async (values) => {
     const finalData = { ...formData, ...values };
     try {
-      let response = values._id?await updateData(STUDENT, finalData):await postData(STUDENT, finalData)
+      let response = values._id?await updateData(STUDENT+'/'+values._id, finalData):await postData(STUDENT, finalData)
       handleApiResponse(response.data.message,'success')
       loadStudents()
       onClose()
