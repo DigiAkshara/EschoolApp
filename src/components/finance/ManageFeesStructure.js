@@ -10,7 +10,6 @@ import { getData } from "../../app/api";
 import { FEES } from "../../app/url";
 import { formatDate } from "../../commonComponent/CommonFunctions";
 import FilterComponent from "../../commonComponent/FilterComponent";
-import Toast from "../../commonComponent/Toast";
 import TableComponent from "../../commonComponent/TableComponent";
 import FeeCreation from "./FeeCreation";
 
@@ -20,7 +19,6 @@ export default function ManageFeesStructure() {
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-  const [toasts, setToasts] = useState([]);
 
   const columns = [
     { title: "Academic Year", key: "academicYear" },
@@ -36,15 +34,6 @@ export default function ManageFeesStructure() {
   useEffect(() => {
     getFees();
   }, []);
-
-  const addToast = (message, type = "success", ttl = 3000) => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type, ttl }]);
-  };
-
-  const removeToast = (id) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  };
 
   const getFees = async () => {
     try {
@@ -68,10 +57,8 @@ export default function ManageFeesStructure() {
       });
       setFees(data);
       setFilteredData(data);
-      addToast("Fees fetched successfully", "success", 5000)
     } catch (error) {
       console.log(error);
-
     }
   };
 
@@ -198,15 +185,6 @@ export default function ManageFeesStructure() {
         <div className="fixed inset-0" />
         <FeeCreation onClose={handleClose} />
       </Dialog>
-      {toasts.map((toast) => (
-            <Toast
-              key={toast.id}
-              message={toast.message}
-              type={toast.type}
-              ttl={toast.ttl}
-              onClose={() => removeToast(toast.id)}
-            />
-          ))}
     </div>
   );
 }
