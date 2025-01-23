@@ -1,12 +1,12 @@
-import React, {useEffect, useState} from 'react'
-import {getData} from '../../app/api'
-import {SUBJECTS} from '../../app/url'
-import {designations, staffType} from '../../commonComponent/CommonFunctions'
+import React, { useEffect, useState } from 'react'
+import { getData } from '../../app/api'
+import { SUBJECTS } from '../../app/url'
+import { capitalizeWords, designations, staffType } from '../../commonComponent/CommonFunctions'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
-
-function StaffInfo() {
+import MutliSelect from '../../commonComponent/MultiSelect'
+function StaffInfo({ values, setFieldValue }) {
   const [subjects, setSubjects] = useState()
 
   useEffect(() => {
@@ -14,14 +14,18 @@ function StaffInfo() {
   }, [])
 
   const getSubjects = async () => {
-    const res = await getData(SUBJECTS)
-    const classData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-      }
-    })
-    setSubjects(classData)
+    try{
+      const res = await getData(SUBJECTS)
+      const classData = res.data.data.map((item) => {
+        return {
+          label: capitalizeWords(item.name), // Displayed text in the dropdown
+          value: item._id,
+        }
+      })
+      setSubjects(classData)
+    }catch(error){
+      console.log(error)
+    }
   }
 
   return (
@@ -32,9 +36,17 @@ function StaffInfo() {
         </h2>
         <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
           <div className="sm:col-span-2">
+            <CustomSelect
+              name="staffType"
+              label="Staff Type"
+              options={staffType}
+              required={true}
+            />
+          </div>
+          <div className="sm:col-span-2">
             <CustomInput
               name="firstName"
-              label="Staff First Name"
+              label="First Name"
               placeholder="Enter First Name"
               required={true}
             />
@@ -43,9 +55,8 @@ function StaffInfo() {
           <div className="sm:col-span-2">
             <CustomInput
               name="lastName"
-              label="Staff Last Name"
+              label="Last Name"
               placeholder="Enter last Name"
-              required={true}
             />
           </div>
 
@@ -59,30 +70,11 @@ function StaffInfo() {
           </div>
 
           <div className="sm:col-span-2">
-            <CustomDate name="DOJ" label="Date Of Joining" required={true}/>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-b border-gray-900/10 pb-4 mb-4">
-        <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
-          <div className="sm:col-span-2">
-            <CustomInput
-              name="workEmail"
-              label="Work Email"
-              placeholder="Enter email"
-              required={true}
-            />
+            <CustomDate name="DOJ" label="Date Of Joining" required={true} />
           </div>
 
-          <div className="sm:col-span-2">
-            <CustomSelect
-              name="staffType"
-              label="Staff Type"
-              options={staffType}
-              required={true}
-            />
-          </div>
+
+
 
           <div className="sm:col-span-2">
             <CustomSelect
@@ -93,23 +85,37 @@ function StaffInfo() {
             />
           </div>
 
-          <div className="sm:col-span-2">
-            <CustomSelect
-              name="subjects"
-              label="Dealing Subjects"
-              options={subjects}
-              required={true}
-            />
-          </div>
 
           <div className="sm:col-span-2">
             <CustomInput
+              type="number"
               name="mobileNumber"
               label="Mobile Number"
               placeholder="Enter Mobile Number"
               required={true}
             />
           </div>
+          <div className="sm:col-span-2">
+            <CustomInput
+              name="workEmail"
+              label="Work Email"
+              placeholder="Enter email"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <MutliSelect
+              name="subjects"
+              label="Dealing Subjects"
+              options={subjects}
+              required={values.staffType === 'teaching'}
+              value={values.subjects}
+              onChange={value => {
+                setFieldValue('subjects', value ? value : [])
+              }}
+            />
+          </div>
+
         </div>
       </div>
     </>

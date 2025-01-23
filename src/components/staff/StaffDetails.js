@@ -1,46 +1,47 @@
 'use client'
 
-import {ArrowUpTrayIcon, PlusIcon} from '@heroicons/react/20/solid'
-import {useEffect, useRef, useState} from 'react'
+import { ArrowUpTrayIcon, PlusIcon } from '@heroicons/react/20/solid'
+import { useEffect, useRef, useState } from 'react'
 
-import {Dialog} from '@headlessui/react'
+import { Dialog } from '@headlessui/react'
 
-import {getData} from '../../app/api'
-import {STAFF} from '../../app/url'
-import {designations, handleDownload} from '../../commonComponent/CommonFunctions'
-import TableComponent from '../../commonComponent/TableComponent'
-import FilterComponent from '../../commonComponent/FilterComponent'
-import Staff from './Staff'
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { useDispatch } from 'react-redux'
+import { getData } from '../../app/api'
+import { selectStaff } from '../../app/reducers/staffSlice'
+import { STAFF } from '../../app/url'
+import { designations, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
 import CommonUpload from '../../commonComponent/CommonUpload'
+import TableComponent from '../../commonComponent/TableComponent'
+import Staff from './Staff'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 const tabs2 = [
-  {name: 'Teachers', href: '#', count: '122', current: true},
-  {name: 'Non-teaching Staff', href: '#', count: '20', current: false},
+  { name: 'Teachers', href: '#', count: '122', current: true },
+  { name: 'Non-teaching Staff', href: '#', count: '20', current: false },
 ]
 
 export default function StaffDetails() {
-  const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false)
   const [staffList, setStaffList] = useState([])
+  const [staffData, setStaffData] = useState([])
   const [filteredData, setFilteredData] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 5
-  const[bulkUploadList, setBulkUploadList] = useState([])
+  const [bulkUploadList, setBulkUploadList] = useState([])
   const fileInputRef = useRef(null);
+  const dispatch = useDispatch()
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
   };
 
-  const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
+  const handleOpen = () => setShowAddStaffModal(true)
+  const handleClose = () => setShowAddStaffModal(false)
   const handleClose2 = () => setOpen2(false)
 
   useEffect(() => {
@@ -48,21 +49,20 @@ export default function StaffDetails() {
   }, [])
 
   const columns = [
-    {title: 'Staff Name', key: 'name'},
-    {title: 'Staff Id', key: 'staffId'},
-    {title: 'DOJ', key: 'date'},
-    {title: 'Phone Number', key: 'phoneNumber'},
-    {title: 'Designation', key: 'designation'},
-    {title: 'Subjects', key: 'subjects'},
-    {title: 'Class', key: 'class'},
-    {title: 'Actions', key: 'actions'},
+    { title: 'Staff Name', key: 'name' },
+    { title: 'Staff Id', key: 'staffId' },
+    { title: 'DOJ', key: 'date' },
+    { title: 'Phone Number', key: 'phoneNumber' },
+    { title: 'Designation', key: 'designation' },
+    { title: 'Subjects', key: 'subjects' },
+    { title: 'Class', key: 'class' },
+    { title: 'Actions', key: 'actions' },
   ]
 
   const getStaff = async () => {
-    const response = await getData(STAFF)
-    if (response.status === 200) {
-      console.log("Response data for staff:", response.data.data);
-      
+    try {
+      const response = await getData(STAFF)
+      setStaffData(response.data.data)
       let data = response.data.data.map((item, index) => ({
         _id: item._id,
         pic: item.profilePic?.Location,
@@ -78,38 +78,43 @@ export default function StaffDetails() {
         staffType: item.staffType,
         guardian: item.guardian,
         email: item.email,
-      workEmail: item.workEmail,
-      gender: item.gender,
-      permanentArea: item.permanentAddress?.area,
-      permanentCity: item.permanentAddress?.city,
-      permanentPincode: item.permanentAddress?.pincode,
-      permanentState: item.permanentAddress?.state,
-      presentArea: item.presentAddress?.area,
-      presentCity: item.presentAddress?.city,
-      presentPincode: item.presentAddress?.pincode,
-      presentState: item.presentAddress?.state,
-      aadharNumber: item.aadharNumber,
-      aadharPic: item.aadharPic?.Location,
-      panNumber: item.panNumber,
-      panCardPic: item.panCardPic?.Location,
-      accountNumber: item.bankDetails?.accountNumber,
+        workEmail: item.workEmail,
+        gender: item.gender,
+        permanentArea: item.permanentAddress?.area,
+        permanentCity: item.permanentAddress?.city,
+        permanentPincode: item.permanentAddress?.pincode,
+        permanentState: item.permanentAddress?.state,
+        presentArea: item.presentAddress?.area,
+        presentCity: item.presentAddress?.city,
+        presentPincode: item.presentAddress?.pincode,
+        presentState: item.presentAddress?.state,
+        aadharNumber: item.aadharNumber,
+        aadharPic: item.aadharPic?.Location,
+        panNumber: item.panNumber,
+        panCardPic: item.panCardPic?.Location,
+        accountNumber: item.bankDetails?.accountNumber,
         ifscCode: item.bankDetails?.ifscCode,
         bankName: item.bankDetails?.bankName,
         passBookPic: item.bankDetails?.passBookPic?.Location,
-     
-      salary: item.amount,
+
+        salary: item.amount,
         actions: [
-          {label: 'Edit', actionHandler: onHandleEdit},
-          {label: 'Delete', actionHandler: onDelete},
+          { label: 'Edit', actionHandler: onHandleEdit },
+          { label: 'Delete', actionHandler: onDelete },
         ],
       }))
       setStaffList(data)
       setFilteredData(data)
+    } catch (error) {
+      handleApiResponse(error)
     }
+
   }
 
   const onHandleEdit = (Id) => {
-    console.log('edit', Id)
+    const obj = staffData.filter(obj => obj._id == Id)
+    dispatch(selectStaff({ ...obj[0], actions: undefined }))
+    setShowAddStaffModal(true)
   }
 
   const onDelete = () => {
@@ -121,8 +126,8 @@ export default function StaffDetails() {
       key: 'age',
       label: 'Age Filter',
       options: [
-        {value: '20-30', label: '20-30'},
-        {value: '30-40', label: '30-40'},
+        { value: '20-30', label: '20-30' },
+        { value: '30-40', label: '30-40' },
       ],
     },
   ]
@@ -147,10 +152,6 @@ export default function StaffDetails() {
     setFilteredData(filtered)
   }
 
-  const handleAction = {
-    edit: (item) => console.log('Edit:', item),
-    delete: (item) => console.log('Delete:', item),
-  }
 
   const handlePageChange = (page) => {
     setCurrentPage(page)
@@ -162,11 +163,11 @@ export default function StaffDetails() {
   )
 
   const downloadList = () => {
-    handleDownload(filteredData, "StaffList", ["_id","pic", "actions"]);
+    handleDownload(filteredData, "StaffList", ["_id", "pic", "actions"]);
   };
 
-  
-  
+
+
 
   return (
     <>
@@ -229,7 +230,7 @@ export default function StaffDetails() {
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Add Staff
           </button>
-         
+
           <button
             type="button"
             onClick={() => setOpen2(true)}
@@ -275,27 +276,23 @@ export default function StaffDetails() {
               </div>
             )}
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-            {/* <FilterComponent
+              {/* <FilterComponent
                 handleDownload={handleDownload}
                 /> */}
 
-                {/* Table View */}
-                <TableComponent
-                  columns={columns}
-                  data={paginatedData}
-                  filters={filters}
-                  onSearch={handleSearch}
-                  onFilter={handleFilter}
-                  onAction={[
-                    {label: 'Edit', handler: handleAction.edit},
-                    {label: 'Delete', handler: handleAction.delete},
-                  ]}
-                  pagination={{
-                    currentPage,
-                    totalCount: filteredData.length,
-                    onPageChange: handlePageChange,
-                  }}
-                />
+              {/* Table View */}
+              <TableComponent
+                columns={columns}
+                data={paginatedData}
+                filters={filters}
+                onSearch={handleSearch}
+                onFilter={handleFilter}
+                pagination={{
+                  currentPage,
+                  totalCount: filteredData.length,
+                  onPageChange: handlePageChange,
+                }}
+              />
             </div>
           </div>
         </div>
@@ -303,13 +300,13 @@ export default function StaffDetails() {
 
       {/* Student Onboarding Modal */}
 
-      <Dialog open={open} onClose={setOpen} className="relative z-50">
+      <Dialog open={showAddStaffModal} onClose={handleClose} className="relative z-50">
         <div className="fixed inset-0" />
-
-        <Staff onClose={handleClose} />
+        <Staff onClose={handleClose} getStaff={getStaff} />
       </Dialog>
+
       <Dialog open={open2} onClose={setOpen2} className="relative z-50">
-        <CommonUpload onClose2={handleClose2} user="staff"  />
+        <CommonUpload onClose2={handleClose2} user="staff" />
       </Dialog>
     </>
   )

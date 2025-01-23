@@ -1,32 +1,34 @@
-import {DialogPanel, DialogTitle} from '@headlessui/react'
-import {CheckIcon} from '@heroicons/react/20/solid'
-import {XMarkIcon} from '@heroicons/react/24/outline'
-import {Form, Formik} from 'formik'
-import React, {useEffect, useState} from 'react'
-import {useDispatch} from 'react-redux'
+import { DialogPanel, DialogTitle } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { Form, Formik } from 'formik'
+import React, { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import * as Yup from 'yup'
-import {postData} from '../../app/api'
-import {clearFormData} from '../../app/reducers/appConfigSlice'
-import {STAFF} from '../../app/url'
+import { postData } from '../../app/api'
+import { STAFF } from '../../app/url'
+import { handleApiResponse } from '../../commonComponent/CommonFunctions'
+import Stepper from '../../commonComponent/StepperComponent'
 import StaffCTCDetails from './StaffCTCDetails'
 import StaffInfo from './StaffInfo'
 import StaffPersonalDetails from './StaffPersonalDetails'
 
-function Staff({onClose}) {
+function Staff({ onClose, getStaff }) {
+  const selectedStaff = useSelector((state) => state.staff.selectedStaff)
   const dispatch = useDispatch()
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
+    staffType: '',
     firstName: '',
     lastName: '',
     empId: '',
     DOJ: null,
     mobileNumber: '',
-    workEmail: '',
+    workEmail: null,
     designation: '',
-    subjects: '',
-    fileUpload: '',
+    subjects: [],
+    profilePic: null,
     DOB: '',
-    email: '',
+    email: null,
     guardian: '',
     gender: '',
     presentAddress: {
@@ -44,81 +46,144 @@ function Staff({onClose}) {
     },
     aadharNumber: '',
     panNumber: '',
-    aadharPic: '',
-    panCardPic: '',
-    accountNumber: '',
-    reAccountNumber: '',
-    ifscCode: '',
-    bankName: '',
-    passBookPic: '',
-    payroll: '',
+    aadharPic: null,
+    panCardPic: null,
+    paymentMode: '',
+    accountNumber: "",
+    confirmAccountNumber: "",
+    ifscCode: "",
+    bankName: "",
+    bankPassbook: null,
+    amount: '',
+    ...(selectedStaff && selectedStaff),
   })
 
-  useEffect(() => {
-    // Initialize the form data in Redux store
-  }, [])
+  const panCardRegex = /^[A-Z]{3}P[A-Z]{1}[0-9]{4}[A-Z]{1}$/;
 
   // Validation schemas for each step
   const validationSchemas = [
     Yup.object({
+      staffType: Yup.string().required('Staff Type is required'),
       firstName: Yup.string()
         .required('First Name is required')
         .min(3, 'First name should be at least 3 letters'),
       lastName: Yup.string()
-        .required('Last Name is required')
         .min(3, 'Last name should be at least 3 letters'),
-      empId: Yup.string().required('empId is required'),
+      empId: Yup.string().required('EmpId is required'),
       workEmail: Yup.string()
-        .required('Work Email is required')
-        .email('Enter a valid email address'),
+        .email('Enter a valid email address').nullable(),
       designation: Yup.string().required('Designation is required'),
-      subjects: Yup.string().required('Subjects is required'),
+      subjects: Yup.array().test(
+        'subjects-required',
+        'Subject is required when staff type is Teaching',
+        function (value) {
+          const { staffType } = this.parent; // Access other field values (e.g., staffType)
+          // If staffType is 'teaching' and subjects is empty array, validate as required
+          return staffType !== 'teaching' || (value && value.length !== 0);
+        }
+      ),
       DOJ: Yup.date().nullable().required('Date of Joining is required'),
-      mobileNumber: Yup.string().required('Mobile Number is required'),
+      mobileNumber: Yup.string().required('Mobile Number is required').matches(
+        /^[0-9]{10}$/,
+        "Mobile number must be 10 digits"
+      ).max(10),
     }),
     Yup.object({
-      profilePic: Yup.object(),
+      profilePic: Yup.object().nullable(),
       email: Yup.string()
-        .required('Email is required')
-        .email('Enter a valid email address'),
-      guardian: Yup.string().required(' Guardian is required'),
+        .email('Enter a valid email address').nullable(),
+      guardian: Yup.string().required('Guardian is required').max(50),
       gender: Yup.string().required('Gender is required'),
       DOB: Yup.date().nullable().required('Date of Birth is required'),
       presentAddress: Yup.object({
         area: Yup.string().required('Area is required'),
-        city: Yup.string().required(' City is required'),
-        state: Yup.string().required('Sate is required'),
-        pincode: Yup.string().required(' pincode is required'),
+        city: Yup.string().required('City is required'),
+        state: Yup.string().required('State is required'),
+        pincode: Yup.string().required('Pincode is required'),
       }),
       permanentAddress: Yup.object({
         area: Yup.string().required('Area is required'),
-        city: Yup.string().required(' City is required'),
-        state: Yup.string().required('Sate is required'),
-        pincode: Yup.string().required(' pincode is required'),
+        city: Yup.string().required('City is required'),
+        state: Yup.string().required('State is required'),
+        pincode: Yup.string().required('Pincode is required'),
       }),
       aadharNumber: Yup.string()
         .matches(/^[0-9]{12}$/, 'Aadhar number must be 12 digits')
-        .required('Aadhar number is required'),
-      panNumber: Yup.string().required('Pan number is required'),
-      aadharPic: Yup.object(),
-      panCardPic: Yup.object(),
+        .required('Aadhar Number is required'),
+      panNumber: Yup.string()
+        .matches(panCardRegex, "Invalid PAN card number")
+        .required("PAN card is required"),
+      aadharPic: Yup.object().nullable(),
+      panCardPic: Yup.object().nullable(),
     }),
     Yup.object({
-      bankDetails: Yup.object({
-        accountNumber: Yup.string().required('Account Number is required'),
-        reAccountNumber: Yup.string()
-          .oneOf([Yup.ref('accountNumber'), null], 'accountNumbers must match')
-          .required('confirm accountNumber is required'),
-        ifscCode: Yup.string().required('Ifsc Code is required'),
-        bankName: Yup.string().required('Bank Name is required'),
-        passBookPic: Yup.object().required('Pass BookPic is required'),
-      }),
-      amount: Yup.string().required('Paackage amount is required'),
+      amount: Yup.string().required('Package amount is required'),
+      paymentMode: Yup.string()
+        .required("Payment mode is required")
+        .oneOf(["online", "offline"], "Invalid payment mode"),
+      accountNumber: Yup.string()
+        .test(
+          "account-number-required",
+          "Account number is required",
+          function (value) {
+            return this.parent.paymentMode === "online" ? !!value : true;
+          }
+        )
+        .test(
+          "account-number-valid",
+          "Account number must be 10-18 digits",
+          function (value) {
+            return this.parent.paymentMode === "online"
+              ? /^\d{10,18}$/.test(value || "")
+              : true;
+          }
+        ),
+      confirmAccountNumber: Yup.string()
+        .test(
+          "confirm-account-number-required",
+          "Confirm account number is required",
+          function (value) {
+            return this.parent.paymentMode === "online" ? !!value : true;
+          }
+        )
+        .test(
+          "confirm-account-number-match",
+          "Account numbers must match",
+          function (value) {
+            return this.parent.paymentMode === "online"
+              ? value === this.parent.accountNumber
+              : true;
+          }
+        ),
+      ifscCode: Yup.string()
+        .test(
+          "ifsc-code-required",
+          "IFSC code is required",
+          function (value) {
+            return this.parent.paymentMode === "online" ? !!value : true;
+          }
+        )
+        .test(
+          "ifsc-code-valid",
+          "Invalid IFSC code (format: 4 letters, 0, 6 alphanumeric)",
+          function (value) {
+            return this.parent.paymentMode === "online"
+              ? /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value || "")
+              : true;
+          }
+        ),
+      bankName: Yup.string().test(
+        "bank-name-required",
+        "Bank name is required",
+        function (value) {
+          return this.parent.paymentMode === "online" ? !!value : true;
+        }
+      ), bankPassbook: Yup.object().nullable(),
     }),
   ]
 
   const handleNext = (values) => {
-    setFormData((prev) => ({...prev, ...values}))
+    setFormData((prev) => ({ ...prev, ...values }))
     setCurrentStep((prev) => prev + 1)
   }
 
@@ -128,26 +193,22 @@ function Staff({onClose}) {
 
   const handleSubmit = async (values) => {
     try {
-      const finalData = {...formData, ...values}
+      const finalData = { ...formData, ...values, confirmAccountNumber: undefined }
       let response = await postData(STAFF, finalData)
-      if (response.status === 200) {
-        dispatch(clearFormData())
-        alert('Staff added successfully!')
-        // props.goNext('login') if you want to navigate after adding student
-      } else {
-        alert(response.message)
-      }
+      handleApiResponse(response.data.message, "success")
+      getStaff();
+      // onClose();
     } catch (error) {
+      handleApiResponse(error)
       console.log(error)
     }
   }
 
-  const stepContent = [1, 2, 3]
-
-  // const [open, setOpen] = useState(false);
-  function classNames(...classes) {
-    return classes.filter(Boolean).join(' ')
-  }
+  const stepContent = [
+    { id: 1, name: "Employment Info", href: "#", status: "current" },
+    { id: 2, name: "Personal Details", href: "#", status: "upcoming" },
+    { id: 3, name: "CTC details", href: "#", status: "upcoming" },
+  ];
 
   return (
     <>
@@ -156,7 +217,8 @@ function Staff({onClose}) {
         validationSchema={validationSchemas[currentStep - 1]}
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
-        {({values, setFieldValue, errors}) => (
+        {({ values, setFieldValue, errors }) => (
+          // console.log(errors),
           <Form>
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
@@ -189,153 +251,10 @@ function Staff({onClose}) {
                           </div>
                         </div>
                         <div className="relative mt-6 flex-1 px-4 sm:px-6 overflow-y-auto">
-                          <div className="progress-steps">
-                            <nav
-                              aria-label="Progress"
-                              className="mx-auto max-w-7xl"
-                            >
-                              <ol
-                                role="list"
-                                className="overflow-hidden rounded-md lg:flex lg:rounded-none lg:border-l lg:border lg:border-gray-200"
-                              >
-                                {stepContent.map((step, stepIdx) => (
-                                  <li
-                                    key={stepIdx}
-                                    className="relative overflow-hidden lg:flex-1"
-                                  >
-                                    <div
-                                      className={classNames(
-                                        currentStep === 1
-                                          ? 'rounded-t-md border-b-0'
-                                          : '',
-                                        stepIdx === stepContent.length - 1
-                                          ? 'rounded-b-md border-t-0'
-                                          : '',
-                                        'overflow-hidden border border-gray-200 lg:border-0',
-                                      )}
-                                    >
-                                      <button
-                                        type="button"
-                                        // onClick={() =>
-                                        //   setActiveStep(parseInt(stepIdx, 10))
-                                        // }
-                                        className="group w-full"
-                                      >
-                                        {step.status === 'complete' ? (
-                                          <a href={'#'} className="group">
-                                            <span
-                                              aria-hidden="true"
-                                              className="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-                                            />
-                                            <span
-                                              className={classNames(
-                                                stepIdx !== 0 ? 'lg:pl-9' : '',
-                                                'flex items-center px-4 py-2 text-sm font-medium',
-                                              )}
-                                            >
-                                              <span className="shrink-0">
-                                                <span className="flex size-6 items-center justify-center rounded-full bg-purple-600">
-                                                  <CheckIcon
-                                                    aria-hidden="true"
-                                                    className="size-4 text-white"
-                                                  />
-                                                </span>
-                                              </span>
-                                              <span className="ml-4 flex min-w-0 flex-col">
-                                                <span className="text-sm font-medium">
-                                                  'step'
-                                                </span>
-                                              </span>
-                                            </span>
-                                          </a>
-                                        ) : step.status === 'current' ? (
-                                          <a
-                                            href={step.href}
-                                            aria-current="step"
-                                          >
-                                            <span
-                                              aria-hidden="true"
-                                              className="absolute left-0 top-0 h-full w-1 bg-purple-600 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-                                            />
-                                            <span
-                                              className={classNames(
-                                                stepIdx !== 0 ? 'lg:pl-9' : '',
-                                                'flex items-center px-4 py-2 text-xs font-medium',
-                                              )}
-                                            >
-                                              <span className="shrink-0">
-                                                <span className="flex size-6 items-center justify-center rounded-full border-2 border-purple-600">
-                                                  <span className="text-purple-600">
-                                                    {step.id}
-                                                  </span>
-                                                </span>
-                                              </span>
-                                              <span className="ml-4 flex min-w-0 flex-col">
-                                                <span className="text-sm font-medium text-purple-600">
-                                                  {step.name}
-                                                </span>
-                                              </span>
-                                            </span>
-                                          </a>
-                                        ) : (
-                                          <a href={'#'} className="group">
-                                            <span
-                                              aria-hidden="true"
-                                              className="absolute left-0 top-0 h-full w-1 bg-transparent group-hover:bg-gray-200 lg:bottom-0 lg:top-auto lg:h-1 lg:w-full"
-                                            />
-                                            <span
-                                              className={classNames(
-                                                stepIdx !== 0 ? 'lg:pl-9' : '',
-                                                'flex items-center px-4 py-2 text-xs font-medium',
-                                              )}
-                                            >
-                                              <span className="shrink-0">
-                                                <span className="flex size-6 items-center justify-center rounded-full border-2 border-gray-300">
-                                                  <span className="text-gray-500">
-                                                    {stepIdx}
-                                                  </span>
-                                                </span>
-                                              </span>
-                                              <span className="ml-4 flex min-w-0 flex-col">
-                                                <span className="text-sm font-medium text-gray-500">
-                                                  stepName
-                                                </span>
-                                              </span>
-                                            </span>
-                                          </a>
-                                        )}
-
-                                        {stepIdx !== 0 ? (
-                                          <>
-                                            {/* Separator */}
-                                            <div
-                                              aria-hidden="true"
-                                              className="absolute inset-0 left-0 top-0 hidden w-3 lg:block"
-                                            >
-                                              <svg
-                                                fill="none"
-                                                viewBox="0 0 12 82"
-                                                preserveAspectRatio="none"
-                                                className="size-full text-gray-300"
-                                              >
-                                                <path
-                                                  d="M0.5 0V31L10.5 41L0.5 51V82"
-                                                  stroke="currentcolor"
-                                                  vectorEffect="non-scaling-stroke"
-                                                />
-                                              </svg>
-                                            </div>
-                                          </>
-                                        ) : null}
-                                      </button>
-                                    </div>
-                                  </li>
-                                ))}
-                              </ol>
-                            </nav>
-                          </div>
+                          <Stepper steps={stepContent} currentStep={currentStep} />
                           <div className="form-content mt-4">
-                            {currentStep === 1 && <StaffInfo />}
+                            {currentStep === 1 && <StaffInfo values={values}
+                              setFieldValue={setFieldValue} />}
                             {currentStep === 2 && (
                               <StaffPersonalDetails
                                 values={values}

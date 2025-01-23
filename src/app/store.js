@@ -6,6 +6,7 @@ import examSlice from './reducers/examSlice'
 import stuFeesReducer from './reducers/stuFeesSlice'
 import studentSlice from './reducers/studentSlice'
 import academicSlice from './reducers/academicSlice'
+import staffSlice from './reducers/staffSlice'
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
     class: classReducer,
     stuFees: stuFeesReducer,
     academics: academicSlice,
+    staff: staffSlice
   },
 })

@@ -4,6 +4,7 @@ import {CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD} from '../app/url'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { toast } from 'react-toastify';
+import { string } from 'yup';
 
 export const getAcademicYears = () => {
   const currentDate = new Date()
@@ -30,7 +31,7 @@ export const formatDate = (date) => {
 }
 
 export const staffType = [
-  {value: 'teching', label: 'Teaching'},
+  {value: 'teaching', label: 'Teaching'},
   {value: 'non-teaching', label: 'Non-Teaching'}
 ]
 
@@ -322,7 +323,10 @@ export const handleApiResponse = (res,type="error") => {
     if (res.response) {
       // Server responded with a status code out of range [200, 299]
       console.error('API Error:', res.response.data);
-      message = res.response.data.message || 'Something went wrong!'
+      if(typeof res.response.data.message === "object"){
+        message = res.response.data.message.join(", ")
+      }else{
+      message = res.response.data.message || 'Something went wrong!'}
     } else if (res.request) {
       // Request was made but no response was received
       console.error('Network Error:', res.request);

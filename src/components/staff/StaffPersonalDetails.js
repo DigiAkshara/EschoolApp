@@ -33,7 +33,6 @@ function StaffPersonalDetails({values, setFieldValue}) {
             <CustomFileUploader
               label="Passport Size Photo"
               name="profilePic"
-              required={true}
               isProfile={true}
               onChange={handleFileChange}
             />
@@ -48,7 +47,6 @@ function StaffPersonalDetails({values, setFieldValue}) {
               name="email"
               label="Personal Email"
               placeholder="Enter email"
-              required={true}
             />
           </div>
 
@@ -174,7 +172,7 @@ function StaffPersonalDetails({values, setFieldValue}) {
           <div className="sm:col-span-4">
             <CustomInput
               name="aadharNumber"
-              label="Aadhar number"
+              label="Aadhar Number"
               placeholder="Enter aadhar"
               required={true}
             />
@@ -182,8 +180,8 @@ function StaffPersonalDetails({values, setFieldValue}) {
           <div className="sm:col-span-4">
             <CustomInput
               name="panNumber"
-              label="Pan"
-              placeholder="Enter pan"
+              label="Pancard Number"
+              placeholder="Enter Pancard Number"
               required={true}
             />
           </div>
@@ -191,7 +189,6 @@ function StaffPersonalDetails({values, setFieldValue}) {
             <CustomFileUploader
               label="Upload Staff Aadhar Card"
               name="aadharPic"
-              required={true}
               onChange={handleFileChange}
             />
           </div>
@@ -200,7 +197,6 @@ function StaffPersonalDetails({values, setFieldValue}) {
             <CustomFileUploader
               label="Upload Staff PAN Card"
               name="panCardPic"
-              required={true}
               onChange={handleFileChange}
             />
           </div>
