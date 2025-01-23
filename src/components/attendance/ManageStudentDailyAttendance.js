@@ -22,38 +22,6 @@ const ManageStudentDailyAttendance = () => {
   const [attendanceMessage, setAttendanceMessage] = useState("");
 
 
-  const students = [
-    {
-      name: "Aryan Sharma",
-      admissionNumber: "ADM001",
-      class: "Play Group",
-      section: "A",
-    },
-    {
-      name: "Isha Patel",
-      admissionNumber: "ADM002",
-      class: "Play Group",
-      section: "B",
-    },
-    {
-      name: "Rahul Gupta",
-      admissionNumber: "ADM003",
-      class: "Nursery",
-      section: "A",
-    },
-    {
-      name: "Priya Singh",
-      admissionNumber: "ADM004",
-      class: "Nursery",
-      section: "B",
-    },
-    {
-      name: "Aman Verma",
-      admissionNumber: "ADM005",
-      class: "Play Group",
-      section: "A",
-    },
-  ];
 
   const getInitialValues = () => {
     return {

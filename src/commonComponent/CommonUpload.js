@@ -5,87 +5,85 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import React, { useState } from "react";
 import { postData } from "../app/api";
-import { STUDENT } from "../app/url";
+import { STAFF, STUDENT } from "../app/url";
 import { handleDownload, handleDownloadCSV } from "./CommonFunctions";
 
 function CommonUpload({ onClose2, user }) {
   const [bulkUploadList, setBulkUploadList] = useState([]);
   const [validationError, setValidationError] = useState("");
+  const [duplicateHandlingOption, setDuplicateHandlingOption] = useState("skip"); 
 
   const csvHeadersStudent = [
-    "firstName",
-    "lastName",
-    "admissionNo",
-    "dateOfBirth",
-    "aadharNumber",
-    "gender",
-    "fatherName",
-    "fatherMobile",
-    "fatherOccupation",
-    "fatherEmail",
-    "area",
-    "city",
-    "state",
-    "pincode",
-    "nationality",   
-    "religion",       
-    "cast",           
-    "subCast",        
-    "bloodGroup",    
-    "motherName",    
-    "motherMobile",   
-    "motherOccupation",
-    "motherEmail",   
-    "parentIdProof",  
-    "academicYear",  
-    "class",          
-    "section",       
-    "admissionDate", 
-    "presentArea",
-    "presentCity",
-    "presentState",
-    "presentPincode",
-    "permanentArea",
-    "permanentCity",
-    "permanentState",
-    "permanentPincode", 
-    "previousSchoolName", 
-    "previousSchoolYearOfStudy"
+    "FirstName",
+    "LastName",
+    "AdmissionNo",
+    "DateOfBirth",
+    "AadharNumber",
+    "Gender",
+    "FatherName",
+    "FatherMobile",
+    "FatherOccupation",
+    "FatherEmail",
+    "Nationality",   
+    "Religion",       
+    "Cast",           
+    "SubCast",        
+    "BloodGroup",    
+    "MotherName",    
+    "MotherMobile",   
+    "MotherOccupation",
+    "MotherEmail",   
+    "ParentIdProof",  
+    "AcademicYear",  
+    "Class",          
+    "Section",       
+    "AdmissionDate", 
+    "PresentArea",
+    "PresentCity",
+    "PresentState",
+    "PresentPincode",
+    "PermanentArea",
+    "PermanentCity",
+    "PermanentState",
+    "PermanentPincode", 
+    "PreviousSchoolName", 
+    "PreviousSchoolYearOfStudy",
+    "PreviousClassStudiedYear"
   ];
   
 
   const csvHeadersStaff = [
-    "firstName",
-    "lastName",
-    "empId",
-    "workEmail",
-    "designation",
-    "subjects",
-    "aadharNumber",
-    "gender",
+    "FirstName",
+    "LastName",
+    "EmpId",
+    "WorkEmail",
+    "Designation",
+    "StaffType",
+    "Subjects",
+    "AadharNumber",
+    "Gender",
     "DOJ",
-    "mobileNumber",
-    "profilePic",
-    "email",
-    "guardian",
+    "MobileNumber",
+    "ProfilePic",
+    "Email",
+    "Guardian",
     "DOB",
-    "presentArea",
-    "presentCity",
-    "presentState",
-    "presentPincode",
-    "permanentArea",
-    "permanentCity",
-    "permanentState",
-    "permanentPincode",
-    "panNumber",
-    "aadharPic",
-    "panCardPic",
-    "accountNumber",
-    
-    "ifscCode",
-    "bankName",
-    "passBookPic",
-    "amount",
+    "PresentArea",
+    "PresentCity",
+    "PresentState",
+    "PresentPincode",
+    "PermanentArea",
+    "PermanentCity",
+    "PermanentState",
+    "PermanentPincode",
+    "PanNumber",
+    "AadharPic",
+    "PanCardPic",
+    "AccountNumber",
+    "IfscCode",
+    "BankName",
+    "PassBookPic",
+    "Amount",
   ];
   
 
@@ -123,83 +121,86 @@ function CommonUpload({ onClose2, user }) {
         console.log("Uploaded Data:", jsonData);
 
         let newData = [];
-        let existingData = bulkUploadList;
-
+        const existingData = [...bulkUploadList];
+       
         if (user === "student") {
           newData = jsonData.map((item) => ({
-            firstName: item.firstName || "",
-            lastName: item.lastName || "",
-            admissionNumber: item.admissionNo || "",
-            class: item.className || "",
-            section: item.sectionName || "",
-            DOB: item.dateOfBirth || "",
-            aadharNumber: item.aadharNumber || "",
-            gender: item.gender || "",
+            firstName: item.FirstName || "",
+            lastName: item.LastName || "",
+            admissionNumber: item.AdmissionNo || "",
+            class: item.Class || "",
+            section: item.Section || "",
+            DOB: item.DateOfBirth || "",
+            aadharNumber: item.AadharNumber || "",
+            gender: item.Gender || "",
+            admissionDate:item.AdmissionDate || "",
             fatherDetails: {
-              email: item.fatherEmail || "",
-              mobileNumber: item.fatherMobile || "",
-              name: item.fatherName || "",
-              occupation: item.fatherOccupation || "",
+              email: item.FatherEmail || "",
+              mobileNumber: item.FatherMobile || "",
+              name: item.FatherName || "",
+              occupation: item.FatherOccupation || "",
             },
             motherDetails: {
-              email: item.motherEmail || "",
-              mobileNumber: item.motherMobile || "",
-              name: item.motherName || "",
-              occupation: item.motherOccupation || "",
+              email: item.MotherEmail || "",
+              mobileNumber: item.MotherMobile || "",
+              name: item.MotherName || "",
+              occupation: item.MotherOccupation || "",
             },
-            nationality: item.nationality || "",
-            religion: item.religion || "",
-            cast: item.cast || "",
-            subCast: item.subCast || "",
+            nationality: item.Nationality || "",
+            religion: item.Religion || "",
+            cast: item.Cast || "",
+            subCast: item.SubCast || "",
             presentAddress: {
-              area: item.area || "",
-              city: item.city || "",
-              pincode: item.pincode || "",
-              state: item.state || "",
+              area: item.PresentArea || "",
+              city: item.PresentCity || "",
+              pincode: item.PresentPincode || "",
+              state: item.PresentState || "",
             },
             permanentAddress: {
-              area: item.permanentArea || "",
-              city: item.permanentCity || "",
-              pincode: item.permanentPin || "",
-              state: item.permanentState || "",
+              area: item.PermanentArea || "",
+              city: item.PermanentCity || "",
+              pincode: item.PermanentPincode || "",
+              state: item.PermanentState || "",
             },
+            isSameAsPresent:false
           }));
         } else if (user === "staff") {
           newData = jsonData.map((item) => ({
-            firstName: item.firstName || "",
-            lastName: item.lastName || "",
-            empId: item.staffId || "",
+            firstName: item.FirstName || "",
+            lastName: item.LastName || "",
+            empId: item.EmpId || "",
             DOJ: item.DOJ || "",
             DOB: item.DOB || "",
-            mobileNumber: item.mobileNumber || "",
-            email: item.email || "",
-            workEmail: item.workEmail || "",
-            gender: item.gender || "",
-            designation: item.designation || "",
-            staffType: item.staffType || "",
-            subjects: item.subjects || "",
-            guardian: item.guardian || "",
+            mobileNumber: item.MobileNumber || "",
+            email: item.Email || "",
+            workEmail: item.WorkEmail || "",
+            gender: item.Gender || "",
+            designation: item.Designation || "",
+            staffType: item.StaffType || "",
+            subjects: item.Subjects || "",
+            guardian: item.Guardian || "",
             permanentAddress: {
-              area: item.permanentArea || "",
-              city: item.permanentCity || "",
-              state: item.permanentState || "",
-              pincode: item.permanentPin || "",
+              area: item.PermanentArea || "",
+              city: item.PermanentCity || "",
+              state: item.PermanentState || "",
+              pincode: item.PermanentPincode || "",
             },
             presentAddress: {
-              area: item.presentArea || "",
-              city: item.presentCity || "",
-              state: item.presentState || "",
-              pincode: item.presentPin || "",
+              area: item.PresentArea || "",
+              city: item.PresentCity || "",
+              state: item.PresentState || "",
+              pincode: item.PresentPincode || "",
             },
-            aadharNumber: item.aadharNumber || "",
-            aadharPic: item.aadharPic || "",
-            panNumber: item.panNumber || "",
+            aadharNumber: item.AadharNumber || "",
+            aadharPic: item.AadharPic || "",
+            panNumber: item.PanNumber || "",
             bankDetails: {
-              accountNumber: item.accountNumber || "",
-              ifscCode: item.ifscCode || "",
-              bankName: item.bankName || "",
+              accountNumber: item.AccountNumber || "",
+              ifscCode: item.IfscCode || "",
+              bankName: item.BankName || "",
+              
             },
-            amount: item.salary || "",
+            amount: item.Amount || "",
           }));
         }
 
@@ -211,120 +212,59 @@ function CommonUpload({ onClose2, user }) {
         );
 
         const requiredFields =
-          user === "student"
-            ? [
-                "firstName",
-                "lastName",
-                "gender",
-                //    "fatherName",
-                //    "fatherMobile",
-                //    "area",
-                //    "city",
-                //    "state",
-                //    "pincode",
-                //    "permanentArea",
-                //    "permanentCity",
-                //    "permanentState",
-                //    "permanentPin",
-                //    "dateOfBirth",
-                //    "aadharNumber",
-                //    "admissionNo",
-              ]
-            : [
-                "firstName",
-                "lastName",
-                "staffId",
-                "workEmail",
-                "designation",
-                "email",
-                "dateOfBirth",
-                "dateOfJoining",
-                "subjects",
-                "phoneNumber",
-                "guardian",
-                "gender",
-                "aadharNumber",
-                "panNumber",
-                "permanentCity",
-                "permanentArea",
-                "permanentState",
-                "permanentPincode",
-                "presentArea",
-                "presentCity",
-                "presentPincode",
-                "presentState",
-                "accountNumber",
-                "ifscCode",
-                "bankName",
-                // "passBookPic",
-              ];
-
-        // Validation logic
-        const existingIds =
-          user === "student"
-            ? existingData.map((student) => student.admissionNumber)
-            : existingData.map((staff) => staff.empId);
-        // const existingAdmissionNumbers = bulkUploadList.map((student) => student.admissionNumber); // Existing student data
-
+        user === "student"
+          ? ["firstName", "lastName", "admissionNumber",  "gender","fatherDetails.name","fatherDetails.mobileNumber","presentAddress.area","presentAddress.city","presentAddress.state","presentAddress.pincode","permanentAddress.area","permanentAddress.city","permanentAddress.state","permanentAddress.pincode","aadharNumber","DOB","class","section","admissionDate",]
+          : ["firstName", "lastName", "empId", "DOJ", "DOB", "mobileNumber", "email", "workEmail","designation","subjects","guardian","gender","presentAddress.area","presentAddress.city","presentAddress.state","presentAddress.pincode","permanentAddress.area","permanentAddress.city","permanentAddress.state","permanentAddress.pincode","aadharNumber","panNumber","bankDetails.accountNumber","bankDetails.ifscCode","bankDetails.bankName","amount"];
+       
         const validData = [];
         const invalidData = [];
+        const updatedData = [...existingData];
 
+     
+        
         newData.forEach((item) => {
-          const missingFields = requiredFields.filter((field) => !item[field]);
-
-          // const missingFields = requiredFields.filter((field) => {
-          //     const fieldParts = field.split(".");
-          //     let value = item;
-          //     fieldParts.forEach((part) => {
-          //       value = value?.[part];
-          //     });
-          //     return !value;
-          //   });
-
+          const missingFields = requiredFields.filter((field) => {
+            const keys = field.split(".");
+            const value = keys.reduce((acc, key) => acc && acc[key], item);
+            return !value;
+          });
+  
           if (missingFields.length > 0) {
             invalidData.push({
               ...item,
               missingFields: `Missing fields: ${missingFields.join(", ")}`,
             });
-          } else {
-            const existingIndex = existingIds.findIndex(
-              (id) =>
-                id === (user === "student" ? item.admissionNumber : item.empId)
-            );
+          }else {
+            const idField = user === "student" ? "admissionNumber" : "empId";
+          const duplicateIndex = updatedData.findIndex(
+            (existing) => existing[idField] === item[idField]
+          );
 
-            if (existingIndex !== -1) {
-              const duplicateHandling = document.querySelector(
-                'input[name="duplicate-handling"]:checked'
-              )?.value;
-
-              if (duplicateHandling === "overwrite") {
-                const updatedList = [...existingData];
-                updatedList[existingIndex] = item;
-                setBulkUploadList(updatedList);
-              } else if (duplicateHandling === "skip") {
-                console.warn(
-                  `Skipped duplicate record for ${
-                    user === "student" ? "admissionNumber" : "empId"
-                  }: ${item[user === "student" ? "admissionNumber" : "empId"]}`
-                );
-              }
-            } else {
-              validData.push(item);
+          if (duplicateIndex !== -1) {
+            if (duplicateHandlingOption === "overwrite") {
+              updatedData[duplicateIndex] = item; // Overwrite existing entry
             }
+            // If "skip", do nothing (skip the entry)
+          } else {
+            updatedData.push(item); // Add new entry
           }
+        }
         });
 
         if (invalidData.length > 0) {
-          setValidationError("Please add required fields for all students.");
+          setValidationError("Failed uploading - Please add all required fields for all students.");
           console.error(
             `Invalid ${user === "student" ? "Student" : "Staff"} Data:`,
             invalidData
           );
           //   alert(`Some records are invalid. Check the console for details.`);
         } else {
-          const StudentBulkData = async () => {
+          const uploadData  = async () => {
             try {
-              const response = await postData(STUDENT + "/bulk", validData);
+              const response = await postData(
+                user === "student" ? STUDENT + "/bulk" : STAFF + "/bulk",
+                updatedData
+              );
               if (response?.status === 200) {
                 alert("Data uploaded successfully!");
               }
@@ -333,16 +273,17 @@ function CommonUpload({ onClose2, user }) {
               alert("An error occurred while uploading data.");
             }
           };
-          StudentBulkData();
-          setValidationError("Staff  list added successfully!");
+          uploadData ();
+          setValidationError(`${user === "student" ? "Student" : "Staff"} list added successfully!`);
         }
 
         console.log(
           `Valid ${user === "student" ? "Student" : "Staff"} Data:`,
-          validData
+          updatedData
         );
 
-        setBulkUploadList([...existingData, ...validData]);
+        // setBulkUploadList([...existingData, ...validData]);
+        setBulkUploadList(updatedData);
       };
 
       reader.readAsArrayBuffer(file);
@@ -455,6 +396,7 @@ function CommonUpload({ onClose2, user }) {
                             name="duplicate-handling"
                             type="radio"
                             value="skip"
+                            onChange={(e) => setDuplicateHandlingOption(e.target.value)}
                             defaultChecked
                             className="h-4 w-4 border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
@@ -471,6 +413,7 @@ function CommonUpload({ onClose2, user }) {
                             name="duplicate-handling"
                             type="radio"
                             value="overwrite"
+                            onChange={(e) => setDuplicateHandlingOption(e.target.value)}
                             className="h-4 w-4 border-gray-300 text-purple-600 focus:ring-purple-500"
                           />
                           <label

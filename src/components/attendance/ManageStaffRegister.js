@@ -15,6 +15,7 @@ import {
   staffCategory,
 } from "../../commonComponent/CommonFunctions";
 import CustomSelect from "../../commonComponent/CustomSelect";
+import moment from "moment";
 
 function ManageStaffRegister() {
   const [academicYears, setAcademicYears] = useState([]);
@@ -162,11 +163,15 @@ function ManageStaffRegister() {
     console.log("Selected Attendance:", e.target.value);
   };
 
+
   const handleSave = async (day, id) => {
     const formattedDate = new Date(year, month - 1, day);
+    console.log("formated date:",formattedDate, day);
+    
     const payload = {
       userId: id, // Assuming staff has an _id field
-      date: formattedDate, // Use the date or appropriate identifier
+      // date: moment(day).format("DD/MM/YYYY"), // Use the date or appropriate identifier
+      date: formattedDate,
       attendanceStatus: selectedAttendance, // Selected attendance value
     };
     console.log("[Staff Payload]", payload);

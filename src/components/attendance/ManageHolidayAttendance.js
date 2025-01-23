@@ -1,107 +1,181 @@
-import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/react'
-import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/20/solid'
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   ArrowDownTrayIcon,
   ArrowsUpDownIcon,
   EllipsisHorizontalIcon,
-} from '@heroicons/react/24/outline'
-import {Form, Formik} from 'formik'
-import React, {useEffect, useState} from 'react'
-import * as Yup from 'yup'
-import {getData, postData} from '../../app/api'
-import {ACADEMIC_YEAR, HOLIDAYS} from '../../app/url'
+} from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
+import * as Yup from "yup";
+import { getData, postData } from "../../app/api";
+import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
 import {
   capitalizeWords,
   formatDate,
-} from '../../commonComponent/CommonFunctions'
-import ManageHolidaySidebar from './ManageHolidaySidebar'
+} from "../../commonComponent/CommonFunctions";
+import ManageHolidaySidebar from "./ManageHolidaySidebar";
+import TableComponent from "../../commonComponent/TableComponent";
 
 const ManageHolidayAttendance = () => {
-  const [academicYears, setAcademicYears] = useState([])
-  const [holidaysData, setHolidaysData] = useState([])
-  const [studentList, setStudentList] = useState([])
-  const [filteredData, setFilteredData] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const rowsPerPage = 5
+  const [academicYears, setAcademicYears] = useState([]);
+  const [holidayMsg, setHolidayMsg] = useState([]);
+  const [holidaysData, setHolidaysData] = useState([]);
+  const [studentList, setStudentList] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
   const getInitialValues = () => {
     return {
-      academicYear: '',
-      startDate: '',
-      endDate: '',
-      name: '',
-    }
-  }
+      academicYear: "",
+      startDate: "",
+      endDate: "",
+      name: "",
+    };
+  };
 
   const getValidationSchema = () => {
     return Yup.object({
-      academicYear: Yup.string().required('Academic year is required'),
-      startDate: Yup.date().nullable().required(' Date  is required'),
-      endDate: Yup.date().nullable().required(' Date  is required'),
-      name: Yup.string().required(' Holiday name is required'),
-    })
-  }
+      academicYear: Yup.string().required("Academic year is required"),
+      startDate: Yup.date().nullable().required(" Date  is required"),
+      endDate: Yup.date().nullable().required(" Date  is required"),
+      name: Yup.string().required(" Holiday name is required"),
+    });
+  };
 
   useEffect(() => {
-    academicyear()
-    getHolidayData()
-  }, [])
+    academicyear();
+    getHolidayData();
+  }, []);
+
+  const columns = [
+    { title: "Si.No.", key: "siNo" },
+    { title: "Holiday", key: "holiday" },
+    { title: "Date", key: "date" },
+    { title: "No.of Days", key: "className" },
+    { title: "Actions", key: "actions" },
+  ];
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const formatHolidayDate = (startDate, endDate) => {
+    const formatStartDate = formatDate(startDate);
+    const formatEndDate = formatDate(endDate);
+    return formatStartDate === formatEndDate
+      ? formatStartDate
+      : `${formatStartDate} to ${formatEndDate}`;
+  };
 
   const academicyear = async () => {
     try {
-      const academicYearRes = await getData(ACADEMIC_YEAR)
+      const academicYearRes = await getData(ACADEMIC_YEAR);
       if (academicYearRes.status === 200 || academicYearRes.status === 201) {
         let academicYearData = [
           {
             label: academicYearRes.data.data.year, // Displayed text in the dropdown
             value: academicYearRes.data.data._id,
           },
-        ]
-        setAcademicYears(academicYearData)
+        ];
+        setAcademicYears(academicYearData);
       } else {
-        throw new Error(academicYearRes.message)
+        throw new Error(academicYearRes.message);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase()
+    const query = e.target.value.toLowerCase();
     setFilteredData(
-      studentList.filter((student) =>
-        student.name.toLowerCase().includes(query),
-      ),
-    )
-  }
+      holidaysData.filter((holiday) =>
+        holiday.name.toLowerCase().includes(query)
+      )
+    );
+  };
 
   const getHolidayData = async () => {
     try {
-      const response = await getData(HOLIDAYS)
-      setHolidaysData(response.data.data)
+      const response = await getData(HOLIDAYS);
+      console.log("Response - [HOLIDAY]", response.data.data);
+      const holidayResonse = response.data.data;
+
+      const holidayData = holidayResonse.map((item) => {
+        const totalDays = Math.ceil(
+          (new Date(item.endDate) - new Date(item.startDate)) /
+            (1000 * 60 * 60 * 24)
+        );
+        return {
+          _id: item._id,
+          name: item.name,
+          startDate: item.startDate,
+          endDate: item.endDate,
+          displayDate: formatHolidayDate(item.startDate, item.endDate),
+          totalDays,
+          academicYear: item.academicYear,
+          status: item.status,
+          actions: [
+            { label: "Edit", actionHandler: onHandleEdit },
+            { label: "Delete", actionHandler: onDelete },
+          ],
+        };
+      });
+      console.log("after changing format:", holidayData);
+
+      setHolidaysData(holidayData);
+      setFilteredData(holidayData);
     } catch (error) {
-      console.error('Error getting data:', error)
+      console.error("Error getting data:", error);
     }
-  }
+  };
 
   const handleSubmit = async (values) => {
     try {
-      const response = await postData(HOLIDAYS, values)
+      const response = await postData(HOLIDAYS, values);
       if (response.data) {
-        setHolidaysData((prevData) => [...prevData, response.data.data])
+        setHolidaysData((prevData) => [...prevData, response.data.data]);
+        setHolidayMsg("Holiday Marked")
+        setTimeout(() => {
+          setHolidayMsg("");
+        }, 5000);
       }
     } catch (error) {
-      console.error('Error submitting form:', error)
+      console.error("Error submitting form:", error);
     }
-  }
+  };
 
-  const formatHolidayDate = (startDate, endDate) => {
-    const formatStartDate = formatDate(startDate)
-    const formatEndDate = formatDate(endDate)
-    return formatStartDate === formatEndDate
-      ? formatStartDate
-      : `${formatStartDate} to ${formatEndDate}`
-  }
+  const onHandleEdit = async () => {
+    console.log("edit");
+
+    // const studentDetails = await getData(STUDENT + '/details/' + studentId)
+    // dispatch(selectStudent(studentDetails.data.data))
+    // setOpen(true)
+  };
+
+  const onDelete = () => {
+    console.log("delete");
+  };
+
+  const handleAction = {
+    edit: (item) => console.log("Edit:", item),
+    delete: (item) => console.log("Delete:", item),
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
   return (
     <>
@@ -110,20 +184,21 @@ const ManageHolidayAttendance = () => {
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({values, setFieldValue, errors, touched}) => (
+        {({ values, setFieldValue, errors, touched }) => (
           <Form>
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               {/* Sidebar */}
               <ManageHolidaySidebar
                 values={values}
                 academicYears={academicYears}
+                holidayMsg={holidayMsg}
               />
 
               {/* Main Content */}
               <div className="-mx-2 -my-2  mt-0 overflow-x-auto sm:-mx-6  w-full lg:w-3/4">
                 <div className="inline-block min-w-full align-middle sm:px-6 ">
                   <div className="relative">
-                    <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
+                    <div className=" shadow ring-1 ring-black/5 sm:rounded-lg">
                       <div className="relative table-tool-bar z-30">
                         <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
                           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -229,7 +304,7 @@ const ManageHolidayAttendance = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
-                            {holidaysData.map((holiday, index) => (
+                            {filteredData.map((holiday, index) => (
                               <tr key={holiday.id} className="bg-gray-50 ">
                                 <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-2">
                                   {index + 1}
@@ -238,17 +313,10 @@ const ManageHolidayAttendance = () => {
                                   {capitalizeWords(holiday.name)}
                                 </td>
                                 <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-2">
-                                  {formatHolidayDate(
-                                    holiday.startDate,
-                                    holiday.endDate,
-                                  )}
+                                  {holiday.displayDate}
                                 </td>
                                 <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-2">
-                                  {Math.ceil(
-                                    (new Date(holiday.endDate) -
-                                      new Date(holiday.startDate)) /
-                                      (1000 * 60 * 60 * 24),
-                                  )}
+                                  {holiday.totalDays}
                                 </td>
                                 <td className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3">
                                   <Menu
@@ -385,7 +453,7 @@ const ManageHolidayAttendance = () => {
         )}
       </Formik>
     </>
-  )
-}
+  );
+};
 
-export default ManageHolidayAttendance
+export default ManageHolidayAttendance;

@@ -39,7 +39,7 @@ const ManageStaffDailyAttendance = () => {
       allAttendance: Yup.string(),
       attendance: Yup.array().of(
         Yup.object({
-          attendanceStatus: Yup.string().required(" Attendance Status is required"),
+          attendanceStatus: Yup.string(),
         })
       ),
     });
@@ -53,10 +53,8 @@ const ManageStaffDailyAttendance = () => {
     try {
       const response = await getData(STAFF + "/attendance");
       console.log("[STAFF-REGISTER] data for attendance:", response.data.data);
-    } catch (error) {
-      
-    }
-  }
+    } catch (error) {}
+  };
 
   const getStaff = async () => {
     const response = await getData(STAFF);
@@ -78,7 +76,6 @@ const ManageStaffDailyAttendance = () => {
       setStaffList(data);
     }
   };
-
 
   const handleStaffCategory = (e, setFieldValue) => {
     const category = e.target.value;
@@ -112,7 +109,21 @@ const ManageStaffDailyAttendance = () => {
   };
 
   const handleSubmit = async (values) => {
+    console.log("Form submitted with values:", values);
+
     values["userType"] = "staff";
+    // Check if any staff has a missing attendanceStatus
+    const incompleteAttendance = values.attendance.some(
+      (staff) => !staff.attendanceStatus
+    );
+
+    if (incompleteAttendance) {
+      setAttendanceMessage("Please mark attendance for all staff members.");
+      setTimeout(() => {
+        setAttendanceMessage("");
+      }, 5000);
+      return; // Stop submission if validation fails
+    }
 
     try {
       const response = await postData(ATTENDANCE, values);

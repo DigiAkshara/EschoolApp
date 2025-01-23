@@ -3,7 +3,7 @@ import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-const ManageHolidaySidebar = ({academicYears}) => {
+const ManageHolidaySidebar = ({academicYears,holidayMsg}) => {
   return (
     <div className="bg-white border  rounded-lg p-6 w-full lg:w-1/4">
       <h2 className="text-xl font-semibold mb-4">Holiday Entry</h2>
@@ -44,9 +44,13 @@ const ManageHolidaySidebar = ({academicYears}) => {
       </button>
 
       {/* Attendance Marked */}
-      <div className="mt-4 p-2 bg-green-100 text-green-600 rounded-md">
-        Holiday Marked
+      {holidayMsg === "Holiday Marked"  && (
+        <div className="mt-4 p-2 bg-green-100 text-green-600 rounded-md">
+        {holidayMsg }
       </div>
+      )}
+       
+      
     </div>
   )
 }
