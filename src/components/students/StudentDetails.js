@@ -40,9 +40,7 @@ export default function StudentDetails() {
   const [bulkUploadList, setBulkUploadList] = useState([])
   const fileInputRef = useRef(null);
 
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  };
+ 
   const genderOptions = [
     { label: 'Male', value: 'male' },
     { label: 'Female', value: 'female' },

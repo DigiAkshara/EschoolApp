@@ -7,6 +7,7 @@ import CustomDate from "../../commonComponent/CustomDate";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import CustomButton from "../../commonComponent/CustomButton";
+import moment from "moment";
 
 const AttendanceSidebar = ({
   values,
@@ -20,42 +21,64 @@ const AttendanceSidebar = ({
   classes,
   sections,
   getSections,
-  attendanceMessage
+  attendanceMessage,
+  attendanceDates,
+  staffAttendanceData,
+  setAttendanceMessage
 }) => {
 
   const [holiday, setHoliday] = useState(false)
+  const [attendanceMarked, setAttendanceMarked] = useState(false)
 
   useEffect(() => {
     checkHoliday();
-  }, [values.date, holidaysData]);
+    checkAttendanceForSelectedDate();
+  }, [values.date, holidaysData, staffAttendanceData]);
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString); // Parse the ISO date string
-    const day = String(date.getDate()).padStart(2, "0"); // Get day and pad with 0 if needed
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Get month (0-based) and pad with 0
-    const year = date.getFullYear(); // Get full year
-    return `${day}/${month}/${year}`; // Combine into DD/MM/YYYY
-  };
+ 
 
   const checkHoliday = () => {
-    const currentDate = formatDate(values.date )|| formatDate(new Date().toISOString());
+    const selectedDate =  moment(values.date).format('DD-MM-YYYY');
+    const todayDate = moment().format('DD-MM-YYYY');
+    console.log("Selected Date -[Student Attendance]",selectedDate);
+    console.log("Today Date:",todayDate);
+    
+     const currentDate = selectedDate || todayDate;
     console.log("Current date:", currentDate);
     
 
     const isHolidayToday = holidaysData?.some((holiday) => {
-      const holidayStart = formatDate(holiday.startDate);
-      const holidayEnd = formatDate(holiday.endDate);
+      const holidayStart =moment(holiday.startDate).format('DD-MM-YYYY');
+      const holidayEnd = moment(holiday.endDate).format('DD-MM-YYYY');
       return currentDate >= holidayStart && currentDate <= holidayEnd;
     });
 
     if (isHolidayToday) {
-      console.log("Today is a holiday!");
       setHoliday(true);
     } else {
-      console.log("Today is not a holiday.");
       setHoliday(false);
     }
   };
+
+  const checkAttendanceForSelectedDate = () => {
+    const selectedDate = moment(values.date).format("YYYY-MM-DD");
+
+    // Check if attendance has been marked for the selected date
+    const isMarked = staffAttendanceData.some((staff) =>
+      staff.attendance.some(
+        (entry) => moment(entry.date).format("YYYY-MM-DD") === selectedDate
+      )
+    );
+
+    setAttendanceMarked(isMarked);
+
+    if (isMarked) {
+      setAttendanceMessage("Attendance already marked for this date.");
+    } else {
+      setAttendanceMessage("");
+    }
+  };
+
 
   const attendanceCounts = values.attendance.reduce(
     (acc, entry) => {
@@ -199,8 +222,8 @@ const AttendanceSidebar = ({
         </div>
       )}
 
-      {!holiday && (
-      <CustomButton type="submit" label="Save Attendance" />
+      {!holiday && !attendanceMarked &&(
+      <CustomButton type="submit" label="Save Attendance"  />
 
       )}
       {holiday && (

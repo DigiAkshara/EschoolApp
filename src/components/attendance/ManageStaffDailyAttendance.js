@@ -14,6 +14,7 @@ import {
 } from "../../commonComponent/CommonFunctions";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import AttendanceSidebar from "./AttendanceSidebar";
+import moment from "moment";
 
 const ManageStaffDailyAttendance = () => {
   const [staffList, setStaffList] = useState([]);
@@ -22,6 +23,9 @@ const ManageStaffDailyAttendance = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
   const [attendanceMessage, setAttendanceMessage] = useState("");
+  const [attendanceDates, setAttendanceDates] = useState([]);
+  const [staffAttendanceData, setStaffAttendanceData] = useState([]);
+
 
   const getInitialValues = () => {
     return {
@@ -53,8 +57,12 @@ const ManageStaffDailyAttendance = () => {
     try {
       const response = await getData(STAFF + "/attendance");
       console.log("[STAFF-REGISTER] data for attendance:", response.data.data);
-    } catch (error) {}
+      setStaffAttendanceData(response.data.data); // Store fetched attendance data
+    } catch (error) {
+      console.error("Error fetching staff attendance data:", error);
+    }
   };
+  
 
   const getStaff = async () => {
     const response = await getData(STAFF);
@@ -127,7 +135,7 @@ const ManageStaffDailyAttendance = () => {
 
     try {
       const response = await postData(ATTENDANCE, values);
-      if (response.status === 200) {
+      if (response.status === 201) {
         setAttendanceMessage("Attendance Marked");
       } else {
         setAttendanceMessage("Failed to mark attendance. Please try again.");
@@ -160,6 +168,9 @@ const ManageStaffDailyAttendance = () => {
                 handleRadioChange={handleRadioChange}
                 handleStaffCategory={handleStaffCategory}
                 attendanceMessage={attendanceMessage}
+                setAttendanceMessage={setAttendanceMessage}
+                attendanceDates={attendanceDates}
+                staffAttendanceData={staffAttendanceData}
               />
 
               {/* Main Content */}

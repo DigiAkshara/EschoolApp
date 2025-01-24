@@ -73,6 +73,7 @@ const ManageStudentDailyAttendance = () => {
   }
 
 
+
   const getClasses = async () => {
     const res = await getData(CLASSES);
     const classData = res.data.data.map((item) => {
