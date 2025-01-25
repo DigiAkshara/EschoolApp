@@ -9,14 +9,17 @@ import * as Yup from "yup";
 import { postData, updateData } from "../../app/api";
 import { HOLIDAYS } from "../../app/url";
 
-const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolidaysData, setHolidayMsg }) => {
+const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolidaysData, setHolidayMsg,getHolidayData }) => {
   const selectedHoliday = useSelector((state) => state.holiday.selectedHoliday);
+  console.log("selectedHoliday", selectedHoliday);
+  
 
   const [formData, setFormData] = useState({
     academicYear: "",
     startDate: "",
     endDate: "",
     name: "",
+    ...(selectedHoliday && selectedHoliday),
   });
 
   const getValidationSchema = () => {
@@ -31,6 +34,8 @@ const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolid
 
 
   const handleSubmit = async (values) => {
+    console.log("{HOLIDAY-haandle submit}", values);
+    
     const isDuplicate = holidaysData.some((holiday) => {
       const holidayStartDate = moment(holiday.startDate).format("YYYY-MM-DD");
       const holidayEndDate = moment(holiday.endDate).format("YYYY-MM-DD");
@@ -54,7 +59,6 @@ const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolid
 
     try {
       if (values._id) {
-        // Editing existing holiday
         const response = await updateData(HOLIDAYS + "/" + values._id, values);
         if (response.data) {
           setHolidaysData((prevData) =>
@@ -65,10 +69,10 @@ const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolid
           setHolidayMsg("Holiday updated successfully.");
         }
       } else {
-        // Adding new holiday
         const response = await postData(HOLIDAYS, values);
         if (response.data) {
-          setHolidaysData((prevData) => [...prevData, response.data.data]);
+          getHolidayData();
+          // setHolidaysData((prevData) => [...prevData, response.data.data]);
           setHolidayMsg("Holiday marked successfully.");
         }
       }

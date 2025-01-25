@@ -20,6 +20,8 @@ const ManageStudentDailyAttendance = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
   const [attendanceMessage, setAttendanceMessage] = useState("");
+  const [studentAttendance, setStudentAttendance] = useState([]);
+
 
 
 
@@ -51,6 +53,7 @@ const ManageStudentDailyAttendance = () => {
     getStudents();
     getClasses();
     getHolidayData();
+    getStudentAttendance();
   }, []);
 
 
@@ -143,6 +146,15 @@ const ManageStudentDailyAttendance = () => {
       setStudentList([]); 
     }
   };
+
+  const getStudentAttendance = async () => {
+    try {
+      const response = await getData(STUDENT + "/attendance");
+      setStudentAttendance(response.data.data)
+    } catch (error) {
+      console.error("Error getting data:", error);
+    }
+  };
   
 
   const handleRadioChange = (e, values, setFieldValue) => {
@@ -199,7 +211,7 @@ const ManageStudentDailyAttendance = () => {
 
     try {
       const response = await postData(ATTENDANCE, values);
-      if (response.status === 200) {
+      if (response.status === 201) {
         setAttendanceMessage("Attendance Marked");
       } else {
         setAttendanceMessage("Failed to mark attendance. Please try again.");
@@ -236,6 +248,8 @@ const ManageStudentDailyAttendance = () => {
                 sections={sections}
                 getSections={getSections}
                 attendanceMessage={attendanceMessage}
+                setAttendanceMessage={setAttendanceMessage}
+                studentAttendance={studentAttendance}
                 user="student"
               />
 

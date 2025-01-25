@@ -150,7 +150,6 @@ const ManageHolidayAttendance = () => {
       
       if (response?.data?.data) {
         dispatch(setSelectedHoliday(response.data.data));  
-        console.log("Edit Holiday:", response.data.data);
       } else {
         console.error("Holiday not found for the given ID:", holidayId);
       }
@@ -194,6 +193,7 @@ const ManageHolidayAttendance = () => {
                 holidaysData={holidaysData}
                 setHolidayMsg={setHolidayMsg}
                 setHolidaysData={setHolidaysData}
+                getHolidayData={getHolidayData}
               />
 
               {/* Main Content */}

@@ -24,6 +24,7 @@ const AttendanceSidebar = ({
   attendanceMessage,
   attendanceDates,
   staffAttendanceData,
+  studentAttendance,
   setAttendanceMessage
 }) => {
 
@@ -64,12 +65,21 @@ const AttendanceSidebar = ({
     const selectedDate = moment(values.date).format("YYYY-MM-DD");
 
     // Check if attendance has been marked for the selected date
-    const isMarked = staffAttendanceData.some((staff) =>
+    const isStaffMarked = staffAttendanceData?.some((staff) =>
       staff.attendance.some(
         (entry) => moment(entry.date).format("YYYY-MM-DD") === selectedDate
       )
     );
-
+  
+    // Check if attendance has been marked for the selected date (student)
+    const isStudentMarked = studentAttendance?.some((student) =>
+      student.attendance.some(
+        (entry) => moment(entry.date).format("YYYY-MM-DD") === selectedDate
+      )
+    );
+  
+    // Set attendance status
+    const isMarked = isStaffMarked || isStudentMarked;
     setAttendanceMarked(isMarked);
 
     if (isMarked) {
