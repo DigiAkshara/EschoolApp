@@ -1,0 +1,34 @@
+name: CI Checks
+
+on:
+  pull_request:
+    branches:
+      - main # Change to your branch name if needed (e.g., main)
+
+jobs:
+  lint-and-test:
+    name: Lint and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16 # Adjust based on your project requirements
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Run linting
+      - name: Run ESLint
+        run: npm run lint
+
+      # Run tests
+      # - name: Run Tests
+        # run: npm test
