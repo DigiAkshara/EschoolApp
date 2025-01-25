@@ -10,12 +10,11 @@ import { getData, postData, updateData } from "../../app/api";
 import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
-const ManageHolidaySidebar = ({  setHolidaysData,getHolidayData }) => {
+const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData }) => {
   const [academicYears, setAcademicYears] = useState([]);
   const [holidayMsg, setHolidayMsg] = useState([]);
   const selectedHoliday = useSelector((state) => state.holiday.selectedHoliday);
   console.log("selectedHoliday", selectedHoliday);
-
 
   const data = [
     {
@@ -40,21 +39,18 @@ const ManageHolidaySidebar = ({  setHolidaysData,getHolidayData }) => {
       name: "Term 3",
     },
   ];
-  
 
   const [formData, setFormData] = useState({
     academicYear: selectedHoliday?.academicYear || "",
-          startDate: selectedHoliday?.startDate || "",
-          endDate: selectedHoliday?.endDate || "",
-          name: selectedHoliday?.name || "",
+    startDate: selectedHoliday?.startDate || "",
+    endDate: selectedHoliday?.endDate || "",
+    name: selectedHoliday?.name || "",
     // ...(selectedHoliday && selectedHoliday),
   });
 
   useEffect(() => {
     academicyear();
   }, []);
-
- 
 
   const getValidationSchema = () => {
     return Yup.object({
@@ -84,11 +80,6 @@ const ManageHolidaySidebar = ({  setHolidaysData,getHolidayData }) => {
     }
   };
 
-
-
-
-
-
   const handleEdit = (id) => {
     const selectedData = data.find((item) => item.id === id);
     if (selectedData) {
@@ -101,24 +92,48 @@ const ManageHolidaySidebar = ({  setHolidaysData,getHolidayData }) => {
     }
   };
 
-  const handleSubmit = (values) =>{
-    console.log("entered values",values);
-    
-  }
+  const handleSubmit = (values) => {
+    console.log("entered values", values);
+  };
 
+  // const handleSubmit = async (values,resetForm) => {
+  //   console.log("{HOLIDAY-haandle submit}", values);
+
+  //   try {
+  //     if (values._id) {
+  //       const response = await updateData(HOLIDAYS + "/" + values._id, values);
+  //       if (response.status === 200) {
+  //         resetForm()
+  //         getHolidayData();
+  //         setHolidayMsg("Holiday updated successfully.");
+  //       }
+  //     } else {
+  //       const response = await postData(HOLIDAYS, values);
+  //       if (response.data) {
+  //         resetForm()
+  //         getHolidayData();
+  //         setHolidayMsg("Holiday marked successfully.");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     handleApiResponse(error)
+  //     console.error("Error submitting form:", error);
+  //   } finally {
+  //     setTimeout(() => setHolidayMsg(""), 5000);
+  //   }
+  // };
 
   return (
     <>
-    <div className="bg-white border  rounded-lg p-6 w-full lg:w-1/4">
-      <Formik
-        initialValues={formData}
-        validationSchema={getValidationSchema()}
-        onSubmit={handleSubmit}
-        enableReinitialize
-      >
-        {({ values, setFieldValue,resetForm  }) => (
-          <Form>
-            
+      <div className="bg-white border  rounded-lg p-6 w-full lg:w-1/4">
+        <Formik
+          initialValues={formData}
+          validationSchema={getValidationSchema()}
+          onSubmit={handleSubmit}
+          enableReinitialize
+        >
+          {({ values, setFieldValue, resetForm }) => (
+            <Form>
               {/* <h2 className="text-xl font-semibold mb-4">Holiday Entry</h2> */}
               <h2 className="text-xl font-semibold mb-4">
                 {selectedHoliday ? "Edit Holiday" : "Holiday Entry"}
@@ -157,17 +172,33 @@ const ManageHolidaySidebar = ({  setHolidaysData,getHolidayData }) => {
                   required={true}
                 />
               </div>
-
-             
-              <button className="mt-2 w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600" onClick={() => handleEdit(1)}>
-                EDIT
+              {/* Save Button */}
+              <button className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600">
+                {selectedHoliday ? "Update Holiday" : "Add Holiday"}
               </button>
 
-       
-            
-          </Form>
-        )}
-      </Formik>
+              {/* <button
+                className="mt-2 w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600"
+                onClick={() => handleEdit(1)}
+              >
+                EDIT
+              </button> */}
+              {/* Attendance Marked */}
+
+              {holidayMsg && (
+                <div
+                  className={`mt-4 p-2 rounded-md ${
+                    holidayMsg === "Holiday Marked"
+                      ? "bg-green-100 text-green-600"
+                      : "" 
+                  }`}
+                >
+                  {holidayMsg}
+                </div>
+              )}
+            </Form>
+          )}
+        </Formik>
       </div>
     </>
   );

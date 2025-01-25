@@ -145,9 +145,9 @@ const ManageHolidayAttendance = () => {
             <div className="relative">
               <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
                 {/* Table View */}
-                <FilterComponent 
+                {/* <FilterComponent 
                       onSearch={handleSearch}
-                      />
+                      /> */}
                 <TableComponent
                   columns={columns}
                   data={paginatedData}
