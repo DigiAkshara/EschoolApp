@@ -15,6 +15,7 @@ import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomRadio from '../../commonComponent/CustomRadio'
 import CustomSelect from '../../commonComponent/CustomSelect'
+import moment from 'moment'
 
 function BasicInfo({values, setFieldValue}) {
   const handleChecked = (e) => {
@@ -65,11 +66,10 @@ function BasicInfo({values, setFieldValue}) {
               name="lastName"
               label="Student last Name"
               placeholder="Enter Last Name"
-              required={true}
             />
           </div>
           <div className="sm:col-span-2">
-            <CustomDate name="DOB" label="Date of Birth" required={true} />
+            <CustomDate name="DOB" label="Date of Birth" required={true} max={moment().subtract(2, 'years').format('YYYY-MM-DD')} minDate={moment().subtract(25, 'years').format('YYYY-MM-DD')}  />
           </div>
 
           <div className="sm:col-span-2">

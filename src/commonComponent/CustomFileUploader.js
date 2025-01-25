@@ -41,7 +41,7 @@ export default function CustomFileUploader(props) {
                         name={name}
                         type="file"
                         className="sr-only"
-                        accept=".jpg,.jpeg,.png"
+                        accept=".png"
                         onChange={onChange}
                       />
                     </label>

@@ -86,11 +86,14 @@ function Student({ onClose, loadStudents }) {
   const validationSchemas = [
     Yup.object({
       firstName: Yup.string()
+        .matches(/^[a-zA-Z\s]*$/, 'First Name can only contain letters and spaces')
         .min(3, "First Name must be at least 3 characters")
+        .max(50, "First Name must be at most 50 characters")
         .required("First Name is required"),
       lastName: Yup.string()
+        .matches(/^[a-zA-Z\s]*$/, 'Last Name can only contain letters and spaces')
         .min(3, "Last Name must be at least 3 characters")
-        .required("Last Name is required"),
+        .max(50, "Last Name must be at most 50 characters"),
       gender: Yup.string().required("Gender is required"),
       nationality: Yup.string(),
       religion: Yup.string(),
@@ -98,7 +101,11 @@ function Student({ onClose, loadStudents }) {
       subCast: Yup.string(),
       bloodGroup: Yup.string(),
       fatherDetails: Yup.object({
-        name: Yup.string().required("Father's Name is required"),
+        name: Yup.string()
+        .matches(/^[a-zA-Z\s]*$/, 'Father Name can only contain letters and spaces')
+        .min(3, "Father Name must be at least 3 characters")
+        .max(50, "Father Name must be at most 50 characters")
+        .required("Father's Name is required"),
         mobileNumber: Yup.string()
           .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
           .required("Fathers mobile number is required"),
@@ -106,25 +113,50 @@ function Student({ onClose, loadStudents }) {
         email: Yup.string(),
       }),
       motherDetails: Yup.object({
-        name: Yup.string(),
+        name: Yup.string().matches(/^[a-zA-Z\s]*$/, 'Mother Name can only contain letters and spaces')
+        .min(3, "Mother Name must be at least 3 characters")
+        .max(50, "Mother Name must be at most 50 characters"),
         mobileNumber: Yup.string().matches(
           /^[0-9]{10}$/,
           "Mobile number must be 10 digits"
         ),
-        occupation: Yup.string(),
-        email: Yup.string(),
+        occupation: Yup.string()
+        .matches(/^[a-zA-Z\s]*$/, 'Occupation can only contain letters and spaces')
+        .min(3, "Occupation must be at least 3 characters"),
+        email: Yup.string()
+          .email("Invalid email address"),
       }),
       presentAddress: Yup.object({
-        area: Yup.string().required("Area is required"),
-        city: Yup.string().required("City is required"),
+        area: Yup.string()
+        .matches(/^[a-zA-Z\s]*$/, 'Area can only contain letters and spaces')
+        .min(3, "Area must be at least 3 characters")
+        .max(50, "Area must be at most 50 characters")
+        .required("Area is required"),
+        city: Yup.string()
+        .matches(/^[a-zA-Z\s]*$/, 'City can only contain letters and spaces')
+        .min(3, "City must be at least 3 characters")
+        .max(50, "City must be at most 50 characters")
+        .required("City is required"),
         state: Yup.string().required("State is required"),
-        pincode: Yup.string().required("Pincode is required"),
+        pincode: Yup.string()
+        .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
+        .required("Pincode is required"),
       }),
       permanentAddress: Yup.object({
-        area: Yup.string().required("Permanent Area is required"),
-        city: Yup.string().required("Permanent city is required"),
+        area: Yup.string()
+        .matches(/^[a-zA-Z\s]*$/, 'Area can only contain letters and spaces')
+        .min(3, "Area must be at least 3 characters")
+        .max(50, "Area must be at most 50 characters")
+        .required("Permanent Area is required"),
+        city: Yup.string()
+        .matches(/^[a-zA-Z\s]*$/, 'City can only contain letters and spaces')
+        .min(3, "City must be at least 3 characters")
+        .max(50, "City must be at most 50 characters")
+        .required("Permanent city is required"),
         state: Yup.string().required("Permanent state is required"),
-        pincode: Yup.string().required("Permanent Pincode is required"),
+        pincode: Yup.string()
+        .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
+        .required("Permanent Pincode is required"),
       }),
       aadharNumber: Yup.string()
         .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
