@@ -8,23 +8,13 @@ import {
   selectStudent,
 } from '../../app/reducers/studentSlice'
 import { ACADEMICS, STUDENT } from '../../app/url'
-import { gender, handleDownload } from '../../commonComponent/CommonFunctions'
+import { gender, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
+import CommonUpload from '../../commonComponent/CommonUpload'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
+import StudentProfileModal from './Profile'
 import Student from './Student'
-import StudentProfileModal from './StudentProfileModal'
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-import CommonUpload from '../../commonComponent/CommonUpload'
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
-
-const tabs2 = [
-  { name: 'Active', href: '#', count: '52', current: true },
-  // {name: 'Drafts', href: '#', count: '12', current: false},
-]
 
 export default function StudentDetails() {
   const dispatch = useDispatch()
@@ -37,10 +27,7 @@ export default function StudentDetails() {
   const [activeStudent, setActiveStudent] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
-  const [bulkUploadList, setBulkUploadList] = useState([])
-  const fileInputRef = useRef(null);
 
- 
   const genderOptions = [
     { label: 'Male', value: 'male' },
     { label: 'Female', value: 'female' },
@@ -118,14 +105,18 @@ export default function StudentDetails() {
       setStudentList(studentData)
       setFilteredData(studentData)
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
   const onHandleEdit = async (studentId) => {
-    const studentDetails = await getData(STUDENT + '/details/' + studentId)
-    dispatch(selectStudent(studentDetails.data.data))
-    setOpen(true)
+    try {
+      const studentDetails = await getData(STUDENT + '/details/' + studentId)
+      dispatch(selectStudent(studentDetails.data.data))
+      setOpen(true)
+    } catch (error) {
+      handleApiResponse(error)
+    }
   }
 
   const onDelete = () => {
@@ -210,50 +201,8 @@ export default function StudentDetails() {
       <div className="mt-4 flex justify-between">
         {/* active tab with count block */}
         <div className="sm:hidden">
-          {/* <label htmlFor="tabs2" className="sr-only">
-            Select a tab
-          </label>
-          <select
-            id="tabs2"
-            name="tabs2"
-            defaultValue={tabs2.find((tab) => tab.current).name}
-            className="block w-full rounded-full border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-          >
-            {tabs2.map((tab) => (
-              <option key={tab.name}>{tab.name}</option>
-            ))}
-          </select> */}
         </div>
         <div className="hidden sm:block">
-          {/* <nav aria-label="Tabs2" className="flex space-x-4">
-            {tabs2.map((tab) => (
-              <a
-                key={tab.name}
-                href={tab.href}
-                aria-current={tab.current ? 'page' : undefined}
-                className={classNames(
-                  tab.current
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-gray-100 text-gray-500 hover:text-gray-700',
-                  'rounded-full px-3 py-2 text-sm font-medium',
-                )}
-              >
-                {tab.name}
-                {tab.count ? (
-                  <span
-                    className={classNames(
-                      tab.current
-                        ? 'bg-white text-purple-600'
-                        : 'bg-gray-300 text-gray-900',
-                      'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
-                    )}
-                  >
-                    {tab.count}
-                  </span>
-                ) : null}
-              </a>
-            ))}
-          </nav> */}
         </div>
 
 
@@ -281,28 +230,6 @@ export default function StudentDetails() {
       <div className="-mx-2 -my-2 mt-0 sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
-            {/* {selectedPeople.length > 0 && (
-              <div className="absolute left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Promote
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Exit
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Delete
-                </button>
-              </div>
-            )} */}
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               <FilterComponent
                 onSearch={handleSearch}

@@ -1,17 +1,16 @@
 import { DialogPanel, DialogTitle } from "@headlessui/react";
-import { CheckIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { postData, updateData } from "../../app/api";
 import { STUDENT } from "../../app/url";
-import SchoolDetailsTab from "./StudentAcademicDetails";
-import BasicInfo from "./StudentBasicInfo";
-import FeeDetailsTab from "./StudentFeeDetails";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import Stepper from "../../commonComponent/StepperComponent";
+import SchoolDetailsTab from "./AcademicDetails";
+import BasicInfo from "./BasicInfo";
+import FeeDetailsTab from "./FeeDetails";
 
 function Student({ onClose, loadStudents }) {
   const { selectedStudent } = useSelector((state) => state.students);
