@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import CustomDate from "../../commonComponent/CustomDate";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
@@ -6,21 +6,55 @@ import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
-import { postData, updateData } from "../../app/api";
-import { HOLIDAYS } from "../../app/url";
+import { getData, postData, updateData } from "../../app/api";
+import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
-const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolidaysData, setHolidayMsg,getHolidayData }) => {
+const ManageHolidaySidebar = ({  setHolidaysData,getHolidayData }) => {
+  const [academicYears, setAcademicYears] = useState([]);
+  const [holidayMsg, setHolidayMsg] = useState([]);
   const selectedHoliday = useSelector((state) => state.holiday.selectedHoliday);
   console.log("selectedHoliday", selectedHoliday);
+
+
+  const data = [
+    {
+      id: 1,
+      academicYear: "2023-2024",
+      startDate: "2023-06-01",
+      endDate: "2024-03-31",
+      name: "Term 1",
+    },
+    {
+      id: 2,
+      academicYear: "2023-2024",
+      startDate: "2024-04-01",
+      endDate: "2024-06-30",
+      name: "Term 2",
+    },
+    {
+      id: 3,
+      academicYear: "2024-2025",
+      startDate: "2024-07-01",
+      endDate: "2025-03-31",
+      name: "Term 3",
+    },
+  ];
   
 
   const [formData, setFormData] = useState({
-    academicYear: "",
-    startDate: "",
-    endDate: "",
-    name: "",
-    ...(selectedHoliday && selectedHoliday),
+    academicYear: selectedHoliday?.academicYear || "",
+          startDate: selectedHoliday?.startDate || "",
+          endDate: selectedHoliday?.endDate || "",
+          name: selectedHoliday?.name || "",
+    // ...(selectedHoliday && selectedHoliday),
   });
+
+  useEffect(() => {
+    academicyear();
+  }, []);
+
+ 
 
   const getValidationSchema = () => {
     return Yup.object({
@@ -31,57 +65,46 @@ const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolid
     });
   };
 
-
-
-  const handleSubmit = async (values) => {
-    console.log("{HOLIDAY-haandle submit}", values);
-    
-    const isDuplicate = holidaysData.some((holiday) => {
-      const holidayStartDate = moment(holiday.startDate).format("YYYY-MM-DD");
-      const holidayEndDate = moment(holiday.endDate).format("YYYY-MM-DD");
-      const enteredStartDate = moment(values.startDate).format("YYYY-MM-DD");
-      const enteredEndDate = moment(values.endDate).format("YYYY-MM-DD");
-      return (
-        holiday._id !== values._id && // Exclude the same holiday during editing
-        ((enteredStartDate >= holidayStartDate && enteredStartDate <= holidayEndDate) ||
-          (enteredEndDate >= holidayStartDate && enteredEndDate <= holidayEndDate) ||
-          (enteredStartDate <= holidayStartDate && enteredEndDate >= holidayEndDate))
-      );
-    });
-
-    if (isDuplicate) {
-      setHolidayMsg("Holiday for the selected date range already exists.");
-      setTimeout(() => {
-        setHolidayMsg("");
-      }, 5000);
-      return;
-    }
-
+  const academicyear = async () => {
     try {
-      if (values._id) {
-        const response = await updateData(HOLIDAYS + "/" + values._id, values);
-        if (response.data) {
-          setHolidaysData((prevData) =>
-            prevData.map((holiday) =>
-              holiday._id === values._id ? { ...holiday, ...values } : holiday
-            )
-          );
-          setHolidayMsg("Holiday updated successfully.");
-        }
+      const academicYearRes = await getData(ACADEMIC_YEAR);
+      if (academicYearRes.status === 200 || academicYearRes.status === 201) {
+        let academicYearData = [
+          {
+            label: academicYearRes.data.data.year, // Displayed text in the dropdown
+            value: academicYearRes.data.data._id,
+          },
+        ];
+        setAcademicYears(academicYearData);
       } else {
-        const response = await postData(HOLIDAYS, values);
-        if (response.data) {
-          getHolidayData();
-          // setHolidaysData((prevData) => [...prevData, response.data.data]);
-          setHolidayMsg("Holiday marked successfully.");
-        }
+        throw new Error(academicYearRes.message);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-    } finally {
-      setTimeout(() => setHolidayMsg(""), 5000);
+      console.log(error);
     }
   };
+
+
+
+
+
+
+  const handleEdit = (id) => {
+    const selectedData = data.find((item) => item.id === id);
+    if (selectedData) {
+      setFormData({
+        academicYear: selectedData.academicYear,
+        startDate: selectedData.startDate,
+        endDate: selectedData.endDate,
+        name: selectedData.name,
+      });
+    }
+  };
+
+  const handleSubmit = (values) =>{
+    console.log("entered values",values);
+    
+  }
 
 
   return (
@@ -93,7 +116,7 @@ const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolid
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, setFieldValue  }) => (
+        {({ values, setFieldValue,resetForm  }) => (
           <Form>
             
               {/* <h2 className="text-xl font-semibold mb-4">Holiday Entry</h2> */}
@@ -135,27 +158,12 @@ const ManageHolidaySidebar = ({ academicYears, holidayMsg,holidaysData, setHolid
                 />
               </div>
 
-              {/* Save Button */}
-              <button className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600">
-                {selectedHoliday ? "Update Holiday" : "Add Holiday"}
+             
+              <button className="mt-2 w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600" onClick={() => handleEdit(1)}>
+                EDIT
               </button>
 
-              {/* Attendance Marked */}
-
-              {holidayMsg && (
-                <div
-                  className={`mt-4 p-2 rounded-md ${
-                    holidayMsg === "Holiday Marked"
-                      ? "bg-green-100 text-green-600"
-                      : holidayMsg ===
-                        "Holiday for the selected date range already exists."
-                      ? "bg-red-100 text-red-600"
-                      : "" // Handle any other message types
-                  }`}
-                >
-                  {holidayMsg}
-                </div>
-              )}
+       
             
           </Form>
         )}

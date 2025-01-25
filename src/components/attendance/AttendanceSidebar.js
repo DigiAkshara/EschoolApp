@@ -175,7 +175,7 @@ const AttendanceSidebar = ({
         </div>
       )}
 
-      {!holiday && (
+      {!holiday&& !attendanceMarked  && (
         <div className="mb-4">
         <CustomRadio
           name="allAttendance"
