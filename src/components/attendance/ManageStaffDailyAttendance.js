@@ -76,12 +76,13 @@ const ManageStaffDailyAttendance = () => {
         category: item.staffType,
         date: item.DOJ,
         phoneNumber: item.mobileNumber,
-        designation: designations.find(
-          (designations) => designations.value === item.designation
-        ).label,
+        // designation: designations.find(
+        //   (designations) => designations.value === item.designation
+        // ).label,
         class: item.class,
       }));
       setStaffList(data);
+      setFilteredStaff(data);
     }
   };
 
@@ -95,7 +96,7 @@ const ManageStaffDailyAttendance = () => {
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setFilteredData(
-      staffList.filter((staff) => staff.name.toLowerCase().includes(query))
+      filteredStaff.filter((staff) => staff.name.toLowerCase().includes(query))
     );
   };
 
@@ -272,7 +273,7 @@ const ManageStaffDailyAttendance = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
-                            {values.attendance.length >= 0 ? (
+                            {values.attendance && values.attendance.length > 0  ? (
                               <FieldArray name="attendance">
                                 {() =>
                                   values.attendance.map((staff, index) => (
@@ -308,7 +309,7 @@ const ManageStaffDailyAttendance = () => {
                                         </div>
                                       </td>
                                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                        {staff.staffId}
+                                        {staff.empId}
                                       </td>
 
                                       <td>
