@@ -26,7 +26,7 @@ const tabs2 = [
 ]
 
 export default function StaffDetails() {
-  const subjects = useSelector((state) => state.staff.subjects)
+  const subjects = useSelector((state) => state.staff?.subjects)
   const [open2, setOpen2] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
   const [showAddStaffModal, setShowAddStaffModal] = useState(false)

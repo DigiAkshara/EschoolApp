@@ -13,7 +13,7 @@ import StaffInfo from './StaffInfo'
 import StaffPersonalDetails from './StaffPersonalDetails'
 
 function Staff({ onClose, getStaff }) {
-  const selectedStaff = useSelector((state) => state.staff.selectedStaff)
+  const selectedStaff = useSelector((state) => state.staff?.selectedStaff)
   const dispatch = useDispatch()
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({

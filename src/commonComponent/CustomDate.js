@@ -3,6 +3,8 @@ import Datepicker from 'react-tailwindcss-datepicker'
 
 export default function CustomDate(props) {
   const {name, label, icon: Icon, required = false, max,minDate, value, disabled = false} = props
+  const MAX_DATE = new Date()
+  MAX_DATE.setDate(MAX_DATE.getDate())
   return (
     <>
       <label
@@ -31,10 +33,10 @@ export default function CustomDate(props) {
                 asSingle={true}
                 useRange={false}
                 required={false}
+                id={field.name}
                 displayFormat="DD/MM/YYYY"
                 disabled={disabled}
-                maxDate={new Date(max)}
-                minDate={new Date(minDate)}
+                maxDate={MAX_DATE}
               />
             )
           }}

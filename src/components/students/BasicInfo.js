@@ -69,7 +69,7 @@ function BasicInfo({values, setFieldValue}) {
             />
           </div>
           <div className="sm:col-span-2">
-            <CustomDate name="DOB" label="Date of Birth" required={true} max={moment().subtract(2, 'years').format('YYYY-MM-DD')} minDate={moment().subtract(25, 'years').format('YYYY-MM-DD')}  />
+            <CustomDate name="DOB" label="Date of Birth" required={true}  />
           </div>
 
           <div className="sm:col-span-2">

@@ -6,7 +6,7 @@ import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import MutliSelect from '../../commonComponent/MultiSelect'
 function StaffInfo({ values, setFieldValue }) {
-  const subjects = useSelector((state) => state.staff.subjects)
+  const subjects = useSelector((state) => state.staff?.subjects)
 
   return (
     <>
