@@ -10,8 +10,7 @@ import { getData, postData, updateData } from "../../app/api";
 import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
-const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData }) => {
-  const [academicYears, setAcademicYears] = useState([]);
+const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData ,academicYears}) => {
   const [holidayMsg, setHolidayMsg] = useState([]);
   const selectedHoliday = useSelector((state) => state.holiday.selectedHoliday);
   console.log("selectedHoliday", selectedHoliday);
@@ -49,7 +48,7 @@ const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData }) => {
   });
 
   useEffect(() => {
-    academicyear();
+    // academicyear();
   }, []);
 
   const getValidationSchema = () => {
@@ -61,24 +60,7 @@ const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData }) => {
     });
   };
 
-  const academicyear = async () => {
-    try {
-      const academicYearRes = await getData(ACADEMIC_YEAR);
-      if (academicYearRes.status === 200 || academicYearRes.status === 201) {
-        let academicYearData = [
-          {
-            label: academicYearRes.data.data.year, // Displayed text in the dropdown
-            value: academicYearRes.data.data._id,
-          },
-        ];
-        setAcademicYears(academicYearData);
-      } else {
-        throw new Error(academicYearRes.message);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
 
   const handleEdit = (id) => {
     const selectedData = data.find((item) => item.id === id);

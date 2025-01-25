@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getData } from "../../app/api";
-import { HOLIDAYS } from "../../app/url";
+import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
 import ManageHolidaySidebar from "./ManageHolidaySidebar";
 import TableComponent from "../../commonComponent/TableComponent";
 import FilterComponent from "../../commonComponent/FilterComponent";
@@ -9,6 +9,7 @@ import { setSelectedHoliday } from "../../app/reducers/holidaySlice";
 import { useDispatch } from "react-redux";
 
 const ManageHolidayAttendance = () => {
+  const [academicYears, setAcademicYears] = useState([]);
   const [holidaysData, setHolidaysData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,6 +18,7 @@ const ManageHolidayAttendance = () => {
 
   useEffect(() => {
     getHolidayData();
+    academicyear();
   }, []);
 
   const columns = [
@@ -35,6 +37,24 @@ const ManageHolidayAttendance = () => {
       : `${formatStartDate} to ${formatEndDate}`;
   };
 
+  const academicyear = async () => {
+    try {
+      const academicYearRes = await getData(ACADEMIC_YEAR);
+      if (academicYearRes.status === 200 || academicYearRes.status === 201) {
+        let academicYearData = [
+          {
+            label: academicYearRes.data.data.year, // Displayed text in the dropdown
+            value: academicYearRes.data.data._id,
+          },
+        ];
+        setAcademicYears(academicYearData);
+      } else {
+        throw new Error(academicYearRes.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const getHolidayData = async () => {
     try {
       const response = await getData(HOLIDAYS);
@@ -42,6 +62,9 @@ const ManageHolidayAttendance = () => {
       const holidayResonse = response.data.data;
 
       const holidayData = holidayResonse.map((item) => {
+        const academicYearLabel = academicYears.find(
+          (year) => year.value === item.academicYear
+        )?.label;
         const totalDays = Math.ceil(
           (new Date(item.endDate) - new Date(item.startDate)) /
             (1000 * 60 * 60 * 24)
@@ -53,7 +76,7 @@ const ManageHolidayAttendance = () => {
           endDate: item.endDate,
           displayDate: formatHolidayDate(item.startDate, item.endDate),
           totalDays,
-          academicYear: item.academicYear,
+          academicYear:academicYearLabel || item.academicYear, 
           status: item.status,
           actions: [
             { label: "Edit", actionHandler: onHandleEdit },
@@ -70,37 +93,48 @@ const ManageHolidayAttendance = () => {
     }
   };
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setFilteredData(
-      holidaysData.filter((holiday) =>
-        holiday.name.toLowerCase().includes(query)
-      )
-    );
-  };
+  // const handleSearch = (e) => {
+  //   const query = e.target.value.toLowerCase();
+  //   setFilteredData(
+  //     holidaysData.filter((holiday) =>
+  //       holiday.name.toLowerCase().includes(query)
+  //     )
+  //   );
+  // };
 
-  // const handleSearch = (term) => {
-  //   const filtered = holidaysData.filter((item) =>
-  //     columns.some((col) =>
-  //       String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
-  //     ),
-  //   )
-  //   setFilteredData(filtered)
-  // }
-
+  const handleSearch = (searchTerm) => {
+    const filtered = holidaysData.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
 
 
 
   const onHandleEdit = async (holidayId) => {
     console.log("id is", holidayId);
-
+  
     try {
-      if (!holidayId) return;
+     
       const response = await getData(HOLIDAYS + "/" + holidayId);
       console.log("Response - [HOLIDAY]", response.data.data);
-
+  
       if (response?.data?.data) {
-        dispatch(setSelectedHoliday(response.data.data));
+        const holiday = response.data.data;
+  
+        const academicYearLabel = academicYears.find(
+          (year) => year.value === holiday.academicYear
+        )?.label;
+  
+        const updatedHoliday = {
+          ...holiday,
+          academicYear: academicYearLabel || holiday.academicYear, 
+        };
+  
+        console.log("Updated holiday data:", updatedHoliday);
+        dispatch(setSelectedHoliday(updatedHoliday));
       } else {
         console.error("Holiday not found for the given ID:", holidayId);
       }
@@ -108,6 +142,7 @@ const ManageHolidayAttendance = () => {
       console.error("Error fetching holiday data:", error);
     }
   };
+  
 
   const onDelete = () => {
     console.log("delete");
@@ -137,6 +172,7 @@ const ManageHolidayAttendance = () => {
         <ManageHolidaySidebar
           setHolidaysData={setHolidaysData}
           getHolidayData={getHolidayData}
+          academicYears={academicYears}
         />
 
         {/* Main Content */}
