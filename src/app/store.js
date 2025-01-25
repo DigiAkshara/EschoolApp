@@ -6,11 +6,7 @@ import examSlice from './reducers/examSlice'
 import stuFeesReducer from './reducers/stuFeesSlice'
 import studentSlice from './reducers/studentSlice'
 import academicSlice from './reducers/academicSlice'
-<<<<<<< Updated upstream
-import staffSlice from './reducers/staffSlice'
-=======
 import holidayReducer  from './reducers/holidaySlice'
->>>>>>> Stashed changes
 
 export const store = configureStore({
   reducer: {
@@ -21,10 +17,6 @@ export const store = configureStore({
     class: classReducer,
     stuFees: stuFeesReducer,
     academics: academicSlice,
-<<<<<<< Updated upstream
-    staff: staffSlice
-=======
     holiday: holidayReducer,
->>>>>>> Stashed changes
   },
 })
