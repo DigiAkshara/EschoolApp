@@ -80,7 +80,6 @@ function Student({ onClose, loadStudents }) {
       },
     }),
   });
-
   // Validation schemas for each step
   const validationSchemas = [
     Yup.object({
