@@ -5,31 +5,37 @@ import { useEffect, useRef, useState } from 'react'
 
 import { Dialog } from '@headlessui/react'
 
-import { useDispatch } from 'react-redux'
-import { getData } from '../../app/api'
-import { selectStaff } from '../../app/reducers/staffSlice'
-import { STAFF } from '../../app/url'
-import { designations, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
+import { useDispatch, useSelector } from 'react-redux'
+import { deleteData, getData } from '../../app/api'
+import { selectStaff, setSubjects } from '../../app/reducers/staffSlice'
+import { STAFF, SUBJECTS } from '../../app/url'
+import { capitalizeWords, designations, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
 import CommonUpload from '../../commonComponent/CommonUpload'
 import TableComponent from '../../commonComponent/TableComponent'
 import Staff from './Staff'
+import FilterComponent from '../../commonComponent/FilterComponent'
+import ConfirmModal from '../../commonComponent/ConfirmationModal'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 const tabs2 = [
-  { name: 'Teachers', href: '#', count: '122', current: true },
-  { name: 'Non-teaching Staff', href: '#', count: '20', current: false },
+  { name: 'Teaching', type:'teaching', href: '#', count: 0, current: true },
+  { name: 'Non-teaching', type:"non-teaching", href: '#', count: 0, current: false },
 ]
 
 export default function StaffDetails() {
+  const subjects = useSelector((state) => state.staff.subjects)
   const [open2, setOpen2] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
   const [showAddStaffModal, setShowAddStaffModal] = useState(false)
   const [staffList, setStaffList] = useState([])
-  const [staffData, setStaffData] = useState([])
+  const [staffCount, setStaffCount] = useState({ "teaching": 0, "non-teaching": 0 })
+  const [staffType, setStaffType] = useState('teaching')
   const [filteredData, setFilteredData] = useState([])
+  const [deleteId, setDeleteId] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 5
   const [bulkUploadList, setBulkUploadList] = useState([])
@@ -44,93 +50,133 @@ export default function StaffDetails() {
   const handleClose = () => setShowAddStaffModal(false)
   const handleClose2 = () => setOpen2(false)
 
+  const getSubjects = async () => {
+    try {
+      const res = await getData(SUBJECTS)
+      const subjectsData = res.data.data.map((item) => {
+        return {
+          label: capitalizeWords(item.name), // Displayed text in the dropdown
+          value: item._id,
+        }
+      })
+      dispatch(setSubjects(subjectsData))
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
+    getSubjects()
     getStaff()
-  }, [])
+  }, [dispatch])
 
   const columns = [
     { title: 'Staff Name', key: 'name' },
     { title: 'Staff Id', key: 'staffId' },
     { title: 'DOJ', key: 'date' },
     { title: 'Phone Number', key: 'phoneNumber' },
-    { title: 'Designation', key: 'designation' },
-    { title: 'Subjects', key: 'subjects' },
-    { title: 'Class', key: 'class' },
+    { title: 'Designation', key: 'designationName' },
+    { title: 'Subjects', key: 'subjectName' },
     { title: 'Actions', key: 'actions' },
   ]
 
   const getStaff = async () => {
     try {
       const response = await getData(STAFF)
-      setStaffData(response.data.data)
-      let data = response.data.data.map((item, index) => ({
-        _id: item._id,
-        pic: item.profilePic?.Location,
-        name: item.firstName + ' ' + item.lastName,
-        staffId: item.empId,
-        date: item.DOJ,
-        phoneNumber: item.mobileNumber,
-        designation: designations.find(
-          (designations) => designations.value === item.designation,
-        ).label,
-        subjects: item.subjects?.name,
-        class: item.class,
-        staffType: item.staffType,
-        guardian: item.guardian,
-        email: item.email,
-        workEmail: item.workEmail,
-        gender: item.gender,
-        permanentArea: item.permanentAddress?.area,
-        permanentCity: item.permanentAddress?.city,
-        permanentPincode: item.permanentAddress?.pincode,
-        permanentState: item.permanentAddress?.state,
-        presentArea: item.presentAddress?.area,
-        presentCity: item.presentAddress?.city,
-        presentPincode: item.presentAddress?.pincode,
-        presentState: item.presentAddress?.state,
-        aadharNumber: item.aadharNumber,
-        aadharPic: item.aadharPic?.Location,
-        panNumber: item.panNumber,
-        panCardPic: item.panCardPic?.Location,
-        accountNumber: item.bankDetails?.accountNumber,
-        ifscCode: item.bankDetails?.ifscCode,
-        bankName: item.bankDetails?.bankName,
-        passBookPic: item.bankDetails?.passBookPic?.Location,
-
-        salary: item.amount,
-        actions: [
-          { label: 'Edit', actionHandler: onHandleEdit },
-          { label: 'Delete', actionHandler: onDelete },
-        ],
-      }))
-      setStaffList(data)
-      setFilteredData(data)
+      let teachingCount = 0;
+      let nonTeachingCount = 0;
+      const staffData = []
+      response.data.data.forEach((item) => {
+        if (item.staffType == 'teaching') {
+          teachingCount = teachingCount + 1
+        } else {
+          nonTeachingCount = nonTeachingCount + 1
+        }
+        staffData.push({
+          _id: item._id,
+          pic: item.profilePic?.Location,
+          name: capitalizeWords(item.firstName + ' ' + item.lastName),
+          staffId: item.empId,
+          date: item.DOJ,
+          phoneNumber: item.mobileNumber,
+          designationName: capitalizeWords(item.designation),
+          designation: item.designation,
+          subjectName: item.subjects.map(item => item.label).join(', '),
+          subjects: item.subjects.map(item => item.value).join(', '),
+          class: item.class,
+          staffType: item.staffType,
+          guardian: item.guardian,
+          email: item.email,
+          workEmail: item.workEmail,
+          gender: item.gender,
+          permanentArea: item.permanentAddress?.area,
+          permanentCity: item.permanentAddress?.city,
+          permanentPincode: item.permanentAddress?.pincode,
+          permanentState: item.permanentAddress?.state,
+          presentArea: item.presentAddress?.area,
+          presentCity: item.presentAddress?.city,
+          presentPincode: item.presentAddress?.pincode,
+          presentState: item.presentAddress?.state,
+          aadharNumber: item.aadharNumber,
+          aadharPic: item.aadharPic?.Location,
+          panNumber: item.panNumber,
+          panCardPic: item.panCardPic?.Location,
+          accountNumber: item.bankDetails?.accountNumber,
+          ifscCode: item.bankDetails?.ifscCode,
+          bankName: item.bankDetails?.bankName,
+          passBookPic: item.bankDetails?.passBookPic?.Location,
+          salary: item.amount,
+          actions: [
+            { label: 'Edit', actionHandler: onHandleEdit },
+            { label: 'Delete', actionHandler: onDelete },
+          ],
+        })
+      })
+      setStaffCount({ "teaching":teachingCount, "non-teaching":nonTeachingCount })
+      setStaffList(staffData)
+      setFilteredData(staffData)
     } catch (error) {
       handleApiResponse(error)
     }
 
   }
 
-  const onHandleEdit = (Id) => {
-    const obj = staffData.filter(obj => obj._id == Id)
-    dispatch(selectStaff({ ...obj[0], actions: undefined }))
-    setShowAddStaffModal(true)
+  const onHandleEdit = async (Id) => {
+    try {
+      const staffDetails = await getData(STAFF + '/' + Id)
+      dispatch(selectStaff({ ...staffDetails.data.data }))
+      setShowAddStaffModal(true)
+    } catch (error) {
+      handleApiResponse(error)
+    }
   }
 
-  const onDelete = () => {
-    console.log('delete')
+  const onDelete = (Id) => {
+    setDeleteId(Id)
+    setDeleteConfirm(true)
   }
 
-  const filters = [
-    {
-      key: 'age',
-      label: 'Age Filter',
-      options: [
-        { value: '20-30', label: '20-30' },
-        { value: '30-40', label: '30-40' },
-      ],
-    },
-  ]
+  const deleteRecord  = async() =>{
+    try{
+      let res = await deleteData(STAFF+'/'+deleteId)
+      handleApiResponse(res.data.message,'success')
+      getStaff()
+      setDeleteConfirm(false)
+      setDeleteId(null)
+    }catch(error){
+      handleApiResponse(error)
+    }
+  }
+
+  const filterForm = {
+    subjects: '',
+    designation: ''
+  }
+
+  const filters = {
+    subjects: { options: subjects },
+    designation: { options: designations }
+  }
 
   const handleSearch = (term) => {
     const filtered = staffList.filter((item) =>
@@ -141,15 +187,25 @@ export default function StaffDetails() {
     setFilteredData(filtered)
   }
 
-  const handleFilter = (key, value) => {
+
+  const handleFilter = (values) => {
     let filtered = staffList
-    if (key === 'age' && value) {
-      const [min, max] = value.split('-')
-      filtered = staffList.filter(
-        (item) => item.age >= parseInt(min) && item.age <= parseInt(max),
-      )
-    }
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        filtered = filtered.filter((rec) => {
+          console.log(value, rec[key])
+          return rec[key].toLowerCase().includes(value.toLowerCase())
+        }
+        )
+      }
+    })
     setFilteredData(filtered)
+  }
+
+  const handleReset = (updatedValues) => {
+    setFilteredData(staffList)
+    updatedValues('subjects', '')
+    updatedValues('designation', '')
   }
 
 
@@ -157,7 +213,7 @@ export default function StaffDetails() {
     setCurrentPage(page)
   }
 
-  const paginatedData = filteredData.slice(
+  const paginatedData = filteredData.filter(item=>(item.staffType === staffType)).slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage,
   )
@@ -165,6 +221,7 @@ export default function StaffDetails() {
   const downloadList = () => {
     handleDownload(filteredData, "StaffList", ["_id", "pic", "actions"]);
   };
+
 
 
 
@@ -193,27 +250,27 @@ export default function StaffDetails() {
           <nav aria-label="Tabs2" className="flex space-x-4">
             {tabs2.map((tab) => (
               <a
-                key={tab.name}
-                href={tab.href}
-                aria-current={tab.current ? 'page' : undefined}
+                key={tab.type}
+                onClick={()=>{setStaffType(tab.type)}}
+                aria-current={tab.type===staffCount ? 'page' : undefined}
                 className={classNames(
-                  tab.current
+                  tab.type===staffType
                     ? 'bg-purple-100 text-purple-700'
                     : 'bg-gray-100 text-gray-500 hover:text-gray-700',
                   'rounded-full px-3 py-2 text-sm font-medium',
                 )}
               >
                 {tab.name}
-                {tab.count ? (
+                {staffCount[tab.type] ? (
                   <span
                     className={classNames(
-                      tab.current
+                      tab.type===staffType
                         ? 'bg-white text-purple-600'
                         : 'bg-gray-300 text-gray-900',
                       'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
                     )}
                   >
-                    {tab.count}
+                    {staffCount[tab.type]}
                   </span>
                 ) : null}
               </a>
@@ -276,17 +333,19 @@ export default function StaffDetails() {
               </div>
             )}
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-              {/* <FilterComponent
-                handleDownload={handleDownload}
-                /> */}
+              <FilterComponent
+                onSearch={handleSearch}
+                filters={filters}
+                filterForm={filterForm}
+                handleFilter={handleFilter}
+                handleReset={handleReset}
+                downloadList={downloadList}
+              />
 
               {/* Table View */}
               <TableComponent
                 columns={columns}
                 data={paginatedData}
-                filters={filters}
-                onSearch={handleSearch}
-                onFilter={handleFilter}
                 pagination={{
                   currentPage,
                   totalCount: filteredData.length,
@@ -299,7 +358,11 @@ export default function StaffDetails() {
       </div>
 
       {/* Student Onboarding Modal */}
-
+      <ConfirmModal
+        showModal={deleteConfirm}
+        onYes={deleteRecord}
+        onCancel={()=>{setDeleteConfirm(false)}}
+      />
       <Dialog open={showAddStaffModal} onClose={handleClose} className="relative z-50">
         <div className="fixed inset-0" />
         <Staff onClose={handleClose} getStaff={getStaff} />

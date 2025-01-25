@@ -66,11 +66,6 @@ export default function Tenants() {
   }
 
 
-  const handleAction = {
-    edit: (item) => console.log('Edit:', item),
-    delete: (item) => console.log('Delete:', item),
-  }
-
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
@@ -154,10 +149,6 @@ export default function Tenants() {
                   filters={filters}
                   onSearch={handleSearch}
                   onFilter={handleFilter}
-                  onAction={[
-                    {label: 'Edit', handler: handleAction.edit},
-                    {label: 'Delete', handler: handleAction.delete},
-                  ]}
                   pagination={{
                     currentPage,
                     totalCount: filteredData.length,

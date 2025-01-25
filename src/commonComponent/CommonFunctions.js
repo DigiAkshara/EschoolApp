@@ -178,7 +178,7 @@ export const payments = [
 
 export const designations = [
   {value: 'principal', label: 'Principal'},
-  {value: 'viceprincipal', label: 'Vice Principal'},
+  {value: 'vice-principal', label: 'Vice Principal'},
   {value: 'teacher', label: 'Teacher'},
   {value: 'librarian', label: 'Librarian'},
   {value: 'accountant', label: 'Accountant'},

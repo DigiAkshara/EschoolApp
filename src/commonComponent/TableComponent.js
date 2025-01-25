@@ -131,7 +131,7 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn }) =
                               <a
                                 key={index}
                                 onClick={() => action.actionHandler(record._id)}
-                                className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
+                                className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none cursor-pointer"
                               >
                                 {action.label}
                               </a>

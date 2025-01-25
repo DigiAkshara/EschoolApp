@@ -111,11 +111,6 @@ export default function ManageFeesStructure() {
     currentPage * rowsPerPage
   );
 
-  const handleAction = {
-    edit: (item) => console.log("Edit:", item),
-    delete: (item) => console.log("Delete:", item),
-  };
-
   const onHandleEdit = async () => {
     console.log("edit");
   };
@@ -165,10 +160,6 @@ export default function ManageFeesStructure() {
               <TableComponent
                 columns={columns}
                 data={paginatedData}
-                onAction={[
-                  { label: "Edit", handler: handleAction.edit },
-                  { label: "Delete", handler: handleAction.delete },
-                ]}
                 pagination={{
                   currentPage,
                   totalCount: filteredData.length,

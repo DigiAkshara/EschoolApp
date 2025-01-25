@@ -183,11 +183,6 @@ export default function StudentDetails() {
     updatedValues('section', '')
   }
 
-  const handleAction = {
-    edit: (item) => console.log('Edit:', item),
-    delete: (item) => console.log('Delete:', item),
-  }
-
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
@@ -322,10 +317,6 @@ export default function StudentDetails() {
                 <TableComponent
                   columns={columns}
                   data={paginatedData}
-                  onAction={[
-                    { label: 'Edit', handler: handleAction.edit },
-                    { label: 'Delete', handler: handleAction.delete },
-                  ]}
                   pagination={{
                     currentPage,
                     totalCount: filteredData.length,

@@ -4,7 +4,7 @@ import { Form, Formik } from 'formik'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as Yup from 'yup'
-import { postData } from '../../app/api'
+import { postData, updateData } from '../../app/api'
 import { STAFF } from '../../app/url'
 import { handleApiResponse } from '../../commonComponent/CommonFunctions'
 import Stepper from '../../commonComponent/StepperComponent'
@@ -56,6 +56,9 @@ function Staff({ onClose, getStaff }) {
     bankPassbook: null,
     amount: '',
     ...(selectedStaff && selectedStaff),
+    ...(selectedStaff && {
+      confirmAccountNumber:selectedStaff.accountNumber
+    })
   })
 
   const panCardRegex = /^[A-Z]{3}P[A-Z]{1}[0-9]{4}[A-Z]{1}$/;
@@ -131,10 +134,10 @@ function Staff({ onClose, getStaff }) {
         )
         .test(
           "account-number-valid",
-          "Account number must be 10-18 digits",
+          "Account number must be 8-18 digits",
           function (value) {
             return this.parent.paymentMode === "online"
-              ? /^\d{10,18}$/.test(value || "")
+              ? /^\d{8,18}$/.test(value || "")
               : true;
           }
         ),
@@ -194,10 +197,10 @@ function Staff({ onClose, getStaff }) {
   const handleSubmit = async (values) => {
     try {
       const finalData = { ...formData, ...values, confirmAccountNumber: undefined }
-      let response = await postData(STAFF, finalData)
+      let response = values._id?await updateData(STAFF+'/'+values._id, finalData): await postData(STAFF, finalData)
       handleApiResponse(response.data.message, "success")
       getStaff();
-      // onClose();
+      onClose();
     } catch (error) {
       handleApiResponse(error)
       console.log(error)

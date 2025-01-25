@@ -1,32 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import { getData } from '../../app/api'
-import { SUBJECTS } from '../../app/url'
-import { capitalizeWords, designations, staffType } from '../../commonComponent/CommonFunctions'
+import React from 'react'
+import { useSelector } from 'react-redux'
+import { designations, staffType } from '../../commonComponent/CommonFunctions'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import MutliSelect from '../../commonComponent/MultiSelect'
 function StaffInfo({ values, setFieldValue }) {
-  const [subjects, setSubjects] = useState()
-
-  useEffect(() => {
-    getSubjects()
-  }, [])
-
-  const getSubjects = async () => {
-    try{
-      const res = await getData(SUBJECTS)
-      const classData = res.data.data.map((item) => {
-        return {
-          label: capitalizeWords(item.name), // Displayed text in the dropdown
-          value: item._id,
-        }
-      })
-      setSubjects(classData)
-    }catch(error){
-      console.log(error)
-    }
-  }
+  const subjects = useSelector((state) => state.staff.subjects)
 
   return (
     <>

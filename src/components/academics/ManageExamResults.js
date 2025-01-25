@@ -26,16 +26,6 @@ import ManageExamMarks from "./ManageExamMarks";
 import TableComponent from "../../commonComponent/TableComponent";
 import FilterComponent from "../../commonComponent/FilterComponent";
 
-const people = [
-  {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
-    email: "lindsay.walton@example.com",
-    role: "Member",
-  },
-  // More people...
-];
-
 function ManageExamResults() {
   const { classes: classOptions, sections: sectionOptions,subjects } = useSelector(
     (state) => state.academics
