@@ -159,12 +159,12 @@ const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData ,academicYears})
                 {selectedHoliday ? "Update Holiday" : "Add Holiday"}
               </button>
 
-              {/* <button
+              <button
                 className="mt-2 w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600"
                 onClick={() => handleEdit(1)}
               >
                 EDIT
-              </button> */}
+              </button>
               {/* Attendance Marked */}
 
               {holidayMsg && (

@@ -96,7 +96,7 @@ const ManageStaffDailyAttendance = () => {
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setFilteredData(
-      filteredStaff.filter((staff) => staff.name.toLowerCase().includes(query))
+      staffList.filter((staff) => staff.name.toLowerCase().includes(query))
     );
   };
 
@@ -185,9 +185,9 @@ const ManageStaffDailyAttendance = () => {
                             <div className="flex items-center gap-4">
                               <div className="relative rounded-md  inline-block  ">
                                 <input
-                                  id="email"
-                                  name="email"
-                                  type="email"
+                                  id="search"
+                                  name="search"
+                                  type="text"
                                   placeholder="Search"
                                   onChange={handleSearch}
                                   className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
