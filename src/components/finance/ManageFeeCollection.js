@@ -144,10 +144,10 @@ function ManageFeeCollection() {
     <>
       <div className="mt-4 flex justify-between">
         <div className="sm:hidden">
-          <label htmlFor="tabs2" className="sr-only">
+          {/* <label htmlFor="tabs2" className="sr-only">
             Select a tab
           </label>
-          {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+          {/* Use an "onChange" listener to redirect the user to the selected tab URL. 
           <select
             id="tabs2"
             name="tabs2"
@@ -157,10 +157,10 @@ function ManageFeeCollection() {
             {tabs2.map((tab) => (
               <option key={tab.name}>{tab.name}</option>
             ))}
-          </select>
+          </select> */}
         </div>
         <div className="hidden sm:block">
-          <nav aria-label="Tabs2" className="flex space-x-4">
+          {/* <nav aria-label="Tabs2" className="flex space-x-4">
             {tabs2.map((tab) => (
               <a
                 key={tab.name}
@@ -188,7 +188,7 @@ function ManageFeeCollection() {
                 ) : null}
               </a>
             ))}
-          </nav>
+          </nav> */}
         </div>
         <div className="right-btns-blk space-x-4">
           <button
@@ -226,7 +226,7 @@ function ManageFeeCollection() {
                 </button>
               </div>
             )}
-            <div className="overflow-hidden shadow ring-1 ring-black/5 sm:rounded-lg">
+            <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               <div className="relative table-tool-bar z-30">
                 <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
                   <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
@@ -600,6 +600,7 @@ function ManageFeeCollection() {
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white z-1">
                     {studentFees.map((studentFee, index) => (
+                      console.log(studentFee),
                       <tr key={studentFee.studentId} className="bg-gray-50">
                         <td className="relative px-7 sm:w-12 sm:px-6">
                           <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
@@ -679,107 +680,11 @@ function ManageFeeCollection() {
                 </table>
               </div>
 
-              <div className="pagination">
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-3 py-3 sm:px-3">
-                  <div className="flex flex-1 justify-between sm:hidden">
-                    <a
-                      href="#"
-                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Previous
-                    </a>
-                    <a
-                      href="#"
-                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Next
-                    </a>
-                  </div>
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">1</span> to{' '}
-                        <span className="font-medium">10</span> of{' '}
-                        <span className="font-medium">97</span> results
-                      </p>
-                    </div>
-                    <div>
-                      <nav
-                        aria-label="Pagination"
-                        className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                      >
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          <span className="sr-only">Previous</span>
-                          <ChevronLeftIcon
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </a>
-                        {/* Current: "z-10 bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
-                        <a
-                          href="#"
-                          aria-current="page"
-                          className="relative z-10 inline-flex items-center bg-purple-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-                        >
-                          1
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          2
-                        </a>
-                        <a
-                          href="#"
-                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                        >
-                          3
-                        </a>
-                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-                          ...
-                        </span>
-                        <a
-                          href="#"
-                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                        >
-                          8
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          9
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          10
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          <span className="sr-only">Next</span>
-                          <ChevronRightIcon
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </a>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
         <Dialog open={openN} onClose={setOpenN} className="relative z-50">
           <div className="fixed inset-0" />
-
           <FinanceCollectFees onClose={handleClose} />
         </Dialog>
       </div>

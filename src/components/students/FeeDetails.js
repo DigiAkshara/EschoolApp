@@ -34,15 +34,15 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
       }
     })
     if (selectedStudent) {
-      selectedStudent.fees.forEach(item => {
-        let index = dumpLIst.findIndex(obj => obj.id === item.fees);
+      selectedStudent.fees?.feeList.forEach(item => {
+        let index = dumpLIst.findIndex(obj => obj.id === item.fee._id);
         if (index != -1) {
           dumpLIst[index].isChecked = true
-          dumpLIst[index].feeType = item.feeType
+          dumpLIst[index].feeType = item.duration
           dumpLIst[index].dueDate = item.dueDate
           dumpLIst[index].discount = item.discount * 1
-          dumpLIst[index].installmentAmount = item.amount * 1 - item.discount * 1 //installment fee
-          dumpLIst[index].totalFee = item.amount * 1 //total fee
+          dumpLIst[index].installmentAmount = item.fee.amount * 1 - item.discount * 1 //installment fee
+          dumpLIst[index].totalFee = item.fee.amount * 1 //total fee
         }
       })
     }
