@@ -5,7 +5,7 @@ import { fetchInitialAcademicData } from '../app/reducers/academicSlice'
 import Class from './academics/Class'
 import ManageCertificates from './academics/ManageCertificates'
 import ManageDailyTimeTable from './academics/ManageDailyTimeTable'
-import ManageExams from './academics/ManageExams'
+import ManageExams from './academics/exams/ManageExams'
 import Submenu from './Submenu'
 
 export default function Academics() {

@@ -1,14 +1,15 @@
-import {DialogPanel, DialogTitle} from '@headlessui/react'
-import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/20/solid'
+import { DialogPanel, DialogTitle } from '@headlessui/react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import {
   ArrowsUpDownIcon,
   DocumentArrowDownIcon,
   EyeIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
-import {UserCircleIcon} from '@heroicons/react/24/solid'
-import React from 'react'
-import {useSelector} from 'react-redux'
+import { UserCircleIcon } from '@heroicons/react/24/solid'
+import moment from 'moment'
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 const tableData = [
   {
@@ -64,8 +65,20 @@ const tableData = [
   },
 ]
 
-function ExamMarkDetailsPage({onClose}) {
-  const selectedExam = useSelector((state) => state.exams.selectedExam)
+function ExamMarkDetailsPage({ onClose }) {
+  const selectedExamDetails = useSelector((state) => state.exams.selectedExamDetails)
+  const subjectOptions = useSelector((state) => state.academics.subjects)
+  const [studentMarks, setStudents] = useState([])
+  
+  const getSubjectName = (subjectId) => {
+    return subjectOptions.find((subject) => subject.value === subjectId)?.label.toUpperCase()
+  }
+
+  useEffect(() => { 
+    if (selectedExamDetails) {  
+      console.log(selectedExamDetails)  
+    }
+  }, [selectedExamDetails])
   return (
     <>
       <div className="fixed inset-0" />
@@ -127,46 +140,57 @@ function ExamMarkDetailsPage({onClose}) {
                                 <dt className="text-sm/6 text-gray-500">
                                   Board
                                 </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium"></dd>
+                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                  {selectedExamDetails?.exam.board}</dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
                                   Class Category
                                 </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium"></dd>
+                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                  {selectedExamDetails?.exam.classCategory?.name}
+                                </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
                                   Class
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  Class 1
+                                  {selectedExamDetails?.exam.class?.name}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
                                   Section
                                 </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium"></dd>
+                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                  {selectedExamDetails?.exam.section?.section}
+                                </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
                                   Subjects Included
                                 </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium"></dd>
+                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                  {selectedExamDetails?.exam.timeTable.length}
+                                </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
                                   Exam Name{' '}
                                 </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium"></dd>
+                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                  {selectedExamDetails?.exam.name}
+                                </dd>
                               </div>
 
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
                                   Exam Dates
                                 </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium"></dd>
+                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                  {moment(selectedExamDetails?.exam.startDate).format('DD-MM-YYYY')}  - {moment(selectedExamDetails?.exam.endDate).format('DD-MM-YYYY')} 
+                                </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
@@ -198,86 +222,6 @@ function ExamMarkDetailsPage({onClose}) {
                           </div>
 
                           <div className="px-4 py-4 text-sm/6">
-                            {/* <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
-                              <thead className="bg-purple-100">
-                                <tr>
-                                  <th
-                                    scope="col"
-                                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Student Name
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Exam Date
-                                    </a>
-                                  </th>
-
-                                  <th
-                                    scope="col"
-                                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Exam Start and End Time
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Pass Marks
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Total Marks
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Syllabus
-                                    </a>
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-200 bg-white">
-                              {selectedExam.timeTable.map((exam, index) => (
-
-                                <tr Key={index}>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">
-                                  {exam.subject}
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                  {exam.examDate}
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                  {exam.startTime} - {exam.endTime}
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">
-                                  {exam.passMark}
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                  {exam.totalMark}
-                                  </td>
-                                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                  {exam.syllabus}
-                                  </td>
-                                </tr>
-                                 ))}
-                              </tbody>
-                            </table> */}
                             <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
                               <thead className="bg-purple-100">
                                 <tr>
@@ -309,90 +253,22 @@ function ExamMarkDetailsPage({onClose}) {
                                       </span>
                                     </a>
                                   </th>
-                                  <th
-                                    scope="col"
-                                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      English (100)
-                                      <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                                        <ArrowsUpDownIcon
-                                          aria-hidden="true"
-                                          className="size-4"
-                                        />
-                                      </span>
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Telugu (100)
-                                      <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                                        <ArrowsUpDownIcon
-                                          aria-hidden="true"
-                                          className="size-4"
-                                        />
-                                      </span>
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Maths(100)
-                                      <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                                        <ArrowsUpDownIcon
-                                          aria-hidden="true"
-                                          className="size-4"
-                                        />
-                                      </span>
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Social(100)
-                                      <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                                        <ArrowsUpDownIcon
-                                          aria-hidden="true"
-                                          className="size-4"
-                                        />
-                                      </span>
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Science(100)
-                                      <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                                        <ArrowsUpDownIcon
-                                          aria-hidden="true"
-                                          className="size-4"
-                                        />
-                                      </span>
-                                    </a>
-                                  </th>
-                                  <th
-                                    scope="col"
-                                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-                                  >
-                                    <a href="#" className="group inline-flex">
-                                      Hindi(100)
-                                      <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                                        <ArrowsUpDownIcon
-                                          aria-hidden="true"
-                                          className="size-4"
-                                        />
-                                      </span>
-                                    </a>
-                                  </th>
+                                  {selectedExamDetails?.exam.timeTable.map((subject, index) => (
+                                    <th key={index}
+                                      scope="col"
+                                      className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
+                                    >
+                                      <a href="#" className="group inline-flex">
+                                        {getSubjectName(subject.subject)} ({subject.totalMark})
+                                        <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
+                                          <ArrowsUpDownIcon
+                                            aria-hidden="true"
+                                            className="size-4"
+                                          />
+                                        </span>
+                                      </a>
+                                    </th>
+                                  ))}
                                   <th
                                     scope="col"
                                     className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
@@ -452,7 +328,7 @@ function ExamMarkDetailsPage({onClose}) {
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-gray-200 bg-white z-1">
-                                {tableData.map((student, index) => (
+                                {studentMarks.map((student, index) => (
                                   <tr key={index}>
                                     <td className="px-2 py-2 text-sm">
                                       {student.rollNo}
@@ -511,11 +387,10 @@ function ExamMarkDetailsPage({onClose}) {
                                     </td>
                                     <td className="px-2 py-2 text-sm">
                                       <span
-                                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                          student.result === 'Pass'
+                                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${student.result === 'Pass'
                                             ? 'bg-green-100 text-green-800'
                                             : 'bg-red-100 text-red-800'
-                                        }`}
+                                          }`}
                                       >
                                         {student.result}
                                       </span>

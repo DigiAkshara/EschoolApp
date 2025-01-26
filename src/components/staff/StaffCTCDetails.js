@@ -8,7 +8,6 @@ import CustomSelect from '../../commonComponent/CustomSelect'
 import CustomRadio from '../../commonComponent/CustomRadio'
 
 function StaffCTCDetails({ values, setFieldValue }) {
-  // console.log(values)
   const handleFileChange = async (e) => {
     try {
       const formData = new FormData()

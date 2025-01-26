@@ -1,28 +1,34 @@
-import {DialogPanel, DialogTitle} from '@headlessui/react'
-import {XMarkIcon} from '@heroicons/react/24/outline'
-import {ErrorMessage, Field, Form, Formik} from 'formik'
-import React, {useEffect, useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import { DialogPanel, DialogTitle } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { Form, Formik } from 'formik'
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
-import {getData, postData} from '../../app/api'
-import {CLASS_CATEGORIES, CLASSES, NEW_CLASS, SECTIONS, STAFF, SUBJECTS} from '../../app/url'
-import {boardOptions, capitalizeWords, classCategory} from '../../commonComponent/CommonFunctions'
+import { getData, postData, updateData } from '../../app/api'
+import { SUBJECTS, TIMETABLE } from '../../app/url'
+import { boardOptions, capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import ManageClassSyllabus from './ManageClassSyllabus'
 import ManageClassTimetable from './ManageClassTimetable'
 
-function AddClass({onClose, classCategories, classOptions, sectionOptions, teacherOptions}) {
+function AddClass({ onClose, getClassData }) {
+  const selectedClass = useSelector((state) => state.class.selectedClass)
+  const {
+    classCategories,
+    classes: classOptions,
+    sections: sectionOptions,
+    teachers: teacherOptions,
+  } = useSelector((state) => state.academics)
   const [subjects, setSubjects] = useState([])
   const [theorySubject, setTheorySubject] = useState([])
   const [labSubject, setLabSubject] = useState([])
   const [extraCurricular, setExtraCurricular] = useState([])
-  const navigate = useNavigate()
 
   useEffect(() => {
     getSubjects()
   }, [])
-
 
   const getSubjects = async () => {
     try {
@@ -69,6 +75,12 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
       extracurricular: '',
       timetables: [],
       syllabus: [],
+      ...(selectedClass && {...selectedClass,
+        category: selectedClass.category._id,
+        class: selectedClass.class._id,
+        section: selectedClass.section._id,
+        classTeacher: selectedClass.classTeacher._id
+      }),
     }
   }
 
@@ -82,7 +94,6 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
       theorySubject: Yup.string(),
       labSubject: Yup.string(),
       extracurricular: Yup.string(),
-
       timetables: Yup.array().of(
         Yup.object({
           period: Yup.number(),
@@ -133,16 +144,12 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
       labSubject: labSubject.length > 0 ? labSubject : '',
     }
     try {
-      let response = await postData(NEW_CLASS, processedValues)
-      if (response.status === 201) {
-        // navigate('/academics-class')
-        // alert(response.statusText)
-        onClose()
-      } else {
-        alert(response.message)
-      }
+      let response = values._id?await updateData(TIMETABLE+'/'+values._id, processedValues): await postData(TIMETABLE, processedValues)
+      handleApiResponse(response.data.message, 'success')
+      getClassData()
+      onClose()
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -171,26 +178,22 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
       (subject) => subject.label === subjectName,
     )
     if (isSubjectPresent) {
-      setTheorySubject((prev) => [...prev, {label: subjectName}])      
+      setTheorySubject((prev) => [...prev, { label: subjectName }])
     } else {
       try {
         const response = await postData(SUBJECTS, {
           name: subjectName,
           category: 'theory',
         })
-        if (response.status === 200 || response.status === 201) {
-          const newTheorySubject = {
-            label: response.data.data.name, // Adjust this based on the response
-            category: response.data.data.category,
-            value: response.data.data._id,
-            isDefault: response.data.data.isDefault,
-          }
-          setTheorySubject((prev) => [...prev, newTheorySubject])
-        } else {
-          console.error('Unexpected response status:', response.status)
+        const newTheorySubject = {
+          label: response.data.data.name, // Adjust this based on the response
+          category: response.data.data.category,
+          value: response.data.data._id,
+          isDefault: response.data.data.isDefault,
         }
+        setTheorySubject((prev) => [...prev, newTheorySubject])
       } catch (error) {
-        console.error('Error adding subject to backend:', error)
+        handleApiResponse(error)
       }
     }
     setFieldValue('theorySubject', '')
@@ -203,25 +206,23 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
       (subject) => subject.label === subjectName,
     )
     if (isSubjectPresent) {
-      setLabSubject((prev) => [...prev, {label: subjectName}])
+      setLabSubject((prev) => [...prev, { label: subjectName }])
     } else {
       try {
         const response = await postData(SUBJECTS, {
           name: subjectName,
           category: 'lab',
         })
-        if (response.status === 200 || response.status === 201) {
-          const newLabSubject = {
-            label: response.data.data.name, // Adjust this based on the response
-            category: response.data.data.category,
-            value: response.data.data._id,
-            isDefault: response.data.data.isDefault,
-          }
-          setLabSubject((prev) => [...prev, newLabSubject])
-        } else {
-          console.error('Unexpected response status:', response.status)
+        const newLabSubject = {
+          label: response.data.data.name, // Adjust this based on the response
+          category: response.data.data.category,
+          value: response.data.data._id,
+          isDefault: response.data.data.isDefault,
         }
+        setLabSubject((prev) => [...prev, newLabSubject])
+
       } catch (error) {
+        handleApiResponse(error)
         console.error('Error adding subject to backend:', error)
       }
     }
@@ -235,26 +236,22 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
       (subject) => subject.label === subjectName,
     )
     if (isSubjectPresent) {
-      setExtraCurricular((prev) => [...prev, {label: subjectName}])
+      setExtraCurricular((prev) => [...prev, { label: subjectName }])
     } else {
       try {
         const response = await postData(SUBJECTS, {
           name: subjectName,
           category: 'extraCurricular',
         })
-        if (response.status === 200 || response.status === 201) {
-          const newLabSubject = {
-            label: response.data.data.name, // Adjust this based on the response
-            category: response.data.data.category,
-            value: response.data.data._id,
-            isDefault: response.data.data.isDefault,
-          }
-          setExtraCurricular((prev) => [...prev, newLabSubject])
-        } else {
-          console.error('Unexpected response status:', response.status)
+        const newLabSubject = {
+          label: response.data.data.name, // Adjust this based on the response
+          category: response.data.data.category,
+          value: response.data.data._id,
+          isDefault: response.data.data.isDefault,
         }
+        setExtraCurricular((prev) => [...prev, newLabSubject])
       } catch (error) {
-        console.error('Error adding subject to backend:', error)
+        handleApiResponse(error)
       }
     }
     setFieldValue('extracurricular', '')
@@ -297,9 +294,8 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
                       validationSchema={getValidationSchema()}
                       onSubmit={handleSubmit}
                     >
-                      {({values, setFieldValue, errors, touched}) => (
+                      {({ values, setFieldValue, errors, touched }) => (
                         <Form>
-                          {console.log(values)}
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
                             <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
                               Add New Class
@@ -393,26 +389,14 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
                                   <p className="text-red-500 text-sm">
                                     Need to select at least one theory subject.
                                   </p>
-                                )}                               
+                                )}
                               </div>
 
                               <div className="flex add-sub-input-blk">
-                                <div className="">
-                                  <Field
-                                    name="theorySubject"
-                                    type="text"
-                                    placeholder="Add New Subject"
-                                    className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                  />
-                                  {/* <ErrorMessage
-                                    name="theorySubject"
-                                    component="div"
-                                    className="text-red-500"
-                                  /> */}
-                                </div>
-
+                                <CustomInput
+                                  name="theorySubject"
+                                  placeholder="Add New Subject" />
                                 <button
-                                  type="submit"
                                   className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                                   onClick={(e) =>
                                     handleAddTheorySubject(e, values, setFieldValue)
@@ -461,22 +445,12 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
                               </div>
 
                               <div className="flex add-sub-input-blk">
-                                <div className="">
-                                  <Field
-                                    name="labSubject"
-                                    type="text"
-                                    placeholder="Add New Lab"
-                                    className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                  />
-                                  <ErrorMessage
-                                    name="labSubject"
-                                    component="div"
-                                    className="text-red-500"
-                                  />
-                                </div>
+                                <CustomInput
+                                  name="labSubject"
+                                  placeholder="Add New Lab"
+                                />
 
                                 <button
-                                  type="submit"
                                   className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                                   onClick={(e) =>
                                     handleAddLabSubject(e, values, setFieldValue)
@@ -526,20 +500,10 @@ function AddClass({onClose, classCategories, classOptions, sectionOptions, teach
                               </div>
 
                               <div className="flex add-sub-input-blk">
-                                <div className="">
-                                  <Field
-                                    name="extracurricular"
-                                    type="text"
-                                    placeholder="Add New "
-                                    className="block w-52 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6"
-                                  />
-                                  <ErrorMessage
-                                    name="extracurricular"
-                                    component="div"
-                                    className="text-red-500"
-                                  />
-                                </div>
-
+                                <CustomInput
+                                  name="extracurricular"
+                                  placeholder="Add New "
+                                />
                                 <button
                                   type="submit"
                                   className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"

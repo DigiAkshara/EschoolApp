@@ -3,9 +3,9 @@ import {XMarkIcon} from '@heroicons/react/24/outline'
 import {FieldArray} from 'formik'
 import React, {useEffect} from 'react'
 import {useSelector} from 'react-redux'
-import CustomDate from '../../commonComponent/CustomDate'
-import CustomInput from '../../commonComponent/CustomInput'
-import CustomSelect from '../../commonComponent/CustomSelect'
+import CustomDate from '../../../commonComponent/CustomDate'
+import CustomInput from '../../../commonComponent/CustomInput'
+import CustomSelect from '../../../commonComponent/CustomSelect'
 
 function ExamTimeTable({values, setFieldValue}) {
   const subjectOptions = useSelector((state) => state.academics.subjects)
@@ -19,8 +19,9 @@ function ExamTimeTable({values, setFieldValue}) {
   }
 
   let disabled = makeDisable()
-  console.log("disabled", disabled)
+  
   useEffect(() => {
+    if(values.timeTable && values.timeTable.length === 0) {
     setFieldValue('timeTable', [
       {
         subject: '',
@@ -31,16 +32,8 @@ function ExamTimeTable({values, setFieldValue}) {
         totalMark: '',
         syllabus: '',
       },
-    ])
+    ])}
   }, [])
-
-  const getSubjectOptions = () => { 
-    if(values.timeTable && values.timeTable.length > 0){
-      return subjectOptions.filter((option) => !values.timeTable.some((item) => item.subject === option.value))
-    }else{
-      return subjectOptions}
-    
-  }
 
   const addRow = () => {
     let dummyList = [
