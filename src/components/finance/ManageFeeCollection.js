@@ -17,38 +17,17 @@ import { setStuFees } from '../../app/reducers/stuFeesSlice'
 import { STUDENT_FEE } from '../../app/url'
 import FinanceCollectFees from './FinanceCollectFees'
 import TableComponent from '../../commonComponent/TableComponent'
+import FilterComponent from '../../commonComponent/FilterComponent'
+import { capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
-
-const tabs2 = [
-  { name: 'Unpaid', href: '#', count: '122', current: true },
-  { name: 'Overdue', href: '#', count: '4', current: false },
-  { name: 'Paid ', href: '#', count: '4', current: true },
-  { name: 'All', href: '#', count: '4', current: true },
-]
-
-const people = [
-  {
-    name: 'Lindsay Walton',
-    title: 'Front-end Developer',
-    email: 'lindsay.walton@example.com',
-    role: 'Member',
-  },
-  // More people...
-]
 
 function ManageFeeCollection() {
   const [selectedPeople, setSelectedPeople] = useState([])
   const [studentFees, setStudentFee] = useState([])
   const [filteredData, setFilteredData] = useState([])
   const [showFeeModal, setShowFeeModal] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [openN, setOpenN] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
-
   const dispatch = useDispatch()
 
   const columns = [
@@ -61,6 +40,16 @@ function ManageFeeCollection() {
     { key: 'reminder', title: 'Send Reminder' },
     { key: 'collectfee', title: 'Collect Fee' },
   ]
+
+  const filterForm = {
+    class: '',
+    paymentStatus: ''
+  }
+
+  const filters = {
+    class: { options: [] },
+    paymentStatus: { options: [{value:"paid",label:"Paid"},{value:"pending",label:"Pending"}] }
+  }
 
   useEffect(() => {
     getStudentData()
@@ -79,7 +68,7 @@ function ManageFeeCollection() {
         })
         stuFees.push({
           _id: fee.student._id,
-          name: `${fee.student.firstName} ${fee.student.lastName}`,
+          name: capitalizeWords(fee.student.firstName + ' ' + fee.student.lastName),
           admissionNo: fee.student.admissionNumber,
           phoneNo: fee.student.fatherDetails.mobileNumber,
           fatherName: fee.student.fatherDetails.name,
@@ -87,7 +76,7 @@ function ManageFeeCollection() {
           dob: fee.student.DOB,
           payableAmount: payableAmount,
           pendingAmount: payableAmount - paidAmount,
-          paymentStatus: fee.paymentStatus,
+          paymentStatus: capitalizeWords(fee.paymentStatus),
           fees: fee.feeList,
           class: fee.class,
           className: fee.class?.name,
@@ -99,21 +88,44 @@ function ManageFeeCollection() {
       setStudentFee(stuFees)
       setFilteredData(stuFees)
     } catch (error) {
-      console.error('Error fetching student fee data:', error)
+      handleApiResponse(error)
     }
   }
 
-
   const handleClose = () => setShowFeeModal(false)
-
-  
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
-
   const showFeeCollectionModal = (data) => {
     dispatch(setStuFees(data))
     setShowFeeModal(true)
+  }
+
+  const handleSearch = (term) => {
+    const filtered = studentFees.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
+
+  const handleFilter = (values) => {
+    let filtered = studentFees
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        filtered = filtered.filter((rec) => {
+          return rec[key].toLowerCase().includes(value.toLowerCase())
+        }
+        )
+      }
+    })
+    setFilteredData(filtered)
+  }
+  const handleReset = (updatedValues) => {
+    setFilteredData(studentFees)
+    updatedValues('class', '')
+    updatedValues('paymentStatus', '')
   }
 
   const paginatedData = filteredData.slice(
@@ -208,18 +220,25 @@ function ManageFeeCollection() {
               </div>
             )}
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-              {/*  need to integrate filter component */}
+              {/*  filter component */}
+              <FilterComponent
+                onSearch={handleSearch}
+                filters={filters}
+                filterForm={filterForm}
+                handleFilter={handleFilter}
+                handleReset={handleReset}
+              />
               <TableComponent
-                  columns={columns}
-                  data={paginatedData}
-                  pagination={{
-                    currentPage,
-                    totalCount: filteredData.length,
-                    onPageChange: handlePageChange,
-                  }}
-                  showModal={showFeeCollectionModal}
-                  modalColumn={["collectfee"]}
-                />
+                columns={columns}
+                data={paginatedData}
+                pagination={{
+                  currentPage,
+                  totalCount: filteredData.length,
+                  onPageChange: handlePageChange,
+                }}
+                showModal={showFeeCollectionModal}
+                modalColumn={["collectfee"]}
+              />
 
             </div>
           </div>

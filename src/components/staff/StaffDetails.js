@@ -193,7 +193,6 @@ export default function StaffDetails() {
     Object.entries(values).forEach(([key, value]) => {
       if (value) {
         filtered = filtered.filter((rec) => {
-          console.log(value, rec[key])
           return rec[key].toLowerCase().includes(value.toLowerCase())
         }
         )
