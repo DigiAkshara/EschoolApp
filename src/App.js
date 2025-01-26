@@ -1,13 +1,17 @@
-import {jwtDecode} from 'jwt-decode'
-import {useEffect, useState} from 'react'
-import {useDispatch, useSelector} from 'react-redux'
-import {BrowserRouter, Route, Routes} from 'react-router-dom'
+import { jwtDecode } from 'jwt-decode'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import { getData } from './app/api'
 import {
   loadNavConfig,
   setAcademicYear,
   setActiveMenu,
   setUser,
 } from './app/reducers/appConfigSlice'
+import { ACADEMIC_YEAR } from './app/url'
+import { handleApiResponse } from './commonComponent/CommonFunctions'
 import ProtectedRoute from './commonComponent/ProtectedRoutes'
 import Academics from './components/Academics'
 import AdminOperations from './components/AdminOperations'
@@ -20,18 +24,14 @@ import Sidebar from './components/Sidebar'
 import Staff from './components/Staff'
 import Students from './components/Students'
 import Tenants from './components/Tenants'
-import { getData } from './app/api'
-import { ACADEMIC_YEAR } from './app/url'
-import { ToastContainer } from 'react-toastify'
-import { handleApiResponse } from './commonComponent/CommonFunctions'
 
 function App() {
-  const {user} = useSelector((state) => state.appConfig)
+  const { user } = useSelector((state) => state.appConfig)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const dispatch = useDispatch()
 
-  
+
   useEffect(() => {
     if (!user) {
       const token = localStorage.getItem('studentManagement')
@@ -46,25 +46,24 @@ function App() {
   }, [])
 
   const getAcademicData = async () => {
-    try{
+    try {
       const res = await getData(ACADEMIC_YEAR)
       dispatch(setAcademicYear(res.data.data))
-    }catch(error) {
-      if(error.status === 401 || error.status === 403) {
+    } catch (error) {
+      if (error.status === 401 || error.status === 403) {
         dispatch(setUser(null))
-        localStorage.clear()
-      }else{
+        localStorage.removeItem('studentManagement')
+        localStorage.removeItem('academicYear')
+      } else {
         handleApiResponse(error)
-
       }
-      
     }
   }
   return (
     <BrowserRouter>
       <div>
         <div className='toastcls'>
-        <ToastContainer/>
+          <ToastContainer />
         </div>
         {user && (
           <Sidebar
