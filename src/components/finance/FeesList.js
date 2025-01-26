@@ -1,19 +1,18 @@
 "use client";
-import {
-  Dialog
-} from "@headlessui/react";
-import {
-  PlusIcon
-} from "@heroicons/react/20/solid";
+import { Dialog } from "@headlessui/react";
+import { PlusIcon } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
 import { getData } from "../../app/api";
 import { FEES } from "../../app/url";
-import { formatDate, handleApiResponse } from "../../commonComponent/CommonFunctions";
+import {
+  formatDate,
+  handleApiResponse,
+} from "../../commonComponent/CommonFunctions";
 import FilterComponent from "../../commonComponent/FilterComponent";
 import TableComponent from "../../commonComponent/TableComponent";
 import FeeCreation from "./FeeCreation";
 
-export default function ManageFeesStructure() {
+export default function FeesList() {
   const [open, setOpen] = useState(false);
   const [fees, setFees] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -64,47 +63,47 @@ export default function ManageFeesStructure() {
   const handleSearch = (term) => {
     const filtered = fees.filter((item) =>
       columns.some((col) =>
-        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
-      ),
-    )
-    setFilteredData(filtered)
-  }
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase())
+      )
+    );
+    setFilteredData(filtered);
+  };
 
   const filterForm = {
-    class: '',
-    section: '',
-    gender: '',
-  }
+    class: "",
+    section: "",
+    gender: "",
+  };
 
   const filters = {
-    class: {options: []},
+    class: { options: [] },
     section: {
       options: [],
       dependency: true,
-      dependencyKey: 'class',
+      dependencyKey: "class",
       filterOptions: true,
     },
-    gender: {options: []},
-  }
+    gender: { options: [] },
+  };
 
   const handleFilter = (values) => {
-    let filtered = fees
+    let filtered = fees;
     Object.entries(values).forEach(([key, value]) => {
       if (value) {
-        filtered = filtered.filter((rec) =>{
-          return rec[key].toLowerCase().includes(value.toLowerCase())}
-        )
+        filtered = filtered.filter((rec) => {
+          return rec[key].toLowerCase().includes(value.toLowerCase());
+        });
       }
-    })
-    setFilteredData(filtered)
-  }
+    });
+    setFilteredData(filtered);
+  };
 
   const handleReset = (updatedValues) => {
-    setFilteredData(fees)
-    updatedValues('gender', '')
-    updatedValues('class', '')
-    updatedValues('section', '')
-  }
+    setFilteredData(fees);
+    updatedValues("gender", "");
+    updatedValues("class", "");
+    updatedValues("section", "");
+  };
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -173,7 +172,7 @@ export default function ManageFeesStructure() {
       {/* Student Onboarding Modal */}
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
-        <FeeCreation onClose={handleClose} getFees={getFees}/>
+        <FeeCreation onClose={handleClose} getFees={getFees} />
       </Dialog>
     </div>
   );

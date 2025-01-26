@@ -1,6 +1,6 @@
 import { Dialog } from '@headlessui/react'
 import { ArrowUpTrayIcon, PlusIcon } from '@heroicons/react/20/solid'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getData } from '../../app/api'
 import {
@@ -16,7 +16,7 @@ import StudentProfileModal from './Profile'
 import Student from './Student'
 
 
-export default function StudentDetails() {
+export default function StudentsList() {
   const dispatch = useDispatch()
   const { classes: clsOptions, sections: sectionOptions } = useSelector((state) => state.students)
   const [studentList, setStudentList] = useState([])

@@ -73,24 +73,29 @@ function Student({ onClose, loadStudents }) {
     fees: [],
     ...(selectedStudent && selectedStudent),
     ...(selectedStudent && {
-      academics:{
+      academics: {
         ...selectedStudent.academics,
         class: selectedStudent.academics.class?._id,
-        classObj: selectedStudent.academics.class
-      }
-    })
+        classObj: selectedStudent.academics.class,
+      },
+    }),
   });
-
   // Validation schemas for each step
   const validationSchemas = [
     Yup.object({
       firstName: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, 'First Name can only contain letters and spaces')
+        .matches(
+          /^[a-zA-Z\s]*$/,
+          "First Name can only contain letters and spaces"
+        )
         .min(3, "First Name must be at least 3 characters")
         .max(50, "First Name must be at most 50 characters")
         .required("First Name is required"),
       lastName: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, 'Last Name can only contain letters and spaces')
+        .matches(
+          /^[a-zA-Z\s]*$/,
+          "Last Name can only contain letters and spaces"
+        )
         .min(3, "Last Name must be at least 3 characters")
         .max(50, "Last Name must be at most 50 characters"),
       gender: Yup.string().required("Gender is required"),
@@ -101,10 +106,13 @@ function Student({ onClose, loadStudents }) {
       bloodGroup: Yup.string(),
       fatherDetails: Yup.object({
         name: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, 'Father Name can only contain letters and spaces')
-        .min(3, "Father Name must be at least 3 characters")
-        .max(50, "Father Name must be at most 50 characters")
-        .required("Father's Name is required"),
+          .matches(
+            /^[a-zA-Z\s]*$/,
+            "Father Name can only contain letters and spaces"
+          )
+          .min(3, "Father Name must be at least 3 characters")
+          .max(50, "Father Name must be at most 50 characters")
+          .required("Father's Name is required"),
         mobileNumber: Yup.string()
           .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
           .required("Fathers mobile number is required"),
@@ -112,50 +120,56 @@ function Student({ onClose, loadStudents }) {
         email: Yup.string(),
       }),
       motherDetails: Yup.object({
-        name: Yup.string().matches(/^[a-zA-Z\s]*$/, 'Mother Name can only contain letters and spaces')
-        .min(3, "Mother Name must be at least 3 characters")
-        .max(50, "Mother Name must be at most 50 characters"),
+        name: Yup.string()
+          .matches(
+            /^[a-zA-Z\s]*$/,
+            "Mother Name can only contain letters and spaces"
+          )
+          .min(3, "Mother Name must be at least 3 characters")
+          .max(50, "Mother Name must be at most 50 characters"),
         mobileNumber: Yup.string().matches(
           /^[0-9]{10}$/,
           "Mobile number must be 10 digits"
         ),
         occupation: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, 'Occupation can only contain letters and spaces')
-        .min(3, "Occupation must be at least 3 characters"),
-        email: Yup.string()
-          .email("Invalid email address"),
+          .matches(
+            /^[a-zA-Z\s]*$/,
+            "Occupation can only contain letters and spaces"
+          )
+          .min(3, "Occupation must be at least 3 characters"),
+        email: Yup.string().email("Invalid email address"),
       }),
       presentAddress: Yup.object({
         area: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, 'Area can only contain letters and spaces')
-        .min(3, "Area must be at least 3 characters")
-        .max(50, "Area must be at most 50 characters")
-        .required("Area is required"),
+          .matches(/^[a-zA-Z\s]*$/, "Area can only contain letters and spaces")
+          .min(3, "Area must be at least 3 characters")
+          .max(50, "Area must be at most 50 characters")
+          .required("Area is required"),
         city: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, 'City can only contain letters and spaces')
-        .min(3, "City must be at least 3 characters")
-        .max(50, "City must be at most 50 characters")
-        .required("City is required"),
+          .matches(/^[a-zA-Z\s]*$/, "City can only contain letters and spaces")
+          .min(3, "City must be at least 3 characters")
+          .max(50, "City must be at most 50 characters")
+          .required("City is required"),
         state: Yup.string().required("State is required"),
         pincode: Yup.string()
-        .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
-        .required("Pincode is required"),
+          .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
+          .required("Pincode is required"),
       }),
       permanentAddress: Yup.object({
         area: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, 'Area can only contain letters and spaces')
-        .min(3, "Area must be at least 3 characters")
-        .max(50, "Area must be at most 50 characters")
-        .required("Permanent Area is required"),
+          .matches(/^[a-zA-Z\s]*$/, "Area can only contain letters and spaces")
+          .min(3, "Area must be at least 3 characters")
+          .max(50, "Area must be at most 50 characters")
+          .required("Permanent Area is required"),
         city: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, 'City can only contain letters and spaces')
-        .min(3, "City must be at least 3 characters")
-        .max(50, "City must be at most 50 characters")
-        .required("Permanent city is required"),
+          .matches(/^[a-zA-Z\s]*$/, "City can only contain letters and spaces")
+          .min(3, "City must be at least 3 characters")
+          .max(50, "City must be at most 50 characters")
+          .required("Permanent city is required"),
         state: Yup.string().required("Permanent state is required"),
         pincode: Yup.string()
-        .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
-        .required("Permanent Pincode is required"),
+          .matches(/^[0-9]{6}$/, "Pincode must be 6 digits")
+          .required("Permanent Pincode is required"),
       }),
       aadharNumber: Yup.string()
         .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
@@ -176,9 +190,9 @@ function Student({ onClose, loadStudents }) {
         .nullable()
         .required("Admission date is required"),
       aadharNumber: Yup.string()
-        .matches(/^[0-9]{12}$/, 'Aadhar number must be 12 digits')
-        .required('Aadhar number is required'),
-      DOB: Yup.date().nullable().required('Date of Birth is required'), // For invalid dates
+        .matches(/^[0-9]{12}$/, "Aadhar number must be 12 digits")
+        .required("Aadhar number is required"),
+      DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
       previousSchool: Yup.object({
         schoolName: Yup.string(),
         yearOfStudy: Yup.string(),
@@ -201,7 +215,7 @@ function Student({ onClose, loadStudents }) {
               "Duration is required",
               function (value) {
                 const { isChecked } = this.parent; // Access sibling field 'checked'
-                if (isChecked && (!value)) {
+                if (isChecked && !value) {
                   return false; // Fail validation if checked but amount is invalid
                 }
                 return true; // Pass validation otherwise
@@ -212,7 +226,7 @@ function Student({ onClose, loadStudents }) {
               "Due date is required",
               function (value) {
                 const { isChecked } = this.parent; // Access sibling field 'checked'
-                if (isChecked && (!value)) {
+                if (isChecked && !value) {
                   return false; // Fail validation if checked but amount is invalid
                 }
                 return true; // Pass validation otherwise
@@ -240,12 +254,14 @@ function Student({ onClose, loadStudents }) {
   const handleSubmit = async (values) => {
     const finalData = { ...formData, ...values };
     try {
-      let response = values._id?await updateData(STUDENT+'/'+values._id, finalData):await postData(STUDENT, finalData)
-      handleApiResponse(response.data.message,'success')
-      loadStudents()
-      onClose()
+      let response = values._id
+        ? await updateData(STUDENT + "/" + values._id, finalData)
+        : await postData(STUDENT, finalData);
+      handleApiResponse(response.data.message, "success");
+      loadStudents();
+      onClose();
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
   };
 
@@ -258,7 +274,6 @@ function Student({ onClose, loadStudents }) {
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
   }
-
 
   return (
     <>
@@ -300,7 +315,10 @@ function Student({ onClose, loadStudents }) {
                           </div>
                         </div>
                         <div className="relative mt-6 flex-1 px-4 sm:px-6 overflow-y-auto">
-                          <Stepper steps={stepContent} currentStep={currentStep} />
+                          <Stepper
+                            steps={stepContent}
+                            currentStep={currentStep}
+                          />
                           <div className="form-content mt-4">
                             {currentStep === 1 && (
                               <BasicInfo

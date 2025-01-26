@@ -1,6 +1,6 @@
 import Axios from 'axios'
 
-const API_URL = process.env.URL || 'https://eschoolapi.onrender.com/api' //192.168.1.11 or localhost or https://eschoolapi.onrender.com
+const API_URL = process.env.API_URL || 'http://localhost:8000/api' //192.168.1.11 or localhost or https://eschoolapi.onrender.com
 
 
 const createInstance = (URL) => {
