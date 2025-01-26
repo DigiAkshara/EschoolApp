@@ -1,19 +1,6 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
-import {
-  ArrowDownTrayIcon,
-  ArrowsUpDownIcon,
-  EllipsisHorizontalIcon,
-} from "@heroicons/react/24/outline";
-import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
-import * as Yup from "yup";
-import { getData, postData, updateData } from "../../app/api";
+import { getData } from "../../app/api";
 import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
-import {
-  capitalizeWords,
-  formatDate,
-} from "../../commonComponent/CommonFunctions";
 import ManageHolidaySidebar from "./ManageHolidaySidebar";
 import TableComponent from "../../commonComponent/TableComponent";
 import FilterComponent from "../../commonComponent/FilterComponent";
@@ -23,37 +10,15 @@ import { useDispatch } from "react-redux";
 
 const ManageHolidayAttendance = () => {
   const [academicYears, setAcademicYears] = useState([]);
-  const [holidayMsg, setHolidayMsg] = useState([]);
   const [holidaysData, setHolidaysData] = useState([]);
-  const [studentList, setStudentList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-  const dispatch= useDispatch()
-
-  const getInitialValues = () => {
-    return {
-      academicYear: "",
-      startDate: "",
-      endDate: "",
-      name: "",
-    };
-  };
-
-  const getValidationSchema = () => {
-    return Yup.object({
-      academicYear: Yup.string().required("Academic year is required"),
-      startDate: Yup.date().nullable().required(" Date  is required"),
-      endDate: Yup.date().nullable().required(" Date  is required"),
-      name: Yup.string().required(" Holiday name is required"),
-    });
-  };
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    academicyear();
     getHolidayData();
-    console.log("called useEffect");
-    
+    academicyear();
   }, []);
 
   const columns = [
@@ -64,10 +29,9 @@ const ManageHolidayAttendance = () => {
     { title: "Actions", key: "actions" },
   ];
 
- 
   const formatHolidayDate = (startDate, endDate) => {
-    const formatStartDate = moment(startDate).format('DD-MM-YYYY');
-    const formatEndDate = moment(endDate).format('DD-MM-YYYY');
+    const formatStartDate = moment(startDate).format("DD-MM-YYYY");
+    const formatEndDate = moment(endDate).format("DD-MM-YYYY");
     return formatStartDate === formatEndDate
       ? formatStartDate
       : `${formatStartDate} to ${formatEndDate}`;
@@ -91,16 +55,6 @@ const ManageHolidayAttendance = () => {
       console.log(error);
     }
   };
-
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setFilteredData(
-      holidaysData.filter((holiday) =>
-        holiday.name.toLowerCase().includes(query)
-      )
-    );
-  };
-
   const getHolidayData = async () => {
     try {
       const response = await getData(HOLIDAYS);
@@ -108,6 +62,9 @@ const ManageHolidayAttendance = () => {
       const holidayResonse = response.data.data;
 
       const holidayData = holidayResonse.map((item) => {
+        const academicYearLabel = academicYears.find(
+          (year) => year.value === item.academicYear
+        )?.label;
         const totalDays = Math.ceil(
           (new Date(item.endDate) - new Date(item.startDate)) /
             (1000 * 60 * 60 * 24)
@@ -119,7 +76,7 @@ const ManageHolidayAttendance = () => {
           endDate: item.endDate,
           displayDate: formatHolidayDate(item.startDate, item.endDate),
           totalDays,
-          academicYear: item.academicYear,
+          academicYear:academicYearLabel || item.academicYear, 
           status: item.status,
           actions: [
             { label: "Edit", actionHandler: onHandleEdit },
@@ -136,20 +93,48 @@ const ManageHolidayAttendance = () => {
     }
   };
 
+  // const handleSearch = (e) => {
+  //   const query = e.target.value.toLowerCase();
+  //   setFilteredData(
+  //     holidaysData.filter((holiday) =>
+  //       holiday.name.toLowerCase().includes(query)
+  //     )
+  //   );
+  // };
 
-  
+  const handleSearch = (searchTerm) => {
+    const filtered = holidaysData.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
 
-  
+
+
   const onHandleEdit = async (holidayId) => {
     console.log("id is", holidayId);
-    
+  
     try {
-      if (!holidayId) return;
-      const response = await getData(HOLIDAYS + '/' + holidayId);
+     
+      const response = await getData(HOLIDAYS + "/" + holidayId);
       console.log("Response - [HOLIDAY]", response.data.data);
-      
+  
       if (response?.data?.data) {
-        dispatch(setSelectedHoliday(response.data.data));  
+        const holiday = response.data.data;
+  
+        const academicYearLabel = academicYears.find(
+          (year) => year.value === holiday.academicYear
+        )?.label;
+  
+        const updatedHoliday = {
+          ...holiday,
+          academicYear: academicYearLabel || holiday.academicYear, 
+        };
+  
+        console.log("Updated holiday data:", updatedHoliday);
+        dispatch(setSelectedHoliday(updatedHoliday));
       } else {
         console.error("Holiday not found for the given ID:", holidayId);
       }
@@ -157,6 +142,7 @@ const ManageHolidayAttendance = () => {
       console.error("Error fetching holiday data:", error);
     }
   };
+  
 
   const onDelete = () => {
     console.log("delete");
@@ -171,59 +157,51 @@ const ManageHolidayAttendance = () => {
     setCurrentPage(page);
   };
 
-
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  ).map((item, index) => ({
-    ...item,
-    siNo: (currentPage - 1) * rowsPerPage + index + 1, 
-  }));
-  console.log("paginated data:",paginatedData );
-  
+  const paginatedData = filteredData
+    .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
+    .map((item, index) => ({
+      ...item,
+      siNo: (currentPage - 1) * rowsPerPage + index + 1,
+    }));
+  console.log("paginated data:", paginatedData);
 
   return (
     <>
-     
-            <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
-              {/* Sidebar */}
-              <ManageHolidaySidebar
-                academicYears={academicYears}
-                holidayMsg={holidayMsg}
-                holidaysData={holidaysData}
-                setHolidayMsg={setHolidayMsg}
-                setHolidaysData={setHolidaysData}
-                getHolidayData={getHolidayData}
-              />
+      <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
+        {/* Sidebar */}
+        <ManageHolidaySidebar
+          setHolidaysData={setHolidaysData}
+          getHolidayData={getHolidayData}
+          academicYears={academicYears}
+        />
 
-              {/* Main Content */}
-              <div className="-mx-2 -my-2  mt-0 overflow-x-auto sm:-mx-6  w-full lg:w-3/4">
-                <div className="inline-block min-w-full py-4 align-middle sm:px-6">
-                  <div className="relative">
-                    <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-                      {/* Table View */}
-                      {/* <FilterComponent 
+        {/* Main Content */}
+        <div className="-mx-2 -my-2  mt-0 overflow-x-auto sm:-mx-6  w-full lg:w-3/4">
+          <div className="inline-block min-w-full py-4 align-middle sm:px-6">
+            <div className="relative">
+              <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
+                {/* Table View */}
+                {/* <FilterComponent 
                       onSearch={handleSearch}
                       /> */}
-                      <TableComponent
-                        columns={columns}
-                        data={paginatedData}
-                        onAction={[
-                          { label: "Edit", handler: handleAction.edit },
-                          { label: "Delete", handler: handleAction.delete },
-                        ]}
-                        pagination={{
-                          currentPage,
-                          totalCount: filteredData.length,
-                          onPageChange: handlePageChange,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
+                <TableComponent
+                  columns={columns}
+                  data={paginatedData}
+                  onAction={[
+                    { label: "Edit", handler: handleAction.edit },
+                    { label: "Delete", handler: handleAction.delete },
+                  ]}
+                  pagination={{
+                    currentPage,
+                    totalCount: filteredData.length,
+                    onPageChange: handlePageChange,
+                  }}
+                />
               </div>
             </div>
-         
+          </div>
+        </div>
+      </div>
     </>
   );
 };
