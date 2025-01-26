@@ -78,7 +78,7 @@ function Student({ onClose, loadStudents }) {
         class: selectedStudent.academics.class?._id,
         classObj: selectedStudent.academics.class,
       },
-      fees: selectedStudent.fees?.feeList,
+      fees: selectedStudent.fees?.feeList||[],
     }),
   });
   // Validation schemas for each step
