@@ -1,11 +1,17 @@
 "use client";
-import { Button, Dialog } from "@headlessui/react";
+import { Dialog } from "@headlessui/react";
+import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectExam } from "../../app/reducers/examSlice";
-import FilterComponent from "../../commonComponent/FilterComponent";
-import TableComponent from "../../commonComponent/TableComponent";
+import { fetchExamData, selectExam } from "../../../app/reducers/examSlice";
+import { EXAM } from "../../../app/url";
+import ConfirmationModal from "../../../commonComponent/ConfirmationModal";
+import FilterComponent from "../../../commonComponent/FilterComponent";
+import TableComponent from "../../../commonComponent/TableComponent";
+import CreateExam from "./CreateExam";
 import ExamDetailsPage from "./ExamDetailsPage";
+import { deleteData } from "../../../app/api";
+import { handleApiResponse } from "../../../commonComponent/CommonFunctions";
 
 function ManageExamSchedules() {
   const { classes: classOptions, sections: sectionOptions } = useSelector(
@@ -13,9 +19,12 @@ function ManageExamSchedules() {
   );
   const exams = useSelector((state) => state.exams.exams);
   const [selectedPeople, setSelectedPeople] = useState([]);
+  const [showAddExamModal, setShowAddExamModal] = useState(false);
   const [showExamDetailsModal, setShowExamDetailsModal] = useState(false);
   const [examData, setExamData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [deleteId, setDeleteId] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -50,7 +59,7 @@ function ManageExamSchedules() {
   };
   useEffect(() => {
     formatExamData();
-  }, []);
+  }, [exams]);
 
   const formatExamData = async () => {
     const formatter = new Intl.DateTimeFormat("en-GB", {
@@ -58,7 +67,8 @@ function ManageExamSchedules() {
       month: "2-digit",
       year: "numeric",
     });
-    const data = exams.map((item, index) => {
+    const data = []
+    exams.forEach((item, index) => {
       // Formatting the timeTable data
       const timeTableFormatted = item.timeTable.map((t) => ({
         subject: t.subject,
@@ -70,7 +80,8 @@ function ManageExamSchedules() {
         syllabus: t.syllabus,
       }));
 
-      return {
+      data.push({
+        ...item,
         id: index + 1,
         examName: item.name,
         class: item.class?._id,
@@ -92,19 +103,35 @@ function ManageExamSchedules() {
           { label: "Edit", actionHandler: onHandleEdit },
           { label: "Delete", actionHandler: onDelete },
         ],
-      };
+      })
     });
     setExamData(data);
     setFilteredData(data);
   };
 
-  const onHandleEdit = async () => {
-    console.log("edit");
+  const onHandleEdit = (Id) => {
+    const data = exams.filter((item) => (item._id === Id));
+    dispatch(selectExam({ ...data[0], actions: undefined }));
+    setShowAddExamModal(true);
   };
 
-  const onDelete = () => {
-    console.log("delete");
-  };
+  const onDelete = (Id) => {
+    setDeleteId(Id)
+    setDeleteConfirm(true)
+  }
+
+  const deleteRecord = async () => {
+    try {
+      let res = await deleteData(EXAM + '/' + deleteId)
+      dispatch(fetchExamData())
+      handleApiResponse(res.data.message, 'success')
+      setDeleteConfirm(false)
+      setDeleteId(null)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
 
   const handleViewDetails = (exam) => {
     dispatch(selectExam({ ...exam, actions: null }));
@@ -143,7 +170,11 @@ function ManageExamSchedules() {
     updatedValues("section", "");
   };
 
-  const handleModalClose = () => setShowExamDetailsModal(false);
+  const handleModalClose = () => {
+    setShowExamDetailsModal(false)
+    setShowAddExamModal(false);
+    dispatch(selectExam(null));
+  };
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -152,45 +183,17 @@ function ManageExamSchedules() {
 
   return (
     <>
-      <div className="filter-badges-blk mt-4 flex flex-wrap gap-x-4">
-        <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-          Class:<span className="font-bold">1</span>
-          <button
-            type="button"
-            className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-          >
-            <span className="sr-only">Remove</span>
-            <svg
-              viewBox="0 0 14 14"
-              className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-            >
-              <path d="M4 4l6 6m0-6l-6 6" />
-            </svg>
-            <span className="absolute -inset-1" />
-          </button>
-        </span>
-        <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-          Section:<span className="font-bold">A</span>
-          <button
-            type="button"
-            className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-          >
-            <span className="sr-only">Remove</span>
-            <svg
-              viewBox="0 0 14 14"
-              className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-            >
-              <path d="M4 4l6 6m0-6l-6 6" />
-            </svg>
-            <span className="absolute -inset-1" />
-          </button>
-        </span>
 
-        <Button className="inline-flex items-center rounded-full bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10">
-          Clear All
-        </Button>
+      <div className="right-btns-blk space-x-4 float-right">
+        <button
+          type="button"
+          onClick={() => setShowAddExamModal(true)}
+          className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+        >
+          <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
+          Add New Exam
+        </button>
       </div>
-
       <div className="-mx-2 -my-2 mt-0 sm:-mx-6">
         {/* /Removed overflow-x-auto cloass */}
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
@@ -206,7 +209,7 @@ function ManageExamSchedules() {
               </div>
             )}
             <div className="relative shadow ring-1 ring-black/5 sm:rounded-lg">
-              
+
               <FilterComponent
                 onSearch={handleSearch}
                 filters={filters}
@@ -214,27 +217,37 @@ function ManageExamSchedules() {
                 handleFilter={handleFilter}
                 handleReset={handleReset}
               />
-                <TableComponent
-                  columns={columns}
-                  data={paginatedData}
-                  pagination={{
-                    currentPage,
-                    totalCount: filteredData.length,
-                    onPageChange: handlePageChange,
-                  }}
-                  modalColumn={["timeTableSyllabus", "hallTickets"]}
-                  showModal={(data) => handleViewDetails(data)}
-                />
+              <TableComponent
+                columns={columns}
+                data={paginatedData}
+                pagination={{
+                  currentPage,
+                  totalCount: filteredData.length,
+                  onPageChange: handlePageChange,
+                }}
+                modalColumn={["timeTableSyllabus", "hallTickets"]}
+                showModal={(data) => handleViewDetails(data)}
+              />
             </div>
           </div>
         </div>
       </div>
+
+      <ConfirmationModal
+        showModal={deleteConfirm}
+        onYes={deleteRecord}
+        onCancel={() => { setDeleteConfirm(false) }}
+      />
       <Dialog
         open={showExamDetailsModal}
         onClose={handleModalClose}
         className="relative z-50"
       >
         <ExamDetailsPage onClose={handleModalClose} />
+      </Dialog>
+
+      <Dialog open={showAddExamModal} onClose={handleModalClose} className="relative z-50">
+        <CreateExam onClose={handleModalClose} />
       </Dialog>
     </>
   );

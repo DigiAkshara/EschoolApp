@@ -1,17 +1,18 @@
 'use client'
-import {DialogPanel, DialogTitle} from '@headlessui/react'
+import { DialogPanel, DialogTitle } from '@headlessui/react'
 import {
   DocumentArrowDownIcon,
   EyeIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
-import {UserCircleIcon} from '@heroicons/react/24/solid'
+import { UserCircleIcon } from '@heroicons/react/24/solid'
 import React from 'react'
-import {useSelector} from 'react-redux'
+import { useSelector } from 'react-redux'
 import { capitalizeWords } from '../../commonComponent/CommonFunctions'
 
-function ManageViewClass({onClose}) {
+function ManageViewClass({ onClose }) {
   const selectedClass = useSelector((state) => state.class.selectedClass)
+  const teachers = useSelector((state) => state.academics.teachers)
   const timetables = selectedClass?.timetables || []
   const syllabus = selectedClass?.syllabus || []
   // Utility to get subject and teacher details
@@ -22,10 +23,11 @@ function ManageViewClass({onClose}) {
     const subject =
       selectedClass.theorySubjects.find((s) => s.value === dayInfo.subject)
         ?.label || '-'
+    const teacher = teachers.find((t) => t.value === dayInfo.teacher)?.label || '-'
     return (
       <div className="flex flex-col">
-        <span>{subject}</span>
-        <span>{dayInfo.teacher||"-"}</span>
+        <span>{subject ? capitalizeWords(subject) : '-'}</span>
+        <span>{teacher ? capitalizeWords(teacher) : "-"}</span>
       </div>
     )
   }
@@ -122,7 +124,7 @@ function ManageViewClass({onClose}) {
                                   Class Teacher{' '}
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.classTeacherName}
+                                  {capitalizeWords(selectedClass.classTeacherName)}
                                 </dd>
                               </div>
 
@@ -132,14 +134,14 @@ function ManageViewClass({onClose}) {
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
                                   {selectedClass.theorySubjects &&
-                                  selectedClass.theorySubjects.length > 0
+                                    selectedClass.theorySubjects.length > 0
                                     ? selectedClass.theorySubjects.map(
-                                        (subject, index) => (
-                                          <span key={index} className="block">
-                                            {capitalizeWords(subject.label)}
-                                          </span>
-                                        ),
-                                      )
+                                      (subject, index) => (
+                                        <span key={index} className="block">
+                                          {capitalizeWords(subject.label)}
+                                        </span>
+                                      ),
+                                    )
                                     : 'No Subjects Available'}
                                 </dd>
                               </div>
@@ -212,7 +214,7 @@ function ManageViewClass({onClose}) {
                                         key={day}
                                         className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
                                       >
-                                        
+
                                         {getDayData(day, timetable.days)}
                                       </td>
                                     ))}
@@ -281,17 +283,10 @@ function ManageViewClass({onClose}) {
                 </div>
                 <div className="flex shrink-0 px-4 py-4 bg-gray-100 w-full justify-end">
                   <button
-                    type="button"
                     onClick={onClose}
-                    className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
                     className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                   >
-                    Submit
+                    Close
                   </button>
                 </div>
               </div>

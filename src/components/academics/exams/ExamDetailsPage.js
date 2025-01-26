@@ -8,12 +8,11 @@ import {
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import React from "react";
 import { useSelector } from "react-redux";
-import { capitalizeWords } from "../../commonComponent/CommonFunctions";
+import { capitalizeWords } from "../../../commonComponent/CommonFunctions";
 
 function ExamDetailsPage({ onClose }) {
   const selectedExam = useSelector((state) => state.exams.selectedExam);
   const subjects = useSelector((state) => state.academics.subjects);
-  console.log(selectedExam, "selectedExam");
   return (
     <>
       <div className="fixed inset-0" />
@@ -76,7 +75,7 @@ function ExamDetailsPage({ onClose }) {
                                   Board
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.board}
+                                  {selectedExam?.board}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -84,7 +83,7 @@ function ExamDetailsPage({ onClose }) {
                                   Class Category
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.classCategory?.name}
+                                  {selectedExam?.classCategory?.name}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -92,7 +91,7 @@ function ExamDetailsPage({ onClose }) {
                                   Class
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.className}
+                                  {selectedExam?.className}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -100,7 +99,7 @@ function ExamDetailsPage({ onClose }) {
                                   Section
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.sectionName}
+                                  {selectedExam?.sectionName}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -108,7 +107,7 @@ function ExamDetailsPage({ onClose }) {
                                   Exam Name{" "}
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.examName}
+                                  {selectedExam?.examName}
                                 </dd>
                               </div>
 
@@ -117,7 +116,7 @@ function ExamDetailsPage({ onClose }) {
                                   Exam Dates
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam.examDates}
+                                  {selectedExam?.examDates}
                                 </dd>
                               </div>
                             </dl>
@@ -199,7 +198,7 @@ function ExamDetailsPage({ onClose }) {
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-gray-200 bg-white">
-                                {selectedExam.timeTable.map((exam, index) => (
+                                {selectedExam?.timeTable.map((exam, index) => (
                                   <tr Key={index}>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 pl-4">
                                       {subjects.map((subject) => {

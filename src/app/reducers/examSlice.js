@@ -23,6 +23,7 @@ const examSlice = createSlice({
   initialState: {
     exams: [], // List of all exams
     selectedExam: null, // Stores details of the clicked exam
+    selectedExamDetails: null
   },
   reducers: {
     setExams: (state, action) => {
@@ -30,6 +31,9 @@ const examSlice = createSlice({
     },
     selectExam: (state, action) => {
       state.selectedExam = action.payload // Set selected exam details
+    },
+    selectExamDetails: (state, action) => {
+      state.selectedExamDetails = action.payload // Set selected exam details
     },
   },
   extraReducers: (builder) => {
@@ -39,5 +43,5 @@ const examSlice = createSlice({
     },
 })
 
-export const {setExams, selectExam} = examSlice.actions
+export const {setExams, selectExam, selectExamDetails} = examSlice.actions
 export default examSlice.reducer

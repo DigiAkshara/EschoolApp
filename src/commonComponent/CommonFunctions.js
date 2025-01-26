@@ -1,6 +1,6 @@
 import moment from 'moment'
-import {getData, postData} from '../app/api'
-import {CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD} from '../app/url'
+import { getData, postData } from '../app/api'
+import { CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD } from '../app/url'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { toast } from 'react-toastify';
@@ -31,89 +31,89 @@ export const formatDate = (date) => {
 }
 
 export const staffType = [
-  {value: 'teaching', label: 'Teaching'},
-  {value: 'non-teaching', label: 'Non-Teaching'}
+  { value: 'teaching', label: 'Teaching' },
+  { value: 'non-teaching', label: 'Non-Teaching' }
 ]
 
 export const feeduration = [
-  {value: 'onetime', label: 'One Time'},
-  {value: 'installments', label: 'Installments'},
+  { value: 'onetime', label: 'One Time' },
+  { value: 'installments', label: 'Installments' },
 ]
 
 export const roles = [
-  {value: 'staff', label: 'Staff'},
-  {value: 'student', label: 'student'},
-  {value: 'other', label: 'other'},
+  { value: 'staff', label: 'Staff' },
+  { value: 'student', label: 'student' },
+  { value: 'other', label: 'other' },
 ]
 
 export const gender = [
-  {value: 'male', label: 'Male'},
-  {value: 'female', label: 'Female'},
-  {value: 'other', label: 'Other'},
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+  { value: 'other', label: 'Other' },
 ]
 
 export const boardOptions = [
-  {value: 'cbse', label: 'CBSE'},
-  {value: 'state', label: 'State'},
-  {value: 'icse', label: 'ICSE'},
+  { value: 'cbse', label: 'CBSE' },
+  { value: 'state', label: 'State' },
+  { value: 'icse', label: 'ICSE' },
 ]
 
 export const classCategory = [
-  {value: 'kindergarten', label: 'KINDERGARTEN'},
-  {value: 'primary', label: 'Primary – Classes 1 to 5'},
-  {value: 'lower', label: 'Lower Secondary – Classes 6 to 8'},
-  {value: 'secondary', label: 'Secondary – Classes 9 & 10'},
+  { value: 'kindergarten', label: 'KINDERGARTEN' },
+  { value: 'primary', label: 'Primary – Classes 1 to 5' },
+  { value: 'lower', label: 'Lower Secondary – Classes 6 to 8' },
+  { value: 'secondary', label: 'Secondary – Classes 9 & 10' },
 ]
 
 export const nationality = [
-  {value: 'indian', label: 'Indian'},
-  {value: 'foreign', label: 'Foreign'},
+  { value: 'indian', label: 'Indian' },
+  { value: 'foreign', label: 'Foreign' },
 ]
 
 export const caste = [
-  {value: 'general', label: 'General'},
-  {value: 'obc', label: 'OBC'},
-  {value: 'sc', label: 'SC'},
-  {value: 'st', label: 'ST'},
+  { value: 'general', label: 'General' },
+  { value: 'obc', label: 'OBC' },
+  { value: 'sc', label: 'SC' },
+  { value: 'st', label: 'ST' },
 ]
 
 export const religion = [
-  {value: 'hindu', label: 'Hindu'},
-  {value: 'muslim', label: 'Muslim'},
-  {value: 'christian', label: 'Christian'},
-  {value: 'sikh', label: 'Sikh'},
-  {value: 'jain', label: 'Jain'},
-  {value: 'buddhist', label: 'Buddhist'},
-  {value: 'jewish', label: 'Jewish'},
-  {value: 'other', label: 'Other'},
+  { value: 'hindu', label: 'Hindu' },
+  { value: 'muslim', label: 'Muslim' },
+  { value: 'christian', label: 'Christian' },
+  { value: 'sikh', label: 'Sikh' },
+  { value: 'jain', label: 'Jain' },
+  { value: 'buddhist', label: 'Buddhist' },
+  { value: 'jewish', label: 'Jewish' },
+  { value: 'other', label: 'Other' },
 ]
 
 export const bloodGroup = [
-  {value: 'a', label: 'A+'},
-  {value: 'b', label: 'B+'},
-  {value: 'ab', label: 'AB+'},
-  {value: 'o', label: 'O+'},
-  {value: 'aMinus', label: 'A-'},
-  {value: 'bMinus', label: 'B-'},
-  {value: 'abMinus', label: 'AB-'},
-  {value: 'oMinus', label: 'O-'},
+  { value: 'a', label: 'A+' },
+  { value: 'b', label: 'B+' },
+  { value: 'ab', label: 'AB+' },
+  { value: 'o', label: 'O+' },
+  { value: 'aMinus', label: 'A-' },
+  { value: 'bMinus', label: 'B-' },
+  { value: 'abMinus', label: 'AB-' },
+  { value: 'oMinus', label: 'O-' },
 ]
 
 export const occupation = [
-  {value: 'student', label: 'Student'},
-  {value: 'teacher', label: 'Teacher'},
-  {value: 'other', label: 'Other'},
+  { value: 'student', label: 'Student' },
+  { value: 'teacher', label: 'Teacher' },
+  { value: 'other', label: 'Other' },
 ]
 
 export const staffCategory = [
-  {value: 'teaching', label: 'Teacher'},
-  {value: 'non-teaching', label: 'Non Teaching Staff'},
+  { value: 'teaching', label: 'Teacher' },
+  { value: 'non-teaching', label: 'Non Teaching Staff' },
 ]
 
 export const states = [
-  {value: 'andhrapradesh', label: 'Andhra Pradesh'},
-  {value: 'telangana', label: 'Telangana'},
-  {value: 'tamilnadu', label: 'Tamil Nadu'},
+  { value: 'andhrapradesh', label: 'Andhra Pradesh' },
+  { value: 'telangana', label: 'Telangana' },
+  { value: 'tamilnadu', label: 'Tamil Nadu' },
 ]
 
 export const monthsName = [
@@ -133,70 +133,70 @@ export const monthsName = [
 
 
 export const capitalizeWords = (str) => {
-  if(!str) return
+  if (!str) return
   return str
-  .split(' ') // Split the string into words
-  .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter
-  .join(' ') // Join the words back into a string
+    .split(' ') // Split the string into words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter
+    .join(' ') // Join the words back into a string
 }
 
 export const sections = [
-  {value: 'a', label: 'A'},
-  {value: 'b', label: 'B'},
-  {value: 'c', label: 'C'},
-  {value: 'd', label: 'D'},
-  {value: 'e', label: 'E'},
+  { value: 'a', label: 'A' },
+  { value: 'b', label: 'B' },
+  { value: 'c', label: 'C' },
+  { value: 'd', label: 'D' },
+  { value: 'e', label: 'E' },
 ]
 
 export const teacher = [
-  {value: 'teacher1', label: 'Teacher 1'},
-  {value: 'teacher2', label: 'Teacher 2'},
-  {value: 'teacher3', label: 'Teacher 3'},
-  {value: 'teacher4', label: 'Teacher 4'},
+  { value: 'teacher1', label: 'Teacher 1' },
+  { value: 'teacher2', label: 'Teacher 2' },
+  { value: 'teacher3', label: 'Teacher 3' },
+  { value: 'teacher4', label: 'Teacher 4' },
 ]
 
 export const banks = [
-  {value: 'hdfc', label: 'HDFC'},
-  {value: 'indusind', label: 'Indusind'},
-  {value: 'sbi', label: 'SBI'},
-  {value: 'icici', label: 'ICICI'},
-  {value: 'axis', label: 'AXIS'},
-  {value: 'canara', label: 'CANARA'},
-  {value: 'kotak', label: 'KOTAK'},
-  {value: 'yesbank', label: 'YESBANK'},
-  {value: 'pnb', label: 'PNB'},
-  {value: 'unionbank', label: 'UNIONBANK'},
-  {value: 'other', label: 'Other'},
+  { value: 'hdfc', label: 'HDFC' },
+  { value: 'indusind', label: 'Indusind' },
+  { value: 'sbi', label: 'SBI' },
+  { value: 'icici', label: 'ICICI' },
+  { value: 'axis', label: 'AXIS' },
+  { value: 'canara', label: 'CANARA' },
+  { value: 'kotak', label: 'KOTAK' },
+  { value: 'yesbank', label: 'YESBANK' },
+  { value: 'pnb', label: 'PNB' },
+  { value: 'unionbank', label: 'UNIONBANK' },
+  { value: 'other', label: 'Other' },
 ]
 
 export const payments = [
-  {value: 'cash', label: 'Cash'},
-  {value: 'upi', label: 'UPI'},
-  {value: 'bankTransfer', label: 'Bank Transfer'},
-  {value: 'cheque', label: 'CHEQUE'},
+  { value: 'cash', label: 'Cash' },
+  { value: 'upi', label: 'UPI' },
+  { value: 'bankTransfer', label: 'Bank Transfer' },
+  { value: 'cheque', label: 'CHEQUE' },
 ]
 
 export const designations = [
-  {value: 'principal', label: 'Principal'},
-  {value: 'vice-principal', label: 'Vice Principal'},
-  {value: 'teacher', label: 'Teacher'},
-  {value: 'librarian', label: 'Librarian'},
-  {value: 'accountant', label: 'Accountant'},
-  {value: 'secretary', label: 'Secretary'},
-  {value: 'manager', label: 'Manager'},
-  {value: 'clerk', label: 'Clerk'},
-  {value: 'cashier', label: 'Cashier'},
-  {value: 'driver', label: 'Driver'},
-  {value: 'labour', label: 'Labour'},
-  {value: 'cleaner', label: 'Cleaner'},
-  {value: 'cook', label: 'Cook'},
-  {value: 'other', label: 'Other'},
+  { value: 'principal', label: 'Principal' },
+  { value: 'vice-principal', label: 'Vice Principal' },
+  { value: 'teacher', label: 'Teacher' },
+  { value: 'librarian', label: 'Librarian' },
+  { value: 'accountant', label: 'Accountant' },
+  { value: 'secretary', label: 'Secretary' },
+  { value: 'manager', label: 'Manager' },
+  { value: 'clerk', label: 'Clerk' },
+  { value: 'cashier', label: 'Cashier' },
+  { value: 'driver', label: 'Driver' },
+  { value: 'labour', label: 'Labour' },
+  { value: 'cleaner', label: 'Cleaner' },
+  { value: 'cook', label: 'Cook' },
+  { value: 'other', label: 'Other' },
 ]
 
 export const attendanceOptions = [
-  {value: 'present', label: 'Present'},
-  {value: 'absent', label: 'Absent'},
-  {value: 'half-day', label: 'Half Day'},
+  { value: 'present', label: 'Present' },
+  { value: 'absent', label: 'Absent' },
+  { value: 'half-day', label: 'Half Day' },
 ]
 
 export const uploadFile = async (file) => {
@@ -316,29 +316,30 @@ export const handleDownloadCSV = (headers, fileName = "data.csv") => {
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   saveAs(blob, fileName);
 }
-export const handleApiResponse = (res,type="error") => {
+export const handleApiResponse = (res, type = "error") => {
   let message = ''
-  const options ={theme: 'colored',className:"text-xs"}
-  if(type === 'error'){
+  const options = { theme: 'colored', className: "text-xs" }
+  if (type === 'error') {
     if (res.response) {
       // Server responded with a status code out of range [200, 299]
       console.error('API Error:', res.response.data);
-      if(typeof res.response.data.message === "object"){
+      if (typeof res.response.data.message === "object") {
         message = res.response.data.message.join(", ")
-      }else{
-      message = res.response.data.message || 'Something went wrong!'}
+      } else {
+        message = res.response.data.message || 'Something went wrong!'
+      }
     } else if (res.request) {
       // Request was made but no response was received
       console.error('Network Error:', res.request);
-      message= 'Network error, please try again later.'
+      message = 'Network error, please try again later.'
     } else {
       // Something happened in setting up the request
       console.error('Unknown Error:', res.message);
-      message= 'An unexpected error occurred. Please try again.'
+      message = 'An unexpected error occurred. Please try again.'
     }
-    toast.error(message,options)
-  }else{
+    toast.error(message, options)
+  } else {
     message = res
-    toast.success(message,options)
+    toast.success(message, options)
   }
 }

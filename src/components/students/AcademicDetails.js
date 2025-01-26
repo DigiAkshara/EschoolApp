@@ -7,6 +7,7 @@ import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import moment from 'moment'
+import { handleApiResponse } from '../../commonComponent/CommonFunctions'
 
 function StudentAcademicDetails({ values, setFieldValue }) {
   const { classes, sections } = useSelector((state) => state.students)
@@ -40,7 +41,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
         alert(response.message)
       }
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 

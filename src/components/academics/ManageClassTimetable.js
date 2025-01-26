@@ -1,16 +1,11 @@
-import {PlusIcon} from '@heroicons/react/20/solid'
-import {XMarkIcon} from '@heroicons/react/24/outline'
-import {FieldArray} from 'formik'
-import React, {useEffect, useState} from 'react'
-import {getData} from '../../app/api'
-import {SUBJECTS} from '../../app/url'
-import {teacher} from '../../commonComponent/CommonFunctions'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { FieldArray } from 'formik'
+import React, { useEffect } from 'react'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-function ManageClassTimetable({values, setFieldValue, subjects, teachers}) {
-  // const [subjects, setSubjects] = useState()
-
+function ManageClassTimetable({ values, setFieldValue, subjects, teachers }) {
   const daysOfWeek = [
     'monday',
     'tuesday',
@@ -21,52 +16,47 @@ function ManageClassTimetable({values, setFieldValue, subjects, teachers}) {
   ]
 
   useEffect(() => {
-    // getSubjects()
-    setFieldValue('timetables', [
-      {
-        period: 1,
-        time: '',
-        days: daysOfWeek.reduce(
-          (acc, day) => ({...acc, [day]: {subject: '', teacher: ''}}),
-          {},
-        ),
-      },
-    ])
+    if (values.timetables.length === 0) {
+      setFieldValue('timetables', [
+        {
+          period: 1,
+          time: '',
+          days: daysOfWeek.reduce(
+            (acc, day) => ({ ...acc, [day]: { subject: '', teacher: '' } }),
+            {},
+          ),
+        },
+      ])
+    }
   }, [])
-
-  
-  const [rows, setRows] = useState([
-    {
-      period: 1,
-      time: '',
-      days: daysOfWeek.reduce(
-        (acc, day) => ({...acc, [day]: {subject: '', teacher: ''}}),
-        {},
-      ),
-    },
-  ])
 
   // Add a new row for a new period
 
   const addRow = () => {
     let dummyList = [
-      ...rows,
+      ...values.timetables,
       {
-        period: rows.length + 1,
+        period: values.timetables.length + 1,
         time: '',
         days: daysOfWeek.reduce(
-          (acc, day) => ({...acc, [day]: {subject: '', teacher: ''}}),
+          (acc, day) => ({ ...acc, [day]: { subject: '', teacher: '' } }),
           {},
         ),
       },
     ]
-    // setRows(dummyList);
     setFieldValue('timetables', dummyList)
   }
 
   const removeRow = (index) => {
-    const updatedRows = rows.filter((_, i) => i !== index)
-    setRows(updatedRows)
+    const updatedRows = []
+    values.timetables.forEach((row, i) => {
+      if (i !== index) {
+        updatedRows.push({
+          ...row,
+          period: updatedRows.length + 1,
+        })
+      }
+    })
     setFieldValue('timetables', updatedRows)
   }
 
@@ -127,7 +117,6 @@ function ManageClassTimetable({values, setFieldValue, subjects, teachers}) {
 
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     <CustomInput
-                      // name={item.passMarks}
                       name={`timetables.${index}.time`}
                       placeholder="9:00-10:00 "
                     />
@@ -155,7 +144,7 @@ function ManageClassTimetable({values, setFieldValue, subjects, teachers}) {
 
                   {item.period !== 1 && (
                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      <button onClick={() => removeRow(index)}>
+                      <button type='button' onClick={() => removeRow(index)}>
                         <XMarkIcon
                           aria-hidden="true"
                           className="text-red-500 size-5"
@@ -173,6 +162,7 @@ function ManageClassTimetable({values, setFieldValue, subjects, teachers}) {
       <div className="flex items-center mt-2 w-full justify-end">
         <PlusIcon aria-hidden="true" className="text-purple-500 size-5" />
         <button
+          type="button"
           onClick={addRow}
           className="text-purple-600 font-medium hover:text-purple-900"
         >

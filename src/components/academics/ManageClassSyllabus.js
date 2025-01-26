@@ -1,49 +1,40 @@
-import {PlusIcon} from '@heroicons/react/20/solid'
-import {XMarkIcon} from '@heroicons/react/24/outline'
-import {FieldArray} from 'formik'
-import React, {useEffect, useState} from 'react'
-import {getData} from '../../app/api'
-import {SUBJECTS} from '../../app/url'
-import {getAcademicYears} from '../../commonComponent/CommonFunctions'
-import CustomSelect from '../../commonComponent/CustomSelect'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { FieldArray } from 'formik'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import CustomSelect from '../../commonComponent/CustomSelect'
 
-function ManageClassSyllabus({subjects, values, setFieldValue, touched, errors}) {
-  const {academicYear} = useSelector((state) => state.appConfig)
+function ManageClassSyllabus({ subjects, values, setFieldValue, touched, errors }) {
+  const { academicYear } = useSelector((state) => state.appConfig)
   const [academicYearOptions, setAcademicYearOptions] = useState([])
 
   useEffect(() => {
-    if(academicYear){
-      setAcademicYearOptions([{label:academicYear.year,value:academicYear._id}])
+    if (academicYear) {
+      setAcademicYearOptions([{ label: academicYear.year, value: academicYear._id }])
     }
-    setFieldValue('syllabus', [
-      {
-        id: 1,
-        academicYear: '',
-        subject: '',
-        syllabusPic: null,
-      },
-    ])
+    if (values.syllabus && values.syllabus.length === 0) {
+      setFieldValue('syllabus', [
+        {
+          id: 1,
+          academicYear: '',
+          subject: '',
+          syllabusPic: null,
+        },
+      ])
+    }
   }, [])
 
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      academicYear: '',
-      subject: '',
-    },
-  ])
 
   const addRow = () => {
     let dummyList = [
-      ...rows,
+      ...values.syllabus,
       {
-        id: rows.length + 1, // Incrementing the ID for each new row
+        id: values.syllabus.length + 1, // Incrementing the ID for each new row
         academicYear: '',
         subject: '',
       },
     ]
-    setRows(dummyList)
     setFieldValue('syllabus', dummyList)
   }
 
@@ -95,7 +86,7 @@ function ManageClassSyllabus({subjects, values, setFieldValue, touched, errors})
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
           <FieldArray name="syllabus">
-            {({remove}) =>
+            {({ remove }) =>
               values.syllabus.map((item, index) => (
                 <tr key={item.id}>
                   <td className="relative px-7 sm:w-12 sm:px-6">{index + 1}</td>

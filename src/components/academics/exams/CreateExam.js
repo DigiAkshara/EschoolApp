@@ -1,26 +1,26 @@
-import {DialogPanel, DialogTitle} from '@headlessui/react'
-import {IdentificationIcon, XMarkIcon} from '@heroicons/react/24/outline'
-import {Form, Formik} from 'formik'
+import { DialogPanel, DialogTitle } from '@headlessui/react'
+import { IdentificationIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Form, Formik } from 'formik'
 import React from 'react'
-import {useSelector} from 'react-redux'
-import {useNavigate} from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import * as Yup from 'yup'
-import {postData} from '../../app/api'
-import {EXAM} from '../../app/url'
-import {boardOptions} from '../../commonComponent/CommonFunctions'
-import CustomDate from '../../commonComponent/CustomDate'
-import CustomInput from '../../commonComponent/CustomInput'
-import CustomSelect from '../../commonComponent/CustomSelect'
+import { postData, updateData } from '../../../app/api'
+import { fetchExamData } from '../../../app/reducers/examSlice'
+import { EXAM } from '../../../app/url'
+import { boardOptions, handleApiResponse } from '../../../commonComponent/CommonFunctions'
+import CustomDate from '../../../commonComponent/CustomDate'
+import CustomInput from '../../../commonComponent/CustomInput'
+import CustomSelect from '../../../commonComponent/CustomSelect'
 import ExamTimeTable from './ExamTimeTable'
 
-function CreateExam({onClose}) {
+function CreateExam({ onClose }) {
   const {
     classCategories,
     classes: classOptions,
     sections: sectionOptions,
   } = useSelector((state) => state.academics)
-
-  const navigate = useNavigate()
+  const selectedExam = useSelector((state) => state.exams.selectedExam)
+  const dispatch = useDispatch()
 
   const getInitialValues = () => {
     return {
@@ -32,6 +32,17 @@ function CreateExam({onClose}) {
       startDate: null,
       endDate: null,
       timeTable: [],
+      ...(selectedExam && {
+        _id: selectedExam._id,
+        board: selectedExam.board,
+        classCategory: selectedExam.classCategory?._id,
+        class: selectedExam.class?._id,
+        section: selectedExam.section?._id,
+        name: selectedExam.name,
+        startDate: null,
+        endDate: null,
+        timeTable: selectedExam.timeTable
+      }),
     }
   }
 
@@ -60,15 +71,12 @@ function CreateExam({onClose}) {
 
   const handleSubmit = async (values) => {
     try {
-      let response = await postData(EXAM, values)
-      if (response.status === 201) {
-        // navigate('/academics-exams')
-        alert(response.statusText)
-        onClose()
-      } else {
-        alert(response.message)
-      }
+      let response = values._id ? await updateData(EXAM + '/' + values._id, values) : await postData(EXAM, values)
+      dispatch(fetchExamData())
+      handleApiResponse(response.data.message, 'success')
+      onClose()
     } catch (error) {
+      handleApiResponse(error)
       console.log(error)
     }
   }
@@ -80,7 +88,7 @@ function CreateExam({onClose}) {
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({values, setFieldValue, errors, touched}) => (
+        {({ values, setFieldValue, errors, touched }) => (
           <Form>
             <div className="fixed inset-0" />
             <div className="fixed inset-0 overflow-hidden">
@@ -196,7 +204,7 @@ function CreateExam({onClose}) {
                                       label="Exam End Date"
                                       required={true}
                                       disabled={values.startDate ? false : true}
-                                      minDate ={values.startDate}
+                                      minDate={values.startDate}
                                     />
                                   </div>
                                 </div>

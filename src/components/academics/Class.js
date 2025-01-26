@@ -1,12 +1,13 @@
 'use client'
-import {Button, Dialog} from '@headlessui/react'
-import {PlusIcon} from '@heroicons/react/20/solid'
-import React, {useEffect, useState} from 'react'
-import {useDispatch, useSelector} from 'react-redux'
-import {getData} from '../../app/api'
-import {setSelectedClass} from '../../app/reducers/classSlice'
-import {NEW_CLASS} from '../../app/url'
-import {boardOptions} from '../../commonComponent/CommonFunctions'
+import { Dialog } from '@headlessui/react'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { deleteData, getData } from '../../app/api'
+import { setSelectedClass } from '../../app/reducers/classSlice'
+import { NEW_CLASS, TIMETABLE } from '../../app/url'
+import { boardOptions, capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
+import ConfirmationModal from '../../commonComponent/ConfirmationModal'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
 import AddClass from './AddClass'
@@ -19,11 +20,13 @@ export default function Class() {
     sections: sectionOptions,
     teachers: teacherOptions,
   } = useSelector((state) => state.academics)
-  const [open, setOpen] = useState(false)
-  const [open2, setOpen2] = useState(false)
+  const [showAddClassModal, setShowAddClassModal] = useState(false)
+  const [showViewClassModal, setShowViewClassModal] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
   const [classData, setClassData] = useState([])
   const [filteredData, setFilteredData] = useState([])
+  const [deleteId, setDeleteId] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
   const dispatch = useDispatch() // Get the dispatch function
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
@@ -54,12 +57,12 @@ export default function Class() {
             classTeacherObject: item.classTeacher,
             classTeacher: item.classTeacher ? item.classTeacher._id : '', //classTeacher Id
             classTeacherName: item.classTeacher
-              ? item.classTeacher.firstName + ' ' + item.classTeacher.lastName
+              ? capitalizeWords(item.classTeacher.firstName + ' ' + item.classTeacher.lastName)
               : 'N/A',
             totalStudents: item.totalStudents || 0,
             actions: [
-              {label: 'Edit', actionHandler: onHandleEdit},
-              {label: 'Delete', actionHandler: onDelete},
+              { label: 'Edit', actionHandler: onHandleEdit },
+              { label: 'Delete', actionHandler: onDelete },
             ],
           }
         })
@@ -67,34 +70,57 @@ export default function Class() {
         setFilteredData(transformedData)
       }
     } catch (error) {
+      handleApiResponse(error)
       console.error('Error fetching class data:', error)
     }
   }
 
-  const onHandleEdit = async () => {
-    console.log('edit')
+  const onHandleEdit = async (Id) => {
+    try {
+      const res =await getData(TIMETABLE + '/' + Id)
+      dispatch(setSelectedClass({ ...res.data.data })) // Save selected class in Redux
+      setShowAddClassModal(true)
+    } catch (error) {
+      handleApiResponse(error)
+    }
   }
 
-  const onDelete = () => {
-    console.log('delete')
+  const onDelete = (Id) => {
+    setDeleteId(Id)
+    setDeleteConfirm(true)
   }
 
-  const handleClose = () => setOpen(false)
-  const handleClose2 = () => setOpen2(false)
+  const deleteRecord = async () => {
+    try {
+      let res = await deleteData(TIMETABLE + '/' + deleteId)
+      handleApiResponse(res.data.message, 'success')
+      getClassData()
+      setDeleteConfirm(false)
+      setDeleteId(null)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
+  const handleClose = () => {
+    setShowAddClassModal(false);
+    setShowViewClassModal(false)
+    dispatch(setSelectedClass(null))
+  }
 
   const handleViewClick = (data) => {
-    dispatch(setSelectedClass({...data, actions: null})) // Save selected class in Redux
-    setOpen2(true) // Navigate to the "View More" page
+    dispatch(setSelectedClass({ ...data, actions: null })) // Save selected class in Redux
+    setShowViewClassModal(true) // Navigate to the "View More" page
   }
 
   const columns = [
-    {key: 'board', title: 'Board'},
-    {key: 'className', title: 'Class'},
-    {key: 'sectionName', title: 'Section'},
-    {key: 'totalStudents', title: 'Total Students'},
-    {key: 'classTeacherName', title: 'Class Teacher'},
-    {key: 'time_table', title: 'Time Table/ Syllabus'},
-    {key: 'actions', title: 'Actions'},
+    { key: 'board', title: 'Board' },
+    { key: 'className', title: 'Class' },
+    { key: 'sectionName', title: 'Section' },
+    { key: 'totalStudents', title: 'Total Students' },
+    { key: 'classTeacherName', title: 'Class Teacher' },
+    { key: 'time_table', title: 'Time Table/ Syllabus' },
+    { key: 'actions', title: 'Actions' },
   ]
 
   const handlePageChange = (page) => {
@@ -110,8 +136,8 @@ export default function Class() {
   }
 
   const filters = {
-    board: {options: boardOptions},
-    category: {options: classCategories},
+    board: { options: boardOptions },
+    category: { options: classCategories },
     class: {
       options: classOptions,
       dependency: true,
@@ -124,14 +150,12 @@ export default function Class() {
       dependencyKey: 'class',
       filterOptions: true,
     },
-    classTeacher: {options: teacherOptions},
+    classTeacher: { options: teacherOptions },
   }
 
   const handleSearch = (term) => {
     const filtered = classData.filter((item) =>
-      columns.some((col) =>
-        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
-      ),
+      columns.some((col) => String(item[col.key]).toLowerCase().includes(term.toLowerCase())),
     )
     setFilteredData(filtered)
   }
@@ -140,9 +164,9 @@ export default function Class() {
     let filtered = classData
     Object.entries(values).forEach(([key, value]) => {
       if (value) {
-        filtered = filtered.filter((rec) =>
-          rec[key].toLowerCase().includes(value.toLowerCase()),
-        )
+        filtered = filtered.filter((rec) => {
+          return rec[key].toLowerCase().includes(value.toLowerCase())
+        })
       }
     })
     setFilteredData(filtered)
@@ -170,52 +194,13 @@ export default function Class() {
         <div className="right-btns-blk space-x-4">
           <button
             type="button"
-            onClick={() => setOpen(true)}
+            onClick={() => setShowAddClassModal(true)}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Add Class
           </button>
         </div>
-      </div>
-
-      <div className="filter-badges-blk mt-4 flex flex-wrap gap-x-4">
-        <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-          Class:<span className="font-bold">1</span>
-          <button
-            type="button"
-            className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-          >
-            <span className="sr-only">Remove</span>
-            <svg
-              viewBox="0 0 14 14"
-              className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-            >
-              <path d="M4 4l6 6m0-6l-6 6" />
-            </svg>
-            <span className="absolute -inset-1" />
-          </button>
-        </span>
-        <span className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-          Section:<span className="font-bold">A</span>
-          <button
-            type="button"
-            className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
-          >
-            <span className="sr-only">Remove</span>
-            <svg
-              viewBox="0 0 14 14"
-              className="size-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"
-            >
-              <path d="M4 4l6 6m0-6l-6 6" />
-            </svg>
-            <span className="absolute -inset-1" />
-          </button>
-        </span>
-
-        <Button className="inline-flex items-center rounded-full bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10">
-          Clear All
-        </Button>
       </div>
 
       <div className="-mx-2 -my-2 mt-0 sm:-mx-6">
@@ -232,46 +217,49 @@ export default function Class() {
               </div>
             )}
             <div className=" shadow ring-1 ring-black/5 sm:rounded-lg">
-                <FilterComponent
-                  onSearch={handleSearch}
-                  filters={filters}
-                  filterForm={filterForm}
-                  handleFilter={handleFilter}
-                  handleReset={handleReset}
-                />
+              <FilterComponent
+                onSearch={handleSearch}
+                filters={filters}
+                filterForm={filterForm}
+                handleFilter={handleFilter}
+                handleReset={handleReset}
+              />
 
-                {/* Table View */}
-                <TableComponent
-                  columns={columns}
-                  data={paginatedData}
-                  pagination={{
-                    currentPage,
-                    totalCount: filteredData.length,
-                    onPageChange: handlePageChange,
-                  }}
-                  modalColumn={["time_table"]}
-                  showModal={(data) => handleViewClick(data)}
-                />
+              {/* Table View */}
+              <TableComponent
+                columns={columns}
+                data={paginatedData}
+                pagination={{
+                  currentPage,
+                  totalCount: filteredData.length,
+                  onPageChange: handlePageChange,
+                }}
+                modalColumn={["time_table"]}
+                showModal={(data) => handleViewClick(data)}
+              />
             </div>
           </div>
         </div>
       </div>
 
+      <ConfirmationModal
+        showModal={deleteConfirm}
+        onYes={deleteRecord}
+        onCancel={() => { setDeleteConfirm(false) }}
+      />
+
       {/* Add Class */}
 
-      <Dialog open={open} onClose={setOpen} className="relative z-50">
+      <Dialog open={showAddClassModal} onClose={handleClose} className="relative z-50">
         <div className="fixed inset-0" />
         <AddClass
           onClose={handleClose}
-          classCategories={classCategories}
-          classOptions={classOptions}
-          sectionOptions={sectionOptions}
-          teacherOptions={teacherOptions}
+          getClassData={getClassData}
         />
       </Dialog>
 
-      <Dialog open={open2} onClose={setOpen2} className="relative z-50">
-        <ManageViewClass onClose={handleClose2} />
+      <Dialog open={showViewClassModal} onClose={handleClose} className="relative z-50">
+        <ManageViewClass onClose={handleClose} />
       </Dialog>
     </>
   )

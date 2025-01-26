@@ -23,6 +23,7 @@ import Tenants from './components/Tenants'
 import { getData } from './app/api'
 import { ACADEMIC_YEAR } from './app/url'
 import { ToastContainer } from 'react-toastify'
+import { handleApiResponse } from './commonComponent/CommonFunctions'
 
 function App() {
   const {user} = useSelector((state) => state.appConfig)
@@ -45,9 +46,18 @@ function App() {
   }, [])
 
   const getAcademicData = async () => {
-    const res = await getData(ACADEMIC_YEAR)
-    if(res.status === 200 || res.status === 201) {
+    try{
+      const res = await getData(ACADEMIC_YEAR)
       dispatch(setAcademicYear(res.data.data))
+    }catch(error) {
+      if(error.status === 401 || error.status === 403) {
+        dispatch(setUser(null))
+        localStorage.clear()
+      }else{
+        handleApiResponse(error)
+
+      }
+      
     }
   }
   return (
