@@ -2,8 +2,8 @@
 import React, {useState} from 'react'
 import ManageFeeCollection from './finance/ManageFeeCollection'
 import ManageFeesOverview from './finance/ManageFeesOverview'
-import FinanceFeesStructure from './finance/ManageFeesStructure'
 import Submenu from './Submenu'
+import FeesList from './finance/FeesList'
 
 export default function Finance() {
   const [activeTab, setActiveTab] = useState(null)
@@ -15,7 +15,7 @@ export default function Finance() {
       case 'fee_collections':
         return <ManageFeeCollection />
       case 'fee_structures':
-        return <FinanceFeesStructure />
+        return <FeesList />
 
       default:
         return <h2>No Content Available</h2>
