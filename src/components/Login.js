@@ -17,7 +17,7 @@ import {
   setUser,
 } from '../app/reducers/appConfigSlice'
 import {LOGIN} from '../app/url'
-import {roles} from '../commonComponent/CommonFunctions'
+import {handleApiResponse, roles} from '../commonComponent/CommonFunctions'
 import CustomButton from '../commonComponent/CustomButton'
 import CustomInput from '../commonComponent/CustomInput'
 import CustomSelect from '../commonComponent/CustomSelect'
@@ -27,23 +27,23 @@ export default function Login() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const initialValues = {
-    email: '',
+    loginId: '',
     password: '',
     userType: '',
   }
 
   const validationSchemas = Yup.object({
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
+    loginId: Yup.string()
+      // .email('Invalid email address')
+      .required('Email / mobile number is required'),
     password: Yup.string()
       .max(20, 'Must be 20 characters or less')
       .required('Password is Required'),
     userType: Yup.string().required('Role is required'),
   })
   const handleSubmit = async (values) => {
-    let response = await postData(LOGIN, values)
-    if (response.status === 200 || response.status === 201) {
+    try {
+      let response = await postData(LOGIN, values)
       localStorage.setItem('studentManagement', response.data.token)
       localStorage.setItem('academicYear', response.data.academicYear._id)
       const user = jwtDecode(response.data.token)
@@ -52,8 +52,8 @@ export default function Login() {
       dispatch(setActiveMenu("home"))
       dispatch(loadNavConfig(user.permissions.permissions))
       navigate('/')
-    } else {
-      alert('Login Failed, please retry again')
+    } catch (error) {
+      handleApiResponse(error)
     }
   }
 
@@ -98,9 +98,9 @@ export default function Login() {
 
                   {/* Email Input */}
                   <CustomInput
-                    name="email"
+                    name="loginId"
                     placeholder="you@example.com"
-                    label="Email address"
+                    label="Email / Mobile Number"
                     icon={EnvelopeIcon}
                     required={true}
                   />
