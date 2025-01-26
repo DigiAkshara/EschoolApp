@@ -39,8 +39,8 @@ function CreateExam({ onClose }) {
         class: selectedExam.class?._id,
         section: selectedExam.section?._id,
         name: selectedExam.name,
-        startDate: null,
-        endDate: null,
+        startDate: selectedExam.startDate,
+        endDate: selectedExam.endDate,
         timeTable: selectedExam.timeTable
       }),
     }
