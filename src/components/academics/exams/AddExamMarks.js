@@ -57,7 +57,7 @@ function AddExamMarks({ onClose }) {
       let dummyList = []
       res.data.data.forEach(student => {
         dummyList.push({
-          studentId: student._id,
+          studentId: student.student._id,
           admissionNumber: student.student.admissionNumber,
           studentName: capitalizeWords(student.student.firstName + ' ' + student.student.lastName),
           profilePic: student.student.profilePic?.Location || null,

@@ -10,6 +10,7 @@ import { UserCircleIcon } from '@heroicons/react/24/solid'
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { capitalizeWords } from '../../../commonComponent/CommonFunctions'
 
 const tableData = [
   {
@@ -74,9 +75,35 @@ function ExamMarkDetailsPage({ onClose }) {
     return subjectOptions.find((subject) => subject.value === subjectId)?.label.toUpperCase()
   }
 
+  const getResult = (marks, timeTable) => {
+    let isPassed = true
+    marks.forEach((item) => {
+      let passMark = timeTable.find((subject) => subject.subject === item.subject)?.passMark
+      if (item.marks < passMark*1) {
+        isPassed = false
+      }
+    })
+    return isPassed ? 'Pass' : 'Fail'
+  }
+
   useEffect(() => { 
     if (selectedExamDetails) {  
       console.log(selectedExamDetails)  
+      let dumpList = []
+      selectedExamDetails.marksDetails.forEach((item) => {
+        dumpList.push({
+          ...item.student,
+          marks: item.marks.map((item) => ({
+            subject: getSubjectName(item.subject),
+            marks: item.marks
+          })),
+          marksObtained: item.marks.reduce((acc, item) => acc + item.marks, 0),
+          maxMarks: selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark*1, 0),
+          percentage: Math.round((item.marks.reduce((acc, item) => acc + item.marks, 0) / selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark*1, 0)) * 100),
+          result: getResult(item.marks, selectedExamDetails?.exam.timeTable),
+        })
+      })
+      setStudents(dumpList)
     }
   }, [selectedExamDetails])
   return (
@@ -117,7 +144,6 @@ function ExamMarkDetailsPage({ onClose }) {
                         className="grid grid-cols-1 gap-x-4 gap-y-4"
                       >
                         <li
-                          key="12"
                           className="overflow-hidden rounded-xl border border-gray-300"
                         >
                           <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
@@ -196,14 +222,15 @@ function ExamMarkDetailsPage({ onClose }) {
                                 <dt className="text-sm/6 text-gray-500">
                                   Class Total Pass Percentage
                                 </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium"></dd>
+                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                  {selectedExamDetails?.passPercentage}
+                                </dd>
                               </div>
                             </dl>
                           </div>
                         </li>
 
                         <li
-                          key="12"
                           className="overflow-hidden rounded-xl border border-gray-300"
                         >
                           <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
@@ -331,7 +358,7 @@ function ExamMarkDetailsPage({ onClose }) {
                                 {studentMarks.map((student, index) => (
                                   <tr key={index}>
                                     <td className="px-2 py-2 text-sm">
-                                      {student.rollNo}
+                                      {index+1}
                                     </td>
                                     <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                       <a
@@ -339,43 +366,36 @@ function ExamMarkDetailsPage({ onClose }) {
                                         className="text-purple-600 hover:text-purple-900"
                                       >
                                         <div className="flex items-center">
+                                          {student.profilePic ? (
+                                            
+                                         
                                           <div className="size-9 shrink-0">
                                             <img
                                               src={student.imageUrl}
                                               alt={student.name}
                                               className="size-9 rounded-full"
                                             />
-                                          </div>
+                                          </div> ):
+                                           <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                           <span className="font-medium text-gray-600 dark:text-gray-300">{student.firstName.charAt(0)}</span>
+                                         </div>}
                                           <div className="ml-4">
                                             <div className="font-medium text-gray-900 text-purple-600">
-                                              {student.name}
+                                              {capitalizeWords(student.firstName + ' ' + student.lastName)}
                                             </div>
                                             <div className="mt-1 text-gray-500">
-                                              {student.id}
+                                              {student.admissionNumber}
                                             </div>
                                           </div>
                                         </div>
                                       </a>
                                     </td>
-
-                                    <td className="px-2 py-2 text-sm">
-                                      {student.english}
+                                    {student.marks.map((subject, index) => (
+                                      <td className="px-2 py-2 text-sm" key={index}>
+                                      {subject.marks}
                                     </td>
-                                    <td className="px-2 py-2 text-sm">
-                                      {student.telugu}
-                                    </td>
-                                    <td className="px-2 py-2 text-sm">
-                                      {student.maths}
-                                    </td>
-                                    <td className="px-2 py-2 text-sm">
-                                      {student.social}
-                                    </td>
-                                    <td className="px-2 py-2 text-sm">
-                                      {student.science}
-                                    </td>
-                                    <td className="px-2 py-2 text-sm">
-                                      {student.hindi}
-                                    </td>
+                                    ))}
+                                    
                                     <td className="px-2 py-2 text-sm">
                                       {student.marksObtained}
                                     </td>
@@ -403,7 +423,6 @@ function ExamMarkDetailsPage({ onClose }) {
                         </li>
 
                         <li
-                          key="12"
                           className="overflow-hidden rounded-xl border border-gray-300"
                         >
                           <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
@@ -426,7 +445,6 @@ function ExamMarkDetailsPage({ onClose }) {
                               className="grid grid-cols-4 gap-x-6 gap-y-8"
                             >
                               <li
-                                key="12"
                                 className="overflow-hidden rounded-xl border border-gray-300"
                               >
                                 <div className="flex items-center justify-between gap-x-4 px-4 py-4">
@@ -454,42 +472,6 @@ function ExamMarkDetailsPage({ onClose }) {
                         </li>
                       </ul>
                     </div>
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center justify-between px-4 py-4 bg-gray-100">
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Showing <span className="font-medium">1</span> out of{' '}
-                      <span className="font-medium">122</span> results
-                    </p>
-                  </div>
-                  <div>
-                    <nav
-                      aria-label="Pagination"
-                      className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                    >
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                      >
-                        <span className="sr-only">Previous</span>
-                        <ChevronLeftIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </a>
-
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                      >
-                        <span className="sr-only">Next</span>
-                        <ChevronRightIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </a>
-                    </nav>
                   </div>
                 </div>
               </div>
