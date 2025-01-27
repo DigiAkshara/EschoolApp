@@ -182,7 +182,6 @@ function StaffPersonalDetails({values, setFieldValue}) {
               name="panNumber"
               label="Pancard Number"
               placeholder="Enter Pancard Number"
-              required={true}
             />
           </div>
           <div className="sm:col-span-4">
