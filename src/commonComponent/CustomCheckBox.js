@@ -1,7 +1,7 @@
-import {ErrorMessage, Field} from 'formik'
+import { Field} from 'formik'
 
 export default function CustomCheckBox(props) {
-  const {name, label, required = false, options} = props
+  const {name, label} = props
 
   return (
     <>

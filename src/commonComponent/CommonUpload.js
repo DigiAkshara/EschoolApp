@@ -2,7 +2,6 @@ import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import React, { useState } from "react";
 import { postData } from "../app/api";
 import { STAFF, STUDENT } from "../app/url";
@@ -216,7 +215,6 @@ function CommonUpload({ onClose2, user }) {
           ? ["firstName", "lastName", "admissionNumber",  "gender","fatherDetails.name","fatherDetails.mobileNumber","presentAddress.area","presentAddress.city","presentAddress.state","presentAddress.pincode","permanentAddress.area","permanentAddress.city","permanentAddress.state","permanentAddress.pincode","aadharNumber","DOB","class","section","admissionDate",]
           : ["firstName", "lastName", "empId", "DOJ", "DOB", "mobileNumber", "email", "workEmail","designation","subjects","guardian","gender","presentAddress.area","presentAddress.city","presentAddress.state","presentAddress.pincode","permanentAddress.area","permanentAddress.city","permanentAddress.state","permanentAddress.pincode","aadharNumber","panNumber","bankDetails.accountNumber","bankDetails.ifscCode","bankDetails.bankName","amount"];
        
-        const validData = [];
         const invalidData = [];
         const updatedData = [...existingData];
 
@@ -334,11 +332,11 @@ function CommonUpload({ onClose2, user }) {
                   <div>
                     <p className="text-sm text-gray-500">
                       Download a sample{" "}
-                      <a href="#" className="text-blue-600 underline" onClick={downloadSampleCSV}>
+                      <a href="javascript:void(0);" className="text-blue-600 underline" onClick={downloadSampleCSV}>
                         .csv format
                       </a>{" "}
                       or{" "}
-                      <a href="#" className="text-blue-600 underline" onClick={downloadSampleXLS}>
+                      <a href="javascript:void(0);" className="text-blue-600 underline" onClick={downloadSampleXLS}>
                         .xls format
                       </a>{" "}
                       file and compare it with your import file to ensure that

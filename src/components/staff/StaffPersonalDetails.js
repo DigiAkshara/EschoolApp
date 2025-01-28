@@ -6,8 +6,10 @@ import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomRadio from '../../commonComponent/CustomRadio'
 import CustomSelect from '../../commonComponent/CustomSelect'
+import moment from 'moment'
 
 function StaffPersonalDetails({values, setFieldValue}) {
+  const eighteenYearsAgo = moment().subtract(18, 'years').toDate();
   const handlechecked = (e) => {
     setFieldValue('permanentAddress', {...values.presentAddress})
     setFieldValue('isSameAsPresent', e.target.checked)
@@ -39,7 +41,7 @@ function StaffPersonalDetails({values, setFieldValue}) {
           </div>
 
           <div className="sm:col-span-2">
-            <CustomDate name="DOB" label="Date Of Birth" required={true} />
+            <CustomDate name="DOB" label="Date Of Birth" required={true} maxDate={eighteenYearsAgo}  />
           </div>
 
           <div className="sm:col-span-2">
@@ -182,7 +184,6 @@ function StaffPersonalDetails({values, setFieldValue}) {
               name="panNumber"
               label="Pancard Number"
               placeholder="Enter Pancard Number"
-              required={true}
             />
           </div>
           <div className="sm:col-span-4">
