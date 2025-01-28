@@ -89,6 +89,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               name="admissionDate"
               label="Admission Date"
               required={true}
+              maxDate={moment().format('YYYY-MM-DD')} 
             />
           </div>
 

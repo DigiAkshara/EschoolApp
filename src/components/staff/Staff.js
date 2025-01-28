@@ -2,7 +2,7 @@ import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import * as Yup from "yup";
 import { postData, updateData } from "../../app/api";
 import { STAFF } from "../../app/url";
@@ -14,7 +14,6 @@ import StaffPersonalDetails from "./StaffPersonalDetails";
 
 function Staff({ onClose, getStaff }) {
   const selectedStaff = useSelector((state) => state.staff?.selectedStaff);
-  const dispatch = useDispatch();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     staffType: "",
@@ -114,30 +113,29 @@ function Staff({ onClose, getStaff }) {
     }),
     Yup.object({
       profilePic: Yup.mixed()
-  .nullable()
-  .test(
-    "fileFormat",
-    "Photo must be in JPG, JPEG, or PNG format",
-    (value) => {
-      if (!value) return true; // If no file is uploaded, skip the test
-      const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-      
-      // Check MIME type first
-      if (supportedFormats.includes(value.type)) {
-        return true; // Valid MIME type
-      }
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; 
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
 
-      // If MIME type is incorrect, check the file extension as a fallback
-      const fileExtension = value.name.split('.').pop().toLowerCase();
-      const supportedExtensions = ["jpg", "jpeg", "png"];
-      return supportedExtensions.includes(fileExtension); // Check file extension
-    }
-  )
-  .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-    if (!value) return true; // If no file is uploaded, skip the test
-    const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-    return value.size <= maxSizeInBytes; // Check if file size is within limit
-  }),
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); 
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; 
+          const maxSizeInBytes = 2 * 1024 * 1024; 
+          return value.size <= maxSizeInBytes; 
+        }),
 
       email: Yup.string().email("Enter a valid email address").nullable(),
       guardian: Yup.string()
@@ -197,61 +195,61 @@ function Staff({ onClose, getStaff }) {
         )
         .length(10, "PAN card must be exactly 10 characters"),
       aadharPic: Yup.mixed()
-      .nullable()
-      .test(
-        "fileFormat",
-        "Photo must be in JPG, JPEG, or PNG format",
-        (value) => {
-          if (!value) return true; // If no file is uploaded, skip the test
-          const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-          
-          // Check MIME type first
-          if (supportedFormats.includes(value.type)) {
-            return true; // Valid MIME type
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
           }
-    
-          // If MIME type is incorrect, check the file extension as a fallback
-          const fileExtension = value.name.split('.').pop().toLowerCase();
-          const supportedExtensions = ["jpg", "jpeg", "png"];
-          return supportedExtensions.includes(fileExtension); // Check file extension
-        }
-      )
-      .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-        if (!value) return true; // If no file is uploaded, skip the test
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-        return value.size <= maxSizeInBytes; // Check if file size is within limit
-      }),
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
       panCardPic: Yup.mixed()
-      .nullable()
-      .test(
-        "fileFormat",
-        "Photo must be in JPG, JPEG, or PNG format",
-        (value) => {
-          if (!value) return true; // If no file is uploaded, skip the test
-          const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-          
-          // Check MIME type first
-          if (supportedFormats.includes(value.type)) {
-            return true; // Valid MIME type
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
           }
-    
-          // If MIME type is incorrect, check the file extension as a fallback
-          const fileExtension = value.name.split('.').pop().toLowerCase();
-          const supportedExtensions = ["jpg", "jpeg", "png"];
-          return supportedExtensions.includes(fileExtension); // Check file extension
-        }
-      )
-      .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-        if (!value) return true; // If no file is uploaded, skip the test
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-        return value.size <= maxSizeInBytes; // Check if file size is within limit
-      }),
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
     }),
     Yup.object({
       amount: Yup.string()
         .matches(
-          /^\d{1,10}$/,
-          "Amount must be a numeric value within 10 digits"
+          /^\d{1,10}$/, // Matches only integers with up to 10 digits
+          "Amount must be a numeric value within 10 digits and should not have decimals"
         )
         .required("Package amount is required"),
       paymentMode: Yup.string()
@@ -314,30 +312,30 @@ function Staff({ onClose, getStaff }) {
         }
       ),
       bankPassbook: Yup.mixed()
-      .nullable()
-      .test(
-        "fileFormat",
-        "Photo must be in JPG, JPEG, or PNG format",
-        (value) => {
-          if (!value) return true; // If no file is uploaded, skip the test
-          const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-          
-          // Check MIME type first
-          if (supportedFormats.includes(value.type)) {
-            return true; // Valid MIME type
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
           }
-    
-          // If MIME type is incorrect, check the file extension as a fallback
-          const fileExtension = value.name.split('.').pop().toLowerCase();
-          const supportedExtensions = ["jpg", "jpeg", "png"];
-          return supportedExtensions.includes(fileExtension); // Check file extension
-        }
-      )
-      .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-        if (!value) return true; // If no file is uploaded, skip the test
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-        return value.size <= maxSizeInBytes; // Check if file size is within limit
-      }),
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
     }),
   ];
 

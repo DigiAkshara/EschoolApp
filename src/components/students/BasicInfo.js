@@ -18,6 +18,8 @@ import CustomSelect from '../../commonComponent/CustomSelect'
 import moment from 'moment'
 
 function BasicInfo({values, setFieldValue}) {
+  const minAgeDate = moment().subtract(2.8, 'years').toDate();
+  
   const handleChecked = (e) => {
     setFieldValue('permanentAddress', {...values.presentAddress})
     setFieldValue('isSameAsPresent', e.target.checked)
@@ -69,7 +71,7 @@ function BasicInfo({values, setFieldValue}) {
             />
           </div>
           <div className="sm:col-span-2">
-            <CustomDate name="DOB" label="Date of Birth" required={true} maxDate={moment().format('YYYY-MM-DD')}  />
+            <CustomDate name="DOB" label="Date of Birth" required={true}  maxDate={minAgeDate}    />
           </div>
 
           <div className="sm:col-span-2">
