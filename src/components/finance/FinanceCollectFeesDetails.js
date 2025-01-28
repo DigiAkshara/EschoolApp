@@ -1,7 +1,7 @@
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { FieldArray, Form, Formik } from 'formik'
-import moment, { duration } from 'moment'
+import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import * as Yup from 'yup'
@@ -20,7 +20,7 @@ import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-function FinancCollectFeesDetails({onClose}) {
+function FinancCollectFeesDetails({ onClose }) {
   const [allFees, setAllFees] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const selectedFee = useSelector((state) => state.fees.selectedFee)
@@ -36,7 +36,7 @@ function FinancCollectFeesDetails({onClose}) {
           disCount: item.discount,
           paidAmount: item.paidAmount * 1 || 0,
           pendingAmount: pendingAmount,
-          dueDate: item.dueDate ||null,
+          dueDate: item.dueDate || null,
           status: item.fee.paymentStatus ? capitalizeWords(item.fee.paymentStatus) : 'Pending',
           paymentAmount: ""
         })
@@ -49,7 +49,6 @@ function FinancCollectFeesDetails({onClose}) {
       totalPaymentAmount: ""
     }
   }
-
   const getValidationSchema = () => {
     return Yup.object({
       fees: Yup.array().of(
@@ -58,11 +57,11 @@ function FinancCollectFeesDetails({onClose}) {
           totalAmount: Yup.number().required('Total Amount is required'),
           dueDate: Yup.date().nullable().required('Due Date is required'),
           paymentAmount: Yup.number().test(
-            'if-value-is-exist-must-be-less-than-or-equalto-pending-amount', 
-            'Amount cannot be greater than pending amount', 
+            'if-value-is-exist-must-be-less-than-or-equalto-pending-amount',
+            'Amount cannot be greater than pending amount',
             function (value) {
               const { pendingAmount } = this.parent; // Access sibling field 'pending amount'
-              if (value && value*1 > pendingAmount*1) {
+              if (value && value * 1 > pendingAmount * 1) {
                 return false; // Fail validation if paymentMode is not 'cash' but value is invalid
               }
               return true; // Pass validation otherwise
@@ -102,17 +101,6 @@ function FinancCollectFeesDetails({onClose}) {
       transactionProof: Yup.object().nullable()
     })
   }
-
-  const handleSubmit = async (values) => {
-    console.log(values)
-    try {
-      const res = await postData(STUDENT_FEE, values)
-      handleApiResponse(res.data.message,"success")
-      onClose()
-    } catch (error) {
-      handleApiResponse(error)
-    }
-  }
   const getFeesData = async () => {
     try {
       const res = await getData(FEES)
@@ -121,7 +109,6 @@ function FinancCollectFeesDetails({onClose}) {
       handleApiResponse(error)
     }
   }
-
 
   useEffect(() => {
     getFeesData()
@@ -159,6 +146,17 @@ function FinancCollectFeesDetails({onClose}) {
         const fileResponse = await uploadFile(file) // Upload the file
         setFieldValue(e.target.name, fileResponse) // Update the form field with the response
       }
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
+  const handleSubmit = async (values) => {
+    console.log(values)
+    try {
+      const res = await postData(STUDENT_FEE, values)
+      handleApiResponse(res.data.message, "success")
+      onClose()
     } catch (error) {
       handleApiResponse(error)
     }
