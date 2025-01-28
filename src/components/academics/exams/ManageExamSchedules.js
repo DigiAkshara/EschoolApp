@@ -3,15 +3,15 @@ import { Dialog } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { deleteData } from "../../../app/api";
 import { fetchExamData, selectExam } from "../../../app/reducers/examSlice";
 import { EXAM } from "../../../app/url";
+import { handleApiResponse } from "../../../commonComponent/CommonFunctions";
 import ConfirmationModal from "../../../commonComponent/ConfirmationModal";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import TableComponent from "../../../commonComponent/TableComponent";
 import CreateExam from "./CreateExam";
 import ExamDetailsPage from "./ExamDetailsPage";
-import { deleteData } from "../../../app/api";
-import { handleApiResponse } from "../../../commonComponent/CommonFunctions";
 
 function ManageExamSchedules() {
   const { classes: classOptions, sections: sectionOptions } = useSelector(
@@ -79,7 +79,10 @@ function ManageExamSchedules() {
         totalMark: t.totalMark,
         syllabus: t.syllabus,
       }));
-
+      let actions = [{ label: "Delete", actionHandler: onDelete },]
+      if (item.examStatus !== 'completed') {
+        actions.push({ label: "Edit", actionHandler: onHandleEdit })
+      }
       data.push({
         ...item,
         id: index + 1,
@@ -99,10 +102,7 @@ function ManageExamSchedules() {
         totalSubjects: item.timeTable.length,
         timeTableSyllabus: "View",
         hallTickets: "View",
-        actions: [
-          { label: "Edit", actionHandler: onHandleEdit },
-          { label: "Delete", actionHandler: onDelete },
-        ],
+        actions: actions,
       })
     });
     setExamData(data);

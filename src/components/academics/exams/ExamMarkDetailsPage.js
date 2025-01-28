@@ -1,5 +1,4 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import {
   ArrowsUpDownIcon,
   DocumentArrowDownIcon,
@@ -70,7 +69,7 @@ function ExamMarkDetailsPage({ onClose }) {
   const selectedExamDetails = useSelector((state) => state.exams.selectedExamDetails)
   const subjectOptions = useSelector((state) => state.academics.subjects)
   const [studentMarks, setStudents] = useState([])
-  
+
   const getSubjectName = (subjectId) => {
     return subjectOptions.find((subject) => subject.value === subjectId)?.label.toUpperCase()
   }
@@ -79,16 +78,16 @@ function ExamMarkDetailsPage({ onClose }) {
     let isPassed = true
     marks.forEach((item) => {
       let passMark = timeTable.find((subject) => subject.subject === item.subject)?.passMark
-      if (item.marks < passMark*1) {
+      if (item.marks < passMark * 1) {
         isPassed = false
       }
     })
     return isPassed ? 'Pass' : 'Fail'
   }
 
-  useEffect(() => { 
-    if (selectedExamDetails) {  
-      console.log(selectedExamDetails)  
+  useEffect(() => {
+    if (selectedExamDetails) {
+      console.log(selectedExamDetails)
       let dumpList = []
       selectedExamDetails.marksDetails.forEach((item) => {
         dumpList.push({
@@ -98,8 +97,8 @@ function ExamMarkDetailsPage({ onClose }) {
             marks: item.marks
           })),
           marksObtained: item.marks.reduce((acc, item) => acc + item.marks, 0),
-          maxMarks: selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark*1, 0),
-          percentage: Math.round((item.marks.reduce((acc, item) => acc + item.marks, 0) / selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark*1, 0)) * 100),
+          maxMarks: selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark * 1, 0),
+          percentage: Math.round((item.marks.reduce((acc, item) => acc + item.marks, 0) / selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark * 1, 0)) * 100),
           result: getResult(item.marks, selectedExamDetails?.exam.timeTable),
         })
       })
@@ -215,7 +214,7 @@ function ExamMarkDetailsPage({ onClose }) {
                                   Exam Dates
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {moment(selectedExamDetails?.exam.startDate).format('DD-MM-YYYY')}  - {moment(selectedExamDetails?.exam.endDate).format('DD-MM-YYYY')} 
+                                  {moment(selectedExamDetails?.exam.startDate).format('DD-MM-YYYY')}  - {moment(selectedExamDetails?.exam.endDate).format('DD-MM-YYYY')}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -358,7 +357,7 @@ function ExamMarkDetailsPage({ onClose }) {
                                 {studentMarks.map((student, index) => (
                                   <tr key={index}>
                                     <td className="px-2 py-2 text-sm">
-                                      {index+1}
+                                      {index + 1}
                                     </td>
                                     <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                       <a
@@ -367,18 +366,16 @@ function ExamMarkDetailsPage({ onClose }) {
                                       >
                                         <div className="flex items-center">
                                           {student.profilePic ? (
-                                            
-                                         
-                                          <div className="size-9 shrink-0">
-                                            <img
-                                              src={student.imageUrl}
-                                              alt={student.name}
-                                              className="size-9 rounded-full"
-                                            />
-                                          </div> ):
-                                           <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                                           <span className="font-medium text-gray-600 dark:text-gray-300">{student.firstName.charAt(0)}</span>
-                                         </div>}
+                                            <div className="size-9 shrink-0">
+                                              <img
+                                                src={student.imageUrl}
+                                                alt={student.name}
+                                                className="size-9 rounded-full"
+                                              />
+                                            </div>) :
+                                            <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                              <span className="font-medium text-gray-600 dark:text-gray-300">{student.firstName.charAt(0)}</span>
+                                            </div>}
                                           <div className="ml-4">
                                             <div className="font-medium text-gray-900 text-purple-600">
                                               {capitalizeWords(student.firstName + ' ' + student.lastName)}
@@ -392,10 +389,9 @@ function ExamMarkDetailsPage({ onClose }) {
                                     </td>
                                     {student.marks.map((subject, index) => (
                                       <td className="px-2 py-2 text-sm" key={index}>
-                                      {subject.marks}
-                                    </td>
+                                        {subject.marks}
+                                      </td>
                                     ))}
-                                    
                                     <td className="px-2 py-2 text-sm">
                                       {student.marksObtained}
                                     </td>
@@ -408,8 +404,8 @@ function ExamMarkDetailsPage({ onClose }) {
                                     <td className="px-2 py-2 text-sm">
                                       <span
                                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${student.result === 'Pass'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-red-100 text-red-800'
+                                          ? 'bg-green-100 text-green-800'
+                                          : 'bg-red-100 text-red-800'
                                           }`}
                                       >
                                         {student.result}
