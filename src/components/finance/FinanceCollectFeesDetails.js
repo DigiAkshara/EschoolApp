@@ -1,437 +1,468 @@
-import {PlusIcon} from '@heroicons/react/20/solid'
-import {XMarkIcon} from '@heroicons/react/24/outline'
-import {FieldArray} from 'formik'
-import React, {useEffect, useState} from 'react'
-import {getData} from '../../app/api'
-import {FEES} from '../../app/url'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { FieldArray, Form, Formik } from 'formik'
+import moment, { duration } from 'moment'
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
+import * as Yup from 'yup'
+import { getData, postData } from '../../app/api'
+import { FEES, STUDENT_FEE } from '../../app/url'
 import {
+  banks,
   capitalizeWords,
   feeduration,
+  handleApiResponse,
+  payments,
+  uploadFile,
 } from '../../commonComponent/CommonFunctions'
+import CustomDate from '../../commonComponent/CustomDate'
+import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-function FinancCollectFeesDetails({feeData, values, setFieldValue}) {
-  const [fees, setFees] = useState([])
-  const [newRows, setNewRow] = useState([])
+function FinancCollectFeesDetails({onClose}) {
   const [allFees, setAllFees] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
-
-  const getFeesData = async () => {
-    try {
-      const response = await getData(FEES)
-      if (response.data) {
-        const feesData = response.data.data.map((item) => ({
-          name: item.name,
-          _id: item._id,
-          amount: item.amount,
-          feeInstallment: item.feeInstallment,
-        }))
-        setAllFees(feesData)
-      }
-    } catch (error) {
-      console.error('Failed to fetch fees data:', error)
+  const selectedFee = useSelector((state) => state.fees.selectedFee)
+  const getInitialValues = () => {
+    return {
+      fees: selectedFee?.fees.map((item) => {
+        const pendingAmount = item.paybalAmount * 1 - (item.paidAmount * 1 || 0)
+        return ({
+          _id: item.fee._id,
+          feeName: item.fee.name,
+          duration: item.duration,
+          totalAmount: item.paybalAmount,
+          disCount: item.discount,
+          paidAmount: item.paidAmount * 1 || 0,
+          pendingAmount: pendingAmount,
+          dueDate: item.dueDate ||null,
+          status: item.fee.paymentStatus ? capitalizeWords(item.fee.paymentStatus) : 'Pending',
+          paymentAmount: ""
+        })
+      }),
+      transactionDate: '',
+      paymentMode: '',
+      bank: '',
+      transactionId: '',
+      transactionProof: '',
+      totalPaymentAmount: ""
     }
   }
 
-  const totalAmount = values.fees.reduce(
-    (total, fee) => total + Number(fee.payAmnt),
-    0,
-  )
-  const totalAmountTobepay = totalAmount - (Number(values.discountAmnt) || 0)
+  const getValidationSchema = () => {
+    return Yup.object({
+      fees: Yup.array().of(
+        Yup.object({
+          duration: Yup.string().required('Duration is required'),
+          totalAmount: Yup.number().required('Total Amount is required'),
+          dueDate: Yup.date().nullable().required('Due Date is required'),
+          paymentAmount: Yup.number().test(
+            'if-value-is-exist-must-be-less-than-or-equalto-pending-amount', 
+            'Amount cannot be greater than pending amount', 
+            function (value) {
+              const { pendingAmount } = this.parent; // Access sibling field 'pending amount'
+              if (value && value*1 > pendingAmount*1) {
+                return false; // Fail validation if paymentMode is not 'cash' but value is invalid
+              }
+              return true; // Pass validation otherwise
+            })
+        }),
+      ).test(
+        "at-least-one-amount-must-be-entered",
+        "At least one amount must be pay",
+        (items) => items.some((item) => item.paymentAmount && item.paymentAmount > 0),
+      ),
+      transactionDate: Yup.date()
+        .nullable()
+        .required('Transaction Date is required'),
+      paymentMode: Yup.string().required('Payment Mode is required'),
+      bank: Yup.string().test(
+        "is-bank-is-not-cash",
+        "School Credit Bank is required",
+        function (value) {
+          const { paymentMode } = this.parent; // Access sibling field 'paymentMode'
+          if (paymentMode !== 'cash' && !value) {
+            return false; // Fail validation if paymentMode is not 'cash' but value is invalid
+          }
+          return true; // Pass validation otherwise
+        }
+      ),
+      transactionId: Yup.string().test(
+        "is-bank-is-not-cash",
+        "Transaction Id is required",
+        function (value) {
+          const { paymentMode } = this.parent; // Access sibling field 'paymentMode'
+          if (paymentMode !== 'cash' && !value) {
+            return false; // Fail validation if paymentMode is not 'cash' but value is invalid
+          }
+          return true; // Pass validation otherwise
+        }
+      ),
+      transactionProof: Yup.object().nullable()
+    })
+  }
 
-  useEffect(() => {
-    setFieldValue('totalPayAmnt', totalAmountTobepay)
-  }, [totalAmountTobepay, values.fees, values.discountAmnt, setFieldValue])
+  const handleSubmit = async (values) => {
+    console.log(values)
+    try {
+      const res = await postData(STUDENT_FEE, values)
+      handleApiResponse(res.data.message,"success")
+      onClose()
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+  const getFeesData = async () => {
+    try {
+      const res = await getData(FEES)
+      setAllFees(res.data.data)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
 
   useEffect(() => {
     getFeesData()
   }, [])
 
-  const handleAddFee = (fee) => {
+  const handleAddFee = (item, fees, setFieldValue) => {
     const newFee = {
-      _id: fee._id,
-      feeName: fee.name.toUpperCase(),
-      feeInstallment: fee.feeInstallment,
-      // feeInstallment:duration,
-      amount: fee.amount,
-      instalmentAmount: fee.amount,
-      disCount: '',
-      paidAmount: 0,
-      dueDate: '',
-      status: '',
-      payAmnt: '',
+      _id: item._id,
+      feeName: item.name,
+      duration: item.duration,
+      totalAmount: item.amount,
+      disCount: item.discount,
+      paidAmount: "-",
+      pendingAmount: "-",
+      dueDate: item.dueDate || null,
+      status: 'Pending',
+      paymentAmount: "",
+      isAdded: true
     }
 
-    let dummyList = [...values.fees, newFee]
-    setNewRow([...newRows, newFee._id])
+    let dummyList = [...fees, newFee]
     setFieldValue('fees', dummyList)
-
     setShowDropdown(false)
   }
 
-  const handleRemove = (feeId) => {
-    const updatedFees = values.fees.filter((fee) => fee._id !== feeId)
+  const handleRemove = (feeId, fees, setFieldValue) => {
+    const updatedFees = fees.filter((fee) => fee._id !== feeId)
     setFieldValue('fees', updatedFees) // Update Formik state
-    setNewRow(newRows.filter((id) => id !== feeId)) // Remove ID from newRows
+  }
+
+  const handleFileChange = async (e, setFieldValue) => {
+    try {
+      const file = e.target.files[0] // Get the first selected file
+      if (file) {
+        const fileResponse = await uploadFile(file) // Upload the file
+        setFieldValue(e.target.name, fileResponse) // Update the form field with the response
+      }
+    } catch (error) {
+      handleApiResponse(error)
+    }
   }
 
   return (
-    <>
-      <div className="px-4 py-4 text-sm/6">
-        <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
-          <thead className="bg-purple-100">
-            <tr>
-              <th
-                scope="col"
-                className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-              >
-                <a href="#" className="group inline-flex">
-                  Fee Name
-                </a>
-              </th>
+    <Formik
+      initialValues={getInitialValues()}
+      validationSchema={getValidationSchema()}
+      onSubmit={handleSubmit}
+    >
+      {({ values, setFieldValue, errors }) => (
+        <Form>
+          <div className="py-4 text-sm/6">
+            <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
+              <thead className="bg-purple-100">
+                <tr>
+                  <th
+                    scope="col"
+                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Fee Name
+                    </a>
+                  </th>
 
-              <th
-                scope="col"
-                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-              >
-                <a href="#" className="group inline-flex">
-                  Duration
-                </a>
-              </th>
-              <th
-                scope="col"
-                className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900"
-              >
-                <a href="#" className="group inline-flex">
-                  Total Fee
-                </a>
-              </th>
-              <th
-                scope="col"
-                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-              >
-                <a href="#" className="group inline-flex">
-                  One Time Discount
-                </a>
-              </th>
-              <th
-                scope="col"
-                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-              >
-                <a href="#" className="group inline-flex">
-                  Paid Amount
-                </a>
-              </th>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Duration
+                    </a>
+                  </th>
+                  <th
+                    scope="col"
+                    className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Total Fee
+                    </a>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Discount
+                    </a>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Paid Amount
+                    </a>
+                  </th>
 
-              <th
-                scope="col"
-                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-              >
-                <a href="#" className="group inline-flex">
-                  Pending Balance
-                </a>
-              </th>
-              <th
-                scope="col"
-                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-              >
-                <a href="#" className="group inline-flex">
-                  Due Date
-                </a>
-              </th>
-              <th
-                scope="col"
-                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-              >
-                <a href="#" className="group inline-flex">
-                  Status
-                </a>
-              </th>
-              <th
-                scope="col"
-                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-              >
-                <a href="#" className="group inline-flex">
-                  Now Paid
-                </a>
-              </th>
-              <th
-                scope="col"
-                className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-              ></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            <FieldArray name="fees">
-              {() =>
-                values.fees.map((fee, index) => (
-                  <tr key={index}>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {capitalizeWords(fee.feeName)}
-                    </td>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Pending Balance
+                    </a>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Due Date
+                    </a>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Status
+                    </a>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      Now Paid
+                    </a>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  ></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                <FieldArray name="fees">
+                  {() =>
+                    values.fees.map((fee, index) => (
+                      <tr key={fee._id}>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {capitalizeWords(fee.feeName)}
+                        </td>
 
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {newRows.includes(fee._id) ? (
-                        <div className="sm:col-span-1">
-                          <CustomSelect
-                            name={`fees.${fee._id}.feeInstallment`} // Dynamically bind the name
-                            placeholder="duration"
-                            options={feeduration}
-                            value={
-                              values.fees.find((f) => f._id === fee._id)
-                                ?.feeInstallment || fee.feeInstallment
-                            } // Reflect state or fallback to fee.feeInstallment
-                            onChange={(e) => {
-                              const duration = Number(e.target.value)
-                              const updatedFees = values.fees.map((f) =>
-                                f._id === fee._id
-                                  ? {...f, feeInstallment: duration}
-                                  : f,
-                              )
-                              setFieldValue('fees', updatedFees) // Update the fees array in Formik state
-                            }}
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {fee.isAdded ? (
+                            <CustomSelect
+                              name={`fees.${index}.duration`} // Dynamically bind the name
+                              placeholder="Duration"
+                              options={feeduration} />
+                          ) : capitalizeWords(fee.duration)}
+                        </td>
+
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {fee.isAdded ? (
+                            <CustomInput
+                              name={`fees.${index}.totalAmount`} // Dynamically bind the name
+                              placeholder="Fee Amount" />
+                          ) : fee.totalAmount}
+                        </td>
+
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {fee.isAdded ? (
+                            <CustomInput
+                              name={`fees.${index}.disCount`} // Dynamically bind the name
+                              placeholder="Discount Amount" />
+                          ) : fee.disCount}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {fee.paidAmount}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {fee.pendingAmount}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          <CustomDate
+                            name={`fees.${index}.dueDate`}
+                            minDate={moment().format('YYYY-MM-DD')}
                           />
-                        </div>
-                      ) : (
-                        `${fee.feeInstallment} installment`
-                      )}
-                    </td>
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {fee.status ?
+                            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+                              {fee.status}
+                            </span> : fee.status}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          <div className="sm:col-span-1">
+                            <CustomInput
+                              name={`fees[${index}].paymentAmount`}
+                              className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
+                            />
+                          </div>
+                        </td>
+                        {fee.isAdded && (
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                            <button onClick={() => handleRemove(fee._id, values.fees, setFieldValue)}>
+                              <XMarkIcon
+                                aria-hidden="true"
+                                className="text-red-500 size-5"
+                              />
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+                    ))
+                  }
+                </FieldArray>
 
-                    {/* <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {newRows.includes(fee._id) ? (
-                        <input
-                          type="text"
-                          value={
-                            values.fees.find((f) => f._id === fee._id)
-                              ?.amount || fee.amount
-                          } // Bind to Formik's state
-                          onChange={(e) => {
-                            const updatedValue = Number(e.target.value);
-                            const updatedFees = values.fees.map((f) =>
-                              f._id === fee._id
-                                ? { ...f, amount: updatedValue }
-                                : f
-                            );
-                            setFieldValue("fees", updatedFees); // Update the fees array in Formik state
-                          }}
-                          className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
-                        />
-                      ) : (
-                        fee.amount
-                      )}
-                    </td> */}
+                <tr>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500" colSpan={8}>
+                    <button
+                      type="button"
+                      className="inline-flex items-center  px-3 py-2 text-sm font-semibold text-purple-500  "
+                      onClick={() => setShowDropdown(!showDropdown)}
+                    >
+                      <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
+                      Add New
+                    </button>
 
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {newRows.includes(fee._id) ? (
-                        <input
-                          type="text"
-                          value={
-                            values.fees.find((f) => f._id === fee._id)
-                              ?.amount || fee.amount
-                          } // Bind to Formik's state
-                          onChange={(e) => {
-                            const updatedValue = Number(e.target.value)
-                            const updatedFees = values.fees.map((f) =>
-                              f._id === fee._id
-                                ? {
-                                    ...f,
-                                    amount: updatedValue,
-                                    instalmentAmount: updatedValue,
-                                  }
-                                : f,
-                            )
-                            setFieldValue('fees', updatedFees) // Update the fees array in Formik state
-                          }}
-                          className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
-                        />
-                      ) : (
-                        fee.amount
-                      )}
-                    </td>
-
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {newRows.includes(fee._id) ? (
-                        <input
-                          type="text"
-                          name="feeTitle"
-                          placeholder="Enter"
-                          className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
-                        />
-                      ) : (
-                        fee.amount - fee.instalmentAmount
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {fee.paidAmount}
-                    </td>
-                    {/* <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {fee.instalmentAmount}
-                    </td> */}
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {newRows.includes(fee._id) ? (
-                        <span>
-                          {values.fees.find((f) => f._id === fee._id)
-                            ?.instalmentAmount || fee.instalmentAmount}
-                        </span>
-                      ) : (
-                        fee.instalmentAmount
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {fee.dueDate}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {newRows.includes(fee._id) ? (
-                        ''
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
-                          {fee.status}
-                        </span>
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      <div className="sm:col-span-1">
-                        <CustomInput
-                          name={`fees[${index}].payAmnt`}
-                          className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
-                        />
-                      </div>
-                    </td>
-                    {newRows.includes(fee._id) && (
-                      <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                        <button onClick={() => handleRemove(fee._id)}>
-                          <XMarkIcon
-                            aria-hidden="true"
-                            className="text-red-500 size-5"
-                          />
-                        </button>
-                      </td>
+                    {showDropdown && (
+                      <ul className="border rounded shadow-md mt-2 bg-white">
+                        {allFees
+                          .filter((fee) => !values.fees.some((selectedFee) => selectedFee._id === fee._id))
+                          .map((fee, index) => (
+                            <li
+                              key={index}
+                              className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                              onClick={() => handleAddFee(fee, values.fees, setFieldValue)}
+                            >
+                              {fee.name}
+                            </li>
+                          ))}
+                      </ul>
                     )}
-                  </tr>
-                ))
-              }
-            </FieldArray>
+                  </td>
+                  <td>
+                    {errors.fees && typeof errors.fees === 'string' && (
+                      <div className="text-red-500">{errors.fees}</div>
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
+                    Total Pending:
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
+                    ₹ 0
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
+                    Total Paid:
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
+                    ₹ 0
+                  </td>
+                </tr>
 
-            <tr>
-              <td>
-                <button
-                  type="button"
-                  className="inline-flex items-center  px-3 py-2 text-sm font-semibold text-purple-500  "
-                  onClick={() => setShowDropdown(!showDropdown)}
-                >
-                  <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-                  Add New
-                </button>
-                {/* {showDropdown && (
-                  <ul className="border rounded shadow-md mt-2 bg-white">
-                    {allFees.map((fee, index) => (
-                      <li
-                        key={index}
-                        className={`px-4 py-2 cursor-pointer ${
-                          fees.some((f) => f.value === fee.value)
-                            ? "bg-gray-300"
-                            : "hover:bg-gray-200"
-                        }`}
-                        onClick={() => handleAddFee(fee)}
-                      >
-                        {fee.name}
-                      </li>
-                    ))}
-                  </ul>
-                )} */}
-                {showDropdown && (
-                  <ul className="border rounded shadow-md mt-2 bg-white">
-                    {allFees
-                      .filter(
-                        (fee) =>
-                          !values.fees.some(
-                            (selectedFee) => selectedFee._id === fee._id,
-                          ),
-                      )
-                      .map((fee, index) => (
-                        <li
-                          key={index}
-                          className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                          onClick={() => handleAddFee(fee)}
-                        >
-                          {fee.name}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
-                Total Pending:
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
-                ₹
-                {values.fees.reduce(
-                  (total, fee) => total + fee.instalmentAmount,
-                  0,
-                )}
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
-                Currently Received:
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
-                {totalAmount}
-              </td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
-                Special Discount:
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
-                <CustomSelect
-                  name="discountFees"
-                  options={allFees.map((fee) => ({
-                    label: fee.name,
-                    value: fee.value,
-                  }))}
-                />
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+              </tbody>
+            </table>
+
+
+            <div className=" pb-4 mb-4 mt-4">
+              <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
+                Transaction Details
+              </h2>
+
+              <div className=" grid grid-cols-4 gap-x-4 gap-y-4">
                 <div className="sm:col-span-1">
-                  <CustomInput
-                    name="discountAmnt"
-                    className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
+                  <CustomDate
+                    name="transactionDate"
+                    label="Paid Date"
+                    required={true}
+                    maxDate={moment().format('YYYY-MM-DD')}
                   />
                 </div>
-              </td>
-            </tr>
-            <tr>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
-                Total Paid:
-              </td>
-              <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
-                {totalAmountTobepay}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </>
+
+                <div className="sm:col-span-1">
+                  <CustomSelect
+                    label="Payment Mode"
+                    name="paymentMode"
+                    options={payments}
+                    required
+                  />
+                </div>
+
+                {values.paymentMode !== 'cash' && (
+                  <>
+                    <div className="sm:col-span-1">
+                      <CustomSelect
+                        label="School Credit Bank"
+                        name="bank"
+                        options={banks}
+                        required
+                      />
+                    </div>
+                    <div className="sm:col-span-1">
+                      <CustomInput
+                        label="Transaction ID"
+                        placeholder="Enter Transaction ID"
+                        name="transactionId"
+                        required
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-x-4 gap-y-4">
+              <div className="sm:col-span-1">
+                <CustomFileUploader
+                  label="Upload Transaction Proof"
+                  name="transactionProof"
+                  onChange={(e) =>
+                    handleFileChange(e, setFieldValue)
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex shrink-0 px-4 py-4 bg-gray-100 w-full justify-end">
+            <button
+              type="button"
+              // onClick={onClose}
+              className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+            >
+              Submit
+            </button>
+          </div>
+        </Form>
+      )}
+    </Formik>
   )
 }
 

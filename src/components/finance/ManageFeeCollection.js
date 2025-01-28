@@ -1,24 +1,16 @@
-import { Dialog, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { Dialog } from '@headlessui/react'
 import {
-  ArrowUpTrayIcon,
-  ListBulletIcon,
-  MagnifyingGlassIcon
+  ArrowUpTrayIcon
 } from '@heroicons/react/20/solid'
-import {
-  ArrowDownTrayIcon,
-  ArrowsUpDownIcon,
-  FunnelIcon,
-  Squares2X2Icon,
-} from '@heroicons/react/24/outline'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { getData } from '../../app/api'
-import { setStuFees } from '../../app/reducers/stuFeesSlice'
+import { setFee } from '../../app/reducers/feeSlice'
 import { STUDENT_FEE } from '../../app/url'
-import FinanceCollectFees from './FinanceCollectFees'
-import TableComponent from '../../commonComponent/TableComponent'
-import FilterComponent from '../../commonComponent/FilterComponent'
 import { capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
+import FilterComponent from '../../commonComponent/FilterComponent'
+import TableComponent from '../../commonComponent/TableComponent'
+import CollectFeeModal from './CollectFeeModal'
 
 
 function ManageFeeCollection() {
@@ -48,7 +40,7 @@ function ManageFeeCollection() {
 
   const filters = {
     class: { options: [] },
-    paymentStatus: { options: [{value:"paid",label:"Paid"},{value:"pending",label:"Pending"}] }
+    paymentStatus: { options: [{ value: "paid", label: "Paid" }, { value: "pending", label: "Pending" }] }
   }
 
   useEffect(() => {
@@ -70,6 +62,7 @@ function ManageFeeCollection() {
           _id: fee.student._id,
           name: capitalizeWords(fee.student.firstName + ' ' + fee.student.lastName),
           admissionNo: fee.student.admissionNumber,
+          profilePic:fee.student.profilePic?.Location,
           phoneNo: fee.student.fatherDetails.mobileNumber,
           fatherName: fee.student.fatherDetails.name,
           gender: fee.student.gender,
@@ -97,7 +90,7 @@ function ManageFeeCollection() {
     setCurrentPage(page)
   }
   const showFeeCollectionModal = (data) => {
-    dispatch(setStuFees(data))
+    dispatch(setFee(data))
     setShowFeeModal(true)
   }
 
@@ -245,7 +238,7 @@ function ManageFeeCollection() {
         </div>
         <Dialog open={showFeeModal} onClose={handleClose} className="relative z-50">
           <div className="fixed inset-0" />
-          <FinanceCollectFees onClose={handleClose} />
+          <CollectFeeModal onClose={handleClose} />
         </Dialog>
       </div>
     </>

@@ -3,7 +3,7 @@ import React from 'react'
 function FinanceCollectFeeHistory() {
   return (
     <>
-      <div className="px-4 py-4 text-sm/6">
+      <div className="py-4 text-sm/6">
         <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
           <thead className="bg-purple-100">
             <tr>
