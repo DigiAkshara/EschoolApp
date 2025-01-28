@@ -47,7 +47,7 @@ export default function StaffDetails() {
   };
 
   const handleOpen = () => setShowAddStaffModal(true)
-  const handleClose = () => setShowAddStaffModal(false)
+  const handleClose = () =>{ setShowAddStaffModal(false); dispatch(selectStaff(null))}
   const handleClose2 = () => setOpen2(false)
 
   const getSubjects = async () => {

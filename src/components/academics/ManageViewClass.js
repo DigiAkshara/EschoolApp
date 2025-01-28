@@ -86,6 +86,7 @@ function ManageViewClass({ onClose }) {
                           </div>
 
                           <div className="px-4 py-4 text-sm/6">
+                            {selectedClass&&
                             <dl className="grid auto-cols-auto grid-cols-4 gap-4 w-full">
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
@@ -145,7 +146,7 @@ function ManageViewClass({ onClose }) {
                                     : 'No Subjects Available'}
                                 </dd>
                               </div>
-                            </dl>
+                            </dl>}
                           </div>
                         </li>
 

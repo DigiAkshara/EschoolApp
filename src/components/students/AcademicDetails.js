@@ -107,6 +107,10 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Class"
               required={true}
               options={classes}
+              onChange={(e) => {
+                setFieldValue('academics.class', e.target.value)
+                setFieldValue('academics.section', '')
+              }}
             />
           </div>
 
