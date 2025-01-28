@@ -8,6 +8,7 @@ import studentSlice from './reducers/studentSlice'
 import academicSlice from './reducers/academicSlice'
 import holidayReducer  from './reducers/holidaySlice'
 import staffSlice from './reducers/staffSlice'
+import feeSlice from "./reducers/feeSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,5 +21,6 @@ export const store = configureStore({
     academics: academicSlice,
     holiday: holidayReducer,
     staff: staffSlice,
+    fees: feeSlice,
   },
 })
