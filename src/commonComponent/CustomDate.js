@@ -6,7 +6,6 @@ export default function CustomDate(props) {
   const { 
     name, 
     label, 
-    icon: Icon, 
     required = false, 
     maxDate = null, 
     minDate = null, 

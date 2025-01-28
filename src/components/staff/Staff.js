@@ -1,126 +1,257 @@
-import { DialogPanel, DialogTitle } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
-import { Form, Formik } from 'formik'
-import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import * as Yup from 'yup'
-import { postData, updateData } from '../../app/api'
-import { STAFF } from '../../app/url'
-import { handleApiResponse } from '../../commonComponent/CommonFunctions'
-import Stepper from '../../commonComponent/StepperComponent'
-import StaffCTCDetails from './StaffCTCDetails'
-import StaffInfo from './StaffInfo'
-import StaffPersonalDetails from './StaffPersonalDetails'
+import { DialogPanel, DialogTitle } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
+import React, { useState } from "react";
+import {  useSelector } from "react-redux";
+import * as Yup from "yup";
+import { postData, updateData } from "../../app/api";
+import { STAFF } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import Stepper from "../../commonComponent/StepperComponent";
+import StaffCTCDetails from "./StaffCTCDetails";
+import StaffInfo from "./StaffInfo";
+import StaffPersonalDetails from "./StaffPersonalDetails";
 
 function Staff({ onClose, getStaff }) {
-  const selectedStaff = useSelector((state) => state.staff?.selectedStaff)
-  const dispatch = useDispatch()
-  const [currentStep, setCurrentStep] = useState(1)
+  const selectedStaff = useSelector((state) => state.staff?.selectedStaff);
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    staffType: '',
-    firstName: '',
-    lastName: '',
-    empId: '',
+    staffType: "",
+    firstName: "",
+    lastName: "",
+    empId: "",
     DOJ: null,
-    mobileNumber: '',
+    mobileNumber: "",
     workEmail: null,
-    designation: '',
+    designation: "",
     subjects: [],
     profilePic: null,
-    DOB: '',
+    DOB: "",
     email: null,
-    guardian: '',
-    gender: '',
+    guardian: "",
+    gender: "",
     presentAddress: {
-      area: '',
-      city: '',
-      state: '',
-      pincode: '',
+      area: "",
+      city: "",
+      state: "",
+      pincode: "",
     },
     isSameAsPresent: false,
     permanentAddress: {
-      area: '',
-      city: '',
-      state: '',
-      pincode: '',
+      area: "",
+      city: "",
+      state: "",
+      pincode: "",
     },
-    aadharNumber: '',
-    panNumber: '',
+    aadharNumber: "",
+    panNumber: "",
     aadharPic: null,
     panCardPic: null,
-    paymentMode: '',
+    paymentMode: "",
     accountNumber: "",
     confirmAccountNumber: "",
     ifscCode: "",
     bankName: "",
     bankPassbook: null,
-    amount: '',
+    amount: "",
     ...(selectedStaff && selectedStaff),
     ...(selectedStaff && {
-      confirmAccountNumber:selectedStaff.accountNumber
-    })
-  })
+      confirmAccountNumber: selectedStaff.accountNumber,
+    }),
+  });
 
   const panCardRegex = /^[A-Z]{3}P[A-Z]{1}[0-9]{4}[A-Z]{1}$/;
 
   // Validation schemas for each step
   const validationSchemas = [
     Yup.object({
-      staffType: Yup.string().required('Staff Type is required'),
+      staffType: Yup.string().required("Staff Type is required"),
       firstName: Yup.string()
-        .required('First Name is required')
-        .min(3, 'First name should be at least 3 letters'),
+        .matches(
+          /^[a-zA-Z\s]*$/,
+          "First Name can only contain letters and spaces"
+        )
+        .min(3, "First Name must be at least 3 characters")
+        .max(50, "First Name must be at most 50 characters")
+        .required("First Name is required"),
+
       lastName: Yup.string()
-        .min(3, 'Last name should be at least 3 letters'),
-      empId: Yup.string().required('EmpId is required'),
-      workEmail: Yup.string()
-        .email('Enter a valid email address').nullable(),
-      designation: Yup.string().required('Designation is required'),
+        .matches(
+          /^[a-zA-Z\s]*$/,
+          "Last Name can only contain letters and spaces"
+        )
+        .min(3, "Last Name must be at least 3 characters")
+        .max(50, "Last Name must be at most 50 characters")
+        .required("Last Name is required")
+        .notOneOf(
+          [Yup.ref("firstName")],
+          "First Name and Last Name should not be the same"
+        ),
+      empId: Yup.string()
+        .matches(
+          /^(?=.*\d)[a-zA-Z0-9]*$/,
+          "EmpId must contain at least one numeric character"
+        )
+        .max(10, "EmpId must be at most 10 characters")
+        .required("EmpId is required"),
+      workEmail: Yup.string().email("Enter a valid email address").nullable(),
+      designation: Yup.string().required("Designation is required"),
       subjects: Yup.array().test(
-        'subjects-required',
-        'Subject is required when staff type is Teaching',
+        "subjects-required",
+        "Subject is required when staff type is Teaching",
         function (value) {
           const { staffType } = this.parent; // Access other field values (e.g., staffType)
           // If staffType is 'teaching' and subjects is empty array, validate as required
-          return staffType !== 'teaching' || (value && value.length !== 0);
+          return staffType !== "teaching" || (value && value.length !== 0);
         }
       ),
-      DOJ: Yup.date().nullable().required('Date of Joining is required'),
-      mobileNumber: Yup.string().required('Mobile Number is required').matches(
-        /^[0-9]{10}$/,
-        "Mobile number must be 10 digits"
-      ).max(10),
+      DOJ: Yup.date().nullable().required("Date of Joining is required"),
+      mobileNumber: Yup.string()
+        .required("Mobile Number is required")
+        .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
+        .max(10),
     }),
     Yup.object({
-      profilePic: Yup.object().nullable(),
-      email: Yup.string()
-        .email('Enter a valid email address').nullable(),
-      guardian: Yup.string().required('Guardian is required').max(50),
-      gender: Yup.string().required('Gender is required'),
-      DOB: Yup.date().nullable().required('Date of Birth is required'),
+      profilePic: Yup.mixed()
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; 
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); 
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; 
+          const maxSizeInBytes = 2 * 1024 * 1024; 
+          return value.size <= maxSizeInBytes; 
+        }),
+
+      email: Yup.string().email("Enter a valid email address").nullable(),
+      guardian: Yup.string()
+        .matches(
+          /^[a-zA-Z\s]*$/,
+          "Guardian Name can only contain letters and spaces"
+        )
+        .max(50, "Guardian name must be at most 50 characters")
+        .required("Guardian is required"),
+      gender: Yup.string().required("Gender is required"),
+      DOB: Yup.date().nullable().required("Date of Birth is required"),
       presentAddress: Yup.object({
-        area: Yup.string().required('Area is required'),
-        city: Yup.string().required('City is required'),
-        state: Yup.string().required('State is required'),
-        pincode: Yup.string().required('Pincode is required'),
+        area: Yup.string()
+          .matches(
+            /^[a-zA-Z\s#\/-]*$/,
+            "Area can only contain letters, spaces, and the special characters #, /, -"
+          )
+          .min(3, "Area must be at least 3 characters")
+          .max(100, "Area must be at most 100 characters")
+          .required("Area is required"),
+        city: Yup.string()
+          .matches(/^[a-zA-Z\s]*$/, "City can only contain letters and spaces")
+          .max(15, "City must be at most 15 characters")
+          .min(3, "City must be at least 3 characters")
+          .required("City is required"),
+        state: Yup.string().required("State is required"),
+        pincode: Yup.string()
+          .matches(/^\d{6}$/, "Pincode must be a 6-digit numeric code")
+          .required("Pincode is required"),
       }),
       permanentAddress: Yup.object({
-        area: Yup.string().required('Area is required'),
-        city: Yup.string().required('City is required'),
-        state: Yup.string().required('State is required'),
-        pincode: Yup.string().required('Pincode is required'),
+        area: Yup.string()
+          .matches(
+            /^[a-zA-Z\s#\/-]*$/,
+            "Area can only contain letters, spaces, and the special characters #, /, -"
+          )
+          .min(3, "Area must be at least 3 characters")
+          .max(100, "Area must be at most 100 characters")
+          .required("Area is required"),
+        city: Yup.string()
+          .matches(/^[a-zA-Z\s]*$/, "City can only contain letters and spaces")
+          .max(15, "City must be at most 15 characters")
+          .min(3, "City must be at least 3 characters")
+          .required("City is required"),
+        state: Yup.string().required("State is required"),
+        pincode: Yup.string()
+          .matches(/^\d{6}$/, "Pincode must be a 6-digit numeric code")
+          .required("Pincode is required"),
       }),
       aadharNumber: Yup.string()
-        .matches(/^[0-9]{12}$/, 'Aadhar number must be 12 digits')
-        .required('Aadhar Number is required'),
+        .matches(/^\d{12}$/, "Aadhar number must be a 12-digit numeric code")
+        .required("Aadhar Number is required"),
       panNumber: Yup.string()
-        .matches(panCardRegex, "Invalid PAN card number")
-        .required("PAN card is required"),
-      aadharPic: Yup.object().nullable(),
-      panCardPic: Yup.object().nullable(),
+        .matches(
+          /^[A-Z]{3}P[A-Z]{1}\d{4}[A-Z]{1}$/,
+          "PAN card must follow the format: AAA-P-9999-A"
+        )
+        .length(10, "PAN card must be exactly 10 characters"),
+      aadharPic: Yup.mixed()
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
+      panCardPic: Yup.mixed()
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
     }),
     Yup.object({
-      amount: Yup.string().required('Package amount is required'),
+      amount: Yup.string()
+        .matches(
+          /^\d{1,10}$/, // Matches only integers with up to 10 digits
+          "Amount must be a numeric value within 10 digits and should not have decimals"
+        )
+        .required("Package amount is required"),
       paymentMode: Yup.string()
         .required("Payment mode is required")
         .oneOf(["online", "offline"], "Invalid payment mode"),
@@ -159,13 +290,9 @@ function Staff({ onClose, getStaff }) {
           }
         ),
       ifscCode: Yup.string()
-        .test(
-          "ifsc-code-required",
-          "IFSC code is required",
-          function (value) {
-            return this.parent.paymentMode === "online" ? !!value : true;
-          }
-        )
+        .test("ifsc-code-required", "IFSC code is required", function (value) {
+          return this.parent.paymentMode === "online" ? !!value : true;
+        })
         .test(
           "ifsc-code-valid",
           "Invalid IFSC code (format: 4 letters, 0, 6 alphanumeric)",
@@ -174,37 +301,70 @@ function Staff({ onClose, getStaff }) {
               ? /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value || "")
               : true;
           }
-        ),
+        )
+        .length(11, "IFSC code must be exactly 11 characters long")
+        .required("IFSC code is required"),
       bankName: Yup.string().test(
         "bank-name-required",
         "Bank name is required",
         function (value) {
           return this.parent.paymentMode === "online" ? !!value : true;
         }
-      ), bankPassbook: Yup.object().nullable(),
+      ),
+      bankPassbook: Yup.mixed()
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
     }),
-  ]
+  ];
 
   const handleNext = (values) => {
-    setFormData((prev) => ({ ...prev, ...values }))
-    setCurrentStep((prev) => prev + 1)
-  }
+    setFormData((prev) => ({ ...prev, ...values }));
+    setCurrentStep((prev) => prev + 1);
+  };
 
   const handleBack = () => {
-    setCurrentStep((prev) => prev - 1)
-  }
+    setCurrentStep((prev) => prev - 1);
+  };
 
   const handleSubmit = async (values) => {
     try {
-      const finalData = { ...formData, ...values, confirmAccountNumber: undefined }
-      let response = values._id?await updateData(STAFF+'/'+values._id, finalData): await postData(STAFF, finalData)
-      handleApiResponse(response.data.message, "success")
+      const finalData = {
+        ...formData,
+        ...values,
+        confirmAccountNumber: undefined,
+      };
+      let response = values._id
+        ? await updateData(STAFF + "/" + values._id, finalData)
+        : await postData(STAFF, finalData);
+      handleApiResponse(response.data.message, "success");
       getStaff();
       onClose();
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
 
   const stepContent = [
     { id: 1, name: "Employment Info", href: "#", status: "current" },
@@ -252,10 +412,17 @@ function Staff({ onClose, getStaff }) {
                           </div>
                         </div>
                         <div className="relative mt-6 flex-1 px-4 sm:px-6 overflow-y-auto">
-                          <Stepper steps={stepContent} currentStep={currentStep} />
+                          <Stepper
+                            steps={stepContent}
+                            currentStep={currentStep}
+                          />
                           <div className="form-content mt-4">
-                            {currentStep === 1 && <StaffInfo values={values}
-                              setFieldValue={setFieldValue} />}
+                            {currentStep === 1 && (
+                              <StaffInfo
+                                values={values}
+                                setFieldValue={setFieldValue}
+                              />
+                            )}
                             {currentStep === 2 && (
                               <StaffPersonalDetails
                                 values={values}
@@ -292,7 +459,7 @@ function Staff({ onClose, getStaff }) {
                               type="submit"
                               className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm"
                             >
-                              {currentStep === 3 ? 'Submit' : 'Next'}
+                              {currentStep === 3 ? "Submit" : "Next"}
                             </button>
                           </div>
                         </div>
@@ -306,7 +473,7 @@ function Staff({ onClose, getStaff }) {
         )}
       </Formik>
     </>
-  )
+  );
 }
 
-export default Staff
+export default Staff;

@@ -50,7 +50,7 @@ function StaffInfo({ values, setFieldValue }) {
           </div>
 
           <div className="sm:col-span-2">
-            <CustomDate name="DOJ" label="Date Of Joining" required={true} />
+            <CustomDate name="DOJ" label="Date Of Joining" required={true} maxDate={new Date()} />
           </div>
 
 

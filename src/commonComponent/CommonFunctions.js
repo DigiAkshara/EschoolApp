@@ -4,7 +4,6 @@ import { CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD } from '../app/url'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { toast } from 'react-toastify';
-import { string } from 'yup';
 
 export const getAcademicYears = () => {
   const currentDate = new Date()
@@ -278,7 +277,7 @@ export const getSections = async () => {
   }
 }
 
-export const handleDownload = (filteredData, fileName, excludedFields = []) => {
+export const handleDownload = (filteredData, fileName, excludedFields = [], schoolName = "Your School Name") => {
   try {
     console.log("Download started");
 
@@ -289,10 +288,24 @@ export const handleDownload = (filteredData, fileName, excludedFields = []) => {
       return filteredItem;
     });
 
-    // Convert data to worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    // Create worksheet manually
+    const worksheet = XLSX.utils.aoa_to_sheet([]);
 
-    // Create a workbook
+    // Add custom rows (school name and message)
+    XLSX.utils.sheet_add_aoa(worksheet, [[schoolName]], { origin: "A1" }); // School name in row 1
+    XLSX.utils.sheet_add_aoa(worksheet, [[""]], { origin: "A2" });        // Empty row in row 2
+    XLSX.utils.sheet_add_aoa(worksheet, [["Student list is below"]], { origin: "A3" }); // Message in row 3
+
+    // Add headers (capitalized)
+    const headers = Object.keys(exportData[0] || {}).map(
+      (header) => header.charAt(0).toUpperCase() + header.slice(1)
+    );
+    XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A4" }); // Headers start from row 4
+
+    // Add student data below headers
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A5", skipHeader: true });
+
+    // Create workbook and append the worksheet
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
 
