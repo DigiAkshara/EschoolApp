@@ -8,7 +8,7 @@ import { Dialog } from '@headlessui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteData, getData } from '../../app/api'
 import { selectStaff, setSubjects } from '../../app/reducers/staffSlice'
-import { STAFF, SUBJECTS } from '../../app/url'
+import { STAFF, SUBJECTS, TENANT } from '../../app/url'
 import { capitalizeWords, designations, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
 import CommonUpload from '../../commonComponent/CommonUpload'
 import TableComponent from '../../commonComponent/TableComponent'
@@ -27,6 +27,7 @@ const tabs2 = [
 
 export default function StaffDetails() {
   const subjects = useSelector((state) => state.staff?.subjects)
+  const [tenant, setTenant] = useState(null)
   const [open2, setOpen2] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
   const [showAddStaffModal, setShowAddStaffModal] = useState(false)
@@ -65,9 +66,23 @@ export default function StaffDetails() {
     }
   }
 
+  const getTanent = async () => {
+    try {
+      const response = await getData(TENANT)
+      if (response.data.data) {
+        setTenant(response.data.data)
+      console.log("[TENANT -DATA:]",response.data.data);
+      }
+    } catch (error) {
+      handleApiResponse(error)
+
+    }
+  }
+
   useEffect(() => {
     getSubjects()
     getStaff()
+    getTanent()
   }, [dispatch])
 
   const columns = [
@@ -218,7 +233,11 @@ export default function StaffDetails() {
   )
 
   const downloadList = () => {
-    handleDownload(filteredData, "StaffList", ["_id", "pic", "actions"]);
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownload(filteredData, "StaffList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress,["Staff List is below"]);
   };
 
 
@@ -295,14 +314,7 @@ export default function StaffDetails() {
             <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Bulk Upload Staff
           </button>
-          <button
-            type="button"
-            onClick={downloadList}
-            className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-          >
-            <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Download
-          </button>
+         
         </div>
       </div>
 

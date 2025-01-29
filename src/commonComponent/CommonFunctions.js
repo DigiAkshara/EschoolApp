@@ -277,7 +277,51 @@ export const getSections = async () => {
   }
 }
 
-export const handleDownload = (filteredData, fileName, excludedFields = [], schoolName = "Your School Name") => {
+// export const handleDownload = (filteredData, fileName, excludedFields = [], schoolName = "Your School Name") => {
+//   try {
+//     console.log("Download started");
+
+//     // Filter data to exclude unnecessary fields
+//     const exportData = filteredData.map((item) => {
+//       const filteredItem = { ...item };
+//       excludedFields.forEach((field) => delete filteredItem[field]);
+//       return filteredItem;
+//     });
+
+//     // Create worksheet manually
+//     const worksheet = XLSX.utils.aoa_to_sheet([]);
+
+//     // Add custom rows (school name and message)
+//     XLSX.utils.sheet_add_aoa(worksheet, [[schoolName]], { origin: "A1" }); // School name in row 1
+//     XLSX.utils.sheet_add_aoa(worksheet, [[""]], { origin: "A2" });        // Empty row in row 2
+//     XLSX.utils.sheet_add_aoa(worksheet, [["Student list is below"]], { origin: "A3" }); // Message in row 3
+
+//     // Add headers (capitalized)
+//     const headers = Object.keys(exportData[0] || {}).map(
+//       (header) => header.charAt(0).toUpperCase() + header.slice(1)
+//     );
+//     XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A4" }); // Headers start from row 4
+
+//     // Add student data below headers
+//     XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A5", skipHeader: true });
+
+//     // Create workbook and append the worksheet
+//     const workbook = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+
+//     // Write workbook to binary and create a Blob
+//     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+//     const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+//     // Save the file
+//     saveAs(dataBlob, `${fileName}.xlsx`);
+//     console.log("Download complete");
+//   } catch (error) {
+//     console.error("Error during download:", error);
+//   }
+// };
+
+export const handleDownload = (filteredData, fileName, excludedFields = [], schoolName = "Your School Name", phoneNumber = "", email = "" ,schoolAddress = "", message = "") => {
   try {
     console.log("Download started");
 
@@ -291,19 +335,28 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
     // Create worksheet manually
     const worksheet = XLSX.utils.aoa_to_sheet([]);
 
-    // Add custom rows (school name and message)
-    XLSX.utils.sheet_add_aoa(worksheet, [[schoolName]], { origin: "A1" }); // School name in row 1
-    XLSX.utils.sheet_add_aoa(worksheet, [[""]], { origin: "A2" });        // Empty row in row 2
-    XLSX.utils.sheet_add_aoa(worksheet, [["Student list is below"]], { origin: "A3" }); // Message in row 3
+    // Add custom rows (school name, address, phone number, email)
+    XLSX.utils.sheet_add_aoa(worksheet, [["Schoool Name:", schoolName]], { origin: "A1" }); // School name in row 1
+    XLSX.utils.sheet_add_aoa(worksheet, [["Phone Number:", phoneNumber]], { origin: "A2" }); // Phone number in row 2
+    XLSX.utils.sheet_add_aoa(worksheet, [["Email:", email]], { origin: "A3" }); // Email in row 3
+    if (schoolAddress) {
+      XLSX.utils.sheet_add_aoa(worksheet, [["Address:", schoolAddress]], { origin: "A4" });  // School address in row 4
+    }
+
+    // Add an empty row after the school info
+    XLSX.utils.sheet_add_aoa(worksheet, [[""]], { origin: "A5" });
+
+    // Add message
+    XLSX.utils.sheet_add_aoa(worksheet, [[message]], { origin: "A6" }); // Message in row 6
 
     // Add headers (capitalized)
     const headers = Object.keys(exportData[0] || {}).map(
       (header) => header.charAt(0).toUpperCase() + header.slice(1)
     );
-    XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A4" }); // Headers start from row 4
+    XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A7" }); // Headers start from row 7
 
     // Add student data below headers
-    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A5", skipHeader: true });
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A8", skipHeader: true });
 
     // Create workbook and append the worksheet
     const workbook = XLSX.utils.book_new();

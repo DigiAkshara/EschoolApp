@@ -6,13 +6,46 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { capitalizeWords } from "../../../commonComponent/CommonFunctions";
+import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
+import { ACADEMICS } from "../../../app/url";
+import { getData } from "../../../app/api";
 
 function ExamDetailsPage({ onClose }) {
+  const [students, setStudents] = useState([]);
   const selectedExam = useSelector((state) => state.exams.selectedExam);
   const subjects = useSelector((state) => state.academics.subjects);
+
+  const classId = selectedExam?.classObject._id;
+  const sectionId = selectedExam?.sectionObject._id;
+
+  useEffect(() => {
+    getStudent();
+     })
+const getStudent = async () => {
+  try {
+   
+    const response = await getData(ACADEMICS +"/"+ classId +"/"+ sectionId);
+    if(response.data?.data) {
+      const studentsData = response.data.data.map((item) => ({
+        _id: item.student._id,
+        pic: item.student.profilePic?.Location || "",
+        name: `${item.student.firstName} ${item.student.lastName}`,
+        admissionNo: item.student.admissionNumber,
+        className: item.class?.name || "N/A",
+        section: item.section || "N/A",
+      }))
+      console.log("student data", studentsData);
+      
+      setStudents(studentsData);
+    console.log(response.data.data);
+    }
+     } catch (error) {
+    handleApiResponse(error);
+  }
+}
+
   return (
     <>
       <div className="fixed inset-0" />
@@ -269,7 +302,7 @@ function ExamDetailsPage({ onClose }) {
                                       />
                                     </div>
                                     <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                      <span>Unit 1 - Class 1A</span>
+                                      <span>{selectedExam?.examName} - {selectedExam?.className}-{selectedExam?.sectionName}</span>
                                     </div>
                                   </div>
                                   <a href="#" className="text-gray-400">

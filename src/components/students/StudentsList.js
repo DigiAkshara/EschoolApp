@@ -7,7 +7,7 @@ import {
   fetchInitialStudentData,
   selectStudent,
 } from '../../app/reducers/studentSlice'
-import { ACADEMICS, STUDENT } from '../../app/url'
+import { ACADEMICS, STUDENT, TENANT } from '../../app/url'
 import { gender, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
 import CommonUpload from '../../commonComponent/CommonUpload'
 import FilterComponent from '../../commonComponent/FilterComponent'
@@ -20,6 +20,7 @@ export default function StudentsList() {
   const dispatch = useDispatch()
   const { classes: clsOptions, sections: sectionOptions } = useSelector((state) => state.students)
   const [studentList, setStudentList] = useState([])
+  const [tenant, setTenant] = useState(null)
   const [open, setOpen] = useState(false)
   const [open2, setOpen2] = useState(false)
   const [filteredData, setFilteredData] = useState([])
@@ -37,6 +38,7 @@ export default function StudentsList() {
   useEffect(() => {
     dispatch(fetchInitialStudentData())
     getStudents()
+    getTanent()
   }, [dispatch])
 
   const columns = [
@@ -106,6 +108,19 @@ export default function StudentsList() {
       setFilteredData(studentData)
     } catch (error) {
       handleApiResponse(error)
+    }
+  }
+
+  const getTanent = async () => {
+    try {
+      const response = await getData(TENANT)
+      if (response.data.data) {
+        setTenant(response.data.data)
+      console.log("[TENANT -DATA:]",response.data.data);
+      }
+    } catch (error) {
+      handleApiResponse(error)
+
     }
   }
 
@@ -190,9 +205,12 @@ export default function StudentsList() {
 
 
   const downloadList = () => {
-    handleDownload(filteredData, "StudentList", ["class", "section", "actions"]);
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownload(filteredData, "StudentList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress,["Student List is below"]);
   };
-
 
 
   return (
