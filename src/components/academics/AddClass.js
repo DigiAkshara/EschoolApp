@@ -75,7 +75,8 @@ function AddClass({ onClose, getClassData }) {
       extracurricular: '',
       timetables: [],
       syllabus: [],
-      ...(selectedClass && {...selectedClass,
+      ...(selectedClass && {
+        ...selectedClass,
         category: selectedClass.category._id,
         class: selectedClass.class._id,
         section: selectedClass.section._id,
@@ -144,7 +145,7 @@ function AddClass({ onClose, getClassData }) {
       labSubject: labSubject.length > 0 ? labSubject : '',
     }
     try {
-      let response = values._id?await updateData(TIMETABLE+'/'+values._id, processedValues): await postData(TIMETABLE, processedValues)
+      let response = values._id ? await updateData(TIMETABLE + '/' + values._id, processedValues) : await postData(TIMETABLE, processedValues)
       handleApiResponse(response.data.message, 'success')
       getClassData()
       onClose()
@@ -266,7 +267,7 @@ function AddClass({ onClose, getClassData }) {
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <DialogPanel
               transition
-              className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+              className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
             >
               <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                 <div className="flex min-h-0 flex-1 flex-col">

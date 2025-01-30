@@ -109,7 +109,7 @@ function AddExamMarks({ onClose }) {
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
                   <DialogPanel
                     transition
-                    className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+                    className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
                   >
                     <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                       <div className="flex min-h-0 flex-1 flex-col">
@@ -202,103 +202,103 @@ function AddExamMarks({ onClose }) {
 
                               <div className="border-b border-gray-900/10 pb-4 mb-4">
                                 {students.length > 0 ?
-                                <>
-                                  <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
-                                    Enter Marks
-                                  </h2>
+                                  <>
+                                    <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
+                                      Enter Marks
+                                    </h2>
 
-                                  <div className="overflow-x-auto">
-                                    <table className="mt-4 min-w-full table-fixed divide-y divide-gray-300 border border-gray-300">
-                                      <thead className="bg-purple-100">
-                                        <tr>
-                                          <th
-                                            scope="col"
-                                            className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2 w-12"
-                                          >
-                                            <a href="#" className="group inline-flex">
-                                              Roll No
-                                            </a>
-                                          </th>
-                                          <th
-                                            scope="col"
-                                            className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
-                                          >
-                                            <a href="#" className="group inline-flex">
-                                              Student Name
-                                            </a>
-                                          </th>
-                                          {selectedExam?.timeTable.map((subject, index) => (
+                                    <div className="overflow-x-auto">
+                                      <table className="mt-4 min-w-full table-fixed divide-y divide-gray-300 border border-gray-300">
+                                        <thead className="bg-purple-100">
+                                          <tr>
                                             <th
-                                              key={index}
                                               scope="col"
-                                              className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-32"
+                                              className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2 w-12"
                                             >
                                               <a href="#" className="group inline-flex">
-                                                {subject.subjectName.toUpperCase()}
+                                                Roll No
                                               </a>
-                                              <div className='text-xs'>(Max Marks: {subject.totalMark})</div>
                                             </th>
-                                          ))}
-                                        </tr>
-                                      </thead>
-                                      <tbody className="divide-y divide-gray-200 bg-white">
-                                        {values.studentsMarks.map((student, studentIndex) => (
-                                          <tr key={studentIndex} className="bg-gray-50">
-                                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                              {studentIndex + 1}
-                                            </td>
-                                            <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
-                                              <div className="flex items-center">
-                                                {student.profilePic ?
-                                                  <div className="size-9 shrink-0">
-                                                    <img
-                                                      alt=""
-                                                      src={student.profilePic}
-                                                      className="size-9 rounded-full"
-                                                    />
-                                                  </div> :
-                                                  <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                                                    <span className="font-medium text-gray-600 dark:text-gray-300">{student.studentName.charAt(0)}</span>
-                                                  </div>}
-                                                <div className="ml-4">
-                                                  <div className="font-medium text-gray-900 text-purple-600">
-                                                    {student.studentName}
-                                                  </div>
-                                                  <div className="mt-1 text-gray-500">{student.admissionNumber}</div>
-                                                </div>
-                                              </div>
-                                            </td>
-                                            {student.marks.map((subject, subjectIndex) => (
-                                              <td
-                                                key={subjectIndex}
-                                                className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                                            <th
+                                              scope="col"
+                                              className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
+                                            >
+                                              <a href="#" className="group inline-flex">
+                                                Student Name
+                                              </a>
+                                            </th>
+                                            {selectedExam?.timeTable.map((subject, index) => (
+                                              <th
+                                                key={index}
+                                                scope="col"
+                                                className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-32"
                                               >
-                                                <CustomInput
-                                                  name={`studentsMarks[${studentIndex}].marks[${subjectIndex}].marks`}
-                                                  type="number"
-                                                  onChange={(e) => {
-                                                    if (e.target.value * 1 <= subject.totalMark) {
-                                                      const newMarks = [...student.marks];
-                                                      newMarks[subjectIndex].marks = e.target.value?e.target.value*1:'';
-                                                      setFieldValue(
-                                                        `studentsMarks[${studentIndex}].marks`,
-                                                        newMarks
-                                                      );
-                                                    }
-                                                  }}
-                                                />
-                                              </td>
+                                                <a href="#" className="group inline-flex">
+                                                  {subject.subjectName.toUpperCase()}
+                                                </a>
+                                                <div className='text-xs'>(Max Marks: {subject.totalMark})</div>
+                                              </th>
                                             ))}
                                           </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </>:<>
-                                  <div className="flex justify-center items-center">
-                                    <div className="text-3xl">No Students Found</div>
-                                  </div>
-                                </>}
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200 bg-white">
+                                          {values.studentsMarks.map((student, studentIndex) => (
+                                            <tr key={studentIndex} className="bg-gray-50">
+                                              <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                                                {studentIndex + 1}
+                                              </td>
+                                              <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
+                                                <div className="flex items-center">
+                                                  {student.profilePic ?
+                                                    <div className="size-9 shrink-0">
+                                                      <img
+                                                        alt=""
+                                                        src={student.profilePic}
+                                                        className="size-9 rounded-full"
+                                                      />
+                                                    </div> :
+                                                    <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                                      <span className="font-medium text-gray-600 dark:text-gray-300">{student.studentName.charAt(0)}</span>
+                                                    </div>}
+                                                  <div className="ml-4">
+                                                    <div className="font-medium text-gray-900 text-purple-600">
+                                                      {student.studentName}
+                                                    </div>
+                                                    <div className="mt-1 text-gray-500">{student.admissionNumber}</div>
+                                                  </div>
+                                                </div>
+                                              </td>
+                                              {student.marks.map((subject, subjectIndex) => (
+                                                <td
+                                                  key={subjectIndex}
+                                                  className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                                                >
+                                                  <CustomInput
+                                                    name={`studentsMarks[${studentIndex}].marks[${subjectIndex}].marks`}
+                                                    type="number"
+                                                    onChange={(e) => {
+                                                      if (e.target.value * 1 <= subject.totalMark) {
+                                                        const newMarks = [...student.marks];
+                                                        newMarks[subjectIndex].marks = e.target.value ? e.target.value * 1 : '';
+                                                        setFieldValue(
+                                                          `studentsMarks[${studentIndex}].marks`,
+                                                          newMarks
+                                                        );
+                                                      }
+                                                    }}
+                                                  />
+                                                </td>
+                                              ))}
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  </> : <>
+                                    <div className="flex justify-center items-center">
+                                      <div className="text-3xl">No Students Found</div>
+                                    </div>
+                                  </>}
                               </div>
 
                               <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -329,7 +329,7 @@ function AddExamMarks({ onClose }) {
                           Cancel
                         </button>
                         <button
-                          disabled={students.length==0}
+                          disabled={students.length == 0}
                           type="submit"
                           className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                         >

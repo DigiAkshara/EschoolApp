@@ -1,4 +1,3 @@
-"use client";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
@@ -7,6 +6,7 @@ import TableComponent from "../../../commonComponent/TableComponent";
 import { Dialog } from "@headlessui/react";
 import { setExpense } from "../../../app/reducers/feeSlice";
 import AddExpenseModal from "./AddExpenseModal";
+import ViewExpenseModal from "./ViewExpenseModal";
 
 function ExpensesTab() {
     const dispatch = useDispatch();
@@ -14,6 +14,7 @@ function ExpensesTab() {
     const [filteredData, setFilteredData] = useState([])
     const [expenseData, setExpenseData] = useState([])
     const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
+    const [showViewExpenseModal, setShowViewExpenseModal] = useState(false)
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 10;
     const columns = [
@@ -34,7 +35,7 @@ function ExpensesTab() {
 
     const filters = {
         department: { options: [] },
-        category: { options: []}
+        category: { options: [] }
     };
 
     const handleViewDetails = (item) => {
@@ -75,6 +76,7 @@ function ExpensesTab() {
 
     const handleClose = () => {
         setShowAddExpenseModal(false);
+        setShowViewExpenseModal(false)
         dispatch(setExpense(null));
     };
 
@@ -89,7 +91,7 @@ function ExpensesTab() {
             <div className="right-btns-blk space-x-4 float-right">
                 <button
                     type="button"
-                      onClick={() => setShowAddExpenseModal(true)}
+                    onClick={() => setShowAddExpenseModal(true)}
                     className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
                 >
                     <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
@@ -134,10 +136,15 @@ function ExpensesTab() {
                 </div>
             </div>
             <Dialog open={showAddExpenseModal} onClose={handleClose} className="relative z-50">
-                
                 <AddExpenseModal onClose={handleClose} />
             </Dialog>
+
+            <Dialog open={showViewExpenseModal} onClose={handleClose} className="relative z-50">
+            <div className="fixed inset-0" />
+                <ViewExpenseModal onClose={handleClose} />
+            </Dialog>
         </>
+        
     );
 }
 

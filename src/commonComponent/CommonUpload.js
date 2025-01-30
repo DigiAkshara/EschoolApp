@@ -10,7 +10,7 @@ import { handleDownload, handleDownloadCSV } from "./CommonFunctions";
 function CommonUpload({ onClose2, user }) {
   const [bulkUploadList, setBulkUploadList] = useState([]);
   const [validationError, setValidationError] = useState("");
-  const [duplicateHandlingOption, setDuplicateHandlingOption] = useState("skip"); 
+  const [duplicateHandlingOption, setDuplicateHandlingOption] = useState("skip");
 
   const csvHeadersStudent = [
     "FirstName",
@@ -23,20 +23,20 @@ function CommonUpload({ onClose2, user }) {
     "FatherMobile",
     "FatherOccupation",
     "FatherEmail",
-    "Nationality",   
-    "Religion",       
-    "Cast",           
-    "SubCast",        
-    "BloodGroup",    
-    "MotherName",    
-    "MotherMobile",   
+    "Nationality",
+    "Religion",
+    "Cast",
+    "SubCast",
+    "BloodGroup",
+    "MotherName",
+    "MotherMobile",
     "MotherOccupation",
-    "MotherEmail",   
-    "ParentIdProof",  
-    "AcademicYear",  
-    "Class",          
-    "Section",       
-    "AdmissionDate", 
+    "MotherEmail",
+    "ParentIdProof",
+    "AcademicYear",
+    "Class",
+    "Section",
+    "AdmissionDate",
     "PresentArea",
     "PresentCity",
     "PresentState",
@@ -44,12 +44,12 @@ function CommonUpload({ onClose2, user }) {
     "PermanentArea",
     "PermanentCity",
     "PermanentState",
-    "PermanentPincode", 
-    "PreviousSchoolName", 
+    "PermanentPincode",
+    "PreviousSchoolName",
     "PreviousSchoolYearOfStudy",
     "PreviousClassStudiedYear"
   ];
-  
+
 
   const csvHeadersStaff = [
     "FirstName",
@@ -84,7 +84,7 @@ function CommonUpload({ onClose2, user }) {
     "PassBookPic",
     "Amount",
   ];
-  
+
 
   const downloadSampleCSV = () => {
     if (user === "student") {
@@ -96,7 +96,7 @@ function CommonUpload({ onClose2, user }) {
 
   const downloadSampleXLS = () => {
     if (user === "student") {
-      
+
       handleDownload(csvHeadersStudent, "sample-student-data");
     } else if (user === "staff") {
       handleDownload(csvHeadersStaff, "sample-staff-data");
@@ -121,7 +121,7 @@ function CommonUpload({ onClose2, user }) {
 
         let newData = [];
         const existingData = [...bulkUploadList];
-       
+
         if (user === "student") {
           newData = jsonData.map((item) => ({
             firstName: item.FirstName || "",
@@ -132,7 +132,7 @@ function CommonUpload({ onClose2, user }) {
             DOB: item.DateOfBirth || "",
             aadharNumber: item.AadharNumber || "",
             gender: item.Gender || "",
-            admissionDate:item.AdmissionDate || "",
+            admissionDate: item.AdmissionDate || "",
             fatherDetails: {
               email: item.FatherEmail || "",
               mobileNumber: item.FatherMobile || "",
@@ -161,7 +161,7 @@ function CommonUpload({ onClose2, user }) {
               pincode: item.PermanentPincode || "",
               state: item.PermanentState || "",
             },
-            isSameAsPresent:false
+            isSameAsPresent: false
           }));
         } else if (user === "staff") {
           newData = jsonData.map((item) => ({
@@ -197,7 +197,7 @@ function CommonUpload({ onClose2, user }) {
               accountNumber: item.AccountNumber || "",
               ifscCode: item.IfscCode || "",
               bankName: item.BankName || "",
-              
+
             },
             amount: item.Amount || "",
           }));
@@ -211,42 +211,42 @@ function CommonUpload({ onClose2, user }) {
         );
 
         const requiredFields =
-        user === "student"
-          ? ["firstName", "lastName", "admissionNumber",  "gender","fatherDetails.name","fatherDetails.mobileNumber","presentAddress.area","presentAddress.city","presentAddress.state","presentAddress.pincode","permanentAddress.area","permanentAddress.city","permanentAddress.state","permanentAddress.pincode","aadharNumber","DOB","class","section","admissionDate",]
-          : ["firstName", "lastName", "empId", "DOJ", "DOB", "mobileNumber", "email", "workEmail","designation","subjects","guardian","gender","presentAddress.area","presentAddress.city","presentAddress.state","presentAddress.pincode","permanentAddress.area","permanentAddress.city","permanentAddress.state","permanentAddress.pincode","aadharNumber","panNumber","bankDetails.accountNumber","bankDetails.ifscCode","bankDetails.bankName","amount"];
-       
+          user === "student"
+            ? ["firstName", "lastName", "admissionNumber", "gender", "fatherDetails.name", "fatherDetails.mobileNumber", "presentAddress.area", "presentAddress.city", "presentAddress.state", "presentAddress.pincode", "permanentAddress.area", "permanentAddress.city", "permanentAddress.state", "permanentAddress.pincode", "aadharNumber", "DOB", "class", "section", "admissionDate",]
+            : ["firstName", "lastName", "empId", "DOJ", "DOB", "mobileNumber", "email", "workEmail", "designation", "subjects", "guardian", "gender", "presentAddress.area", "presentAddress.city", "presentAddress.state", "presentAddress.pincode", "permanentAddress.area", "permanentAddress.city", "permanentAddress.state", "permanentAddress.pincode", "aadharNumber", "panNumber", "bankDetails.accountNumber", "bankDetails.ifscCode", "bankDetails.bankName", "amount"];
+
         const invalidData = [];
         const updatedData = [...existingData];
 
-     
-        
+
+
         newData.forEach((item) => {
           const missingFields = requiredFields.filter((field) => {
             const keys = field.split(".");
             const value = keys.reduce((acc, key) => acc && acc[key], item);
             return !value;
           });
-  
+
           if (missingFields.length > 0) {
             invalidData.push({
               ...item,
               missingFields: `Missing fields: ${missingFields.join(", ")}`,
             });
-          }else {
-            const idField = user === "student" ? "admissionNumber" : "empId";
-          const duplicateIndex = updatedData.findIndex(
-            (existing) => existing[idField] === item[idField]
-          );
-
-          if (duplicateIndex !== -1) {
-            if (duplicateHandlingOption === "overwrite") {
-              updatedData[duplicateIndex] = item; // Overwrite existing entry
-            }
-            // If "skip", do nothing (skip the entry)
           } else {
-            updatedData.push(item); // Add new entry
+            const idField = user === "student" ? "admissionNumber" : "empId";
+            const duplicateIndex = updatedData.findIndex(
+              (existing) => existing[idField] === item[idField]
+            );
+
+            if (duplicateIndex !== -1) {
+              if (duplicateHandlingOption === "overwrite") {
+                updatedData[duplicateIndex] = item; // Overwrite existing entry
+              }
+              // If "skip", do nothing (skip the entry)
+            } else {
+              updatedData.push(item); // Add new entry
+            }
           }
-        }
         });
 
         if (invalidData.length > 0) {
@@ -257,7 +257,7 @@ function CommonUpload({ onClose2, user }) {
           );
           //   alert(`Some records are invalid. Check the console for details.`);
         } else {
-          const uploadData  = async () => {
+          const uploadData = async () => {
             try {
               const response = await postData(
                 user === "student" ? STUDENT + "/bulk" : STAFF + "/bulk",
@@ -271,7 +271,7 @@ function CommonUpload({ onClose2, user }) {
               alert("An error occurred while uploading data.");
             }
           };
-          uploadData ();
+          uploadData();
           setValidationError(`${user === "student" ? "Student" : "Staff"} list added successfully!`);
         }
 
@@ -296,7 +296,7 @@ function CommonUpload({ onClose2, user }) {
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <DialogPanel
               transition
-              className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+              className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
             >
               <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                 {/* Header */}

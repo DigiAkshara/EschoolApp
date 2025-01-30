@@ -63,15 +63,15 @@ function CreateExam({ onClose }) {
           startTime: Yup.string().required('Start time is required'),
           endTime: Yup.string().required('End time is required'),
           passMark: Yup.string().required('Pass mark is required')
-          .test('pass-mark-less-than-total-marks','Pass marks less than total marks',
-            function (value) {
-              const {totalMark} = this.parent // Access sibling field 'totalMark'
-              if (value && (value*1 >= totalMark*1)) {
-                return false // Fail validation 
-              }
-              return true // Pass validation otherwise
-            },
-          ),
+            .test('pass-mark-less-than-total-marks', 'Pass marks less than total marks',
+              function (value) {
+                const { totalMark } = this.parent // Access sibling field 'totalMark'
+                if (value && (value * 1 >= totalMark * 1)) {
+                  return false // Fail validation 
+                }
+                return true // Pass validation otherwise
+              },
+            ),
           totalMark: Yup.string().required('Total Mark is required'),
           syllabus: Yup.string().required('Syllabusis required'),
         }),
@@ -106,7 +106,7 @@ function CreateExam({ onClose }) {
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
                   <DialogPanel
                     transition
-                    className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+                    className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
                   >
                     <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                       <div className="flex min-h-0 flex-1 flex-col">
