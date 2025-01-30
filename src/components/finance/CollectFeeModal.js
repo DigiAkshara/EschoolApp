@@ -16,7 +16,7 @@ import FinanceCollectFeesDetails from './FinanceCollectFeesDetails'
 function CollectFeeModal({ onClose }) {
   const [activeTab, setActiveTab] = useState(0)
   const selectedFee = useSelector((state) => state.fees.selectedFee)
-
+  const studentData = selectedFee?.academic
   const feeInfoTabs = [
     {
       name: 'Fee Details',
@@ -69,20 +69,20 @@ function CollectFeeModal({ onClose }) {
                   </div>
                   <div className="relative mt-6 flex-1 px-4 sm:px-6 overflow-y-auto">
                     <div className="student-big-card-blk">
-                      {selectedFee &&
+                      {studentData &&
                         <div className="flex w-full justify-between space-x-6 p-6 col-span-1 rounded-lg bg-white shadow border border-gray-300">
-                          {selectedFee.profilePic ? <img
+                          {studentData.student.profilePic ? <img
                             alt=""
-                            src="https://stu-images.mos.ap-southeast-2.sufybkt.com/1734344416163.jpeg"
+                            src={studentData.student.profilePic.Location}
                             className="size-36 shrink-0 rounded-full bg-gray-300"
                           /> :
                             <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                              <span className="font-medium text-gray-600 dark:text-gray-300">{selectedFee.name.charAt(0)}</span>
+                              <span className="font-medium text-gray-600 dark:text-gray-300">{studentData.student.firstName.charAt(0)}</span>
                             </div>}
                           <div className="flex-1 truncate">
                             <div className="flex justify-between space-x-3">
                               <h3 className="truncate text-lg font-medium text-gray-900">
-                                {selectedFee?.name}
+                                {capitalizeWords(studentData.student.firstName + ' ' + studentData.student.lastName)}
                               </h3>
                               <div className="right-contact-btns grid grid-cols-2 gap-4">
                                 <button
@@ -112,7 +112,7 @@ function CollectFeeModal({ onClose }) {
                                     Academic year
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    2023-2024
+                                    {studentData.academicYear.year}
                                   </dd>
                                 </div>
                                 <div className="sm:col-span-1">
@@ -120,7 +120,7 @@ function CollectFeeModal({ onClose }) {
                                     Admission No
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    {selectedFee?.admissionNo}
+                                    {studentData.student?.admissionNumber}
                                   </dd>
                                 </div>
                                 <div className="sm:col-span-1">
@@ -128,7 +128,7 @@ function CollectFeeModal({ onClose }) {
                                     Class & Section
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    2 / A
+                                    {studentData.class.name} / {studentData.section.section}
                                   </dd>
                                 </div>
                                 <div className="sm:col-span-1">
@@ -136,7 +136,7 @@ function CollectFeeModal({ onClose }) {
                                     Roll No
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    12
+                                    N/A
                                   </dd>
                                 </div>
                                 <div className="sm:col-span-1">
@@ -144,7 +144,7 @@ function CollectFeeModal({ onClose }) {
                                     DOB
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    {moment(selectedFee.dob).format('DD-MM-YYYY')}
+                                    {moment(studentData.student.DOB).format('DD-MM-YYYY')}
                                   </dd>
                                 </div>
                                 <div className="sm:col-span-1">
@@ -152,7 +152,7 @@ function CollectFeeModal({ onClose }) {
                                     Gender
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    {capitalizeWords(selectedFee.gender)}
+                                    {capitalizeWords(studentData.student.gender)}
                                   </dd>
                                 </div>
                                 <div className="sm:col-span-1">
@@ -160,7 +160,7 @@ function CollectFeeModal({ onClose }) {
                                     Father Name
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    {capitalizeWords(selectedFee.fatherName)}
+                                    {capitalizeWords(studentData.student.fatherDetails.name)}
                                   </dd>
                                 </div>
                                 <div className="sm:col-span-1">
@@ -168,7 +168,7 @@ function CollectFeeModal({ onClose }) {
                                     Father Mobile
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    {selectedFee.phoneNo}
+                                    {studentData.student.fatherDetails.mobileNumber}
                                   </dd>
                                 </div>
                               </dl>
@@ -176,8 +176,6 @@ function CollectFeeModal({ onClose }) {
                           </div>
                         </div>}
                     </div>
-
-
                     <div className="form-content">
                       <div>
                         <div className="sm:hidden">

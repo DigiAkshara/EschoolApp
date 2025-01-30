@@ -1,7 +1,7 @@
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { FieldArray, Form, Formik } from 'formik'
-import moment from 'moment'
+import moment, { duration } from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import * as Yup from 'yup'
@@ -23,10 +23,12 @@ import CustomSelect from '../../commonComponent/CustomSelect'
 function FinancCollectFeesDetails({ onClose }) {
   const [allFees, setAllFees] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
-  const selectedFee = useSelector((state) => state.fees.selectedFee)
+  const selectedData = useSelector((state) => state.fees.selectedFee)
+  const classId = selectedData?.academic.class._id
+  const selectedFee = selectedData?.fees
   const getInitialValues = () => {
     return {
-      fees: selectedFee?.fees.map((item) => {
+      fees: selectedFee?.feeList.map((item) => {
         const pendingAmount = item.paybalAmount * 1 - (item.paidAmount * 1 || 0)
         return ({
           _id: item.fee._id,
@@ -53,6 +55,16 @@ function FinancCollectFeesDetails({ onClose }) {
     return Yup.object({
       fees: Yup.array().of(
         Yup.object({
+          disCount: Yup.number().test(
+            'if-value-is-exist-must-be-less-than-or-equalto-total-amount',
+            'Discount cannot be greater than total amount',
+            function (value) {
+              const { totalAmount } = this.parent; // Access sibling field 'total amount'
+              if (value && value * 1 > ((totalAmount * 1)/4)) {
+                return false; // Fail validation if discount is greater than total amount
+              }
+              return true; // Pass validation otherwise
+            }),
           duration: Yup.string().required('Duration is required'),
           totalAmount: Yup.number().required('Total Amount is required'),
           dueDate: Yup.date().nullable().required('Due Date is required'),
@@ -65,7 +77,7 @@ function FinancCollectFeesDetails({ onClose }) {
                 return false; // Fail validation if paymentMode is not 'cash' but value is invalid
               }
               return true; // Pass validation otherwise
-            })
+            }),
         }),
       ).test(
         "at-least-one-amount-must-be-entered",
@@ -104,15 +116,13 @@ function FinancCollectFeesDetails({ onClose }) {
   const getFeesData = async () => {
     try {
       const res = await getData(FEES)
-      setAllFees(res.data.data)
+      const feeRes = res.data.data
+      let dummyList = feeRes.filter((item) => (item.isGlobal || item.class?._id === classId))
+      setAllFees(dummyList)
     } catch (error) {
       handleApiResponse(error)
     }
   }
-
-  useEffect(() => {
-    getFeesData()
-  }, [])
 
   const handleAddFee = (item, fees, setFieldValue) => {
     const newFee = {
@@ -122,7 +132,7 @@ function FinancCollectFeesDetails({ onClose }) {
       totalAmount: item.amount,
       disCount: item.discount,
       paidAmount: "-",
-      pendingAmount: "-",
+      pendingAmount: item.amount,
       dueDate: item.dueDate || null,
       status: 'Pending',
       paymentAmount: "",
@@ -152,7 +162,6 @@ function FinancCollectFeesDetails({ onClose }) {
   }
 
   const handleSubmit = async (values) => {
-    console.log(values)
     try {
       const res = await postData(STUDENT_FEE, values)
       handleApiResponse(res.data.message, "success")
@@ -160,6 +169,22 @@ function FinancCollectFeesDetails({ onClose }) {
     } catch (error) {
       handleApiResponse(error)
     }
+  }
+
+  useEffect(() => {
+    if (selectedData) {
+      const classId = selectedData?.academic.class._id
+      getFeesData(classId)
+    }
+  }, [selectedData])
+
+  const checkDisabled = (values) => {
+    return allFees
+      .filter((fee) => !values.fees.some((selectedFee) => selectedFee._id === fee._id)).length === 0
+  }
+
+  const getTotalAmount = (values, key) => {
+    return values.fees.reduce((total, fee) => total + fee[key] * 1, 0)
   }
 
   return (
@@ -276,7 +301,11 @@ function FinancCollectFeesDetails({ onClose }) {
                           {fee.isAdded ? (
                             <CustomInput
                               name={`fees.${index}.totalAmount`} // Dynamically bind the name
-                              placeholder="Fee Amount" />
+                              placeholder="Fee Amount"
+                              onChange={(e) => {
+                                setFieldValue(`fees.${index}.totalAmount`, e.target.value)
+                                setFieldValue(`fees.${index}.pendingAmount`, e.target.value)
+                              }} />
                           ) : fee.totalAmount}
                         </td>
 
@@ -334,6 +363,7 @@ function FinancCollectFeesDetails({ onClose }) {
                       type="button"
                       className="inline-flex items-center  px-3 py-2 text-sm font-semibold text-purple-500  "
                       onClick={() => setShowDropdown(!showDropdown)}
+                      disabled={checkDisabled(values)}
                     >
                       <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
                       Add New
@@ -370,14 +400,14 @@ function FinancCollectFeesDetails({ onClose }) {
                     Total Pending:
                   </td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
-                    ₹ 0
+                    ₹ {getTotalAmount(values, "pendingAmount")}
                   </td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
                     Total Paid:
                   </td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-left">
-                    ₹ 0
+                    ₹ {getTotalAmount(values, "paymentAmount")}
                   </td>
                 </tr>
 
@@ -446,7 +476,7 @@ function FinancCollectFeesDetails({ onClose }) {
           <div className="flex shrink-0 px-4 py-4 bg-gray-100 w-full justify-end">
             <button
               type="button"
-              // onClick={onClose}
+              onClick={onClose}
               className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
             >
               Cancel

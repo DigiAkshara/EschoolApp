@@ -125,7 +125,7 @@ const FilterComponent = ({
                     </MenuItems>
                   </Menu>
 
-                  <button
+                  {/* <button
                     type="button"
                     className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                   >
@@ -136,7 +136,7 @@ const FilterComponent = ({
                     className="rounded bg-purple-600 px-2 py-1 text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
                   >
                     <ListBulletIcon aria-hidden="true" className="size-5" />
-                  </button>
+                  </button> */}
                 </div>
               </Form>
             )}

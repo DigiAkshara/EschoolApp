@@ -61,7 +61,7 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn }) =
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white z-1">
-            {sortedData.map((record, indx) => (
+            {sortedData.length?sortedData.map((record, indx) => (
               <tr key={indx} className="bg-gray-50">
                 <td className="relative px-7 sm:w-12 sm:px-6">
                   <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
@@ -152,7 +152,9 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn }) =
                   ),
                 )}
               </tr>
-            ))}
+            )): <tr className="bg-gray-50">
+                <td className="px-2 py-3.5 text-center text-sm font-semibold text-gray-900" colSpan={columns.length+1}>No data found</td>
+              </tr>}
           </tbody>
         </table>
       </div>

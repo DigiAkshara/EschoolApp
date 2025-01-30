@@ -4,6 +4,7 @@ import ManageFeeCollection from './finance/ManageFeeCollection'
 import ManageFeesOverview from './finance/ManageFeesOverview'
 import Submenu from './Submenu'
 import FeesList from './finance/FeesList'
+import Expenses from './finance/expenses/Expenses'
 
 export default function Finance() {
   const [activeTab, setActiveTab] = useState(null)
@@ -16,7 +17,8 @@ export default function Finance() {
         return <ManageFeeCollection />
       case 'fee_structures':
         return <FeesList />
-
+      case 'expenses':
+        return <Expenses/>
       default:
         return <h2>No Content Available</h2>
     }
