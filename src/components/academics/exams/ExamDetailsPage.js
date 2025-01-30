@@ -9,11 +9,16 @@ import { UserCircleIcon } from "@heroicons/react/24/solid";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
-import { ACADEMICS } from "../../../app/url";
+import { ACADEMICS, TENANT } from "../../../app/url";
 import { getData } from "../../../app/api";
+import { jsPDF } from "jspdf";
+import JSZip from "jszip";
+import html2canvas from "html2canvas";
+import moment from "moment";
 
 function ExamDetailsPage({ onClose }) {
   const [students, setStudents] = useState([]);
+  const [tenant, setTenant] = useState(null)
   const selectedExam = useSelector((state) => state.exams.selectedExam);
   const subjects = useSelector((state) => state.academics.subjects);
 
@@ -22,19 +27,23 @@ function ExamDetailsPage({ onClose }) {
 
   useEffect(() => {
     getStudent();
+    getTanent();
      })
 const getStudent = async () => {
   try {
    
     const response = await getData(ACADEMICS +"/"+ classId +"/"+ sectionId);
     if(response.data?.data) {
+      console.log("Response data for student:", response.data.data);
+      
       const studentsData = response.data.data.map((item) => ({
         _id: item.student._id,
         pic: item.student.profilePic?.Location || "",
         name: `${item.student.firstName} ${item.student.lastName}`,
         admissionNo: item.student.admissionNumber,
+        DOB: moment(item.student.DOB).format("DD-MM-YYYY"),
+        mothersName : item.student.motherDetails.name || " ",
         className: item.class?.name || "N/A",
-        section: item.section || "N/A",
       }))
       console.log("student data", studentsData);
       
@@ -45,6 +54,239 @@ const getStudent = async () => {
     handleApiResponse(error);
   }
 }
+
+const getSubjectName = (subjectId) => {
+  const subject = subjects.find((s) => s.value === subjectId);
+  return subject ? capitalizeWords(subject.label) : "Unknown Subject";
+};
+
+// Helper function to capitalize words
+const capitalizeWords = (str) => {
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const getTanent = async () => {
+  try {
+    const response = await getData(TENANT)
+    if (response.data.data) {
+      setTenant(response.data.data)
+    console.log("[TENANT -DATA:]",response.data.data);
+    }
+  } catch (error) {
+    handleApiResponse(error)
+
+  }
+}
+
+// const generatePDFs = async () => {
+//   console.log("Generating Hall Tickets...");
+
+//   const zip = new JSZip(); // Initialize zip
+
+
+//   const pdfPromises = students.map(async (student) => {
+//     const container = document.createElement("div");
+//     container.style.width = "800px";
+
+//     container.innerHTML = `
+//       <div style="padding: 20px; font-family: Arial, sans-serif;">
+//         <h2 style="text-align: center; font-weight: bold;">${tenant?.name?.toUpperCase()}</h2>
+//         <h3 style="text-align: center;">Ph: ${tenant.phoneNumber} | Email: ${tenant.email}</h3>
+//         <h3 style="text-align: center; margin-bottom: 20px;">Address: ${tenant.city}, ${tenant.district}, ${tenant.state}, ${tenant.pincode}</h3>
+//         <h2 style="text-align: center;">Hall Ticket</h2>
+        
+//         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+//           <div style="flex: 2;">
+//              <p><strong>Candidate Name:</strong> ${student.name}</p>
+//              <p><strong>Admission No:</strong> ${student.admissionNo}</p>
+//             <p><strong>Class:</strong> ${student.className}</p>
+//             <p><strong>Section:</strong> ${selectedExam?.sectionName}</p>
+//              <p><strong>Seat No:</strong> ${student.rollNo}</p>
+
+//             <p><strong>Date Of birth :</strong> ${student.DOB}</p>
+//             <p><strong>Mother’s Name:</strong> ${student.motherName}</p>
+//           </div>
+//           <div style="flex: 1; text-align: right;">
+//             <img src="${student.photo}" alt="Student Photo" style="width: 100px; height: 120px; border: 1px solid #000;">
+//           </div>
+//         </div>
+
+//         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+//           <thead>
+//             <tr style="background: #000; color: #fff;">
+//              <th style="border: 1px solid #000; padding: 8px;">Si.No</th>
+//               <th style="border: 1px solid #000; padding: 8px;">Sub.Name</th>
+//               <th style="border: 1px solid #000; padding: 8px;">Exam Date</th>
+//               <th style="border: 1px solid #000; padding: 8px;">Exam Time</th>
+           
+//             </tr>
+//           </thead>
+//            <tbody>
+//               ${selectedExam?.timeTable
+//                 .map(
+//                   (exam,index) => `
+//                 <tr>
+//                 <td style="border: 1px solid #000; padding: 8px; allign: center;">${index + 1}</td>
+//                   <td style="border: 1px solid #000; padding: 8px; allign: center;">${getSubjectName(exam.subject)}</td>
+//                   <td style="border: 1px solid #000; padding: 8px; allign: center;">${exam.examDate}</td>
+//                   <td style="border: 1px solid #000; padding: 8px; allign: center;">${exam.startTime} - ${exam.endTime}</td>
+                 
+//                 </tr>
+//               `
+//                 )
+//                 .join("")}
+//             </tbody>
+//         </table>
+
+//         <div style="margin-top: 20px;">
+//           <p><strong>Signature of Principal / COE</strong></p>
+//           <p><strong>Date:</strong> __________</p>
+//         </div>
+
+//         <div style="margin-top: 20px;">
+//           <h4>Important Instructions:</h4>
+//           <ul>
+//             <li>Students will not be allowed to appear in exams without this Hall Ticket.</li>
+//             <li>Students must report 15 minutes before the scheduled time.</li>
+//             <li>Do not write anything on this Hall Ticket.</li>
+//             <li>Electronic gadgets, notes, and books are not allowed inside the exam hall.</li>
+//           </ul>
+//         </div>
+//       </div>
+//     `;
+
+//     document.body.appendChild(container);
+
+//     // Convert HTML to image using html2canvas
+//     const canvas = await html2canvas(container, { scale: 2 });
+//     const imgData = canvas.toDataURL("image/png");
+
+//     // Create PDF
+//     const doc = new jsPDF("p", "mm", "a4");
+//     const pdfWidth = doc.internal.pageSize.getWidth();
+//     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+//     doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+//     document.body.removeChild(container);
+
+//     const pdfBlob = doc.output("blob");
+//     zip.file(`Hall_Ticket_${student.name}.pdf`, pdfBlob);
+//   });
+
+//   await Promise.all(pdfPromises);
+
+//   zip.generateAsync({ type: "blob" }).then((content) => {
+//     const link = document.createElement("a");
+//     link.href = URL.createObjectURL(content);
+//     link.download = "Hall_Tickets.zip";
+//     link.click();
+//   });
+// };
+
+const generatePDFs = async () => {
+  console.log("Generating Hall Tickets...");
+
+  const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
+
+  const pdfPromises = students.map(async (student, index) => {
+    const container = document.createElement("div");
+    container.style.width = "800px";
+
+    container.innerHTML = `
+      <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h2 style="text-align: center; font-weight: bold;">${tenant?.name?.toUpperCase()}</h2>
+        <h3 style="text-align: center;">Ph: ${tenant.phoneNumber} | Email: ${tenant.email}</h3>
+        <h3 style="text-align: center; margin-bottom: 20px;">Address: ${tenant.city}, ${tenant.district}, ${tenant.state}, ${tenant.pincode}</h3>
+        <h2 style="text-align: center;">Hall Ticket</h2>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+          <div style="flex: 2;">
+             <p><strong>Candidate Name:</strong> ${student.name}</p>
+             <p><strong>Admission No:</strong> ${student.admissionNo}</p>
+            <p><strong>Class:</strong> ${student.className}</p>
+            <p><strong>Section:</strong> ${selectedExam?.sectionName}</p>
+             <p><strong>Seat No:</strong> ${student.rollNo}</p>
+
+            <p><strong>Date Of birth :</strong> ${student.DOB}</p>
+            <p><strong>Mother’s Name:</strong> ${student.motherName}</p>
+          </div>
+          <div style="flex: 1; text-align: right;">
+            <img src="${student.photo}" alt="Student Photo" style="width: 100px; height: 120px; border: 1px solid #000;">
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background: #000; color: #fff;">
+             <th style="border: 1px solid #000; padding: 8px;">Si.No</th>
+              <th style="border: 1px solid #000; padding: 8px;">Sub.Name</th>
+              <th style="border: 1px solid #000; padding: 8px;">Exam Date</th>
+              <th style="border: 1px solid #000; padding: 8px;">Exam Time</th>
+           
+            </tr>
+          </thead>
+           <tbody>
+              ${selectedExam?.timeTable
+                .map(
+                  (exam, index) => `
+                <tr>
+                <td style="border: 1px solid #000; padding: 8px; text-align: center;">${index + 1}</td>
+                  <td style="border: 1px solid #000; padding: 8px; text-align: center;">${getSubjectName(exam.subject)}</td>
+                  <td style="border: 1px solid #000; padding: 8px; text-align: center;">${exam.examDate}</td>
+                  <td style="border: 1px solid #000; padding: 8px; text-align: center;">${exam.startTime} - ${exam.endTime}</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+        </table>
+
+        <div style="margin-top: 20px;">
+          <p><strong>Signature of Principal / COE</strong></p>
+          <p><strong>Date:</strong> __________</p>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <h4>Important Instructions:</h4>
+          <ul>
+            <li>Students will not be allowed to appear in exams without this Hall Ticket.</li>
+            <li>Students must report 15 minutes before the scheduled time.</li>
+            <li>Do not write anything on this Hall Ticket.</li>
+            <li>Electronic gadgets, notes, and books are not allowed inside the exam hall.</li>
+          </ul>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(container);
+
+    // Convert HTML to image using html2canvas
+    const canvas = await html2canvas(container, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+
+    // Calculate PDF dimensions based on canvas size
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    // Add image to PDF
+    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+    // Cleanup DOM after rendering
+    document.body.removeChild(container);
+
+    // Add a page for the next student's hall ticket (except for the last student)
+    if (index < students.length - 1) {
+      doc.addPage();
+    }
+  });
+
+  // Wait for all student PDFs to be added to the document
+  await Promise.all(pdfPromises);
+
+  // Save the final PDF as a single file
+  doc.save("Hall_Tickets.pdf");
+};
+
 
   return (
     <>
@@ -284,7 +526,10 @@ const getStudent = async () => {
                             </div>
                           </div>
 
-                          <div className="px-4 py-4 text-sm/6">
+                          <div className="px-4 py-4 text-sm/6"
+                            onClick={generatePDFs}
+                            role="button"
+                            tabIndex={0}>
                             <ul
                               role="list"
                               className="grid grid-cols-4 gap-x-6 gap-y-8"
