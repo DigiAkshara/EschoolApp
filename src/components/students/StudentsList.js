@@ -7,8 +7,13 @@ import {
   fetchInitialStudentData,
   selectStudent,
 } from '../../app/reducers/studentSlice'
+<<<<<<< Updated upstream
 import { ACADEMICS, STUDENT } from '../../app/url'
 import { gender, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
+=======
+import { ACADEMICS, STUDENT, TENANT } from '../../app/url'
+import { gender, handleApiResponse, handleDownload, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
+>>>>>>> Stashed changes
 import CommonUpload from '../../commonComponent/CommonUpload'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
@@ -96,6 +101,7 @@ export default function StudentsList() {
           previousClass: item.student.previousSchool?.classStudied,
           previousstudyProof: item.student.previousSchool?.studyProof,
           previousSchoolyearOfStudy: item.student.previousSchool?.yearOfStudy,
+          presentAddress: `${item.student.presentAddress?.area}, ${item.student.presentAddress?.city}, ${item.student.presentAddress?.state} - ${item.student.presentAddress?.pincode}`, 
           actions: [
             { label: 'Edit', actionHandler: onHandleEdit },
             { label: 'Delete', actionHandler: onDelete },
@@ -189,8 +195,37 @@ export default function StudentsList() {
   )
 
 
+<<<<<<< Updated upstream
   const downloadList = () => {
     handleDownload(filteredData, "StudentList", ["class", "section", "actions"]);
+=======
+  const downloadListxlsx = () => {
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownload(filteredData, "StudentList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress,["Student List is below"]);
+>>>>>>> Stashed changes
+  };
+
+  const downloadList = () => {
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownloadPDF (filteredData, "Student_Details", [
+      { label: "Stu.Name", key: "name" },
+      { label: "Ad.No", key: "admissionNo" },
+      { label: "Class", key: "className" },
+      { label: "Section", key: "sectionName" },
+      { label: "Aadhar.No.", key: "aadharNumber" },
+      { label: "DOB", key: "DOB" },
+      { label: "Fathers Name", key: "fatherName" },
+      { label: "Phone No.", key: "fatherMobile" },
+      { label: "Mothers Name", key: "motherName" },
+      { label: "Present Address", key: "presentAddress" }, 
+           
+    ], "Student Details Report");
   };
 
 

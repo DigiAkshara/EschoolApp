@@ -8,8 +8,13 @@ import { Dialog } from '@headlessui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteData, getData } from '../../app/api'
 import { selectStaff, setSubjects } from '../../app/reducers/staffSlice'
+<<<<<<< Updated upstream
 import { STAFF, SUBJECTS } from '../../app/url'
 import { capitalizeWords, designations, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
+=======
+import { STAFF, SUBJECTS, TENANT } from '../../app/url'
+import { capitalizeWords, designations, handleApiResponse, handleDownload, handleDownloadPDF  } from '../../commonComponent/CommonFunctions'
+>>>>>>> Stashed changes
 import CommonUpload from '../../commonComponent/CommonUpload'
 import TableComponent from '../../commonComponent/TableComponent'
 import Staff from './Staff'
@@ -125,6 +130,7 @@ export default function StaffDetails() {
           ifscCode: item.bankDetails?.ifscCode,
           bankName: item.bankDetails?.bankName,
           passBookPic: item.bankDetails?.passBookPic?.Location,
+          presentAddress: `${item.presentAddress?.area}, ${item.presentAddress?.city}, ${item.presentAddress?.state} - ${item.presentAddress?.pincode}`, 
           salary: item.amount,
           actions: [
             { label: 'Edit', actionHandler: onHandleEdit },
@@ -217,9 +223,47 @@ export default function StaffDetails() {
     currentPage * rowsPerPage,
   )
 
+<<<<<<< Updated upstream
   const downloadList = () => {
     handleDownload(filteredData, "StaffList", ["_id", "pic", "actions"]);
+=======
+  const downloadListxlsv = () => {
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownload(filteredData, "StaffList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress,["Staff List is below"]);
+    // handleDownloadPDF(filteredData, "StaffList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress, "Staff List is below");
+>>>>>>> Stashed changes
   };
+
+  const downloadList = () => {
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownloadPDF (filteredData, "Staff_Details", [
+      { label: "Staff Name", key: "name" },
+      { label: "Phone Number", key: "phoneNumber" },
+      { label: "EmpId", key: "staffId" },
+      { label: "Designation", key: "designation" },
+      { label: "Staff Type", key: "staffType" },
+      { label: "DOJ", key: "date" },
+      { label: "DOB", key: "DOB" },
+      { label: "Gender", key: "gender" },
+      { label: "Guardian Name", key: "guardian" },
+      { label: "Aadhar Number", key: "aadharNumber" },
+      { label: "Subjects", key: "subjectName" },
+      { label: "Present Address", key: "presentAddress" }, 
+      { label: "Amount", key: "salary" }, 
+      { label: "Account Number", key: "accountNumber" },
+      { label: "IFSC Code", key: "ifscCode" },
+      { label: "Bank Name", key: "bankName" }
+      
+      
+    ], "Staff Details Report");
+  };
+
 
 
 

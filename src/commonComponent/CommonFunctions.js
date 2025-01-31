@@ -4,6 +4,9 @@ import { CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD } from '../app/url'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { toast } from 'react-toastify';
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+
 
 export const getAcademicYears = () => {
   const currentDate = new Date()
@@ -319,6 +322,29 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
   } catch (error) {
     console.error("Error during download:", error);
   }
+};
+
+
+
+export const handleDownloadPDF = (data, fileName, columns, title) => {
+  const doc = new jsPDF();
+  doc.setFont("helvetica", "bold");
+  doc.text(title, 14, 15);
+
+  // Extract column headers and row data
+  const tableColumnHeaders = columns.map((col) => col.label);
+  const tableRows = data.map((row) => columns.map((col) => row[col.key] || "-"));
+
+ // Add table
+  autoTable(doc, {
+    head: [tableColumnHeaders],
+    body: tableRows,
+    startY: 20,
+    styles: { fontSize: 10 },
+    theme: "grid",
+  });
+
+  doc.save(`${fileName}.pdf`);
 };
 
 

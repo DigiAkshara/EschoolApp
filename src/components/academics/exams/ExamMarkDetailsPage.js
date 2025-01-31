@@ -1,111 +1,265 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import {
   ArrowsUpDownIcon,
   DocumentArrowDownIcon,
   EyeIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline'
-import { UserCircleIcon } from '@heroicons/react/24/solid'
-import moment from 'moment'
-import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { capitalizeWords } from '../../../commonComponent/CommonFunctions'
+} from "@heroicons/react/24/outline";
+import { UserCircleIcon } from "@heroicons/react/24/solid";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import { getData } from '../../../app/api';
+import { TENANT } from '../../../app/url';
+import autoTable from "jspdf-autotable";
 
-const tableData = [
-  {
-    rollNo: 1,
-    name: 'Janet Baker',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    id: 112345,
-    english: 87,
-    telugu: 58,
-    maths: 56,
-    social: 66,
-    science: 74,
-    hindi: 43,
-    marksObtained: 384,
-    maxMarks: 550,
-    percentage: '64%',
-    result: 'Pass',
-  },
-  {
-    rollNo: 2,
-    name: 'Janet Baker',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    id: 112345,
-    english: 87,
-    telugu: 87,
-    maths: 87,
-    social: 87,
-    science: 87,
-    hindi: 87,
-    marksObtained: 522,
-    maxMarks: 600,
-    percentage: '87%',
-    result: 'Pass',
-  },
-  {
-    rollNo: 3,
-    name: 'Janet Baker',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-    id: 112345,
-    english: 44,
-    telugu: 46,
-    maths: 28,
-    social: 22,
-    science: 38,
-    hindi: 37,
-    marksObtained: 215,
-    maxMarks: 550,
-    percentage: '45%',
-    result: 'Failed',
-  },
-]
 
 function ExamMarkDetailsPage({ onClose }) {
+
   const selectedExamDetails = useSelector((state) => state.exams.selectedExamDetails)
   const subjectOptions = useSelector((state) => state.academics.subjects)
   const [studentMarks, setStudents] = useState([])
-  
+  const [tenant, setTenant] = useState(null)
+
+
+ 
   const getSubjectName = (subjectId) => {
-    return subjectOptions.find((subject) => subject.value === subjectId)?.label.toUpperCase()
+    return subjectOptions
+      .find((subject) => subject.value === subjectId)
+      ?.label.toUpperCase();
+  };
+
+  const getTanent = async () => {
+    try {
+      const response = await getData(TENANT)
+      if (response.data.data) {
+        setTenant(response.data.data)
+      console.log("[TENANT -DATA:]",response.data.data);
+      }
+    } catch (error) {
+      handleApiResponse(error)
+
+    }
+  }
+
+  function getGrade(marks) {
+    if (marks >= 91) return "A+";
+    if (marks >= 81) return "A";
+    if (marks >= 71) return "B+";
+    if (marks >= 61) return "B";
+    if (marks >= 51) return "C+";
+    if (marks >= 41) return "C";
+    if (marks >= 32) return "D+";
+    return "D"; // Below 32 is "D"
+  }
+
+  function getTotalMarks(student) {
+    return selectedExamDetails.exam.timeTable.reduce(
+      (total, subject, i) => total + (student?.marks[i]?.marks || 0),
+      0
+    );
+  }
+  
+  function getTotalPercentage(student) {
+    const totalMarksObtained = getTotalMarks(student);
+    const totalMaxMarks = selectedExamDetails.exam.timeTable.reduce(
+      (total, subject) => total + subject.totalMark,
+      0
+    );
+    return ((totalMarksObtained / totalMaxMarks) * 100).toFixed(2);
+  }
+  
+  function getOverallGrade(student) {
+    const percentage = getTotalPercentage(student);
+    return getGrade(percentage); // Assuming getGrade() maps percentage to a grade
   }
 
   const getResult = (marks, timeTable) => {
     let isPassed = true
     marks.forEach((item) => {
-      let passMark = timeTable.find((subject) => subject.subject === item.subject)?.passMark
-      if (item.marks < passMark*1) {
-        isPassed = false
+      let passMark = timeTable.find(
+        (subject) => subject.subject === item.subject
+      )?.passMark;
+      if (item.marks < passMark * 1) {
+        isPassed = false;
       }
     })
     return isPassed ? 'Pass' : 'Fail'
   }
 
-  useEffect(() => { 
-    if (selectedExamDetails) {  
-      console.log(selectedExamDetails)  
+  useEffect(() => {
+    if (selectedExamDetails) {
+      console.log(selectedExamDetails)
       let dumpList = []
       selectedExamDetails.marksDetails.forEach((item) => {
         dumpList.push({
           ...item.student,
           marks: item.marks.map((item) => ({
             subject: getSubjectName(item.subject),
-            marks: item.marks
+            marks: item.marks,
           })),
           marksObtained: item.marks.reduce((acc, item) => acc + item.marks, 0),
-          maxMarks: selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark*1, 0),
-          percentage: Math.round((item.marks.reduce((acc, item) => acc + item.marks, 0) / selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark*1, 0)) * 100),
+          maxMarks: selectedExamDetails?.exam.timeTable.reduce(
+            (acc, item) => acc + item.totalMark * 1,
+            0
+          ),
+          percentage: Math.round(
+            (item.marks.reduce((acc, item) => acc + item.marks, 0) /
+              selectedExamDetails?.exam.timeTable.reduce(
+                (acc, item) => acc + item.totalMark * 1,
+                0
+              )) *
+              100
+          ),
           result: getResult(item.marks, selectedExamDetails?.exam.timeTable),
         })
       })
       setStudents(dumpList)
     }
-  }, [selectedExamDetails])
+    getTanent()
+  }, [selectedExamDetails]);
+
+
+
+const generatePDFs = async () => {
+  console.log("studentMarks", studentMarks);
+
+  const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
+
+  const pdfPromises = studentMarks.map(async (student, index) => {
+    // Create a container dynamically to hold the progress card HTML
+    const container = document.createElement("div");
+    container.style.width = "800px"; // Set a fixed width for consistent rendering
+    
+    container.style.position = "absolute"; // Keep it offscreen
+    container.style.left = "-9999px"; // Prevent flickering
+    container.style.top = "-9999px"; // Keep it out of view
+    //container.style.visibility = "hidden"; // Hide it from the user
+
+    container.innerHTML = `
+      <div style="padding: 30px; font-family: Arial, sans-serif;">
+        <!-- Header Section -->
+        <div style="display: flex; justify-content: center; align-items: center; ">
+          <!-- School Emblem Div (left side) -->
+          <div style="flex: 0 0 auto; text-align: center; position: absolute; left: 30px; width: 120px; height: 120px;">
+    <img src='/schoolLogo.jpg' alt="School Emblem" 
+         style="width: 100%; height: 100%; object-fit: contain; max-width: 110px; max-height: 110px;">
+</div>
+
+          <!-- School Information Div (centered) -->
+          <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
+            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px;">${tenant?.name?.toUpperCase()}</h1>
+            <p style="margin: 0; font-weight: bold; font-size: 13px;">Ph: ${tenant.phoneNumber||""} | Email: ${tenant.email}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; ">Address: ${tenant.city || ""}, ${tenant.district|| ""}, ${tenant.state|| ""}, ${tenant.pincode|| ""}</p>
+          </div>
+        </div>
+        <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
+
+        <div>
+        <h2 style="text-align: center;font-weight: bold; ">Result Card</h2>
+        </div>
+        <div style="display: flex; margin-top: 10px;">
+          <!-- Left Section (Student details) -->
+          <div style="flex: 1; padding-right: 10px;">
+            <p><strong>Name of Student:</strong> ${student.firstName || ""} ${student.lastName || ""}</p>
+            <p><strong>Mother's Name:</strong> ${student.motherName || ""}</p>
+            <p><strong>Father's Name:</strong> ${student.fatherName || ""}</p>
+            <p><strong>Address:</strong> ${student.address || ""}</p>
+          </div>
+
+          <!-- Right Section (5 details) -->
+          <div style="flex: 1; padding-left: 10px;">
+            <p><strong>Roll No:</strong> ${student.rollNo || ""}</p>
+            <p><strong>Admission Number:</strong> ${student.admissionNumber || ""}</p>
+            <p><strong>Date of Birth:</strong> ${student.dob ? new Date(student.dob).toLocaleDateString() : ""}</p>
+            <p><strong>Exam:</strong> ${selectedExamDetails.exam.name || ""}</p>
+            <p><strong>Academic Year:</strong> ${selectedExamDetails.academicYear.year || ""}</p>
+          </div>
+          <div style="flex: 1; text-align: center;  display: flex; justify-content: center; align-items: center; ">
+<div style="text-align: center; width: 75px; height: 100px; border: 1px solid #ccc;  justify-content: center; align-items: center; ">
+  <img src="path_to_student_photo.jpg" alt="Student Photo" style="max-width: 100%; max-height: 100%; object-fit: cover;">
+</div>
+</div>
+
+        </div>
+
+        <!-- Exam Results Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-family: Arial, sans-serif; color: #333;">
+          <thead>
+            <tr style="background: #4CAF50; color: white; text-align: center; font-weight: bold;">
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Subject</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Marks Obtained</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Total Marks</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Pass Mark</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${selectedExamDetails.exam.timeTable
+              .map((subject, i) => {
+                const marksObtained = student.marks[i]?.marks || 0;
+                const grade = getGrade(marksObtained);
+
+                return `
+                  <tr style="background: ${i % 2 === 0 ? "#f9f9f9" : "#fff"}; text-align: center; border-bottom: 1px solid #ddd;">
+                    <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getSubjectName(subject.subject)}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${marksObtained}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${subject.totalMark}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${subject.passMark}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${grade}</td>
+                  </tr>
+                `;
+              })
+              .join("")}
+            <tr style="background: #dff0d8; font-weight: bold; text-align: center;">
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Total Marks: ${student.marksObtained} / ${student.maxMarks}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">Total Percentage: ${student.percentage}%</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">Overall Grade: ${getOverallGrade(student)}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">Result: ${student.result}</td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <div style="margin-top: 40px; text-align: center;">
+          <p>Sign of Class Teacher &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; Sign of Principal &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; Sign of Manager</p>
+          <hr style="margin-top: 10px; border: 1px solid #ccc; width: 100%;">
+        </div>
+      </div>`;
+
+
+    // Append to body (hidden) for rendering
+    document.body.appendChild(container);
+
+    // Convert the HTML element to a canvas using html2canvas
+    const canvas = await html2canvas(container, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+     
+    // Calculate PDF dimensions based on canvas size
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    // Add image to PDF
+    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+    // Cleanup DOM after rendering
+    document.body.removeChild(container);
+
+    // Add a page for the next student's report
+    doc.addPage();
+  });
+
+  // Wait for all PDFs to be generated (in the same document)
+  await Promise.all(pdfPromises);
+
+  // Save the final PDF
+  doc.save(`PROGRESS_CARD_${selectedExamDetails.exam.name}.pdf`);
+};
+
+
+
   return (
     <>
       <div className="fixed inset-0" />
@@ -367,18 +521,16 @@ function ExamMarkDetailsPage({ onClose }) {
                                       >
                                         <div className="flex items-center">
                                           {student.profilePic ? (
-                                            
-                                         
-                                          <div className="size-9 shrink-0">
-                                            <img
-                                              src={student.imageUrl}
-                                              alt={student.name}
-                                              className="size-9 rounded-full"
-                                            />
-                                          </div> ):
-                                           <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                                           <span className="font-medium text-gray-600 dark:text-gray-300">{student.firstName.charAt(0)}</span>
-                                         </div>}
+                                            <div className="size-9 shrink-0">
+                                              <img
+                                                src={student.imageUrl}
+                                                alt={student.name}
+                                                className="size-9 rounded-full"
+                                              />
+                                            </div>) :
+                                            <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                              <span className="font-medium text-gray-600 dark:text-gray-300">{student.firstName.charAt(0)}</span>
+                                            </div>}
                                           <div className="ml-4">
                                             <div className="font-medium text-gray-900 text-purple-600">
                                               {capitalizeWords(student.firstName + ' ' + student.lastName)}
@@ -395,7 +547,6 @@ function ExamMarkDetailsPage({ onClose }) {
                                       {subject.marks}
                                     </td>
                                     ))}
-                                    
                                     <td className="px-2 py-2 text-sm">
                                       {student.marksObtained}
                                     </td>
@@ -439,7 +590,7 @@ function ExamMarkDetailsPage({ onClose }) {
                             </div>
                           </div>
 
-                          <div className="px-4 py-4 text-sm/6">
+                          <div className="px-4 py-4 text-sm/6" onClick={generatePDFs}>
                             <ul
                               role="list"
                               className="grid grid-cols-4 gap-x-6 gap-y-8"
@@ -456,7 +607,7 @@ function ExamMarkDetailsPage({ onClose }) {
                                       />
                                     </div>
                                     <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                      <span>Unit 1 - Class 1A</span>
+                                      <span>{selectedExamDetails?.exam.name} - {selectedExamDetails?.exam.class?.name}-{selectedExamDetails?.exam.section?.section}</span>
                                     </div>
                                   </div>
                                   <a href="#" className="text-gray-400">

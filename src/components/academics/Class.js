@@ -5,8 +5,8 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteData, getData } from '../../app/api'
 import { setSelectedClass } from '../../app/reducers/classSlice'
-import { NEW_CLASS, TIMETABLE } from '../../app/url'
-import { boardOptions, capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
+import { NEW_CLASS, TENANT, TIMETABLE } from '../../app/url'
+import { boardOptions, capitalizeWords, handleApiResponse, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
 import ConfirmationModal from '../../commonComponent/ConfirmationModal'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
@@ -30,11 +30,27 @@ export default function Class() {
   const dispatch = useDispatch() // Get the dispatch function
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
+  const [tenant, setTenant] = useState(null)
+
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     getClassData();
+    getTanent()
   }, []); // Intentionally omit getClassData
+
+  const getTanent = async () => {
+    try {
+      const response = await getData(TENANT)
+      if (response.data.data) {
+        setTenant(response.data.data)
+      console.log("[TENANT -DATA:]",response.data.data);
+      }
+    } catch (error) {
+      handleApiResponse(error)
+
+    }
+  }
 
   const getClassData = async () => {
     try {
@@ -186,6 +202,22 @@ export default function Class() {
     currentPage * rowsPerPage,
   )
 
+  const downloadList = () => {
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownloadPDF (filteredData, "Class_Details", [
+      { key: 'board', label: 'Board' },
+    { key: 'className', label: 'Class' },
+    { key: 'sectionName', label: 'Section' },
+    { key: 'totalStudents', label: 'Total Students' },
+    { key: 'classTeacherName', label: 'Class Teacher' },
+      
+      
+    ], "Class Details Report");
+  };
+
   return (
     <>
       <div className="mt-4 flex justify-between">
@@ -223,6 +255,8 @@ export default function Class() {
                 filterForm={filterForm}
                 handleFilter={handleFilter}
                 handleReset={handleReset}
+                downloadList={downloadList}
+
               />
 
               {/* Table View */}
