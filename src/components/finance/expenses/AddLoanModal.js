@@ -10,39 +10,33 @@ import CustomInput from '../../../commonComponent/CustomInput'
 import CustomFileUploader from '../../../commonComponent/CustomFileUploader'
 import { uploadFile } from '../../../commonComponent/CommonFunctions'
 
-function AddExpenseModal({ onClose }) {
+function AddLoanModal({ onClose }) {
 
   const getInitialValues = () => {
     return {
-      purchaseUser: '',
-      purchaseDate: '',
-      name: '',
-      supplier: '',
-      department: '',
-      category: '',
-      invoiceNumber: '',
-      purchaseQty: '',
-      amount: '',
+      loanType: '',
+      designation: '',
+      staffName: '',
+      loanAmount: '',
+      dateOfIssued: '',
+      amountIssuedBy: '',
       bankAccount: '',
       description: '',
-      expenseDocs: null,
+      loanDocs: null,
     }
   }
 
   const getValidationSchema = () => {
     return Yup.object({
-      purchaseUser: Yup.string().required('Purchase User is required'),
-      purchaseDate: Yup.date().nullable().required("Purchase Date  is required"),
-      name: Yup.string().required('Name is required'),
-      supplier: Yup.string(),
-      department: Yup.string(),
-      category: Yup.string(),
-      invoiceNumber: Yup.string(),
-      purchaseQty: Yup.string(),
-      amount: Yup.string().required('Amount is required'),
-      bankAccount: Yup.string(),
+      loanType: Yup.string().required('Loan type is required'),
+      designation: Yup.date().nullable().required("Staff Designation  is required"),
+      staffName: Yup.string().required('Staff Name is required'),
+      loanAmount: Yup.number().required('Loan Amount is required'),
+      dateOfIssued: Yup.date().nullable().required("Date of issued  is required"),
+      amountIssuedBy: Yup.string().required('Amount issued by is required'),
+      bankAccount: Yup.string().required('Bank account is required'),
       description: Yup.string(),
-      expenseDocs: Yup.mixed()
+      loanDocs: Yup.mixed()
         .nullable()
         .test(
           "fileFormat",
@@ -116,7 +110,7 @@ function AddExpenseModal({ onClose }) {
                           <div className="bg-purple-900 px-3 py-3 sm:px-6">
                             <div className="flex items-start justify-between">
                               <DialogTitle className=" text-base font-semibold text-white">
-                                Add Expense
+                                Add Loan or Advance
                               </DialogTitle>
                               <div className="ml-3 flex h-7 items-center">
                                 <button
@@ -141,90 +135,64 @@ function AddExpenseModal({ onClose }) {
                                   <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                                     <div className="sm:col-span-1">
                                       <CustomSelect
-                                        name="purchaseUser"
-                                        label="Purchase User"
+                                        name="loanType"
+                                        label="Type"
                                         required={true}
                                         options={[
-                                          { value: 'student', label: 'Student' },
+                                          { value: 'loan1', label: 'Loan' },]}
+                                      />
+                                    </div>
+                                    <div className="sm:col-span-1"></div>
+
+                                    <div className="sm:col-span-1">
+                                      <CustomSelect
+                                        name="designation"
+                                        label="Loan Person Designation"
+                                        required={true}
+                                        options={[
                                           { value: 'teacher', label: 'Teacher' },
-                                          { value: 'staff', label: 'Staff' },]}
+                                          { value: 'principal', label: 'Principal' },
+                                        ]}
+                                      />
+                                    </div>
+
+                                    <div className="sm:col-span-1">
+                                      <CustomSelect
+                                        name="staffName"
+                                        label="Staff Name"
+                                        required={true}
+                                        options={[
+                                            { value: 'staff1', label: 'Staff 1' },
+                                            { value: 'staff2', label: 'Staff 2' },
+                                          ]}
+                                      />
+                                    </div>
+
+                                    <div className="sm:col-span-1">
+                                      <CustomInput
+                                        type="number"
+                                        name="loanAmount"
+                                        label="Loan Amount"
+                                        placeHolder="Enter Amount"
+                                        required={true}
                                       />
                                     </div>
 
                                     <div className="sm:col-span-1">
                                       <CustomDate
-                                        name="purchaseDate"
-                                        label="Purchase Date"
-                                        required={true}
-                                        maxDate={moment().format('YYYY-MM-DD')}
-                                      />
-                                    </div>
-
-                                    <div className="sm:col-span-1">
-                                      <CustomInput
-                                        name="name"
-                                        label="Name"
-                                        required={true}
-                                        placeHolder="Enter Name"
-                                      />
-                                    </div>
-
-                                    <div className="sm:col-span-1">
-                                      <CustomInput
-                                        name="supplier"
-                                        label="Supplier"
-                                        placeHolder="Enter Supplier"
+                                        name="dateOfIssued"
+                                        label="Date of Issued"
                                       />
                                     </div>
 
                                     <div className="sm:col-span-1">
                                       <CustomSelect
-                                        name="department"
-                                        label="Department"
+                                        name="amountIssuedBy"
+                                        label="Amount Issued By"
                                         options={[
-                                          { value: 'IT', label: 'IT' },
-                                          { value: 'HR', label: 'HR' },
-                                          { value: 'Accounting', label: 'Accounting' },
-                                          { value: 'Marketing', label: 'Marketing' },
-                                          { value: 'Finance', label: 'Finance' },
-                                          { value: 'Sales', label: 'Sales' },
+                                          { value: 'bank', label: 'Bank' },
+                                          { value: 'cash', label: 'Cash' },
                                         ]}
-                                      />
-                                    </div>
-
-                                    <div className="sm:col-span-1">
-                                      <CustomSelect
-                                        name="category"
-                                        label="Category"
-                                        options={[
-                                          { value: 'cat1', label: 'Cat 1' },
-                                          { value: 'cat2', label: 'Cat 2' },
-                                        ]}
-                                      />
-                                    </div>
-
-                                    <div className="sm:col-span-1">
-                                      <CustomInput
-                                        name="invoiceNumber"
-                                        label="Invoice Number"
-                                        placeHolder="Enter Invoice Number"
-                                      />
-                                    </div>
-
-                                    <div className="sm:col-span-1">
-                                      <CustomInput
-                                        name="purchaseQty"
-                                        label="Pur.Qty"
-                                        placeHolder="Enter Purchase Quantity"
-                                      />
-                                    </div>
-
-                                    <div className="sm:col-span-1">
-                                      <CustomInput
-                                        name="amount"
-                                        label="Amount"
-                                        required={true}
-                                        placeHolder="Enter Amount"
                                       />
                                     </div>
 
@@ -232,13 +200,14 @@ function AddExpenseModal({ onClose }) {
                                       <CustomSelect
                                         name="bankAccount"
                                         label="Bank Account"
-                                        placeHolder="Enter Bank Account"
                                         options={[
                                           { value: 'account1', label: 'Account 1' },
                                           { value: 'account2', label: 'Account 2' },
                                         ]}
                                       />
                                     </div>
+
+                                    
                                     <div className="col-span-full">
                                       <CustomInput
                                         label="Description"
@@ -249,7 +218,7 @@ function AddExpenseModal({ onClose }) {
                                     <div className="col-span-full">
                                       <CustomFileUploader
                                         label="Attachments"
-                                        name="expenseDocs"
+                                        name="loanDocs"
                                         onChange={(e) => handleFileChange(e, setFieldValue)}
                                       />
                                     </div>
@@ -288,4 +257,4 @@ function AddExpenseModal({ onClose }) {
   )
 }
 
-export default AddExpenseModal
+export default AddLoanModal

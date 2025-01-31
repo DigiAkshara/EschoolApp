@@ -28,6 +28,7 @@ function FinancCollectFeesDetails({ onClose }) {
   const selectedFee = selectedData?.fees
   const getInitialValues = () => {
     return {
+      studentId: selectedData?.fees.student,
       fees: selectedFee?.feeList.map((item) => {
         const pendingAmount = item.paybalAmount * 1 - (item.paidAmount * 1 || 0)
         return ({
@@ -131,7 +132,7 @@ function FinancCollectFeesDetails({ onClose }) {
       duration: item.duration,
       totalAmount: item.amount,
       disCount: item.discount,
-      paidAmount: "-",
+      paidAmount: 0,
       pendingAmount: item.amount,
       dueDate: item.dueDate || null,
       status: 'Pending',

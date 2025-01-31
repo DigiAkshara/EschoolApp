@@ -42,7 +42,7 @@ function ManageViewClass({ onClose }) {
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <DialogPanel
               transition
-              className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+              className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
             >
               <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                 <div className="flex min-h-0 flex-1 flex-col">
@@ -86,67 +86,67 @@ function ManageViewClass({ onClose }) {
                           </div>
 
                           <div className="px-4 py-4 text-sm/6">
-                            {selectedClass&&
-                            <dl className="grid auto-cols-auto grid-cols-4 gap-4 w-full">
-                              <div className="content-item pb-2 border-b border-gray-300">
-                                <dt className="text-sm/6 text-gray-500">
-                                  Board
-                                </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.board}
-                                </dd>
-                              </div>
-                              <div className="content-item pb-2 border-b border-gray-300">
-                                <dt className="text-sm/6 text-gray-500">
-                                  Class Category
-                                </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.categoryName}
-                                </dd>
-                              </div>
-                              <div className="content-item pb-2 border-b border-gray-300">
-                                <dt className="text-sm/6 text-gray-500">
-                                  Class
-                                </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.className}
-                                </dd>
-                              </div>
-                              <div className="content-item pb-2 border-b border-gray-300">
-                                <dt className="text-sm/6 text-gray-500">
-                                  Section
-                                </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.sectionName}
-                                </dd>
-                              </div>
-                              <div className="content-item pb-2 border-b border-gray-300">
-                                <dt className="text-sm/6 text-gray-500">
-                                  Class Teacher{' '}
-                                </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {capitalizeWords(selectedClass.classTeacherName)}
-                                </dd>
-                              </div>
+                            {selectedClass &&
+                              <dl className="grid auto-cols-auto grid-cols-4 gap-4 w-full">
+                                <div className="content-item pb-2 border-b border-gray-300">
+                                  <dt className="text-sm/6 text-gray-500">
+                                    Board
+                                  </dt>
+                                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                    {selectedClass.board}
+                                  </dd>
+                                </div>
+                                <div className="content-item pb-2 border-b border-gray-300">
+                                  <dt className="text-sm/6 text-gray-500">
+                                    Class Category
+                                  </dt>
+                                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                    {selectedClass.categoryName}
+                                  </dd>
+                                </div>
+                                <div className="content-item pb-2 border-b border-gray-300">
+                                  <dt className="text-sm/6 text-gray-500">
+                                    Class
+                                  </dt>
+                                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                    {selectedClass.className}
+                                  </dd>
+                                </div>
+                                <div className="content-item pb-2 border-b border-gray-300">
+                                  <dt className="text-sm/6 text-gray-500">
+                                    Section
+                                  </dt>
+                                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                    {selectedClass.sectionName}
+                                  </dd>
+                                </div>
+                                <div className="content-item pb-2 border-b border-gray-300">
+                                  <dt className="text-sm/6 text-gray-500">
+                                    Class Teacher{' '}
+                                  </dt>
+                                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                    {capitalizeWords(selectedClass.classTeacherName)}
+                                  </dd>
+                                </div>
 
-                              <div className="content-item pb-2 border-b border-gray-300">
-                                <dt className="text-sm/6 text-gray-500">
-                                  Subjects
-                                </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedClass.theorySubjects &&
-                                    selectedClass.theorySubjects.length > 0
-                                    ? selectedClass.theorySubjects.map(
-                                      (subject, index) => (
-                                        <span key={index} className="block">
-                                          {capitalizeWords(subject.label)}
-                                        </span>
-                                      ),
-                                    )
-                                    : 'No Subjects Available'}
-                                </dd>
-                              </div>
-                            </dl>}
+                                <div className="content-item pb-2 border-b border-gray-300">
+                                  <dt className="text-sm/6 text-gray-500">
+                                    Subjects
+                                  </dt>
+                                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                                    {selectedClass.theorySubjects &&
+                                      selectedClass.theorySubjects.length > 0
+                                      ? selectedClass.theorySubjects.map(
+                                        (subject, index) => (
+                                          <span key={index} className="block">
+                                            {capitalizeWords(subject.label)}
+                                          </span>
+                                        ),
+                                      )
+                                      : 'No Subjects Available'}
+                                  </dd>
+                                </div>
+                              </dl>}
                           </div>
                         </li>
 
