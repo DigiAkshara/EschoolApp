@@ -100,13 +100,21 @@ function ManageFeeCollection() {
     }
   }
 
-  const handleClose = () => setShowFeeModal(false)
+  const handleClose = () => {
+    setShowFeeModal(false)
+    dispatch(setFee(null))
+  }
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
-  const showFeeCollectionModal = (data) => {
-    dispatch(setFee(data))
-    setShowFeeModal(true)
+  const showFeeCollectionModal = async(data) => {
+    try{
+      let res = await getData(STUDENT_FEE+'/'+data._id)
+      dispatch(setFee(res.data.data))
+      setShowFeeModal(true)
+    }catch(error){
+      handleApiResponse(error)
+    }
   }
 
   const handleSearch = (term) => {

@@ -12,6 +12,7 @@ import CustomDate from '../../../commonComponent/CustomDate'
 import CustomInput from '../../../commonComponent/CustomInput'
 import CustomSelect from '../../../commonComponent/CustomSelect'
 import ExamTimeTable from './ExamTimeTable'
+import moment from 'moment'
 
 function CreateExam({ onClose }) {
   const {
@@ -61,7 +62,16 @@ function CreateExam({ onClose }) {
           examDate: Yup.date().required('Date is required'),
           startTime: Yup.string().required('Start time is required'),
           endTime: Yup.string().required('End time is required'),
-          passMark: Yup.string().required('Pass mark is required'),
+          passMark: Yup.string().required('Pass mark is required')
+            .test('pass-mark-less-than-total-marks', 'Pass marks less than total marks',
+              function (value) {
+                const { totalMark } = this.parent // Access sibling field 'totalMark'
+                if (value && (value * 1 >= totalMark * 1)) {
+                  return false // Fail validation 
+                }
+                return true // Pass validation otherwise
+              },
+            ),
           totalMark: Yup.string().required('Total Mark is required'),
           syllabus: Yup.string().required('Syllabusis required'),
         }),
@@ -96,7 +106,7 @@ function CreateExam({ onClose }) {
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
                   <DialogPanel
                     transition
-                    className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+                    className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
                   >
                     <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                       <div className="flex min-h-0 flex-1 flex-col">
@@ -191,6 +201,7 @@ function CreateExam({ onClose }) {
                                       name="startDate"
                                       label="Exam Start Date"
                                       required={true}
+                                      minDate={moment().format('DD-MM-YYYY')}
                                       onChange={(newValue) => {
                                         console.log(newValue, "startDate")
                                         setFieldValue('startDate', newValue)

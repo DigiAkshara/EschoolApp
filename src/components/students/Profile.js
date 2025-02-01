@@ -1,4 +1,4 @@
-import {Dialog, DialogPanel, DialogTitle} from '@headlessui/react'
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import {
   ArrowLeftStartOnRectangleIcon,
   ArrowLongUpIcon,
@@ -29,13 +29,13 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 const studentInfotabs = [
-  {name: 'Overview', href: '#', current: true},
-  {name: 'Personal Details', href: '#', current: false},
-  {name: 'Academic Details', href: '#', current: false},
-  {name: 'Fee details', href: '#', current: false},
+  { name: 'Overview', href: '#', current: true },
+  { name: 'Personal Details', href: '#', current: false },
+  { name: 'Academic Details', href: '#', current: false },
+  { name: 'Fee details', href: '#', current: false },
 ]
 
-const StudentProfileModal = ({data, show, close}) => {
+const StudentProfileModal = ({ data, show, close }) => {
   return (
     <Dialog open={show} onClose={close} className="relative z-50">
       <div className="fixed inset-0" />
@@ -45,7 +45,7 @@ const StudentProfileModal = ({data, show, close}) => {
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <DialogPanel
               transition
-              className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+              className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
             >
               <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                 <div className="flex min-h-0 flex-1 flex-col ">

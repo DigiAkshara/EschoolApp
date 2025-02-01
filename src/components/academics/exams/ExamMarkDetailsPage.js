@@ -22,10 +22,14 @@ function ExamMarkDetailsPage({ onClose }) {
   const selectedExamDetails = useSelector((state) => state.exams.selectedExamDetails)
   const subjectOptions = useSelector((state) => state.academics.subjects)
   const [studentMarks, setStudents] = useState([])
+<<<<<<< HEAD
   const [tenant, setTenant] = useState(null)
 
 
  
+=======
+
+>>>>>>> 20a15d582d4af81e7f87ac942f92b35a99f84292
   const getSubjectName = (subjectId) => {
     return subjectOptions
       .find((subject) => subject.value === subjectId)
@@ -80,11 +84,17 @@ function ExamMarkDetailsPage({ onClose }) {
   const getResult = (marks, timeTable) => {
     let isPassed = true
     marks.forEach((item) => {
+<<<<<<< HEAD
       let passMark = timeTable.find(
         (subject) => subject.subject === item.subject
       )?.passMark;
       if (item.marks < passMark * 1) {
         isPassed = false;
+=======
+      let passMark = timeTable.find((subject) => subject.subject === item.subject)?.passMark
+      if (item.marks < passMark * 1) {
+        isPassed = false
+>>>>>>> 20a15d582d4af81e7f87ac942f92b35a99f84292
       }
     })
     return isPassed ? 'Pass' : 'Fail'
@@ -102,6 +112,7 @@ function ExamMarkDetailsPage({ onClose }) {
             marks: item.marks,
           })),
           marksObtained: item.marks.reduce((acc, item) => acc + item.marks, 0),
+<<<<<<< HEAD
           maxMarks: selectedExamDetails?.exam.timeTable.reduce(
             (acc, item) => acc + item.totalMark * 1,
             0
@@ -114,6 +125,10 @@ function ExamMarkDetailsPage({ onClose }) {
               )) *
               100
           ),
+=======
+          maxMarks: selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark * 1, 0),
+          percentage: Math.round((item.marks.reduce((acc, item) => acc + item.marks, 0) / selectedExamDetails?.exam.timeTable.reduce((acc, item) => acc + item.totalMark * 1, 0)) * 100),
+>>>>>>> 20a15d582d4af81e7f87ac942f92b35a99f84292
           result: getResult(item.marks, selectedExamDetails?.exam.timeTable),
         })
       })
@@ -269,7 +284,7 @@ const generatePDFs = async () => {
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <DialogPanel
               transition
-              className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+              className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
             >
               <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                 <div className="flex min-h-0 flex-1 flex-col">
@@ -369,7 +384,7 @@ const generatePDFs = async () => {
                                   Exam Dates
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {moment(selectedExamDetails?.exam.startDate).format('DD-MM-YYYY')}  - {moment(selectedExamDetails?.exam.endDate).format('DD-MM-YYYY')} 
+                                  {moment(selectedExamDetails?.exam.startDate).format('DD-MM-YYYY')}  - {moment(selectedExamDetails?.exam.endDate).format('DD-MM-YYYY')}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -512,7 +527,7 @@ const generatePDFs = async () => {
                                 {studentMarks.map((student, index) => (
                                   <tr key={index}>
                                     <td className="px-2 py-2 text-sm">
-                                      {index+1}
+                                      {index + 1}
                                     </td>
                                     <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                       <a
@@ -544,8 +559,8 @@ const generatePDFs = async () => {
                                     </td>
                                     {student.marks.map((subject, index) => (
                                       <td className="px-2 py-2 text-sm" key={index}>
-                                      {subject.marks}
-                                    </td>
+                                        {subject.marks}
+                                      </td>
                                     ))}
                                     <td className="px-2 py-2 text-sm">
                                       {student.marksObtained}
@@ -559,8 +574,8 @@ const generatePDFs = async () => {
                                     <td className="px-2 py-2 text-sm">
                                       <span
                                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${student.result === 'Pass'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-red-100 text-red-800'
+                                          ? 'bg-green-100 text-green-800'
+                                          : 'bg-red-100 text-red-800'
                                           }`}
                                       >
                                         {student.result}

@@ -81,6 +81,8 @@ function ExamTimeTable({values, setFieldValue}) {
             <th className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48">
               Syllabus
             </th>
+            <th className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-32">
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
