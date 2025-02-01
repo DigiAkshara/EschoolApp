@@ -12,8 +12,8 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../../../app/api";
 import { selectExam, selectExamDetails } from "../../../app/reducers/examSlice";
-import { MARKS } from "../../../app/url";
-import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
+import { MARKS, TENANT } from "../../../app/url";
+import { capitalizeWords, handleApiResponse , handleDownloadPDF} from "../../../commonComponent/CommonFunctions";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import TableComponent from "../../../commonComponent/TableComponent";
 import AddExamMarks from "./AddExamMarks";
@@ -33,6 +33,8 @@ function ManageExamResults() {
   const [examOptions, setExamOptions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+  const [tenant, setTenant] = useState(null)
+
   const columns = [
     { key: "examName", title: "Exam Name" },
     { key: "className", title: "Class" },
@@ -63,7 +65,21 @@ function ManageExamResults() {
   };
   useEffect(() => {
     formatExamData();
+    getTanent();
   }, [exams]);
+
+  const getTanent = async () => {
+    try {
+      const response = await getData(TENANT)
+      if (response.data.data) {
+        setTenant(response.data.data)
+      console.log("[TENANT -DATA:]",response.data.data);
+      }
+    } catch (error) {
+      handleApiResponse(error)
+
+    }
+  }
 
   const getPercentage = (timeTable) => {
     const totalSubjects = timeTable.length;
@@ -197,6 +213,19 @@ function ManageExamResults() {
     currentPage * rowsPerPage
   );
 
+  const downloadList = () => {
+    handleDownloadPDF (filteredData, "Exam_Details", [
+      { key: "examName", label: "Exam Name" },
+      { key: "className", label: "Class" },
+      { key: "sectionName", label: "Section" },
+      { key: "examDates", label: "Exam Dates" },
+      { key: "markStatus", label: "Marks Status" },
+      { key: "passPercentage", label: "Pass Percentage" },
+      
+      
+    ], "Exam Details Report", tenant, undefined, "portrait");
+  };
+
   return (
     <>
       <div className="right-btns-blk space-x-4 float-right">
@@ -231,6 +260,7 @@ function ManageExamResults() {
                 filterForm={filterForm}
                 handleFilter={handleFilter}
                 handleReset={handleReset}
+                downloadList={downloadList}
               />
               {/* Table View */}
               <TableComponent

@@ -326,26 +326,72 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
 
 
 
-export const handleDownloadPDF = (data, fileName, columns, title) => {
-  const doc = new jsPDF();
+export const handleDownloadPDF = (data, fileName, columns, title, tenant, logoUrl, orientation = "portrait") => {
+  const defaultLogo = "./schoolLogo.jpg";
+  
+  // Initialize jsPDF with dynamic orientation
+  const doc = new jsPDF(orientation, "mm", "a4"); // Use dynamic orientation
   doc.setFont("helvetica", "bold");
-  doc.text(title, 14, 15);
+
+  // School Header Information
+  const schoolName = (tenant?.name || "Unknown School").toUpperCase();
+  const schoolAddress = `${tenant?.city || ""}, ${tenant?.district || ""}, ${tenant?.state || ""}, ${tenant?.pincode || ""}`.trim();
+  const phoneNumber = tenant?.phoneNumber || "N/A";
+  const email = tenant?.email || "N/A";
+
+  const logo = logoUrl || defaultLogo;
+
+  // Add School Logo (Left Side) with adjusted Y position
+  doc.addImage(logo, "PNG", 10, 5, 28, 28); // (image, type, x, y, width, height)
+
+  // Adjust header formatting for portrait and landscape orientation
+  doc.setFontSize(14);
+  
+  // Calculate X position for centering in landscape mode
+  const centerX = orientation === "landscape" ? 148 : 105; // 148 is half of the A4 landscape width, 105 is half of portrait
+
+  doc.text(schoolName, centerX, 15, { align: "center" });
+
+  doc.setFontSize(10);
+  doc.text(`Phone: ${phoneNumber} | Email: ${email}`, centerX, 21, { align: "center" });
+  doc.text(`Address: ${schoolAddress}`, centerX, 27, { align: "center" });
+
+  // Add a separator line with adjusted Y position to avoid touching the logo
+  doc.setLineWidth(0.5);
+  doc.line(10, 35, orientation === "landscape" ? 290 : 200, 35); // Adjust line width based on orientation
+
+  const contentStartY = 45; // Adjust this value for more or less spacing
+
+  // Report Title
+  doc.setFontSize(12);
+  doc.text(title, 14, contentStartY);
+
+  const tableStartY = contentStartY + 5;
 
   // Extract column headers and row data
   const tableColumnHeaders = columns.map((col) => col.label);
-  const tableRows = data.map((row) => columns.map((col) => row[col.key] || "-"));
+  const tableRows = data.map((row) => 
+    columns.map((col) => {
+      const value = row[col.key] || "-"; 
+      if (col.key === "date" || col.key === "dateOfBirth") {
+        return moment(value).format('DD-MM-YYYY'); // Format date
+      }
+      return value;
+    })
+  );
 
- // Add table
+  // Add table
   autoTable(doc, {
     head: [tableColumnHeaders],
     body: tableRows,
-    startY: 20,
+    startY: tableStartY,
     styles: { fontSize: 10 },
     theme: "grid",
   });
 
   doc.save(`${fileName}.pdf`);
 };
+
 
 
 

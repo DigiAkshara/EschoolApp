@@ -230,6 +230,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                         <CustomDate
                           name={`fees.${index}.dueDate`}
                           value={item.dueDate}
+                          minDate={new Date()} 
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">

@@ -203,10 +203,6 @@ export default function Class() {
   )
 
   const downloadList = () => {
-    const schoolName = tenant.name || "Unknown School";  
-    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
-    const phoneNumber = tenant.phoneNumber || "N/A";
-    const email = tenant.email || "N/A";
     handleDownloadPDF (filteredData, "Class_Details", [
       { key: 'board', label: 'Board' },
     { key: 'className', label: 'Class' },
@@ -215,7 +211,7 @@ export default function Class() {
     { key: 'classTeacherName', label: 'Class Teacher' },
       
       
-    ], "Class Details Report");
+    ], "Class Details Report", tenant, undefined, "portrait");
   };
 
   return (

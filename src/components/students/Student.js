@@ -121,7 +121,9 @@ function Student({ onClose, loadStudents }) {
           .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
           .required("Fathers mobile number is required"),
         occupation: Yup.string(),
-        email: Yup.string(),
+        email: Yup.string()
+        .email("Enter a valid email address")
+        .nullable(), 
       }),
       motherDetails: Yup.object({
         name: Yup.string()
@@ -136,7 +138,9 @@ function Student({ onClose, loadStudents }) {
           "Mobile number must be 10 digits"
         ),
         occupation: Yup.string(),
-        email: Yup.string().email("Invalid email address"),
+        email: Yup.string()
+        .email("Enter a valid email address")
+        .nullable(), 
       }),
       presentAddress: Yup.object({
         area: Yup.string()
@@ -307,7 +311,7 @@ function Student({ onClose, loadStudents }) {
         .of(
           Yup.object().shape({
             isChecked: Yup.boolean(),
-            discount: Yup.number(),
+            discount: Yup.number().matches(/^[0-9]{1,4}$/, "Discount must be a numeric value between 0 and 9 with a max length of 4 characters"),
             feeName: Yup.string(),
             installmentAmount: Yup.number(),
             totalFee: Yup.number(),

@@ -188,10 +188,10 @@ function Staff({ onClose, getStaff }) {
       aadharNumber: Yup.string()
         .matches(/^\d{12}$/, "Aadhar number must be a 12-digit numeric code")
         .required("Aadhar Number is required"),
-      panNumber: Yup.string()
+        panNumber: Yup.string()
         .matches(
-          /^[A-Z]{3}P[A-Z]{1}\d{4}[A-Z]{1}$/,
-          "PAN card must follow the format: AAA-P-9999-A"
+          /^[A-Z]{3}-P-[A-Z]{1}-\d{4}-[A-Z]{1}$/,
+          "PAN card must follow the format: AAA-P-A-5555-A"
         )
         .length(10, "PAN card must be exactly 10 characters"),
       aadharPic: Yup.mixed()

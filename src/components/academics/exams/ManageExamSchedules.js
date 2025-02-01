@@ -3,17 +3,10 @@ import { Dialog } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-<<<<<<< HEAD
 import { deleteData, getData } from "../../../app/api";
 import { fetchExamData, selectExam } from "../../../app/reducers/examSlice";
 import { EXAM, TENANT } from "../../../app/url";
 import { handleApiResponse, handleDownloadPDF } from "../../../commonComponent/CommonFunctions";
-=======
-import { deleteData } from "../../../app/api";
-import { fetchExamData, selectExam } from "../../../app/reducers/examSlice";
-import { EXAM } from "../../../app/url";
-import { handleApiResponse } from "../../../commonComponent/CommonFunctions";
->>>>>>> 20a15d582d4af81e7f87ac942f92b35a99f84292
 import ConfirmationModal from "../../../commonComponent/ConfirmationModal";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import TableComponent from "../../../commonComponent/TableComponent";

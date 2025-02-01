@@ -7,13 +7,8 @@ import {
   fetchInitialStudentData,
   selectStudent,
 } from '../../app/reducers/studentSlice'
-<<<<<<< Updated upstream
-import { ACADEMICS, STUDENT } from '../../app/url'
-import { gender, handleApiResponse, handleDownload } from '../../commonComponent/CommonFunctions'
-=======
 import { ACADEMICS, STUDENT, TENANT } from '../../app/url'
 import { gender, handleApiResponse, handleDownload, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
->>>>>>> Stashed changes
 import CommonUpload from '../../commonComponent/CommonUpload'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
@@ -32,6 +27,8 @@ export default function StudentsList() {
   const [activeStudent, setActiveStudent] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
+  const [tenant, setTenant] = useState(null)
+
 
   const genderOptions = [
     { label: 'Male', value: 'male' },
@@ -42,7 +39,10 @@ export default function StudentsList() {
   useEffect(() => {
     dispatch(fetchInitialStudentData())
     getStudents()
+    getTanent()
   }, [dispatch])
+
+
 
   const columns = [
     { title: 'Student Name', key: 'name' },
@@ -56,6 +56,19 @@ export default function StudentsList() {
     { title: 'Actions', key: 'actions' },
   ]
 
+
+  const getTanent = async () => {
+    try {
+      const response = await getData(TENANT)
+      if (response.data.data) {
+        setTenant(response.data.data)
+      console.log("[TENANT -DATA:]",response.data.data);
+      }
+    } catch (error) {
+      handleApiResponse(error)
+
+    }
+  }
   const getStudents = async () => {
     try {
       const student = await getData(ACADEMICS)
@@ -195,37 +208,29 @@ export default function StudentsList() {
   )
 
 
-<<<<<<< Updated upstream
-  const downloadList = () => {
-    handleDownload(filteredData, "StudentList", ["class", "section", "actions"]);
-=======
   const downloadListxlsx = () => {
     const schoolName = tenant.name || "Unknown School";  
     const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
     const phoneNumber = tenant.phoneNumber || "N/A";
     const email = tenant.email || "N/A";
     handleDownload(filteredData, "StudentList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress,["Student List is below"]);
->>>>>>> Stashed changes
   };
 
   const downloadList = () => {
-    const schoolName = tenant.name || "Unknown School";  
-    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
-    const phoneNumber = tenant.phoneNumber || "N/A";
-    const email = tenant.email || "N/A";
+   
     handleDownloadPDF (filteredData, "Student_Details", [
       { label: "Stu.Name", key: "name" },
       { label: "Ad.No", key: "admissionNo" },
       { label: "Class", key: "className" },
       { label: "Section", key: "sectionName" },
       { label: "Aadhar.No.", key: "aadharNumber" },
-      { label: "DOB", key: "DOB" },
+      { label: "DOB", key: "dateOfBirth" },
       { label: "Fathers Name", key: "fatherName" },
       { label: "Phone No.", key: "fatherMobile" },
       { label: "Mothers Name", key: "motherName" },
       { label: "Present Address", key: "presentAddress" }, 
            
-    ], "Student Details Report");
+    ], "Student Details Report", tenant,undefined, "landscape" );
   };
 
 
@@ -273,6 +278,8 @@ export default function StudentsList() {
                 handleFilter={handleFilter}
                 handleReset={handleReset}
                 downloadList={downloadList}
+                downloadListxlsv={downloadListxlsx}
+                isDownloadDialog={true}
               />
                 {/* Table View */}
 
