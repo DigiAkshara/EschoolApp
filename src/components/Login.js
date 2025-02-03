@@ -9,18 +9,19 @@ import React, {useEffect} from 'react'
 import {useDispatch} from 'react-redux'
 import {useNavigate, useParams} from 'react-router-dom'
 import * as Yup from 'yup'
-import {postData} from '../app/api'
+import {getData, postData} from '../app/api'
 import {
   loadNavConfig,
   setAcademicYear,
   setActiveMenu,
   setUser,
 } from '../app/reducers/appConfigSlice'
-import {LOGIN} from '../app/url'
+import {LOGIN, TENANT} from '../app/url'
 import {handleApiResponse, roles} from '../commonComponent/CommonFunctions'
 import CustomButton from '../commonComponent/CustomButton'
 import CustomInput from '../commonComponent/CustomInput'
 import CustomSelect from '../commonComponent/CustomSelect'
+import { setTenant } from '../app/reducers/tenantSlice'
 
 export default function Login() {
   const {id} = useParams()
@@ -51,6 +52,8 @@ export default function Login() {
       dispatch(setAcademicYear(response.data.academicYear))
       dispatch(setActiveMenu("home"))
       dispatch(loadNavConfig(user.permissions.permissions))
+      const tenantResponse = await getData(TENANT);
+      dispatch(setTenant(tenantResponse.data.data));
       navigate('/')
     } catch (error) {
       handleApiResponse(error)

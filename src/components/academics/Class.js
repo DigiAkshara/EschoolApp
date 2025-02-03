@@ -30,27 +30,15 @@ export default function Class() {
   const dispatch = useDispatch() // Get the dispatch function
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
-  const [tenant, setTenant] = useState(null)
+  const tenant = useSelector((state) => state.tenantData);
 
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     getClassData();
-    getTanent()
   }, []); // Intentionally omit getClassData
 
-  const getTanent = async () => {
-    try {
-      const response = await getData(TENANT)
-      if (response.data.data) {
-        setTenant(response.data.data)
-      console.log("[TENANT -DATA:]",response.data.data);
-      }
-    } catch (error) {
-      handleApiResponse(error)
 
-    }
-  }
 
   const getClassData = async () => {
     try {
