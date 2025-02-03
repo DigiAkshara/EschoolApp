@@ -45,18 +45,6 @@ export default function StaffDetails() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const openDialog = () => {
-    setIsDialogOpen(true);
-  };
-
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-  };
-
-
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  };
 
   const handleOpen = () => setShowAddStaffModal(true)
   const handleClose = () =>{ setShowAddStaffModal(false); dispatch(selectStaff(null))}

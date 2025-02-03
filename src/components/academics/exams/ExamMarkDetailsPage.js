@@ -151,9 +151,9 @@ const generatePDFs = async () => {
 
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
-            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px;">${tenant?.name?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px;">Ph: ${tenant.phoneNumber||""} | Email: ${tenant.email}</p>
-            <p style="margin: 0; font-weight: bold;font-size: 13px; ">Address: ${tenant.city || ""}, ${tenant.district|| ""}, ${tenant.state|| ""}, ${tenant.pincode|| ""}</p>
+            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${tenant?.name?.toUpperCase()}</h1>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant.phoneNumber||""} | Email: ${tenant.email}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant.city || ""}, ${tenant.district|| ""}, ${tenant.state|| ""}, ${tenant.pincode|| ""}</p>
           </div>
         </div>
         <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
@@ -189,7 +189,7 @@ const generatePDFs = async () => {
         <!-- Exam Results Table -->
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-family: Arial, sans-serif; color: #333;">
           <thead>
-            <tr style="background: #4CAF50; color: white; text-align: center; font-weight: bold;">
+            <tr style="background:rgb(206, 175, 240); color: black; text-align: center; font-weight: bold;">
               <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Subject</th>
               <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Marks Obtained</th>
               <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Total Marks</th>
@@ -214,7 +214,7 @@ const generatePDFs = async () => {
                 `;
               })
               .join("")}
-            <tr style="background: #dff0d8; font-weight: bold; text-align: center;">
+            <tr style="background:rgb(232, 215, 250); font-weight: bold; text-align: center;">
               <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Total Marks: ${student.marksObtained} / ${student.maxMarks}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">Total Percentage: ${student.percentage}%</td>
               <td style="border: 1px solid #ddd; padding: 8px;">Overall Grade: ${getOverallGrade(student)}</td>
