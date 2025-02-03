@@ -6,8 +6,8 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { getData } from '../../app/api'
 import { setFee } from '../../app/reducers/feeSlice'
-import { STUDENT_FEE } from '../../app/url'
-import { capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
+import { STUDENT_FEE, TENANT } from '../../app/url'
+import { capitalizeWords, handleApiResponse, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
 import CollectFeeModal from './CollectFeeModal'
@@ -19,6 +19,7 @@ function ManageFeeCollection() {
   const [filteredData, setFilteredData] = useState([])
   const [showFeeModal, setShowFeeModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [tenant, setTenant] = useState(null)
   const rowsPerPage = 10
   const dispatch = useDispatch()
 
@@ -45,7 +46,21 @@ function ManageFeeCollection() {
 
   useEffect(() => {
     getStudentData()
+    getTanent()
   }, [])
+
+  const getTanent = async () => {
+    try {
+      const response = await getData(TENANT)
+      if (response.data.data) {
+        setTenant(response.data.data)
+      console.log("[TENANT -DATA:]",response.data.data);
+      }
+    } catch (error) {
+      handleApiResponse(error)
+
+    }
+  }
 
   const getStudentData = async () => {
     try {
@@ -133,6 +148,23 @@ function ManageFeeCollection() {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage,
   )
+
+  const downloadList = () => {
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownloadPDF (filteredData, "Fee_Collection_Details", [
+      { key: 'name', label: 'Student Name' },
+      { key: 'class', label: 'Class' },
+      { key: 'payableAmount', label: 'Total Amount' },
+      { key: 'pendingAmount', label: 'Pending Amount' },
+      { key: 'paymentStatus', label: 'Status' },
+      { key: 'phoneNo', label: 'Parent Mobile' },
+      
+     
+    ], "Fee Collection Details Report");
+  };
 
   return (
     <>
@@ -228,6 +260,7 @@ function ManageFeeCollection() {
                 filterForm={filterForm}
                 handleFilter={handleFilter}
                 handleReset={handleReset}
+                downloadList={downloadList}
               />
               <TableComponent
                 columns={columns}

@@ -8,6 +8,8 @@ import {
 import {Form, Formik} from 'formik'
 import CustomSelect from './CustomSelect'
 import { capitalizeWords } from './CommonFunctions'
+import DownloadDialog from './CommonDialogBox'
+import { useState } from 'react'
 
 const FilterComponent = ({
   onSearch,
@@ -15,8 +17,12 @@ const FilterComponent = ({
   filterForm,
   handleFilter,
   handleReset,
-  downloadList
+  isDownloadDialog, 
+  downloadList,
+  downloadListxlsv
 }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const getOptions = (item, value) => {
     if (item.dependency && item.filterOptions) {
       return item.options.filter(
@@ -25,6 +31,24 @@ const FilterComponent = ({
     } else{
       return item.options}
   }
+
+
+  const openDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+  };
+
+  const handleDownloadChoice = (choice) => {
+    if (choice === "pdf") {
+      downloadList(); // Direct PDF download
+    } else {
+      downloadListxlsv(); // Excel download
+    }
+    closeDialog(); // Close the dialog after the choice is made
+  };
   return (
     <div className="relative table-tool-bar z-30">
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
@@ -50,13 +74,42 @@ const FilterComponent = ({
             {({values, setFieldValue}) => (
               <Form>
                 <div className="right-action-btns-blk space-x-4">
-                  <button
+                  {/* <button
                     type="button"
                     onClick={downloadList}
                     className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                   >
                     <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
-                  </button>
+                  </button> */}
+
+  {/* Conditional Download Button */}
+  {isDownloadDialog ? (
+                    <button
+                      type="button"
+                      onClick={openDialog}
+                      className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    >
+                      <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={downloadList}
+                      className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    >
+                      <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
+                    </button>
+                  )}
+
+                  {/* Include the DownloadDialog modal if needed */}
+                  {isDialogOpen && isDownloadDialog && (
+                    <DownloadDialog
+                      onClose={closeDialog}
+                      handleDownloadChoice={handleDownloadChoice}
+                    />
+                  )}
+
+
 
                   <Menu as="div" className="relative inline-block text-left">
                     <div>
@@ -125,7 +178,7 @@ const FilterComponent = ({
                     </MenuItems>
                   </Menu>
 
-                  {/* <button
+                  <button
                     type="button"
                     className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                   >
@@ -136,7 +189,7 @@ const FilterComponent = ({
                     className="rounded bg-purple-600 px-2 py-1 text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
                   >
                     <ListBulletIcon aria-hidden="true" className="size-5" />
-                  </button> */}
+                  </button>
                 </div>
               </Form>
             )}

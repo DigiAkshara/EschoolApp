@@ -3,10 +3,11 @@ import { Dialog } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
 import { getData } from "../../app/api";
-import { FEES } from "../../app/url";
+import { FEES, TENANT } from "../../app/url";
 import {
   formatDate,
   handleApiResponse,
+  handleDownloadPDF,
 } from "../../commonComponent/CommonFunctions";
 import FilterComponent from "../../commonComponent/FilterComponent";
 import TableComponent from "../../commonComponent/TableComponent";
@@ -18,6 +19,8 @@ export default function FeesList() {
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+  const [tenant, setTenant] = useState(null)
+
 
   const columns = [
     { title: "Academic Year", key: "academicYear" },
@@ -32,7 +35,21 @@ export default function FeesList() {
 
   useEffect(() => {
     getFees();
+    getTanent();
   }, []);
+
+  const getTanent = async () => {
+    try {
+      const response = await getData(TENANT)
+      if (response.data.data) {
+        setTenant(response.data.data)
+      console.log("[TENANT -DATA:]",response.data.data);
+      }
+    } catch (error) {
+      handleApiResponse(error)
+
+    }
+  }
 
   const getFees = async () => {
     try {
@@ -124,6 +141,24 @@ export default function FeesList() {
 
   const handleClose = () => setOpen(false);
 
+  const downloadList = () => {
+    const schoolName = tenant.name || "Unknown School";  
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
+    const phoneNumber = tenant.phoneNumber || "N/A";
+    const email = tenant.email || "N/A";
+    handleDownloadPDF (filteredData, "Fee_Structure_Details", [
+      { label: "Academic Year", key: "academicYear" },
+      { label: "Fee Group", key: "feeGroup" },
+      { label: "Fee Name", key: "feeName" },
+      { label: "Class", key: "class" },
+      { label: "Applicable To", key: "applicableTo" },
+      { label: "Fee Amount", key: "feeAmount" },
+      { label: "Creation Date", key: "creationDate" },
+      
+      
+    ], "Fee Structure Details Report");
+  };
+
   return (
     <div className="flow-root">
       {/* Primary Tabs */}
@@ -153,7 +188,7 @@ export default function FeesList() {
                 filterForm={filterForm}
                 handleFilter={handleFilter}
                 handleReset={handleReset}
-                // downloadList={downloadList}
+                downloadList={downloadList}
               />
               {/* Table View */}
               <TableComponent

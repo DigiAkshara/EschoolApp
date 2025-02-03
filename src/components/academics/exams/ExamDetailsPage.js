@@ -6,13 +6,214 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { capitalizeWords } from "../../../commonComponent/CommonFunctions";
+import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
+import { ACADEMICS, TENANT } from "../../../app/url";
+import { getData } from "../../../app/api";
+import { jsPDF } from "jspdf";
+import JSZip from "jszip";
+import html2canvas from "html2canvas";
+import moment from "moment";
 
 function ExamDetailsPage({ onClose }) {
+  const [students, setStudents] = useState([]);
+  const [tenant, setTenant] = useState(null)
   const selectedExam = useSelector((state) => state.exams.selectedExam);
   const subjects = useSelector((state) => state.academics.subjects);
+
+  const classId = selectedExam?.classObject._id;
+  const sectionId = selectedExam?.sectionObject._id;
+
+  useEffect(() => {
+    getStudent();
+    getTanent();
+     })
+const getStudent = async () => {
+  try {
+   
+    const response = await getData(ACADEMICS +"/"+ classId +"/"+ sectionId);
+    if(response.data?.data) {
+      console.log("Response data for student:", response.data.data);
+      
+      const studentsData = response.data.data.map((item) => ({
+        _id: item.student._id,
+        pic: item.student.profilePic?.Location || "",
+        name: `${item.student.firstName} ${item.student.lastName}`,
+        admissionNo: item.student.admissionNumber,
+        DOB: moment(item.student.DOB).format("DD-MM-YYYY"),
+        mothersName : item.student.motherDetails.name || " ",
+        className: item.class?.name || "N/A",
+      }))
+      console.log("student data", studentsData);
+      
+      setStudents(studentsData);
+    console.log(response.data.data);
+    }
+     } catch (error) {
+    handleApiResponse(error);
+  }
+}
+
+const getSubjectName = (subjectId) => {
+  const subject = subjects.find((s) => s.value === subjectId);
+  return subject ? capitalizeWords(subject.label) : "Unknown Subject";
+};
+
+// Helper function to capitalize words
+const capitalizeWords = (str) => {
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const getTanent = async () => {
+  try {
+    const response = await getData(TENANT)
+    if (response.data.data) {
+      setTenant(response.data.data)
+    console.log("[TENANT -DATA:]",response.data.data);
+    }
+  } catch (error) {
+    handleApiResponse(error)
+
+  }
+}
+
+
+const generatePDFs = async () => {
+  console.log("Generating Hall Tickets...");
+
+  const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
+
+  const pdfPromises = students.map(async (student, index) => {
+    const container = document.createElement("div");
+    container.style.width = "800px";
+    
+    container.style.position = "absolute"; // Keep it offscreen
+    container.style.left = "-9999px"; // Prevent flickering
+    container.style.top = "-9999px"; // Keep it out of view
+    //container.style.visibility = "hidden"; // Hide it from the user
+
+    container.innerHTML = `
+      <div style="padding: 30px; font-family: Arial, sans-serif;">
+         <!-- Header Section -->
+        <div style="display: flex; justify-content: center; align-items: center; ">
+          <!-- School Emblem Div (left side) -->
+          <div style="flex: 0 0 auto; text-align: center; position: absolute; left: 30px; width: 120px; height: 120px;">
+    <img src='/schoolLogo.jpg' alt="School Emblem" 
+         style="width: 100%; height: 100%; object-fit: contain; max-width: 110px; max-height: 110px;">
+</div>
+
+          <!-- School Information Div (centered) -->
+          <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
+            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px;">${tenant?.name?.toUpperCase()}</h1>
+            <p style="margin: 0; font-weight: bold; font-size: 13px;">Ph: ${tenant?.phoneNumber||""}  | Email: ${tenant.email}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; ">Address: ${tenant.city}, ${tenant.district}, ${tenant.state}, ${tenant.pincode}</p>
+          </div>
+        </div>
+        <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
+        <div>
+        <h2 style="text-align: center;font-weight: bold;  ">Hall Ticket</h2>
+        </div>
+
+        <div style="display: flex; margin-top: 10px;">
+          <!-- Left Section (Student details) -->
+          <div style="flex: 1; padding-right: 10px;">
+            <p><strong>Name of Student:</strong> ${student.name || ""}</p>
+            <p><strong>Admission No:</strong> ${student.admissionNo || ""}</p>
+            <p><strong>Class:</strong> ${student.className || ""}</p>
+            <p><strong>Section:</strong> ${selectedExam?.sectionName || ""}</p>
+          </div>
+
+          <!-- Right Section (5 details) -->
+          <div style="flex: 1; padding-left: 10px;">
+            <p><strong>Roll No:</strong> ${student.rollNo || ""}</p>
+            <p><strong>Date Of birth :</strong> ${student.DOB || ""}</p>
+            <p><strong>Mother’s Name:</strong> ${student.motherName || ""}</p>
+           
+          </div>
+
+          <!-- Image Section (Student photo) -->
+           <div style="flex: 1; text-align: center;  display: flex; justify-content: center; align-items: center; ">
+<div style="text-align: center; width: 75px; height: 100px; border: 1px solid #ccc;  justify-content: center; align-items: center; ">
+  <img src="path_to_student_photo.jpg" alt="Student Photo" style="max-width: 100%; max-height: 100%; object-fit: cover;">
+</div>
+</div>
+        </div>
+
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-family: Arial, sans-serif; color: #333;">
+          <thead>
+            <tr style="background: #4CAF50; color: white; text-align: center; font-weight: bold;">
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Si.No</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Subjects</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Exam Date</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Exam Time</th>
+            </tr>
+          </thead>
+          <tbody>
+              ${selectedExam?.timeTable
+                .map(
+                  (exam,index) => `
+                <tr>
+                <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${index + 1}</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getSubjectName(exam.subject)}</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${exam.examDate}</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${exam.startTime} - ${exam.endTime}</td>
+                 
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+        </table>
+        
+     
+        <div style="margin-top: 20px;">
+          <p><strong>Signature of Principal / COE</strong></p>
+          <p><strong>Date:</strong> __________</p>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <h4>Important Instructions:</h4>
+          <ul>
+            <li>Students will not be allowed to appear in exams without this Hall Ticket.</li>
+            <li>Students must report 15 minutes before the scheduled time.</li>
+            <li>Do not write anything on this Hall Ticket.</li>
+            <li>Electronic gadgets, notes, and books are not allowed inside the exam hall.</li>
+          </ul>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(container);
+
+    // Convert HTML to image using html2canvas
+    const canvas = await html2canvas(container, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+
+    // Calculate PDF dimensions based on canvas size
+    const pdfWidth = doc.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    // Add image to PDF
+    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+    // Cleanup DOM after rendering
+    document.body.removeChild(container);
+
+    // Add a page for the next student's hall ticket (except for the last student)
+    if (index < students.length - 1) {
+      doc.addPage();
+    }
+  });
+
+  // Wait for all student PDFs to be added to the document
+  await Promise.all(pdfPromises);
+
+  // Save the final PDF as a single file
+  doc.save("Hall_Tickets.pdf");
+};
+
+
   return (
     <>
       <div className="fixed inset-0" />
@@ -251,7 +452,10 @@ function ExamDetailsPage({ onClose }) {
                             </div>
                           </div>
 
-                          <div className="px-4 py-4 text-sm/6">
+                          <div className="px-4 py-4 text-sm/6"
+                            onClick={generatePDFs}
+                            role="button"
+                            tabIndex={0}>
                             <ul
                               role="list"
                               className="grid grid-cols-4 gap-x-6 gap-y-8"
@@ -269,7 +473,7 @@ function ExamDetailsPage({ onClose }) {
                                       />
                                     </div>
                                     <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                      <span>Unit 1 - Class 1A</span>
+                                      <span>{selectedExam?.examName} - {selectedExam?.className}-{selectedExam?.sectionName}</span>
                                     </div>
                                   </div>
                                   <a href="#" className="text-gray-400">
