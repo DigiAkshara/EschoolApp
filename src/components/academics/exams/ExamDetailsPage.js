@@ -18,16 +18,16 @@ import moment from "moment";
 
 function ExamDetailsPage({ onClose }) {
   const [students, setStudents] = useState([]);
-  const [tenant, setTenant] = useState(null)
   const selectedExam = useSelector((state) => state.exams.selectedExam);
   const subjects = useSelector((state) => state.academics.subjects);
+  const tenant = useSelector((state) => state.tenantData);
+
 
   const classId = selectedExam?.classObject._id;
   const sectionId = selectedExam?.sectionObject._id;
 
   useEffect(() => {
     getStudent();
-    getTanent();
      })
 const getStudent = async () => {
   try {
@@ -64,19 +64,6 @@ const getSubjectName = (subjectId) => {
 const capitalizeWords = (str) => {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
-
-const getTanent = async () => {
-  try {
-    const response = await getData(TENANT)
-    if (response.data.data) {
-      setTenant(response.data.data)
-    console.log("[TENANT -DATA:]",response.data.data);
-    }
-  } catch (error) {
-    handleApiResponse(error)
-
-  }
-}
 
 
 const generatePDFs = async () => {

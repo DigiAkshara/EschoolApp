@@ -22,8 +22,7 @@ function ExamMarkDetailsPage({ onClose }) {
   const selectedExamDetails = useSelector((state) => state.exams.selectedExamDetails)
   const subjectOptions = useSelector((state) => state.academics.subjects)
   const [studentMarks, setStudents] = useState([])
-  const [tenant, setTenant] = useState(null)
-
+  const tenant = useSelector((state) => state.tenantData);
 
  
   const getSubjectName = (subjectId) => {
@@ -32,18 +31,6 @@ function ExamMarkDetailsPage({ onClose }) {
       ?.label.toUpperCase();
   };
 
-  const getTanent = async () => {
-    try {
-      const response = await getData(TENANT)
-      if (response.data.data) {
-        setTenant(response.data.data)
-      console.log("[TENANT -DATA:]",response.data.data);
-      }
-    } catch (error) {
-      handleApiResponse(error)
-
-    }
-  }
 
   function getGrade(marks) {
     if (marks >= 91) return "A+";
@@ -119,7 +106,6 @@ function ExamMarkDetailsPage({ onClose }) {
       })
       setStudents(dumpList)
     }
-    getTanent()
   }, [selectedExamDetails]);
 
 

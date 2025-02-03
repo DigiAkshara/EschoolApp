@@ -33,7 +33,7 @@ function ManageExamResults() {
   const [examOptions, setExamOptions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-  const [tenant, setTenant] = useState(null)
+  const tenant = useSelector((state) => state.tenantData);
 
   const columns = [
     { key: "examName", title: "Exam Name" },
@@ -65,21 +65,9 @@ function ManageExamResults() {
   };
   useEffect(() => {
     formatExamData();
-    getTanent();
   }, [exams]);
 
-  const getTanent = async () => {
-    try {
-      const response = await getData(TENANT)
-      if (response.data.data) {
-        setTenant(response.data.data)
-      console.log("[TENANT -DATA:]",response.data.data);
-      }
-    } catch (error) {
-      handleApiResponse(error)
 
-    }
-  }
 
   const getPercentage = (timeTable) => {
     const totalSubjects = timeTable.length;

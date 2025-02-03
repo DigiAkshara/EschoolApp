@@ -36,7 +36,8 @@ export default function StudentsList() {
   const [activeStudent, setActiveStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-  const [tenant, setTenant] = useState(null);
+  const tenant = useSelector((state) => state.tenantData);
+
 
   const genderOptions = [
     { label: "Male", value: "male" },
@@ -47,7 +48,6 @@ export default function StudentsList() {
   useEffect(() => {
     dispatch(fetchInitialStudentData());
     getStudents();
-    getTanent();
   }, [dispatch]);
 
   const columns = [
@@ -62,17 +62,7 @@ export default function StudentsList() {
     { title: "Actions", key: "actions" },
   ];
 
-  const getTanent = async () => {
-    try {
-      const response = await getData(TENANT);
-      if (response.data.data) {
-        setTenant(response.data.data);
-        console.log("[TENANT -DATA:]", response.data.data);
-      }
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
+
   const getStudents = async () => {
     try {
       const student = await getData(ACADEMICS);
