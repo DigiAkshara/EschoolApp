@@ -10,6 +10,7 @@ import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
+import moment from 'moment'
 
 function StudentFeeDetails({ values, setFieldValue, errors }) {
   const { selectedStudent, fees: allFees } = useSelector((state) => state.students);
@@ -230,7 +231,8 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                         <CustomDate
                           name={`fees.${index}.dueDate`}
                           value={item.dueDate}
-                          minDate={new Date()} 
+                          // minDate={new Date()} 
+                          minDate = {moment().format('DD-MM-YYYY')}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
