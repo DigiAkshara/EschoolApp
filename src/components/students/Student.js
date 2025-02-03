@@ -78,30 +78,33 @@ function Student({ onClose, loadStudents }) {
         class: selectedStudent.academics.class?._id,
         classObj: selectedStudent.academics.class,
       },
-      fees: selectedStudent.fees?.feeList||[],
+      fees: selectedStudent.fees?.feeList || [],
     }),
   });
   // Validation schemas for each step
   const validationSchemas = [
     Yup.object({
       firstName: Yup.string()
-      .matches(
-        /^[a-zA-Z\s]*$/,
-        "First Name can only contain letters and spaces"
-      )
-      .min(3, "First Name must be at least 3 characters")
-      .max(50, "First Name must be at most 50 characters")
-      .required("First Name is required"),
-    
-    lastName: Yup.string()
-      .matches(
-        /^[a-zA-Z\s]*$/,
-        "Last Name can only contain letters and spaces"
-      )
-      .min(3, "Last Name must be at least 3 characters")
-      .max(50, "Last Name must be at most 50 characters")
-      .required("Last Name is required")
-      .notOneOf([Yup.ref('firstName')], "First Name and Last Name should not be the same"),
+        .matches(
+          /^[a-zA-Z\s]*$/,
+          "First Name can only contain letters and spaces"
+        )
+        .min(3, "First Name must be at least 3 characters")
+        .max(50, "First Name must be at most 50 characters")
+        .required("First Name is required"),
+
+      lastName: Yup.string()
+        .matches(
+          /^[a-zA-Z\s]*$/,
+          "Last Name can only contain letters and spaces"
+        )
+        .min(3, "Last Name must be at least 3 characters")
+        .max(50, "Last Name must be at most 50 characters")
+        .required("Last Name is required")
+        .notOneOf(
+          [Yup.ref("firstName")],
+          "First Name and Last Name should not be the same"
+        ),
       gender: Yup.string().required("Gender is required"),
       nationality: Yup.string(),
       religion: Yup.string(),
@@ -121,9 +124,7 @@ function Student({ onClose, loadStudents }) {
           .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
           .required("Fathers mobile number is required"),
         occupation: Yup.string(),
-        email: Yup.string()
-        .email("Enter a valid email address")
-        .nullable(), 
+        email: Yup.string().email("Enter a valid email address").nullable(),
       }),
       motherDetails: Yup.object({
         name: Yup.string()
@@ -138,9 +139,7 @@ function Student({ onClose, loadStudents }) {
           "Mobile number must be 10 digits"
         ),
         occupation: Yup.string(),
-        email: Yup.string()
-        .email("Enter a valid email address")
-        .nullable(), 
+        email: Yup.string().email("Enter a valid email address").nullable(),
       }),
       presentAddress: Yup.object({
         area: Yup.string()
@@ -151,7 +150,7 @@ function Student({ onClose, loadStudents }) {
           .min(3, "Area must be at least 3 characters")
           .max(100, "Area must be at most 100 characters")
           .required("Area is required"),
-          city: Yup.string()
+        city: Yup.string()
           .matches(/^[a-zA-Z\s]*$/, "City can only contain letters and spaces")
           .max(15, "City must be at most 15 characters")
           .min(3, "City must be at least 3 characters")
@@ -170,7 +169,7 @@ function Student({ onClose, loadStudents }) {
           .min(3, "Area must be at least 3 characters")
           .max(100, "Area must be at most 100 characters")
           .required("Area is required"),
-          city: Yup.string()
+        city: Yup.string()
           .matches(/^[a-zA-Z\s]*$/, "City can only contain letters and spaces")
           .max(15, "City must be at most 15 characters")
           .min(3, "City must be at least 3 characters")
@@ -181,85 +180,85 @@ function Student({ onClose, loadStudents }) {
           .required("Permanent Pincode is required"),
       }),
       aadharNumber: Yup.string()
-      .matches(/^\d{12}$/, "Aadhar number must be a 12-digit numeric code")
-      .required("Aadhar Number is required"),
+        .matches(/^\d{12}$/, "Aadhar number must be a 12-digit numeric code")
+        .required("Aadhar Number is required"),
       DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
       profilePic: Yup.mixed()
-  .nullable()
-  .test(
-    "fileFormat",
-    "Photo must be in JPG, JPEG, or PNG format",
-    (value) => {
-      if (!value) return true; // If no file is uploaded, skip the test
-      const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-      
-      // Check MIME type first
-      if (supportedFormats.includes(value.type)) {
-        return true; // Valid MIME type
-      }
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
 
-      // If MIME type is incorrect, check the file extension as a fallback
-      const fileExtension = value.name.split('.').pop().toLowerCase();
-      const supportedExtensions = ["jpg", "jpeg", "png"];
-      return supportedExtensions.includes(fileExtension); // Check file extension
-    }
-  )
-  .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-    if (!value) return true; // If no file is uploaded, skip the test
-    const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-    return value.size <= maxSizeInBytes; // Check if file size is within limit
-  }),
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
 
       aadharPic: Yup.mixed()
-      .nullable()
-      .test(
-        "fileFormat",
-        "Photo must be in JPG, JPEG, or PNG format",
-        (value) => {
-          if (!value) return true; // If no file is uploaded, skip the test
-          const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-          
-          // Check MIME type first
-          if (supportedFormats.includes(value.type)) {
-            return true; // Valid MIME type
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
           }
-    
-          // If MIME type is incorrect, check the file extension as a fallback
-          const fileExtension = value.name.split('.').pop().toLowerCase();
-          const supportedExtensions = ["jpg", "jpeg", "png"];
-          return supportedExtensions.includes(fileExtension); // Check file extension
-        }
-      )
-      .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-        if (!value) return true; // If no file is uploaded, skip the test
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-        return value.size <= maxSizeInBytes; // Check if file size is within limit
-      }),
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
       parentIdProof: Yup.mixed()
-      .nullable()
-      .test(
-        "fileFormat",
-        "Photo must be in JPG, JPEG, or PNG format",
-        (value) => {
-          if (!value) return true; // If no file is uploaded, skip the test
-          const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-          
-          // Check MIME type first
-          if (supportedFormats.includes(value.type)) {
-            return true; // Valid MIME type
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value) return true; // If no file is uploaded, skip the test
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+
+            // Check MIME type first
+            if (supportedFormats.includes(value.type)) {
+              return true; // Valid MIME type
+            }
+
+            // If MIME type is incorrect, check the file extension as a fallback
+            const fileExtension = value.name.split(".").pop().toLowerCase();
+            const supportedExtensions = ["jpg", "jpeg", "png"];
+            return supportedExtensions.includes(fileExtension); // Check file extension
           }
-    
-          // If MIME type is incorrect, check the file extension as a fallback
-          const fileExtension = value.name.split('.').pop().toLowerCase();
-          const supportedExtensions = ["jpg", "jpeg", "png"];
-          return supportedExtensions.includes(fileExtension); // Check file extension
-        }
-      )
-      .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-        if (!value) return true; // If no file is uploaded, skip the test
-        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-        return value.size <= maxSizeInBytes; // Check if file size is within limit
-      }),
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value) return true; // If no file is uploaded, skip the test
+          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
+          return value.size <= maxSizeInBytes; // Check if file size is within limit
+        }),
     }),
     Yup.object({
       academics: Yup.object({
@@ -268,12 +267,12 @@ function Student({ onClose, loadStudents }) {
         section: Yup.string().required("Section is required"),
       }),
       admissionNumber: Yup.string()
-      .matches(
-        /^[a-zA-Z0-9]*$/,
-        "Admission number can only contain letters and numbers"
-      )
-      .max(10, "Admission number must be at most 10 characters")
-      .required("Admission number is required"),
+        .matches(
+          /^[a-zA-Z0-9]*$/,
+          "Admission number can only contain letters and numbers"
+        )
+        .max(10, "Admission number must be at most 10 characters")
+        .required("Admission number is required"),
       admissionDate: Yup.date()
         .nullable()
         .required("Admission date is required"),
@@ -283,27 +282,37 @@ function Student({ onClose, loadStudents }) {
       DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
       previousSchool: Yup.object({
         schoolName: Yup.string()
-        .matches(/^[a-zA-Z\s]*$/, "School name can only contain letters and spaces")
-        .min(3, "School name must be at least 3 characters")
-        .max(50, "School name must be at most 50 characters"),
+          .matches(
+            /^[a-zA-Z\s]*$/,
+            "School name can only contain letters and spaces"
+          )
+          .min(3, "School name must be at least 3 characters")
+          .max(50, "School name must be at most 50 characters"),
         yearOfStudy: Yup.string(),
         totalMarks: Yup.number().nullable(),
-        classStudied: Yup.string().matches(/^[a-zA-Z0-9\s]*$/, "Class name can only contain letters, numbers, and spaces").max(50, "Class name must be at most 50 characters"),
+        classStudied: Yup.string()
+          .matches(
+            /^[a-zA-Z0-9\s]*$/,
+            "Class name can only contain letters, numbers, and spaces"
+          )
+          .max(50, "Class name must be at most 50 characters"),
         studyProof: Yup.mixed()
-        .test(
-          "fileSize",
-          "File size must be less than 2MB",
-          (value) => !value || (value && value.size <= 2 * 1024 * 1024) // 2MB in bytes
-        )
-        .test(
-          "fileFormat",
-          "Only JPG, JPEG, PNG, and PDF formats are allowed",
-          (value) =>
-            !value ||
-            (value &&
-              ["image/jpeg", "image/png", "application/pdf"].includes(value.type))
-        )
-        .nullable(),
+          .test(
+            "fileSize",
+            "File size must be less than 2MB",
+            (value) => !value || (value && value.size <= 2 * 1024 * 1024) // 2MB in bytes
+          )
+          .test(
+            "fileFormat",
+            "Only JPG, JPEG, PNG, and PDF formats are allowed",
+            (value) =>
+              !value ||
+              (value &&
+                ["image/jpeg", "image/png", "application/pdf"].includes(
+                  value.type
+                ))
+          )
+          .nullable(),
       }),
     }),
     Yup.object({
@@ -311,7 +320,10 @@ function Student({ onClose, loadStudents }) {
         .of(
           Yup.object().shape({
             isChecked: Yup.boolean(),
-            discount: Yup.number().matches(/^[0-9]{1,4}$/, "Discount must be a numeric value between 0 and 9 with a max length of 4 characters"),
+            discount: Yup.number()
+              .min(0, "Discount must be at least 0")
+              .max(9999, "Discount must be a numeric value up to 4 digits"),
+              
             feeName: Yup.string(),
             installmentAmount: Yup.number(),
             totalFee: Yup.number(),
@@ -319,11 +331,11 @@ function Student({ onClose, loadStudents }) {
               "is-required-if-checked",
               "Duration is required",
               function (value) {
-                const { isChecked } = this.parent; // Access sibling field 'checked'
+                const { isChecked } = this.parent; 
                 if (isChecked && !value) {
-                  return false; // Fail validation if checked but amount is invalid
+                  return false; 
                 }
-                return true; // Pass validation otherwise
+                return true;
               }
             ),
             dueDate: Yup.string().test(
