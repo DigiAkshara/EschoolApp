@@ -1,6 +1,7 @@
 import {configureStore} from '@reduxjs/toolkit'
 import TenantConfigSlice from './reducers/TenantConfigSlice'
 import appConfigSlice from './reducers/appConfigSlice'
+import tenantReducer from './reducers/tenantSlice'
 import classReducer from './reducers/classSlice'
 import examSlice from './reducers/examSlice'
 import stuFeesReducer from './reducers/stuFeesSlice'
@@ -22,5 +23,6 @@ export const store = configureStore({
     holiday: holidayReducer,
     staff: staffSlice,
     fees: feeSlice,
+    tenantData : tenantReducer,
   },
 })
