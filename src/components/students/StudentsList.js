@@ -7,7 +7,7 @@ import {
   fetchInitialStudentData,
   selectStudent,
 } from "../../app/reducers/studentSlice";
-import { ACADEMICS, STUDENT, TENANT } from "../../app/url";
+import { ACADEMICS, STUDENT } from "../../app/url";
 import {
   gender,
   handleApiResponse,
@@ -15,11 +15,11 @@ import {
   handleDownloadPDF,
 } from "../../commonComponent/CommonFunctions";
 import CommonUpload from "../../commonComponent/CommonUpload";
+import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 import FilterComponent from "../../commonComponent/FilterComponent";
 import TableComponent from "../../commonComponent/TableComponent";
 import StudentProfileModal from "./Profile";
 import Student from "./Student";
-import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 
 export default function StudentsList() {
   const dispatch = useDispatch();
@@ -147,18 +147,17 @@ export default function StudentsList() {
   };
   const handleClose2 = () => setOpen2(false);
 
-  const deleteRecord  = async() =>{
-    try{
-      let res = await deleteData(STUDENT+'/'+deleteId)
-      handleApiResponse(res.data.message,'success')
+  const deleteRecord = async () => {
+    try {
+      let res = await deleteData(STUDENT + '/' + deleteId)
+      handleApiResponse(res.data.message, 'success')
       getStudents()
       setDeleteConfirm(false)
       setDeleteId(null)
-    }catch(error){
+    } catch (error) {
       handleApiResponse(error)
     }
   }
-
 
   const filterForm = {
     class: "",
@@ -221,9 +220,8 @@ export default function StudentsList() {
 
   const downloadListxlsx = () => {
     const schoolName = tenant.name || "Unknown School";
-    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${
-      tenant.state || ""
-    }, ${tenant.pincode || ""}`.trim();
+    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""
+      }, ${tenant.pincode || ""}`.trim();
     const phoneNumber = tenant.phoneNumber || "N/A";
     const email = tenant.email || "N/A";
     handleDownload(
@@ -329,11 +327,11 @@ export default function StudentsList() {
       </div>
 
       {/* Student Onboarding Modal */}
-        <ConfirmationModal
-              showModal={deleteConfirm}
-              onYes={deleteRecord}
-              onCancel={()=>{setDeleteConfirm(false)}}
-            />
+      <ConfirmationModal
+        showModal={deleteConfirm}
+        onYes={deleteRecord}
+        onCancel={() => { setDeleteConfirm(false) }}
+      />
 
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />

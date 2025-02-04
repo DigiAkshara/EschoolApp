@@ -43,11 +43,9 @@ export default function FeesList() {
       const response = await getData(TENANT)
       if (response.data.data) {
         setTenant(response.data.data)
-      console.log("[TENANT -DATA:]",response.data.data);
       }
     } catch (error) {
       handleApiResponse(error)
-
     }
   }
 
@@ -154,8 +152,6 @@ export default function FeesList() {
       { label: "Applicable To", key: "applicableTo" },
       { label: "Fee Amount", key: "feeAmount" },
       { label: "Creation Date", key: "creationDate" },
-      
-      
     ], "Fee Structure Details Report");
   };
 

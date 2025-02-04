@@ -1,17 +1,17 @@
+import moment from 'moment'
 import React from 'react'
-import {gender, states, uploadFile} from '../../commonComponent/CommonFunctions'
+import { gender, handleApiResponse, states, uploadFile } from '../../commonComponent/CommonFunctions'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomRadio from '../../commonComponent/CustomRadio'
 import CustomSelect from '../../commonComponent/CustomSelect'
-import moment from 'moment'
 
-function StaffPersonalDetails({values, setFieldValue}) {
+function StaffPersonalDetails({ values, setFieldValue }) {
   const eighteenYearsAgo = moment().subtract(18, 'years').toDate();
   const handlechecked = (e) => {
-    setFieldValue('permanentAddress', {...values.presentAddress})
+    setFieldValue('permanentAddress', { ...values.presentAddress })
     setFieldValue('isSameAsPresent', e.target.checked)
   }
 
@@ -20,7 +20,7 @@ function StaffPersonalDetails({values, setFieldValue}) {
       const fileResponse = await uploadFile(e.target.files[0])
       setFieldValue(e.target.name, fileResponse)
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -41,7 +41,7 @@ function StaffPersonalDetails({values, setFieldValue}) {
           </div>
 
           <div className="sm:col-span-2">
-            <CustomDate name="DOB" label="Date Of Birth" required={true} maxDate={eighteenYearsAgo}  />
+            <CustomDate name="DOB" label="Date Of Birth" required={true} maxDate={eighteenYearsAgo} />
           </div>
 
           <div className="sm:col-span-2">

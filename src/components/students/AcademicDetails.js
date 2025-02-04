@@ -45,25 +45,21 @@ function StudentAcademicDetails({ values, setFieldValue }) {
     }
   }
 
-  const getPrevAcademicYears = async() => {
+  const getPrevAcademicYears = async () => {
     try {
       let res = await getData(ACADEMIC_YEAR + '/all')
-      if (res.status === 200 || res.status === 201) {
-        const curYear = moment().year()
-        let list = []
-        res.data.data.forEach(year => 
-        {
-          let end = year.year.split("-")[1].trim()
-          if(end*1 < curYear*1){
-            list.push({ label: year.year, value: year._id })
-          }
-        })
-        setPrevAcademicOpts(list)
-      } else {
-        throw new Error(res)
-      }
+      const curYear = moment().year()
+      let list = []
+      res.data.data.forEach(year => {
+        let end = year.year.split("-")[1].trim()
+        if (end * 1 < curYear * 1) {
+          list.push({ label: year.year, value: year._id })
+        }
+      })
+      setPrevAcademicOpts(list)
+
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
 
   }
@@ -89,7 +85,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               name="admissionDate"
               label="Admission Date"
               required={true}
-              maxDate={moment().format('YYYY-MM-DD')} 
+              maxDate={moment().format('YYYY-MM-DD')}
             />
           </div>
 

@@ -1,8 +1,10 @@
+import moment from 'moment'
 import React from 'react'
 import {
   bloodGroup,
   caste,
   gender,
+  handleApiResponse,
   nationality,
   occupation,
   religion,
@@ -15,13 +17,12 @@ import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomRadio from '../../commonComponent/CustomRadio'
 import CustomSelect from '../../commonComponent/CustomSelect'
-import moment from 'moment'
 
-function BasicInfo({values, setFieldValue}) {
+function BasicInfo({ values, setFieldValue }) {
   const minAgeDate = moment().subtract(2.8, 'years').toDate();
-  
+
   const handleChecked = (e) => {
-    setFieldValue('permanentAddress', {...values.presentAddress})
+    setFieldValue('permanentAddress', { ...values.presentAddress })
     setFieldValue('isSameAsPresent', e.target.checked)
   }
 
@@ -30,7 +31,7 @@ function BasicInfo({values, setFieldValue}) {
       const fileResponse = await uploadFile(e.target.files[0])
       setFieldValue(e.target.name, fileResponse)
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
   return (
@@ -71,7 +72,7 @@ function BasicInfo({values, setFieldValue}) {
             />
           </div>
           <div className="sm:col-span-2">
-            <CustomDate name="DOB" label="Date of Birth" required={true}  maxDate={minAgeDate}    />
+            <CustomDate name="DOB" label="Date of Birth" required={true} maxDate={minAgeDate} />
           </div>
 
           <div className="sm:col-span-2">

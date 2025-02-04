@@ -1,12 +1,12 @@
-import {DialogPanel, DialogTitle} from '@headlessui/react'
-import {XMarkIcon} from '@heroicons/react/20/solid'
-import {Form, Formik} from 'formik'
+import { DialogPanel, DialogTitle } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/20/solid'
+import { Form, Formik } from 'formik'
 import * as Yup from 'yup'
-import {uploadFile} from '../../commonComponent/CommonFunctions'
+import { handleApiResponse, uploadFile } from '../../commonComponent/CommonFunctions'
 import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 
-export default function Tenant({onClose}) {
+export default function Tenant({ onClose }) {
   const initialValues = {
     name: '',
     email: '',
@@ -22,7 +22,7 @@ export default function Tenant({onClose}) {
       const fileResponse = await uploadFile(e.target.files[0])
       // setFieldValue(e.target.name, fileResponse);
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -41,7 +41,7 @@ export default function Tenant({onClose}) {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({values, setFieldValue, errors}) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">

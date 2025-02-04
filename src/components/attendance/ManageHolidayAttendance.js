@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { getData } from "../../app/api";
-import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
-import ManageHolidaySidebar from "./ManageHolidaySidebar";
-import TableComponent from "../../commonComponent/TableComponent";
-import FilterComponent from "../../commonComponent/FilterComponent";
 import moment from "moment";
-import { setSelectedHoliday } from "../../app/reducers/holidaySlice";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { getData } from "../../app/api";
+import { setSelectedHoliday } from "../../app/reducers/holidaySlice";
+import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import TableComponent from "../../commonComponent/TableComponent";
+import ManageHolidaySidebar from "./ManageHolidaySidebar";
 
 const ManageHolidayAttendance = () => {
   const [academicYears, setAcademicYears] = useState([]);
@@ -40,33 +40,28 @@ const ManageHolidayAttendance = () => {
   const academicyear = async () => {
     try {
       const academicYearRes = await getData(ACADEMIC_YEAR);
-      if (academicYearRes.status === 200 || academicYearRes.status === 201) {
-        let academicYearData = [
-          {
-            label: academicYearRes.data.data.year, // Displayed text in the dropdown
-            value: academicYearRes.data.data._id,
-          },
-        ];
-        setAcademicYears(academicYearData);
-      } else {
-        throw new Error(academicYearRes.message);
-      }
+      let academicYearData = [
+        {
+          label: academicYearRes.data.data.year, // Displayed text in the dropdown
+          value: academicYearRes.data.data._id,
+        },
+      ];
+      setAcademicYears(academicYearData);
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
   const getHolidayData = async () => {
     try {
       const response = await getData(HOLIDAYS);
       const holidayResonse = response.data.data;
-
       const holidayData = holidayResonse.map((item) => {
         const academicYearLabel = academicYears.find(
           (year) => year.value === item.academicYear
         )?.label;
         const totalDays = Math.ceil(
           (new Date(item.endDate) - new Date(item.startDate)) /
-            (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24)
         );
         return {
           _id: item._id,
@@ -75,7 +70,7 @@ const ManageHolidayAttendance = () => {
           endDate: item.endDate,
           displayDate: formatHolidayDate(item.startDate, item.endDate),
           totalDays,
-          academicYear:academicYearLabel || item.academicYear, 
+          academicYear: academicYearLabel || item.academicYear,
           status: item.status,
           actions: [
             { label: "Edit", actionHandler: onHandleEdit },
@@ -83,22 +78,12 @@ const ManageHolidayAttendance = () => {
           ],
         };
       });
-
       setHolidaysData(holidayData);
       setFilteredData(holidayData);
     } catch (error) {
-      console.error("Error getting data:", error);
+      handleApiResponse(error);
     }
   };
-
-  // const handleSearch = (e) => {
-  //   const query = e.target.value.toLowerCase();
-  //   setFilteredData(
-  //     holidaysData.filter((holiday) =>
-  //       holiday.name.toLowerCase().includes(query)
-  //     )
-  //   );
-  // };
 
   const handleSearch = (searchTerm) => {
     const filtered = holidaysData.filter((item) =>
@@ -112,40 +97,25 @@ const ManageHolidayAttendance = () => {
 
 
   const onHandleEdit = async (holidayId) => {
-  
     try {
-     
       const response = await getData(HOLIDAYS + "/" + holidayId);
-  
-      if (response?.data?.data) {
-        const holiday = response.data.data;
-  
-        const academicYearLabel = academicYears.find(
-          (year) => year.value === holiday.academicYear
-        )?.label;
-  
-        const updatedHoliday = {
-          ...holiday,
-          academicYear: academicYearLabel || holiday.academicYear, 
-        };
-  
-        dispatch(setSelectedHoliday(updatedHoliday));
-      } else {
-        console.error("Holiday not found for the given ID:", holidayId);
-      }
+      const holiday = response.data.data;
+      const academicYearLabel = academicYears.find(
+        (year) => year.value === holiday.academicYear
+      )?.label;
+      const updatedHoliday = {
+        ...holiday,
+        academicYear: academicYearLabel || holiday.academicYear,
+      };
+      dispatch(setSelectedHoliday(updatedHoliday));
     } catch (error) {
-      console.error("Error fetching holiday data:", error);
+      handleApiResponse(error);
     }
   };
-  
+
 
   const onDelete = () => {
     console.log("delete");
-  };
-
-  const handleAction = {
-    edit: (item) => console.log("Edit:", item),
-    delete: (item) => console.log("Delete:", item),
   };
 
   const handlePageChange = (page) => {
@@ -181,10 +151,6 @@ const ManageHolidayAttendance = () => {
                 <TableComponent
                   columns={columns}
                   data={paginatedData}
-                  onAction={[
-                    { label: "Edit", handler: handleAction.edit },
-                    { label: "Delete", handler: handleAction.delete },
-                  ]}
                   pagination={{
                     currentPage,
                     totalCount: filteredData.length,

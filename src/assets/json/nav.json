@@ -247,9 +247,24 @@
         "icon": "ChartPieIcon",
         "submenu":[
             {
+                "title": "Profile",
+                "name": "profile",
+                "path": "/profile"
+            },
+            {
                 "title": "Permissions",
                 "name": "permissions",
                 "path": "/permissions"
+            },
+            {
+                "title": "Designations",
+                "name": "designations",
+                "path": "/designations"
+            },
+            {
+                "title": "Academics",
+                "name": "academics",
+                "path": "/academics"
             }
         ]
         

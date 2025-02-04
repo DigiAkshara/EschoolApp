@@ -1,6 +1,7 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react'
 import { IdentificationIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Form, Formik } from 'formik'
+import moment from 'moment'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import * as Yup from 'yup'
@@ -12,7 +13,6 @@ import CustomDate from '../../../commonComponent/CustomDate'
 import CustomInput from '../../../commonComponent/CustomInput'
 import CustomSelect from '../../../commonComponent/CustomSelect'
 import ExamTimeTable from './ExamTimeTable'
-import moment from 'moment'
 
 function CreateExam({ onClose }) {
   const {
@@ -87,7 +87,6 @@ function CreateExam({ onClose }) {
       onClose()
     } catch (error) {
       handleApiResponse(error)
-      console.log(error)
     }
   }
 

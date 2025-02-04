@@ -6,7 +6,7 @@ import {
 import moment from 'moment'
 import React, { useState } from 'react'
 import PaginationComponent from './PaginationComponent'
-const TableComponent = ({ columns, data, pagination, showModal, modalColumn }) => {
+const TableComponent = ({ columns, data, pagination, showModal, modalColumn, checkColumn=true }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
 
   const handleSort = ({ key }) => {
@@ -32,12 +32,13 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn }) =
         <table className="table-auto min-w-full divide-y divide-gray-300">
           <thead className="sticky top-0 bg-purple-100 z-20">
             <tr>
+              {checkColumn&&
               <th scope="col" className="relative px-7 sm:w-12 sm:px-6">
                 <input
                   type="checkbox"
                   className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
                 />
-              </th>
+              </th>}
               {columns.map((col, index) => (
                 <th
                   scope="col"
@@ -63,13 +64,14 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn }) =
           <tbody className="divide-y divide-gray-200 bg-white z-1">
             {sortedData.length?sortedData.map((record, indx) => (
               <tr key={indx} className="bg-gray-50">
+                {checkColumn&&
                 <td className="relative px-7 sm:w-12 sm:px-6">
                   <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
                   <input
                     type="checkbox"
                     className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
                   />
-                </td>
+                </td>}
                 {columns.map((col, ind) =>
                   col.key === 'name' ? (
                     <td
@@ -147,7 +149,7 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn }) =
                     >
                       {col.key === 'date'
                         ? moment(record[col.key]).format('DD-MM-YYYY')
-                        : modalColumn?.includes(col.key) ? <a onClick={() => showModal && showModal(record)}>{record[col.key]}</a> : record[col.key]}
+                        : modalColumn?.includes(col.key) ? <a className='cursor-pointer' onClick={() => showModal && showModal(record)}>{record[col.key]}</a> : record[col.key]}
                     </td>
                   ),
                 )}

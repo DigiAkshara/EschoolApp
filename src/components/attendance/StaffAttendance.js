@@ -1,25 +1,25 @@
 'use client'
 
 import React, {useEffect, useState} from 'react'
-import ManageStaffDailyAttendance from './ManageStaffDailyAttendance'
-import ManageStaffRegister from './ManageStaffRegister'
+import StaffDailyAttendance from './StaffDailyAttendance'
+import StaffRegister from './StaffRegister'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function ManageStaffAttendance() {
+export default function StaffAttendance() {
   const [activeTab, setActiveTab] = useState(0)
 
   const tabs2 = [
     {
       name: 'Daily Attendance',
-      component: <ManageStaffDailyAttendance />,
+      component: <StaffDailyAttendance />,
       current: true,
     },
     {
       name: 'Attendance Register ',
-      component: <ManageStaffRegister />,
+      component: <StaffRegister />,
       current: false,
     },
   ]

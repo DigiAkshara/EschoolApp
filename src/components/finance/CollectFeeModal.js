@@ -13,7 +13,7 @@ import {
 import FinanceCollectFeeHistory from './FinanceCollectFeeHistory'
 import FinanceCollectFeesDetails from './FinanceCollectFeesDetails'
 
-function CollectFeeModal({ onClose }) {
+function CollectFeeModal({ onClose, fetchData }) {
   const [activeTab, setActiveTab] = useState(0)
   const selectedFee = useSelector((state) => state.fees.selectedFee)
   const studentData = selectedFee?.academic
@@ -233,7 +233,7 @@ function CollectFeeModal({ onClose }) {
                         {/* Fee details */}
                         <div className="overflow-hidden rounded-xl ">
                           {activeTab === 0 && (
-                            <FinanceCollectFeesDetails onClose={onClose} />)}
+                            <FinanceCollectFeesDetails onClose={onClose} fetchData={fetchData} />)}
                           {activeTab === 1 && (
                             <FinanceCollectFeeHistory />
                           )}
