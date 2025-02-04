@@ -34,8 +34,7 @@ const getStudent = async () => {
    
     const response = await getData(ACADEMICS +"/"+ classId +"/"+ sectionId);
     if(response.data?.data) {
-      console.log("Response data for student:", response.data.data);
-      
+    
       const studentsData = response.data.data.map((item) => ({
         _id: item.student._id,
         pic: item.student.profilePic?.Location || "",
@@ -45,10 +44,8 @@ const getStudent = async () => {
         mothersName : item.student.motherDetails.name || " ",
         className: item.class?.name || "N/A",
       }))
-      console.log("student data", studentsData);
       
       setStudents(studentsData);
-    console.log(response.data.data);
     }
      } catch (error) {
     handleApiResponse(error);
@@ -67,7 +64,6 @@ const capitalizeWords = (str) => {
 
 
 const generatePDFs = async () => {
-  console.log("Generating Hall Tickets...");
 
   const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
 

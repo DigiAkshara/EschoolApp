@@ -79,7 +79,6 @@ function ExamMarkDetailsPage({ onClose }) {
 
   useEffect(() => {
     if (selectedExamDetails) {
-      console.log(selectedExamDetails)
       let dumpList = []
       selectedExamDetails.marksDetails.forEach((item) => {
         dumpList.push({
@@ -111,7 +110,6 @@ function ExamMarkDetailsPage({ onClose }) {
 
 
 const generatePDFs = async () => {
-  console.log("studentMarks", studentMarks);
 
   const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
 

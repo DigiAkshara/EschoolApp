@@ -203,7 +203,6 @@ function CreateExam({ onClose }) {
                                       required={true}
                                       minDate={moment().format('DD-MM-YYYY')}
                                       onChange={(newValue) => {
-                                        console.log(newValue, "startDate")
                                         setFieldValue('startDate', newValue)
                                         setFieldValue('endDate', null)
                                       }}

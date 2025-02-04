@@ -56,7 +56,6 @@ const ManageStaffDailyAttendance = () => {
   const getStaffData = async () => {
     try {
       const response = await getData(STAFF + "/attendance");
-      console.log("[STAFF-REGISTER] data for attendance:", response.data.data);
       setStaffAttendanceData(response.data.data); // Store fetched attendance data
     } catch (error) {
       console.error("Error fetching staff attendance data:", error);
@@ -118,7 +117,6 @@ const ManageStaffDailyAttendance = () => {
   };
 
   const handleSubmit = async (values) => {
-    console.log("Form submitted with values:", values);
 
     values["userType"] = "staff";
     // Check if any staff has a missing attendanceStatus

@@ -228,7 +228,6 @@ export default function StaffDetails() {
   };
 
   const downloadList = () => {
-    console.log("students downloaded");
     
     handleDownloadPDF (filteredData, "Staff_Details", [
       { label: "Staff Name", key: "name" },
