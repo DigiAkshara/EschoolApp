@@ -18,24 +18,23 @@ import moment from "moment";
 
 function ExamDetailsPage({ onClose }) {
   const [students, setStudents] = useState([]);
-  const [tenant, setTenant] = useState(null)
   const selectedExam = useSelector((state) => state.exams.selectedExam);
   const subjects = useSelector((state) => state.academics.subjects);
+  const tenant = useSelector((state) => state.tenantData);
+
 
   const classId = selectedExam?.classObject._id;
   const sectionId = selectedExam?.sectionObject._id;
 
   useEffect(() => {
     getStudent();
-    getTanent();
      })
 const getStudent = async () => {
   try {
    
     const response = await getData(ACADEMICS +"/"+ classId +"/"+ sectionId);
     if(response.data?.data) {
-      console.log("Response data for student:", response.data.data);
-      
+    
       const studentsData = response.data.data.map((item) => ({
         _id: item.student._id,
         pic: item.student.profilePic?.Location || "",
@@ -45,10 +44,8 @@ const getStudent = async () => {
         mothersName : item.student.motherDetails.name || " ",
         className: item.class?.name || "N/A",
       }))
-      console.log("student data", studentsData);
       
       setStudents(studentsData);
-    console.log(response.data.data);
     }
      } catch (error) {
     handleApiResponse(error);
@@ -65,22 +62,8 @@ const capitalizeWords = (str) => {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-const getTanent = async () => {
-  try {
-    const response = await getData(TENANT)
-    if (response.data.data) {
-      setTenant(response.data.data)
-    console.log("[TENANT -DATA:]",response.data.data);
-    }
-  } catch (error) {
-    handleApiResponse(error)
-
-  }
-}
-
 
 const generatePDFs = async () => {
-  console.log("Generating Hall Tickets...");
 
   const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
 
@@ -105,9 +88,9 @@ const generatePDFs = async () => {
 
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
-            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px;">${tenant?.name?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px;">Ph: ${tenant?.phoneNumber||""}  | Email: ${tenant.email}</p>
-            <p style="margin: 0; font-weight: bold;font-size: 13px; ">Address: ${tenant.city}, ${tenant.district}, ${tenant.state}, ${tenant.pincode}</p>
+            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${tenant?.name?.toUpperCase()}</h1>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant?.phoneNumber||""}  | Email: ${tenant.email}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant.city}, ${tenant.district}, ${tenant.state}, ${tenant.pincode}</p>
           </div>
         </div>
         <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
@@ -142,7 +125,7 @@ const generatePDFs = async () => {
 
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; font-family: Arial, sans-serif; color: #333;">
           <thead>
-            <tr style="background: #4CAF50; color: white; text-align: center; font-weight: bold;">
+            <tr style="background:rgb(206, 175, 240); color: black; text-align: center; font-weight: bold;">
               <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Si.No</th>
               <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Subjects</th>
               <th style="border: 1px solid #ddd; padding: 8px; text-transform: uppercase;">Exam Date</th>
@@ -168,8 +151,8 @@ const generatePDFs = async () => {
         
      
         <div style="margin-top: 20px;">
-          <p><strong>Signature of Principal / COE</strong></p>
-          <p><strong>Date:</strong> __________</p>
+          <p style="color: rgb(116, 38, 199);"><strong>Signature of Principal / COE</strong></p>
+          <p style="color: rgb(116, 38, 199);"><strong>Date:</strong> __________</p>
         </div>
 
         <div style="margin-top: 20px;">

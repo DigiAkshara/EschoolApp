@@ -41,39 +41,14 @@ export default function StaffDetails() {
   const [bulkUploadList, setBulkUploadList] = useState([])
   const fileInputRef = useRef(null);
   const dispatch = useDispatch()
-  const [tenant, setTenant] = useState(null)
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const openDialog = () => {
-    setIsDialogOpen(true);
-  };
-
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-  };
-
-
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
-  };
+  const tenant = useSelector((state) => state.tenantData);
 
   const handleOpen = () => setShowAddStaffModal(true)
   const handleClose = () =>{ setShowAddStaffModal(false); dispatch(selectStaff(null))}
   const handleClose2 = () => setOpen2(false)
 
-  const getTanent = async () => {
-    try {
-      const response = await getData(TENANT)
-      if (response.data.data) {
-        setTenant(response.data.data)
-      console.log("[TENANT -DATA:]",response.data.data);
-      }
-    } catch (error) {
-      handleApiResponse(error)
-
-    }
-  }
 
   const getSubjects = async () => {
     try {
@@ -93,7 +68,6 @@ export default function StaffDetails() {
   useEffect(() => {
     getSubjects()
     getStaff()
-    getTanent()
   }, [dispatch])
 
   const columns = [
@@ -254,7 +228,6 @@ export default function StaffDetails() {
   };
 
   const downloadList = () => {
-    console.log("students downloaded");
     
     handleDownloadPDF (filteredData, "Staff_Details", [
       { label: "Staff Name", key: "name" },

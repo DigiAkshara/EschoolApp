@@ -13,7 +13,6 @@ import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData ,academicYears}) => {
   const [holidayMsg, setHolidayMsg] = useState([]);
   const selectedHoliday = useSelector((state) => state.holiday.selectedHoliday);
-  console.log("selectedHoliday", selectedHoliday);
 
   const data = [
     {

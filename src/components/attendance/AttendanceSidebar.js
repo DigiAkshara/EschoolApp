@@ -41,11 +41,8 @@ const AttendanceSidebar = ({
   const checkHoliday = () => {
     const selectedDate =  moment(values.date).format('DD-MM-YYYY');
     const todayDate = moment().format('DD-MM-YYYY');
-    console.log("Selected Date -[Student Attendance]",selectedDate);
-    console.log("Today Date:",todayDate);
-    
+   
      const currentDate = selectedDate || todayDate;
-    console.log("Current date:", currentDate);
     
 
     const isHolidayToday = holidaysData?.some((holiday) => {

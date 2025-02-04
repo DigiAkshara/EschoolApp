@@ -153,20 +153,15 @@ function ManageStaffRegister() {
   };
 
   const days = daysInMonth(parseInt(month), year);
-  // console.log("Days in the month:", days);
-
-
 
   const handleAttendanceChange = (e) => {
     e.preventDefault();
     setSelectedAttendance(e.target.value);
-    console.log("Selected Attendance:", e.target.value);
   };
 
 
   const handleSave = async (day, id) => {
     const formattedDate = new Date(year, month - 1, day);
-    console.log("formated date:",formattedDate, day);
     
     const payload = {
       userId: id, // Assuming staff has an _id field
@@ -174,11 +169,9 @@ function ManageStaffRegister() {
       date: formattedDate,
       attendanceStatus: selectedAttendance, // Selected attendance value
     };
-    console.log("[Staff Payload]", payload);
     try {
       const response = await updateData(ATTENDANCE, payload);
       if (response.status === 200) {
-        console.log("Attendance updated successfully");
         getStaffData();
       } else {
         console.error("Failed to update attendance");

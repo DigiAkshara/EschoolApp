@@ -58,7 +58,6 @@ const ManageHolidayAttendance = () => {
   const getHolidayData = async () => {
     try {
       const response = await getData(HOLIDAYS);
-      console.log("Response - [HOLIDAY]", response.data.data);
       const holidayResonse = response.data.data;
 
       const holidayData = holidayResonse.map((item) => {
@@ -84,7 +83,6 @@ const ManageHolidayAttendance = () => {
           ],
         };
       });
-      console.log("after changing format:", holidayData);
 
       setHolidaysData(holidayData);
       setFilteredData(holidayData);
@@ -114,12 +112,10 @@ const ManageHolidayAttendance = () => {
 
 
   const onHandleEdit = async (holidayId) => {
-    console.log("id is", holidayId);
   
     try {
      
       const response = await getData(HOLIDAYS + "/" + holidayId);
-      console.log("Response - [HOLIDAY]", response.data.data);
   
       if (response?.data?.data) {
         const holiday = response.data.data;
@@ -133,7 +129,6 @@ const ManageHolidayAttendance = () => {
           academicYear: academicYearLabel || holiday.academicYear, 
         };
   
-        console.log("Updated holiday data:", updatedHoliday);
         dispatch(setSelectedHoliday(updatedHoliday));
       } else {
         console.error("Holiday not found for the given ID:", holidayId);
@@ -163,7 +158,6 @@ const ManageHolidayAttendance = () => {
       ...item,
       siNo: (currentPage - 1) * rowsPerPage + index + 1,
     }));
-  console.log("paginated data:", paginatedData);
 
   return (
     <>
