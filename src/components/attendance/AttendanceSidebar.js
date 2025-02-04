@@ -29,6 +29,7 @@ const AttendanceSidebar = ({
 }) => {
 
   const [attendanceMarked, setAttendanceMarked] = useState(false)
+  const [holiday, setHoliday] = useState(false)
 
   useEffect(() => {
     checkHoliday();
