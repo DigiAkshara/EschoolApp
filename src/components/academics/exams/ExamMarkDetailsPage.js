@@ -11,6 +11,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { capitalizeWords } from "../../../commonComponent/CommonFunctions";
+import jsPDF from 'jspdf';
 
 
 function ExamMarkDetailsPage({ onClose }) {
@@ -104,6 +105,7 @@ function ExamMarkDetailsPage({ onClose }) {
 
 
   const generatePDFs = async () => {
+    const doc = new jsPDF("p", "mm", "a4");
     const pdfPromises = studentMarks.map(async (student, index) => {
       // Create a container dynamically to hold the progress card HTML
       const container = document.createElement("div");
