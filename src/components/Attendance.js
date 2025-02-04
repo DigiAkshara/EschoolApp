@@ -1,6 +1,6 @@
 'use client'
 import React, {useState} from 'react'
-import ManageStaffAttendance from './attendance/ManageStaffAttendance'
+import StaffAttendance from './attendance/StaffAttendance'
 import ManageStudentAttendance from './attendance/ManageStudentAttendance'
 import ManageHolidayAttendance from './attendance/ManageHolidayAttendance'
 import Submenu from './Submenu'
@@ -11,7 +11,7 @@ export default function Attendance() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'staff_attendance':
-        return <ManageStaffAttendance />
+        return <StaffAttendance />
       case 'student_attendance':
         return <ManageStudentAttendance />
       case 'holiday_entry':

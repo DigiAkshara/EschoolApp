@@ -75,8 +75,11 @@ function Student({ onClose, loadStudents }) {
     ...(selectedStudent && {
       academics: {
         ...selectedStudent.academics,
+        academicYear:selectedStudent.academics.academicYear?._id,
         class: selectedStudent.academics.class?._id,
         classObj: selectedStudent.academics.class,
+        section: selectedStudent.academics.section?._id,
+        sectionObj: selectedStudent.academics.section,
       },
       fees: selectedStudent.fees?.feeList || [],
     }),
@@ -323,7 +326,6 @@ function Student({ onClose, loadStudents }) {
             discount: Yup.number()
               .min(0, "Discount must be at least 0")
               .max(9999, "Discount must be a numeric value up to 4 digits"),
-              
             feeName: Yup.string(),
             installmentAmount: Yup.number(),
             totalFee: Yup.number(),

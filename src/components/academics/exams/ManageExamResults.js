@@ -12,8 +12,8 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../../../app/api";
 import { selectExam, selectExamDetails } from "../../../app/reducers/examSlice";
-import { MARKS, TENANT } from "../../../app/url";
-import { capitalizeWords, handleApiResponse , handleDownloadPDF} from "../../../commonComponent/CommonFunctions";
+import { MARKS } from "../../../app/url";
+import { capitalizeWords, handleApiResponse, handleDownloadPDF } from "../../../commonComponent/CommonFunctions";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import TableComponent from "../../../commonComponent/TableComponent";
 import AddExamMarks from "./AddExamMarks";
@@ -66,7 +66,6 @@ function ManageExamResults() {
   useEffect(() => {
     formatExamData();
   }, [exams]);
-
 
 
   const getPercentage = (timeTable) => {
@@ -202,15 +201,15 @@ function ManageExamResults() {
   );
 
   const downloadList = () => {
-    handleDownloadPDF (filteredData, "Exam_Details", [
+    handleDownloadPDF(filteredData, "Exam_Details", [
       { key: "examName", label: "Exam Name" },
       { key: "className", label: "Class" },
       { key: "sectionName", label: "Section" },
       { key: "examDates", label: "Exam Dates" },
       { key: "markStatus", label: "Marks Status" },
       { key: "passPercentage", label: "Pass Percentage" },
-      
-      
+
+
     ], "Exam Details Report", tenant, undefined, "portrait");
   };
 

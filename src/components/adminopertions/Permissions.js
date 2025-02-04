@@ -1,11 +1,12 @@
-import {Form, Formik} from 'formik'
+import { Form, Formik } from 'formik'
+import { useEffect, useState } from 'react'
 import * as Yup from 'yup'
-import {useEffect, useState} from 'react'
+import { getData, postData } from '../../app/api'
+import { PERMISSIONS, ROLES } from '../../app/url'
 import navData from '../../assets/json/nav.json'
+import { handleApiResponse } from '../../commonComponent/CommonFunctions'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomSelect from '../../commonComponent/CustomSelect'
-import {getData, postData} from '../../app/api'
-import {PERMISSIONS, ROLES} from '../../app/url'
 const Permissions = () => {
   const [roles, setRoles] = useState([])
   const initialValues = {
@@ -17,13 +18,13 @@ const Permissions = () => {
         read: false,
         submenu: item.submenu
           ? item.submenu.map((menu) => ({
-              title: menu.title,
-              name: menu.name,
-              read: false,
-              write: false,
-              delete: false,
-              edit: false,
-            }))
+            title: menu.title,
+            name: menu.name,
+            read: false,
+            write: false,
+            delete: false,
+            edit: false,
+          }))
           : [],
       }
     }),
@@ -51,7 +52,7 @@ const Permissions = () => {
               'submenu-permission-check',
               'At least one permission (delete, edit, read, write) must be true in the submenu when menu is checked',
               function (submenu) {
-                const {read} = this.parent // Access 'menu.read'
+                const { read } = this.parent // Access 'menu.read'
                 if (!read || submenu.length === 0) return true // Skip validation if 'menu.read' is false
                 return submenu.some(
                   (item) => item.delete || item.edit || item.read || item.write,
@@ -65,13 +66,9 @@ const Permissions = () => {
   const handleSubmit = async (values) => {
     try {
       let res = await postData(PERMISSIONS, values)
-      if (res.status === 200 || res.status === 201) {
-        alert('Permissions added successfully!')
-      } else {
-        throw new Error(res.message)
-      }
+      handleApiResponse(res.data.message, 'success')
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -90,19 +87,15 @@ const Permissions = () => {
   const getRoles = async () => {
     try {
       const data = await getData(ROLES)
-      if (data.status === 200 || data.status === 201) {
-        let roleData = data.data.data.map((item) => {
-          return {
-            label: item.name, // Displayed text in the dropdown
-            value: item._id,
-          }
-        })
-        setRoles(roleData)
-      } else {
-        throw new Error(data.message)
-      }
+      let roleData = data.data.data.map((item) => {
+        return {
+          label: item.name, // Displayed text in the dropdown
+          value: item._id,
+        }
+      })
+      setRoles(roleData)
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -110,34 +103,41 @@ const Permissions = () => {
     setFieldValue('role', e.target.value)
     try {
       let res = await getData(PERMISSIONS + '/' + e.target.value)
-      if (res.status === 200 || res.status === 201) {
-        if (res.data.data) {
-          setFieldValue('permissions', res.data.data.permissions)
-        } else {
-          const permissions = navData.map((item) => {
-            return {
-              name: item.name,
-              title: item.title,
+      let dumpLIst = []
+      navData.forEach((item) => {
+        let obj = {
+          name: item.name,
+          title: item.title,
+          read: false,
+          submenu: item.submenu
+            ? item.submenu.map((menu) => ({
+              title: menu.title,
+              name: menu.name,
               read: false,
-              submenu: item.submenu
-                ? item.submenu.map((menu) => ({
-                    title: menu.title,
-                    name: menu.name,
-                    read: false,
-                    write: false,
-                    delete: false,
-                    edit: false,
-                  }))
-                : [],
+              write: false,
+              delete: false,
+              edit: false,
+            }))
+            : [],
+        }
+        let index = res.data.data.permissions.findIndex((i) => i.name === item.name)
+        if (index != -1) {
+          obj.read = true
+          obj.submenu.forEach((submenu) => {
+            let subIndex = res.data.data.permissions[index].submenu.findIndex((i) => i.name === submenu.name)
+            if (subIndex != -1) {
+              submenu.read = res.data.data.permissions[index].submenu[subIndex].read
+              submenu.write = res.data.data.permissions[index].submenu[subIndex].write
+              submenu.edit = res.data.data.permissions[index].submenu[subIndex].edit
+              submenu.delete = res.data.data.permissions[index].submenu[subIndex].delete
             }
           })
-          setFieldValue('permissions', permissions)
         }
-      } else {
-        throw new Error(res.message)
-      }
+        dumpLIst.push(obj)
+      })
+      setFieldValue('permissions', dumpLIst)
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -151,7 +151,7 @@ const Permissions = () => {
       validationSchema={getValidationSchema()}
       onSubmit={handleSubmit}
     >
-      {({values, setFieldValue, errors}) => (
+      {({ values, setFieldValue, errors }) => (
         <Form>
           <div className="mt-4 flex justify-between">
             <div className="right-btns-blk space-x-4">

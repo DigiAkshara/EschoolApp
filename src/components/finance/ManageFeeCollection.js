@@ -54,7 +54,6 @@ function ManageFeeCollection() {
       const response = await getData(TENANT)
       if (response.data.data) {
         setTenant(response.data.data)
-      console.log("[TENANT -DATA:]",response.data.data);
       }
     } catch (error) {
       handleApiResponse(error)
@@ -68,10 +67,10 @@ function ManageFeeCollection() {
       const feedata = response.data.data // Access the correct array property
       const stuFees = []
       feedata.forEach((fee) => {
-        let paidAmount = 0, payableAmount = 0
+        let paybalAmount = 0, paidAmount = 0
         fee.feeList.forEach((item) => {
-          payableAmount = payableAmount + item.paybalAmount * 1
-          paidAmount = paidAmount + (item.paidAmount * 1 || 0)
+          paybalAmount = paybalAmount + (item.paybalAmount * 1||0)
+          paidAmount = paidAmount + (item.paidAmount * 1||0)
         })
         stuFees.push({
           _id: fee.student._id,
@@ -82,8 +81,8 @@ function ManageFeeCollection() {
           fatherName: fee.student.fatherDetails.name,
           gender: fee.student.gender,
           dob: fee.student.DOB,
-          payableAmount: payableAmount,
-          pendingAmount: payableAmount - paidAmount,
+          payableAmount: paybalAmount,
+          pendingAmount: paybalAmount - paidAmount,
           paymentStatus: capitalizeWords(fee.paymentStatus),
           fees: fee.feeList,
           class: fee.class,
@@ -169,53 +168,8 @@ function ManageFeeCollection() {
   return (
     <>
       <div className="mt-4 flex justify-between">
-        <div className="sm:hidden">
-          {/* <label htmlFor="tabs2" className="sr-only">
-            Select a tab
-          </label>
-          {/* Use an "onChange" listener to redirect the user to the selected tab URL. 
-          <select
-            id="tabs2"
-            name="tabs2"
-            defaultValue={tabs2.find((tab) => tab.current).name}
-            className="block w-full rounded-full border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-          >
-            {tabs2.map((tab) => (
-              <option key={tab.name}>{tab.name}</option>
-            ))}
-          </select> */}
-        </div>
-        <div className="hidden sm:block">
-          {/* <nav aria-label="Tabs2" className="flex space-x-4">
-            {tabs2.map((tab) => (
-              <a
-                key={tab.name}
-                href={tab.href}
-                aria-current={tab.current ? 'page' : undefined}
-                className={classNames(
-                  tab.current
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-gray-100 text-gray-500 hover:text-gray-700',
-                  'rounded-full px-3 py-2 text-sm font-medium',
-                )}
-              >
-                {tab.name}
-                {tab.count ? (
-                  <span
-                    className={classNames(
-                      tab.current
-                        ? 'bg-white text-purple-600'
-                        : 'bg-gray-300 text-gray-900',
-                      'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
-                    )}
-                  >
-                    {tab.count}
-                  </span>
-                ) : null}
-              </a>
-            ))}
-          </nav> */}
-        </div>
+        <div className="sm:hidden"></div>
+        <div className="hidden sm:block"></div>
         <div className="right-btns-blk space-x-4">
           <button
             type="button"
@@ -279,7 +233,7 @@ function ManageFeeCollection() {
         </div>
         <Dialog open={showFeeModal} onClose={handleClose} className="relative z-50">
           <div className="fixed inset-0" />
-          <CollectFeeModal onClose={handleClose} />
+          <CollectFeeModal onClose={handleClose} fetchData={getStudentData} />
         </Dialog>
       </div>
     </>

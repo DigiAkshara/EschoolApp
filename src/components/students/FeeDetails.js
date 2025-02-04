@@ -37,12 +37,13 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     if (selectedStudent) {
       selectedStudent.fees?.feeList.forEach(item => {
         let index = dumpLIst.findIndex(obj => obj.id === item.fee._id);
+        const discount = item.discount||0
         if (index != -1) {
           dumpLIst[index].isChecked = true
           dumpLIst[index].feeType = item.duration
           dumpLIst[index].dueDate = item.dueDate
-          dumpLIst[index].discount = item.discount * 1
-          dumpLIst[index].installmentAmount = item.fee.amount * 1 - item.discount * 1 //installment fee
+          dumpLIst[index].discount = discount * 1
+          dumpLIst[index].installmentAmount = item.fee.amount * 1 - discount * 1 //installment fee
           dumpLIst[index].totalFee = item.fee.amount * 1 //total fee
         }
       })
@@ -231,8 +232,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                         <CustomDate
                           name={`fees.${index}.dueDate`}
                           value={item.dueDate}
-                          // minDate={new Date()} 
-                          minDate = {moment().format('DD-MM-YYYY')}
+                          minDate = {moment().format('MM-DD-YYYY')}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -248,7 +248,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                         <CustomInput
                           name={`fees.${index}.installmentAmount`}
                           type="number"
-                          value={item.installmentAmount}
+                          value={item.isChecked?item.installmentAmount:''}
                           disabled
                         />
                       </td>

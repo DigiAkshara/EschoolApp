@@ -1,14 +1,13 @@
 import { DialogPanel, DialogTitle } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { Form, Formik } from 'formik'
-import moment from 'moment'
 import React from 'react'
 import * as Yup from 'yup'
+import { handleApiResponse, uploadFile } from '../../../commonComponent/CommonFunctions'
 import CustomDate from '../../../commonComponent/CustomDate'
-import CustomSelect from '../../../commonComponent/CustomSelect'
-import CustomInput from '../../../commonComponent/CustomInput'
 import CustomFileUploader from '../../../commonComponent/CustomFileUploader'
-import { uploadFile } from '../../../commonComponent/CommonFunctions'
+import CustomInput from '../../../commonComponent/CustomInput'
+import CustomSelect from '../../../commonComponent/CustomSelect'
 
 function AddLoanModal({ onClose }) {
 
@@ -81,7 +80,7 @@ function AddLoanModal({ onClose }) {
       const fileResponse = await uploadFile(e.target.files[0])
       setFieldValue(e.target.name, fileResponse)
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -162,9 +161,9 @@ function AddLoanModal({ onClose }) {
                                         label="Staff Name"
                                         required={true}
                                         options={[
-                                            { value: 'staff1', label: 'Staff 1' },
-                                            { value: 'staff2', label: 'Staff 2' },
-                                          ]}
+                                          { value: 'staff1', label: 'Staff 1' },
+                                          { value: 'staff2', label: 'Staff 2' },
+                                        ]}
                                       />
                                     </div>
 
@@ -207,7 +206,7 @@ function AddLoanModal({ onClose }) {
                                       />
                                     </div>
 
-                                    
+
                                     <div className="col-span-full">
                                       <CustomInput
                                         label="Description"

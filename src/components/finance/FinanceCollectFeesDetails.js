@@ -1,7 +1,7 @@
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { FieldArray, Form, Formik } from 'formik'
-import moment, { duration } from 'moment'
+import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import * as Yup from 'yup'
@@ -20,7 +20,7 @@ import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-function FinancCollectFeesDetails({ onClose }) {
+function FinancCollectFeesDetails({ onClose, fetchData }) {
   const [allFees, setAllFees] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
   const selectedData = useSelector((state) => state.fees.selectedFee)
@@ -30,18 +30,19 @@ function FinancCollectFeesDetails({ onClose }) {
     return {
       studentId: selectedData?.fees.student,
       fees: selectedFee?.feeList.map((item) => {
-        const pendingAmount = item.paybalAmount * 1 - (item.paidAmount * 1 || 0)
+        const pendingAmount = (item.paybalAmount * 1 || 0) - (item.paidAmount * 1 || 0)
         return ({
           _id: item.fee._id,
           feeName: item.fee.name,
           duration: item.duration,
-          totalAmount: item.paybalAmount,
-          disCount: item.discount,
+          totalAmount: item.fee.amount * 1,
+          discount: item.discount * 1 || 0,
+          paybalAmount: item.paybalAmount,
           paidAmount: item.paidAmount * 1 || 0,
           pendingAmount: pendingAmount,
           dueDate: item.dueDate || null,
-          status: item.fee.paymentStatus ? capitalizeWords(item.fee.paymentStatus) : 'Pending',
-          paymentAmount: ""
+          status: item.paymentStatus ? capitalizeWords(item.paymentStatus) : 'Pending',
+          paymentAmount: 0
         })
       }),
       transactionDate: '',
@@ -56,12 +57,12 @@ function FinancCollectFeesDetails({ onClose }) {
     return Yup.object({
       fees: Yup.array().of(
         Yup.object({
-          disCount: Yup.number().test(
+          discount: Yup.number().test(
             'if-value-is-exist-must-be-less-than-or-equalto-total-amount',
             'Discount cannot be greater than total amount',
             function (value) {
               const { totalAmount } = this.parent; // Access sibling field 'total amount'
-              if (value && value * 1 > ((totalAmount * 1)/4)) {
+              if (value && value * 1 > ((totalAmount * 1) / 4)) {
                 return false; // Fail validation if discount is greater than total amount
               }
               return true; // Pass validation otherwise
@@ -130,13 +131,14 @@ function FinancCollectFeesDetails({ onClose }) {
       _id: item._id,
       feeName: item.name,
       duration: item.duration,
-      totalAmount: item.amount,
-      disCount: item.discount,
+      totalAmount: item.amount * 1,
+      discount: 0,
+      paybalAmount: item.amount * 1,
       paidAmount: 0,
-      pendingAmount: item.amount,
+      pendingAmount: item.amount * 1,
       dueDate: item.dueDate || null,
       status: 'Pending',
-      paymentAmount: "",
+      paymentAmount: 0,
       isAdded: true
     }
 
@@ -166,6 +168,7 @@ function FinancCollectFeesDetails({ onClose }) {
     try {
       const res = await postData(STUDENT_FEE, values)
       handleApiResponse(res.data.message, "success")
+      fetchData()
       onClose()
     } catch (error) {
       handleApiResponse(error)
@@ -231,6 +234,14 @@ function FinancCollectFeesDetails({ onClose }) {
                   >
                     <a href="#" className="group inline-flex">
                       Discount
+                    </a>
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
+                  >
+                    <a href="#" className="group inline-flex">
+                      After Discount Fee
                     </a>
                   </th>
                   <th
@@ -305,6 +316,8 @@ function FinancCollectFeesDetails({ onClose }) {
                               placeholder="Fee Amount"
                               onChange={(e) => {
                                 setFieldValue(`fees.${index}.totalAmount`, e.target.value)
+                                setFieldValue(`fees.${index}.discount`, 0)
+                                setFieldValue(`fees.${index}.paybalAmount`, e.target.value)
                                 setFieldValue(`fees.${index}.pendingAmount`, e.target.value)
                               }} />
                           ) : fee.totalAmount}
@@ -313,9 +326,18 @@ function FinancCollectFeesDetails({ onClose }) {
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                           {fee.isAdded ? (
                             <CustomInput
-                              name={`fees.${index}.disCount`} // Dynamically bind the name
-                              placeholder="Discount Amount" />
-                          ) : fee.disCount}
+                              name={`fees.${index}.discount`} // Dynamically bind the name
+                              placeholder="Discount Amount"
+                              onChange={(e) => {
+                                setFieldValue(`fees.${index}.discount`, e.target.value)
+                                setFieldValue(`fees.${index}.paybalAmount`, fee.totalAmount - e.target.value)
+                                setFieldValue(`fees.${index}.pendingAmount`, fee.totalAmount - e.target.value)
+                              }}
+                            />
+                          ) : fee.discount}
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                          {fee.paybalAmount}
                         </td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                           {fee.paidAmount}
@@ -324,21 +346,26 @@ function FinancCollectFeesDetails({ onClose }) {
                           {fee.pendingAmount}
                         </td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          <CustomDate
+                          {fee.status.toLowerCase() === 'paid'?"-":<CustomDate
                             name={`fees.${index}.dueDate`}
                             minDate={moment().format('YYYY-MM-DD')}
-                          />
+                          />}
                         </td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          {fee.status ?
-                            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+                          {fee.status.toLowerCase() === 'paid' ?
+                            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
                               {fee.status}
-                            </span> : fee.status}
+                            </span> : 
+                            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+                            {fee.status}
+                          </span>}
                         </td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                           <div className="sm:col-span-1">
                             <CustomInput
+                              type="number"
                               name={`fees[${index}].paymentAmount`}
+                              disabled={fee.status.toLowerCase() === 'paid'}
                               className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
                             />
                           </div>
@@ -393,10 +420,7 @@ function FinancCollectFeesDetails({ onClose }) {
                   </td>
                 </tr>
                 <tr>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
-                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500" colSpan={5}></td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm font-semibold text-gray-900 text-right">
                     Total Pending:
                   </td>

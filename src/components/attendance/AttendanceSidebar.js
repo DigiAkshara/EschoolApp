@@ -1,13 +1,13 @@
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import {
   attendanceOptions,
   staffCategory,
 } from "../../commonComponent/CommonFunctions";
+import CustomButton from "../../commonComponent/CustomButton";
 import CustomDate from "../../commonComponent/CustomDate";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import CustomButton from "../../commonComponent/CustomButton";
-import moment from "moment";
 
 const AttendanceSidebar = ({
   values,
@@ -28,7 +28,6 @@ const AttendanceSidebar = ({
   setAttendanceMessage
 }) => {
 
-  const [holiday, setHoliday] = useState(false)
   const [attendanceMarked, setAttendanceMarked] = useState(false)
 
   useEffect(() => {
@@ -36,20 +35,19 @@ const AttendanceSidebar = ({
     checkAttendanceForSelectedDate();
   }, [values.date, holidaysData, staffAttendanceData]);
 
- 
+
 
   const checkHoliday = () => {
-    const selectedDate =  moment(values.date).format('DD-MM-YYYY');
-    const todayDate = moment().format('DD-MM-YYYY');
-   
-     const currentDate = selectedDate || todayDate;
-    
+    const selectedDate = moment(values.date).startOf('day');
+    const todayDate = moment().startOf('day');
+    const currentDate = selectedDate || todayDate;
 
     const isHolidayToday = holidaysData?.some((holiday) => {
-      const holidayStart =moment(holiday.startDate).format('DD-MM-YYYY');
-      const holidayEnd = moment(holiday.endDate).format('DD-MM-YYYY');
-      return currentDate >= holidayStart && currentDate <= holidayEnd;
+      const holidayStart = moment(holiday.startDate, 'YYYY-MM-DD'); // Parse correctly
+      const holidayEnd = moment(holiday.endDate, 'YYYY-MM-DD');
+      return currentDate.isSameOrAfter(holidayStart, 'day') && currentDate.isSameOrBefore(holidayEnd, 'day') || currentDate.day() === 0;
     });
+
 
     if (isHolidayToday) {
       setHoliday(true);
@@ -59,22 +57,20 @@ const AttendanceSidebar = ({
   };
 
   const checkAttendanceForSelectedDate = () => {
-    const selectedDate = moment(values.date).format("YYYY-MM-DD");
-
     // Check if attendance has been marked for the selected date
     const isStaffMarked = staffAttendanceData?.some((staff) =>
       staff.attendance.some(
-        (entry) => moment(entry.date).format("YYYY-MM-DD") === selectedDate
+        (entry) => moment(entry.date).isSame(moment(values.date), 'day')
       )
     );
-  
+
     // Check if attendance has been marked for the selected date (student)
     const isStudentMarked = studentAttendance?.some((student) =>
       student.attendance.some(
-        (entry) => moment(entry.date).format("YYYY-MM-DD") === selectedDate
+        (entry) => moment(entry.date).isSame(moment(values.date), 'day')
       )
     );
-  
+
     // Set attendance status
     const isMarked = isStaffMarked || isStudentMarked;
     setAttendanceMarked(isMarked);
@@ -116,13 +112,13 @@ const AttendanceSidebar = ({
         {user === "staff"
           ? "Staff Attendance"
           : user === "student"
-          ? "Student Attendance"
-          : "Attendance"}
+            ? "Student Attendance"
+            : "Attendance"}
       </h2>
 
       {/* Date Picker */}
       <div className="mb-4">
-        <CustomDate name="date" label=" Date"  required={true} />
+        <CustomDate name="date" label="Date" required={true} maxDate={moment().format('MM-DD-YYYY')} />
       </div>
 
       {user === "staff" && (
@@ -132,83 +128,64 @@ const AttendanceSidebar = ({
             options={staffCategory}
             label="Select Staff Type"
             value={values.staffCategory}
-            onChange={(e) => 
+            onChange={(e) =>
               handleStaffCategory(e, setFieldValue)}
           />
         </div>
       )}
 
       {!holiday && user === "student" && (
-          <div className="mb-4">
+        <div className="mb-4">
           {/* Heading */}
           <h2 className="block text-sm/6 font-regular text-gray-900">Select Class and Section</h2>
-        <div className="flex flex-col lg:flex-row mb-4 gap-2">
-          
-          <div className="w-full lg:w-1/2">
-            <CustomSelect
-              name="class"
-              value={values.class}
-              options={classes}
-              onChange={(e) => {
-                handleClassChange(e, values, setFieldValue);
-                getSections(e.target.value); // Fetch and set sections
-              }}
-            />
-          </div>
+          <div className="flex flex-col lg:flex-row mb-4 gap-2">
 
-          
-          <div className="w-full lg:w-1/2">
-            <CustomSelect
-              name="section"
-              value={values.section}
-              options={sections}
-              onChange={(e) => {
-                handleSectionChange(e, values, setFieldValue)
-              }}
-            />
+            <div className="w-full lg:w-1/2">
+              <CustomSelect
+                name="class"
+                value={values.class}
+                options={classes}
+                onChange={(e) => {
+                  handleClassChange(e, values, setFieldValue);
+                  getSections(e.target.value); // Fetch and set sections
+                }}
+              />
+            </div>
+
+            <div className="w-full lg:w-1/2">
+              <CustomSelect
+                name="section"
+                value={values.section}
+                options={sections}
+                onChange={(e) => {
+                  handleSectionChange(e, values, setFieldValue)
+                }}
+              />
+            </div>
           </div>
-          
-        </div>
         </div>
       )}
 
-      {!holiday&& !attendanceMarked  && (
+      {!holiday && !attendanceMarked && (
         <div className="mb-4">
-        <CustomRadio
-          name="allAttendance"
-          label={
-            user === "staff"
-              ? "Set attendance for all Staffs"
-              : "Set attendance for all Students"
-          }
-          options={
-            user === "staff"
-              ? [...attendanceOptions, { value: "leave", label: "Leave" }]
-              : attendanceOptions
-          }
-          value={values.allAttendance}
-          onChange={(e) => handleRadioChange(e, values, setFieldValue)}
-        />
-      </div>
+          <CustomRadio
+            name="allAttendance"
+            label={
+              user === "staff"
+                ? "Set attendance for all Staffs"
+                : "Set attendance for all Students"
+            }
+            options={
+              user === "staff"
+                ? [...attendanceOptions, { value: "leave", label: "Leave" }]
+                : attendanceOptions
+            }
+            value={values.allAttendance}
+            onChange={(e) => handleRadioChange(e, values, setFieldValue)}
+          />
+        </div>
       )}
 
-      {/* <div className="mb-4">
-        <CustomRadio
-          name="allAttendance"
-          label={
-            user === "staff"
-              ? "Set attendance for all Teachers"
-              : "Set attendance for all Students"
-          }
-          options={
-            user === "staff"
-              ? [...attendanceOptions, { value: "leave", label: "Leave" }]
-              : attendanceOptions
-          }
-          value={values.allAttendance}
-          onChange={(e) => handleRadioChange(e, values, setFieldValue)}
-        />
-      </div> */}
       {!holiday && user === "student" && (
         <div className="mb-4">
           <div className="flex items-center">
@@ -229,16 +206,15 @@ const AttendanceSidebar = ({
         </div>
       )}
 
-      {!holiday && !attendanceMarked &&(
-      <CustomButton type="submit" label="Save Attendance"  />
-
+      {!holiday && !attendanceMarked && (
+        <CustomButton type="submit" label="Save Attendance" />
       )}
       {holiday && (
-  <div className="mt-4 text-center text-red-500 font-semibold">
-    Today Holiday
-  </div>
-)}
-    
+        <div className="mt-4 text-center text-red-500 font-semibold">
+          Today Holiday
+        </div>
+      )}
+
       <div className="mt-6">
         <ul>
           <li className="flex justify-between border-b border-gray-300 pb-2">
@@ -264,11 +240,10 @@ const AttendanceSidebar = ({
       {/* Attendance Marked */}
       {attendanceMessage && (
         <div
-          className={`mt-4 p-2 rounded-md ${
-            attendanceMessage === "Attendance Marked"
-              ? "bg-green-100 text-green-600"
-              : "bg-red-100 text-red-600"
-          }`}
+          className={`mt-4 p-2 rounded-md ${attendanceMessage === "Attendance Marked"
+            ? "bg-green-100 text-green-600"
+            : "bg-red-100 text-red-600"
+            }`}
         >
           {attendanceMessage}
         </div>

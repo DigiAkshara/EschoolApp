@@ -6,77 +6,68 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
-import { ACADEMICS, TENANT } from "../../../app/url";
 import { getData } from "../../../app/api";
-import { jsPDF } from "jspdf";
-import JSZip from "jszip";
-import html2canvas from "html2canvas";
-import moment from "moment";
+import { ACADEMICS } from "../../../app/url";
+import { handleApiResponse } from "../../../commonComponent/CommonFunctions";
 
 function ExamDetailsPage({ onClose }) {
   const [students, setStudents] = useState([]);
   const selectedExam = useSelector((state) => state.exams.selectedExam);
   const subjects = useSelector((state) => state.academics.subjects);
   const tenant = useSelector((state) => state.tenantData);
-
-
   const classId = selectedExam?.classObject._id;
   const sectionId = selectedExam?.sectionObject._id;
 
   useEffect(() => {
     getStudent();
-     })
-const getStudent = async () => {
-  try {
-   
-    const response = await getData(ACADEMICS +"/"+ classId +"/"+ sectionId);
-    if(response.data?.data) {
-    
+  }, [])
+  const getStudent = async () => {
+    try {
+      const response = await getData(ACADEMICS + "/" + classId + "/" + sectionId);
       const studentsData = response.data.data.map((item) => ({
         _id: item.student._id,
         pic: item.student.profilePic?.Location || "",
         name: `${item.student.firstName} ${item.student.lastName}`,
         admissionNo: item.student.admissionNumber,
         DOB: moment(item.student.DOB).format("DD-MM-YYYY"),
-        mothersName : item.student.motherDetails.name || " ",
+        mothersName: item.student.motherDetails.name || " ",
         className: item.class?.name || "N/A",
       }))
-      
       setStudents(studentsData);
+    } catch (error) {
+      handleApiResponse(error)
     }
-     } catch (error) {
-    handleApiResponse(error);
   }
-}
 
-const getSubjectName = (subjectId) => {
-  const subject = subjects.find((s) => s.value === subjectId);
-  return subject ? capitalizeWords(subject.label) : "Unknown Subject";
-};
+  const getSubjectName = (subjectId) => {
+    const subject = subjects.find((s) => s.value === subjectId);
+    return subject ? capitalizeWords(subject.label) : "Unknown Subject";
+  };
 
-// Helper function to capitalize words
-const capitalizeWords = (str) => {
-  return str.replace(/\b\w/g, (char) => char.toUpperCase());
-};
+  // Helper function to capitalize words
+  const capitalizeWords = (str) => {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  };
 
 
-const generatePDFs = async () => {
 
-  const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
+  const generatePDFs = async () => {
+    const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
+    const pdfPromises = students.map(async (student, index) => {
+      const container = document.createElement("div");
+      container.style.width = "800px";
 
-  const pdfPromises = students.map(async (student, index) => {
-    const container = document.createElement("div");
-    container.style.width = "800px";
-    
-    container.style.position = "absolute"; // Keep it offscreen
-    container.style.left = "-9999px"; // Prevent flickering
-    container.style.top = "-9999px"; // Keep it out of view
-    //container.style.visibility = "hidden"; // Hide it from the user
+      container.style.position = "absolute"; // Keep it offscreen
+      container.style.left = "-9999px"; // Prevent flickering
+      container.style.top = "-9999px"; // Keep it out of view
+      //container.style.visibility = "hidden"; // Hide it from the user
 
-    container.innerHTML = `
+      container.innerHTML = `
       <div style="padding: 30px; font-family: Arial, sans-serif;">
          <!-- Header Section -->
         <div style="display: flex; justify-content: center; align-items: center; ">
@@ -89,7 +80,7 @@ const generatePDFs = async () => {
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
             <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${tenant?.name?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant?.phoneNumber||""}  | Email: ${tenant.email}</p>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant?.phoneNumber || ""}  | Email: ${tenant.email}</p>
             <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant.city}, ${tenant.district}, ${tenant.state}, ${tenant.pincode}</p>
           </div>
         </div>
@@ -134,8 +125,8 @@ const generatePDFs = async () => {
           </thead>
           <tbody>
               ${selectedExam?.timeTable
-                .map(
-                  (exam,index) => `
+          .map(
+            (exam, index) => `
                 <tr>
                 <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${index + 1}</td>
                   <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getSubjectName(exam.subject)}</td>
@@ -144,8 +135,8 @@ const generatePDFs = async () => {
                  
                 </tr>
               `
-                )
-                .join("")}
+          )
+          .join("")}
             </tbody>
         </table>
         
@@ -167,34 +158,34 @@ const generatePDFs = async () => {
       </div>
     `;
 
-    document.body.appendChild(container);
+      document.body.appendChild(container);
 
-    // Convert HTML to image using html2canvas
-    const canvas = await html2canvas(container, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
+      // Convert HTML to image using html2canvas
+      const canvas = await html2canvas(container, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
 
-    // Calculate PDF dimensions based on canvas size
-    const pdfWidth = doc.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      // Calculate PDF dimensions based on canvas size
+      const pdfWidth = doc.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    // Add image to PDF
-    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      // Add image to PDF
+      doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
 
-    // Cleanup DOM after rendering
-    document.body.removeChild(container);
+      // Cleanup DOM after rendering
+      document.body.removeChild(container);
 
-    // Add a page for the next student's hall ticket (except for the last student)
-    if (index < students.length - 1) {
-      doc.addPage();
-    }
-  });
+      // Add a page for the next student's hall ticket (except for the last student)
+      if (index < students.length - 1) {
+        doc.addPage();
+      }
+    });
 
-  // Wait for all student PDFs to be added to the document
-  await Promise.all(pdfPromises);
+    // Wait for all student PDFs to be added to the document
+    await Promise.all(pdfPromises);
 
-  // Save the final PDF as a single file
-  doc.save("Hall_Tickets.pdf");
-};
+    // Save the final PDF as a single file
+    doc.save("Hall_Tickets.pdf");
+  };
 
 
   return (

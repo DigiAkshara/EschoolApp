@@ -1,11 +1,10 @@
-import React, {useEffect} from 'react'
-import {useSelector} from 'react-redux'
-import {useNavigate} from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 function Home() {
-  const {user} = useSelector((state) => state.appConfig)
+  const { user } = useSelector((state) => state.appConfig)
   const navigate = useNavigate()
   useEffect(() => {
-    console.log(user)
     if (!user) {
       navigate('/login')
     }

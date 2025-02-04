@@ -17,7 +17,7 @@ import {
   SECTIONS,
   STUDENT,
 } from "../../app/url";
-import { monthsName } from "../../commonComponent/CommonFunctions";
+import { handleApiResponse, monthsName } from "../../commonComponent/CommonFunctions";
 import CustomSelect from "../../commonComponent/CustomSelect";
 
 function ManageStudentRegister() {
@@ -88,23 +88,17 @@ function ManageStudentRegister() {
   const academicYear = async () => {
     try {
       const academicYearRes = await getData(ACADEMIC_YEAR);
-      if (academicYearRes.status === 200 || academicYearRes.status === 201) {
-        let academicYearData = [
-          {
-            label: academicYearRes.data.data.year, // Displayed text in the dropdown
-            value: academicYearRes.data.data._id,
-          },
-        ];
-        setAcademicYears(academicYearData);
-      } else {
-        throw new Error(academicYearRes.message);
-      }
+      let academicYearData = [
+        {
+          label: academicYearRes.data.data.year, // Displayed text in the dropdown
+          value: academicYearRes.data.data._id,
+        },
+      ];
+      setAcademicYears(academicYearData);
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
-
-
 
   const getClasses = async () => {
     try {
@@ -113,9 +107,7 @@ function ManageStudentRegister() {
         label: item.name,
         value: item._id,
       }));
-      console.log("comming class data", classData);
       setClasses(classData);
-
       if (classData.length > 0) {
         const defaultClassId = classData[0]?.value; // Default to the first class
         getSections(defaultClassId);
@@ -125,7 +117,7 @@ function ManageStudentRegister() {
     }
   };
 
-    // const getClasses = async () => {
+  // const getClasses = async () => {
   //   const res = await getData(CLASSES);
   //   const classData = res.data.data.map((item) => {
   //     return {
@@ -201,15 +193,10 @@ function ManageStudentRegister() {
   const getStudentData = async () => {
     try {
       const response = await getData(STUDENT + "/attendance");
-      console.log(
-        "Response {STUDENT REGISTER} data for attendance:",
-        response.data.data
-      );
-
       const processedData = response.data.data.map((student) => {
         // Create an object to map dates to attendance statuses
         const attendanceMap = {};
-        let totalAbsents = 0; 
+        let totalAbsents = 0;
         student.attendance.forEach((record) => {
           const date = new Date(record.date).getDate();
           const statusMap = {
@@ -238,12 +225,9 @@ function ManageStudentRegister() {
           sectionId,
         };
       });
-
-      // console.log("Processed student data:", processedData);
-
       setStudentsData(processedData);
     } catch (error) {
-      console.error("Error getting data:", error);
+      handleApiResponse(error);
     }
   };
 
@@ -251,22 +235,15 @@ function ManageStudentRegister() {
     const classValue = e.target.value;
     getSections(classValue);
     setFieldValue("class", classValue);
-
-    console.log("class value", classValue);
-
-    //filterSection(classValue);
   };
 
   const handleSectionChange = (e, values, setFieldValue) => {
     const sectionValue = e.target.value;
     setFieldValue("section", sectionValue);
-    // fliterStudents(values.class, sectionValue)
     const filteredStudents = studentsData?.filter(
       (student) =>
         student.classId === values.class && student.sectionId === sectionValue
     );
-    console.log("filtered students:", filteredStudents);
-
     setStudentList(filteredStudents);
     setFilteredData(filteredStudents);
   };
@@ -284,22 +261,17 @@ function ManageStudentRegister() {
         dayName: dayName,
       });
     }
-    console.log("Days in the month:", daysArray);
-
     return daysArray;
   };
 
   const days = daysInMonth(parseInt(month), year);
-  // console.log("Days in the month:", days);
 
   const getHolidayData = async () => {
     try {
       const response = await getData(HOLIDAYS);
-      console.log("Response data for holidays:", response.data.data);
-
       setHolidaysData(response.data.data);
     } catch (error) {
-      console.error("Error getting data:", error);
+      handleApiResponse(error);
     }
   };
 
@@ -308,7 +280,6 @@ function ManageStudentRegister() {
     return holidays.filter((holiday) => {
       const holidayStartDate = new Date(holiday.startDate);
       const holidayEndDate = new Date(holiday.endDate);
-
       // Check if the holiday falls within the selected month
       return (
         holidayStartDate.getMonth() + 1 === month ||
@@ -322,12 +293,9 @@ function ManageStudentRegister() {
 
   const holiday = [];
 
-
-
   const handleAttendanceChange = (e) => {
     e.preventDefault();
     setSelectedAttendance(e.target.value);
-    console.log("Selected Attendance:", e.target.value);
   };
 
   const handleSave = async (day, id) => {
@@ -337,17 +305,12 @@ function ManageStudentRegister() {
       date: formattedDate,
       attendanceStatus: selectedAttendance,
     };
-    console.log("[STUDENT Payload]", payload);
     try {
       const response = await updateData(ATTENDANCE, payload);
-      if (response.status === 200) {
-        console.log("Attendance updated successfully");
         getStudentData();
-      } else {
-        console.error("Failed to update attendance");
-      }
+        handleApiResponse(response.data.message,'success')
     } catch (error) {
-      console.error("An error occurred while updating attendance", error);
+      handleApiResponse(error);
     }
   };
 
@@ -506,9 +469,8 @@ function ManageStudentRegister() {
                           <th
                             key={dayObj.day}
                             scope="col"
-                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${
-                              isSunday ? "w-16 bg-red-100" : "w-40"
-                            }`}
+                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${isSunday ? "w-16 bg-red-100" : "w-40"
+                              }`}
                           >
                             <a href="#" className="flex flex-col items-center">
                               <div>{dayObj.dayName}</div>
@@ -561,7 +523,7 @@ function ManageStudentRegister() {
 
                           {/* Total Absents */}
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          {student.totalAbsents}
+                            {student.totalAbsents}
                           </td>
 
                           {days.map((dayObj, index) => {
@@ -589,27 +551,26 @@ function ManageStudentRegister() {
                             const attendanceValue = isHoliday
                               ? "H"
                               : isSunday
-                              ? "S"
-                              : student.attendance[dayObj.day] || "N/A";
+                                ? "S"
+                                : student.attendance[dayObj.day] || "N/A";
 
                             const attendanceClass = isSunday
                               ? "bg-red-100 text-gray-900" // Sundays
                               : attendanceValue === "P"
-                              ? "text-gray-500" // Present
-                              : attendanceValue === "A"
-                              ? "text-yellow-800 bg-yellow-100" // Absent
-                              : attendanceValue === "F"
-                              ? "text-gray-900 bg-blue-100" // Half Day
-                              : "text-gray-500";
+                                ? "text-gray-500" // Present
+                                : attendanceValue === "A"
+                                  ? "text-yellow-800 bg-yellow-100" // Absent
+                                  : attendanceValue === "F"
+                                    ? "text-gray-900 bg-blue-100" // Half Day
+                                    : "text-gray-500";
 
                             return (
                               <td
                                 key={dayObj.day}
-                                className={`whitespace-nowrap px-2 py-2 text-sm text-center ${
-                                  holiday.includes(dayObj.day)
+                                className={`whitespace-nowrap px-2 py-2 text-sm text-center ${holiday.includes(dayObj.day)
                                     ? "text-red-500"
                                     : attendanceClass
-                                }`}
+                                  }`}
                               >
                                 <Menu
                                   as="div"

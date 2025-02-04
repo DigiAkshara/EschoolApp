@@ -43,12 +43,8 @@ const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData ,academicYears})
     startDate: selectedHoliday?.startDate || "",
     endDate: selectedHoliday?.endDate || "",
     name: selectedHoliday?.name || "",
-    // ...(selectedHoliday && selectedHoliday),
   });
 
-  useEffect(() => {
-    // academicyear();
-  }, []);
 
   const getValidationSchema = () => {
     return Yup.object({
@@ -58,7 +54,6 @@ const ManageHolidaySidebar = ({ setHolidaysData, getHolidayData ,academicYears})
       name: Yup.string().required(" Holiday name is required"),
     });
   };
-
 
 
   const handleEdit = (id) => {

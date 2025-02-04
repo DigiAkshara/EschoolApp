@@ -9,20 +9,20 @@ import { useDispatch, useSelector } from 'react-redux'
 import { deleteData, getData } from '../../app/api'
 import { selectStaff, setSubjects } from '../../app/reducers/staffSlice'
 import { STAFF, SUBJECTS, TENANT } from '../../app/url'
-import { capitalizeWords, designations, handleApiResponse, handleDownload, handleDownloadPDF  } from '../../commonComponent/CommonFunctions'
+import { capitalizeWords, designations, handleApiResponse, handleDownload, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
 import CommonUpload from '../../commonComponent/CommonUpload'
+import ConfirmModal from '../../commonComponent/ConfirmationModal'
+import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
 import Staff from './Staff'
-import FilterComponent from '../../commonComponent/FilterComponent'
-import ConfirmModal from '../../commonComponent/ConfirmationModal'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 const tabs2 = [
-  { name: 'Teaching', type:'teaching', href: '#', count: 0, current: true },
-  { name: 'Non-teaching', type:"non-teaching", href: '#', count: 0, current: false },
+  { name: 'Teaching', type: 'teaching', href: '#', count: 0, current: true },
+  { name: 'Non-teaching', type: "non-teaching", href: '#', count: 0, current: false },
 ]
 
 export default function StaffDetails() {
@@ -46,7 +46,7 @@ export default function StaffDetails() {
   const tenant = useSelector((state) => state.tenantData);
 
   const handleOpen = () => setShowAddStaffModal(true)
-  const handleClose = () =>{ setShowAddStaffModal(false); dispatch(selectStaff(null))}
+  const handleClose = () => { setShowAddStaffModal(false); dispatch(selectStaff(null)) }
   const handleClose2 = () => setOpen2(false)
 
 
@@ -61,7 +61,7 @@ export default function StaffDetails() {
       })
       dispatch(setSubjects(subjectsData))
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 
@@ -126,7 +126,7 @@ export default function StaffDetails() {
           ifscCode: item.bankDetails?.ifscCode,
           bankName: item.bankDetails?.bankName,
           passBookPic: item.bankDetails?.passBookPic?.Location,
-          presentAddress: `${item.presentAddress?.area}, ${item.presentAddress?.city}, ${item.presentAddress?.state} - ${item.presentAddress?.pincode}`, 
+          presentAddress: `${item.presentAddress?.area}, ${item.presentAddress?.city}, ${item.presentAddress?.state} - ${item.presentAddress?.pincode}`,
           salary: item.amount,
           actions: [
             { label: 'Edit', actionHandler: onHandleEdit },
@@ -134,7 +134,7 @@ export default function StaffDetails() {
           ],
         })
       })
-      setStaffCount({ "teaching":teachingCount, "non-teaching":nonTeachingCount })
+      setStaffCount({ "teaching": teachingCount, "non-teaching": nonTeachingCount })
       setStaffList(staffData)
       setFilteredData(staffData)
     } catch (error) {
@@ -158,14 +158,14 @@ export default function StaffDetails() {
     setDeleteConfirm(true)
   }
 
-  const deleteRecord  = async() =>{
-    try{
-      let res = await deleteData(STAFF+'/'+deleteId)
-      handleApiResponse(res.data.message,'success')
+  const deleteRecord = async () => {
+    try {
+      let res = await deleteData(STAFF + '/' + deleteId)
+      handleApiResponse(res.data.message, 'success')
       getStaff()
       setDeleteConfirm(false)
       setDeleteId(null)
-    }catch(error){
+    } catch (error) {
       handleApiResponse(error)
     }
   }
@@ -214,21 +214,20 @@ export default function StaffDetails() {
     setCurrentPage(page)
   }
 
-  const paginatedData = filteredData.filter(item=>(item.staffType === staffType)).slice(
+  const paginatedData = filteredData.filter(item => (item.staffType === staffType)).slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage,
   )
 
   const downloadListxlsx = () => {
-    const schoolName = tenant.name || "Unknown School";  
+    const schoolName = tenant.name || "Unknown School";
     const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
     const phoneNumber = tenant.phoneNumber || "N/A";
     const email = tenant.email || "N/A";
-    handleDownload(filteredData, "StaffList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress,["Staff List is below"]);
+    handleDownload(filteredData, "StaffList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress, ["Staff List is below"]);
   };
 
   const downloadList = () => {
-    
     handleDownloadPDF (filteredData, "Staff_Details", [
       { label: "Staff Name", key: "name" },
       { label: "Phone Number", key: "phoneNumber" },
@@ -240,15 +239,10 @@ export default function StaffDetails() {
       { label: "Guardian Name", key: "guardian" },
       { label: "Aadhar Number", key: "aadharNumber" },
       { label: "Subjects", key: "subjectName" },
-      { label: "Present Address", key: "presentAddress" }, 
+      { label: "Present Address", key: "presentAddress" },
       { label: "Gender", key: "gender" },
-       
-      
-    ], "Staff Details Report",tenant, undefined, "landscape");
+    ], "Staff Details Report", tenant, undefined, "landscape");
   };
-
-  
-
 
 
   return (
@@ -276,10 +270,10 @@ export default function StaffDetails() {
             {tabs2.map((tab) => (
               <a
                 key={tab.type}
-                onClick={()=>{setStaffType(tab.type)}}
-                aria-current={tab.type===staffCount ? 'page' : undefined}
+                onClick={() => { setStaffType(tab.type) }}
+                aria-current={tab.type === staffCount ? 'page' : undefined}
                 className={classNames(
-                  tab.type===staffType
+                  tab.type === staffType
                     ? 'bg-purple-100 text-purple-700'
                     : 'bg-gray-100 text-gray-500 hover:text-gray-700',
                   'rounded-full px-3 py-2 text-sm font-medium',
@@ -289,7 +283,7 @@ export default function StaffDetails() {
                 {staffCount[tab.type] ? (
                   <span
                     className={classNames(
-                      tab.type===staffType
+                      tab.type === staffType
                         ? 'bg-white text-purple-600'
                         : 'bg-gray-300 text-gray-900',
                       'ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block',
@@ -321,7 +315,7 @@ export default function StaffDetails() {
             <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Bulk Upload Staff
           </button>
-          
+
         </div>
       </div>
 
@@ -381,7 +375,7 @@ export default function StaffDetails() {
       <ConfirmModal
         showModal={deleteConfirm}
         onYes={deleteRecord}
-        onCancel={()=>{setDeleteConfirm(false)}}
+        onCancel={() => { setDeleteConfirm(false) }}
       />
       <Dialog open={showAddStaffModal} onClose={handleClose} className="relative z-50">
         <div className="fixed inset-0" />

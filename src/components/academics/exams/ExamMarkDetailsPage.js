@@ -1,4 +1,4 @@
-import { DialogPanel, DialogTitle } from '@headlessui/react'
+import { DialogPanel, DialogTitle } from '@headlessui/react';
 import {
   ArrowsUpDownIcon,
   DocumentArrowDownIcon,
@@ -6,25 +6,19 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
+import html2canvas from "html2canvas";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-import { getData } from '../../../app/api';
-import { TENANT } from '../../../app/url';
-import autoTable from "jspdf-autotable";
+import { capitalizeWords } from "../../../commonComponent/CommonFunctions";
 
 
 function ExamMarkDetailsPage({ onClose }) {
-
   const selectedExamDetails = useSelector((state) => state.exams.selectedExamDetails)
   const subjectOptions = useSelector((state) => state.academics.subjects)
   const [studentMarks, setStudents] = useState([])
   const tenant = useSelector((state) => state.tenantData);
 
- 
   const getSubjectName = (subjectId) => {
     return subjectOptions
       .find((subject) => subject.value === subjectId)
@@ -49,7 +43,7 @@ function ExamMarkDetailsPage({ onClose }) {
       0
     );
   }
-  
+
   function getTotalPercentage(student) {
     const totalMarksObtained = getTotalMarks(student);
     const totalMaxMarks = selectedExamDetails.exam.timeTable.reduce(
@@ -58,7 +52,7 @@ function ExamMarkDetailsPage({ onClose }) {
     );
     return ((totalMarksObtained / totalMaxMarks) * 100).toFixed(2);
   }
-  
+
   function getOverallGrade(student) {
     const percentage = getTotalPercentage(student);
     return getGrade(percentage); // Assuming getGrade() maps percentage to a grade
@@ -98,7 +92,7 @@ function ExamMarkDetailsPage({ onClose }) {
                 (acc, item) => acc + item.totalMark * 1,
                 0
               )) *
-              100
+            100
           ),
           result: getResult(item.marks, selectedExamDetails?.exam.timeTable),
         })
@@ -109,21 +103,18 @@ function ExamMarkDetailsPage({ onClose }) {
 
 
 
-const generatePDFs = async () => {
+  const generatePDFs = async () => {
+    const pdfPromises = studentMarks.map(async (student, index) => {
+      // Create a container dynamically to hold the progress card HTML
+      const container = document.createElement("div");
+      container.style.width = "800px"; // Set a fixed width for consistent rendering
 
-  const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
+      container.style.position = "absolute"; // Keep it offscreen
+      container.style.left = "-9999px"; // Prevent flickering
+      container.style.top = "-9999px"; // Keep it out of view
+      //container.style.visibility = "hidden"; // Hide it from the user
 
-  const pdfPromises = studentMarks.map(async (student, index) => {
-    // Create a container dynamically to hold the progress card HTML
-    const container = document.createElement("div");
-    container.style.width = "800px"; // Set a fixed width for consistent rendering
-    
-    container.style.position = "absolute"; // Keep it offscreen
-    container.style.left = "-9999px"; // Prevent flickering
-    container.style.top = "-9999px"; // Keep it out of view
-    //container.style.visibility = "hidden"; // Hide it from the user
-
-    container.innerHTML = `
+      container.innerHTML = `
       <div style="padding: 30px; font-family: Arial, sans-serif;">
         <!-- Header Section -->
         <div style="display: flex; justify-content: center; align-items: center; ">
@@ -136,8 +127,8 @@ const generatePDFs = async () => {
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
             <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${tenant?.name?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant.phoneNumber||""} | Email: ${tenant.email}</p>
-            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant.city || ""}, ${tenant.district|| ""}, ${tenant.state|| ""}, ${tenant.pincode|| ""}</p>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant.phoneNumber || ""} | Email: ${tenant.email}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}</p>
           </div>
         </div>
         <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
@@ -183,11 +174,11 @@ const generatePDFs = async () => {
           </thead>
           <tbody>
             ${selectedExamDetails.exam.timeTable
-              .map((subject, i) => {
-                const marksObtained = student.marks[i]?.marks || 0;
-                const grade = getGrade(marksObtained);
+          .map((subject, i) => {
+            const marksObtained = student.marks[i]?.marks || 0;
+            const grade = getGrade(marksObtained);
 
-                return `
+            return `
                   <tr style="background: ${i % 2 === 0 ? "#f9f9f9" : "#fff"}; text-align: center; border-bottom: 1px solid #ddd;">
                     <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getSubjectName(subject.subject)}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${marksObtained}</td>
@@ -196,8 +187,8 @@ const generatePDFs = async () => {
                     <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${grade}</td>
                   </tr>
                 `;
-              })
-              .join("")}
+          })
+          .join("")}
             <tr style="background:rgb(232, 215, 250); font-weight: bold; text-align: center;">
               <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Total Marks: ${student.marksObtained} / ${student.maxMarks}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">Total Percentage: ${student.percentage}%</td>
@@ -214,33 +205,33 @@ const generatePDFs = async () => {
       </div>`;
 
 
-    // Append to body (hidden) for rendering
-    document.body.appendChild(container);
+      // Append to body (hidden) for rendering
+      document.body.appendChild(container);
 
-    // Convert the HTML element to a canvas using html2canvas
-    const canvas = await html2canvas(container, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-     
-    // Calculate PDF dimensions based on canvas size
-    const pdfWidth = doc.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      // Convert the HTML element to a canvas using html2canvas
+      const canvas = await html2canvas(container, { scale: 2 });
+      const imgData = canvas.toDataURL("image/png");
 
-    // Add image to PDF
-    doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      // Calculate PDF dimensions based on canvas size
+      const pdfWidth = doc.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    // Cleanup DOM after rendering
-    document.body.removeChild(container);
+      // Add image to PDF
+      doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
 
-    // Add a page for the next student's report
-    doc.addPage();
-  });
+      // Cleanup DOM after rendering
+      document.body.removeChild(container);
 
-  // Wait for all PDFs to be generated (in the same document)
-  await Promise.all(pdfPromises);
+      // Add a page for the next student's report
+      doc.addPage();
+    });
 
-  // Save the final PDF
-  doc.save(`PROGRESS_CARD_${selectedExamDetails.exam.name}.pdf`);
-};
+    // Wait for all PDFs to be generated (in the same document)
+    await Promise.all(pdfPromises);
+
+    // Save the final PDF
+    doc.save(`PROGRESS_CARD_${selectedExamDetails.exam.name}.pdf`);
+  };
 
 
 
@@ -353,7 +344,7 @@ const generatePDFs = async () => {
                                   Exam Dates
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {moment(selectedExamDetails?.exam.startDate).format('DD-MM-YYYY')}  - {moment(selectedExamDetails?.exam.endDate).format('DD-MM-YYYY')} 
+                                  {moment(selectedExamDetails?.exam.startDate).format('DD-MM-YYYY')}  - {moment(selectedExamDetails?.exam.endDate).format('DD-MM-YYYY')}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -496,7 +487,7 @@ const generatePDFs = async () => {
                                 {studentMarks.map((student, index) => (
                                   <tr key={index}>
                                     <td className="px-2 py-2 text-sm">
-                                      {index+1}
+                                      {index + 1}
                                     </td>
                                     <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                       <a
@@ -528,8 +519,8 @@ const generatePDFs = async () => {
                                     </td>
                                     {student.marks.map((subject, index) => (
                                       <td className="px-2 py-2 text-sm" key={index}>
-                                      {subject.marks}
-                                    </td>
+                                        {subject.marks}
+                                      </td>
                                     ))}
                                     <td className="px-2 py-2 text-sm">
                                       {student.marksObtained}
@@ -543,8 +534,8 @@ const generatePDFs = async () => {
                                     <td className="px-2 py-2 text-sm">
                                       <span
                                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${student.result === 'Pass'
-                                            ? 'bg-green-100 text-green-800'
-                                            : 'bg-red-100 text-red-800'
+                                          ? 'bg-green-100 text-green-800'
+                                          : 'bg-red-100 text-red-800'
                                           }`}
                                       >
                                         {student.result}

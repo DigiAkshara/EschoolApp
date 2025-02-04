@@ -3,9 +3,9 @@ import { Dialog } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteData, getData } from "../../../app/api";
+import { deleteData } from "../../../app/api";
 import { fetchExamData, selectExam } from "../../../app/reducers/examSlice";
-import { EXAM, TENANT } from "../../../app/url";
+import { EXAM } from "../../../app/url";
 import { handleApiResponse, handleDownloadPDF } from "../../../commonComponent/CommonFunctions";
 import ConfirmationModal from "../../../commonComponent/ConfirmationModal";
 import FilterComponent from "../../../commonComponent/FilterComponent";
@@ -110,7 +110,6 @@ function ManageExamSchedules() {
     setFilteredData(data);
   };
 
-
   const onHandleEdit = (Id) => {
     const data = exams.filter((item) => (item._id === Id));
     dispatch(selectExam({ ...data[0], actions: undefined }));
@@ -185,14 +184,14 @@ function ManageExamSchedules() {
 
   const downloadList = () => {
 
-    handleDownloadPDF (filteredData, "Exam_Details", [
+    handleDownloadPDF(filteredData, "Exam_Details", [
       { key: "examName", label: "Exam Name" },
       { key: "className", label: "Class" },
       { key: "sectionName", label: "Section" },
       { key: "examDates", label: "Exam Dates" },
       { key: "totalSubjects", label: "Subjects Included" },
-      
-      
+
+
     ], "Exam Details Report", tenant, undefined, "portrait");
   };
 

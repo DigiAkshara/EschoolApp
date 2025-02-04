@@ -4,11 +4,11 @@ import { Form, Formik } from 'formik'
 import moment from 'moment'
 import React from 'react'
 import * as Yup from 'yup'
+import { handleApiResponse, uploadFile } from '../../../commonComponent/CommonFunctions'
 import CustomDate from '../../../commonComponent/CustomDate'
-import CustomSelect from '../../../commonComponent/CustomSelect'
-import CustomInput from '../../../commonComponent/CustomInput'
 import CustomFileUploader from '../../../commonComponent/CustomFileUploader'
-import { uploadFile } from '../../../commonComponent/CommonFunctions'
+import CustomInput from '../../../commonComponent/CustomInput'
+import CustomSelect from '../../../commonComponent/CustomSelect'
 
 function AddExpenseModal({ onClose }) {
 
@@ -87,7 +87,7 @@ function AddExpenseModal({ onClose }) {
       const fileResponse = await uploadFile(e.target.files[0])
       setFieldValue(e.target.name, fileResponse)
     } catch (error) {
-      console.log(error)
+      handleApiResponse(error)
     }
   }
 

@@ -81,7 +81,7 @@ export default function Class() {
 
   const onHandleEdit = async (Id) => {
     try {
-      const res =await getData(TIMETABLE + '/' + Id)
+      const res = await getData(TIMETABLE + '/' + Id)
       dispatch(setSelectedClass({ ...res.data.data })) // Save selected class in Redux
       setShowAddClassModal(true)
     } catch (error) {
@@ -191,14 +191,14 @@ export default function Class() {
   )
 
   const downloadList = () => {
-    handleDownloadPDF (filteredData, "Class_Details", [
+    handleDownloadPDF(filteredData, "Class_Details", [
       { key: 'board', label: 'Board' },
-    { key: 'className', label: 'Class' },
-    { key: 'sectionName', label: 'Section' },
-    { key: 'totalStudents', label: 'Total Students' },
-    { key: 'classTeacherName', label: 'Class Teacher' },
-      
-      
+      { key: 'className', label: 'Class' },
+      { key: 'sectionName', label: 'Section' },
+      { key: 'totalStudents', label: 'Total Students' },
+      { key: 'classTeacherName', label: 'Class Teacher' },
+
+
     ], "Class Details Report", tenant, undefined, "portrait");
   };
 
