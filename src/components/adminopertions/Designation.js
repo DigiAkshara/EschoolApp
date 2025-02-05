@@ -130,7 +130,10 @@ function Designation() {
       </div>
 
       {/* Modal */}
-      <DesignationModal isOpen={isModalOpen} onClose={handleCloseModal}  />
+      {
+        isModalOpen && <DesignationModal onClose={handleCloseModal}  />
+      }
+      
     </>
   );
 }

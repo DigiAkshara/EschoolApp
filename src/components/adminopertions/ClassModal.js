@@ -1,18 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import {
-  classCategory,
-  staffType,
-} from "../../commonComponent/CommonFunctions";
-import { postData } from "../../app/api";
-import { CLASSES, DESIGNATION } from "../../app/url";
+import { getData, postData } from "../../app/api";
+import { CLASS_CATEGORIES, CLASSES, DESIGNATION } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const ClassModal = ({ isOpen, onClose, onSubmit }) => {
+const ClassModal = ({ onClose }) => {
+
+  const [classCategory , setClassCategory] = useState([])
   const [formData, setFormData] = useState({
     name: "",
     classCategory: "",
@@ -25,7 +23,28 @@ const ClassModal = ({ isOpen, onClose, onSubmit }) => {
     });
   };
 
-  if (!isOpen) return null;
+
+
+const getClassCategories = async ()=>{
+  try {
+    const response = await getData(CLASS_CATEGORIES)
+    console.log("CLASS CATEGOTY:",response.data );
+    const categoryResponse = response.data.data;
+    const CategoryData = categoryResponse.map((item) => {
+      return{
+        value: item._id,
+        label : item.name
+      }
+    })
+    setClassCategory(CategoryData)
+  } catch (error) {
+    
+  }
+}
+
+useEffect(() => {
+  getClassCategories()
+}, [])
 
   const handleSubmit = async (values) => {
     console.log(values);

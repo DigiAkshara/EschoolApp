@@ -1,23 +1,57 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from "react";
 import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
-import TableComponent from '../../commonComponent/TableComponent';
-import ClassModal from './ClassModal';
-import SectionModal from './SectionModal';
+import TableComponent from "../../commonComponent/TableComponent";
+import ClassModal from "./ClassModal";
+import SectionModal from "./SectionModal";
+import { getData } from "../../app/api";
+import { CLASSES } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
 function ClassAndSection() {
   const [classData, setClassData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isSectionModal, setIsSectionModal] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSectionModal, setIsSectionModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-
 
   const columns = [
     { title: "Si. No", key: "siNo" },
     { title: "Class and Section", key: "class" },
-    { title: 'Actions', key: 'actions' },
+    { title: "Actions", key: "actions" },
   ];
+
+  const getClasses = async () => {
+    try {
+      const response = await getData(CLASSES);
+      console.log("[CLASSES]:", response.data.data);
+      const classResponse = response.data.data;
+      const classData = classResponse.map((item, index) => {
+        return {
+          _id: item._id,
+          siNo: index + 1,
+          name: item.name,
+          actions: [
+            { label: "Edit", actionHandler: onHandleEdit },
+            { label: "Delete", actionHandler: onDelete },
+          ],
+        };
+      });
+      console.log("Designation Data44444:", classData);
+      setClassData(classData);
+      setFilteredData(classData);
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  };
+
+  const onHandleEdit = async (Id) => {
+    console.log("edited", Id);
+  };
+
+  const onDelete = (Id) => {
+    console.log("deleted");
+  };
 
   const handleOpen = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -33,10 +67,9 @@ function ClassAndSection() {
     setCurrentPage(page);
   };
 
- 
   return (
     <>
-    <div className="mt-4 flex justify-between">
+      <div className="mt-4 flex justify-between">
         {/* active tab with count block */}
         <div className="sm:hidden"></div>
         <div className="hidden sm:block"></div>
@@ -65,7 +98,6 @@ function ClassAndSection() {
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-                          
               <TableComponent
                 columns={columns}
                 data={paginatedData}
@@ -75,16 +107,19 @@ function ClassAndSection() {
                   onPageChange: handlePageChange,
                 }}
               />
-            
             </div>
           </div>
         </div>
       </div>
-      <ClassModal isOpen={isModalOpen} onClose={handleCloseModal}  />
-      <SectionModal isOpen={isSectionModal} onClose={handleCloseSectionModal} />
-
+      {isModalOpen && <ClassModal onClose={handleCloseModal} />}
+      {isSectionModal && (
+        <SectionModal
+         
+          onClose={handleCloseSectionModal}
+        />
+      )}
     </>
-  )
+  );
 }
 
-export default ClassAndSection
+export default ClassAndSection;

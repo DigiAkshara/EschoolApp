@@ -6,44 +6,45 @@ import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import { staffType } from "../../commonComponent/CommonFunctions";
 import { postData } from "../../app/api";
-import { DESIGNATION } from "../../app/url";
+import { DESIGNATION, SECTIONS, SUBJECTS } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const DesignationModal = ({  onClose, onSubmit }) => {
-    const navigate = useNavigate()
+const SubjectModal = ({ isOpen, onClose, onSubmit }) => {
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
-    staffType: "",
+    
   });
 
   const getValidationSchema = () => {
     return Yup.object({
-      name: Yup.string().required(" Designation name is required"),
-      staffType: Yup.string().required(" Staff type is required"),
+ 
+        name: Yup.string().required(" Subject is required"),
     });
   };
 
+  if (!isOpen) return null;
 
-  const handleSubmit = async (values)=>{
-    console.log(values)
+  const handleSubmit = async (values) => {
+    console.log(values);
     try {
-        const response = await postData(DESIGNATION , values)  
-        console.log("[RESPONSE]:",response) 
-        if(response.status === 200 || response.status === 201){
-            onClose()
-        }
+      const response = await postData(SUBJECTS, values);
+      console.log("[RESPONSE]:", response);
+      if (response.status === 200 || response.status === 201) {
+        onClose();
+      }
     } catch (error) {
-        console.log(error)
+      console.log(error);
     }
-  }
-
+  };
 
   return (
     <>
-      <Formik initialValues={formData}
-      validationSchema={getValidationSchema()}
-      onSubmit={handleSubmit}
+      <Formik
+        initialValues={formData}
+        validationSchema={getValidationSchema()}
+        onSubmit={handleSubmit}
       >
         {({ values, setFieldValue, errors }) => (
           <Form>
@@ -51,7 +52,7 @@ const DesignationModal = ({  onClose, onSubmit }) => {
               <div className="bg-white w-96 rounded-lg shadow-lg">
                 {/* Modal Header */}
                 <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
-                  <h2 className="text-lg font-semibold">Add Designation</h2>
+                  <h2 className="text-lg font-semibold">Add Subject</h2>
                   <button
                     onClick={onClose}
                     className="text-white hover:text-gray-200"
@@ -62,19 +63,13 @@ const DesignationModal = ({  onClose, onSubmit }) => {
 
                 {/* Modal Body */}
                 <div className="p-6">
+                 
                   <CustomInput
-                  name="name"
-                  label="Designation Name"
-                  placeholder="Enter Designation"
-                  required={true}
+                    name="name"
+                    label="Subject Name"
+                    placeholder="Enter Subject"
+                    required={true}
                   />
-
-                   <CustomSelect
-                                name="staffType"
-                                label="Staff Type"
-                                options={staffType}
-                                required={true}
-                              />
                 </div>
 
                 {/* Modal Footer */}
@@ -98,4 +93,4 @@ const DesignationModal = ({  onClose, onSubmit }) => {
   );
 };
 
-export default DesignationModal;
+export default SubjectModal;

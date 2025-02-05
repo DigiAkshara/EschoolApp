@@ -22,8 +22,5 @@ export const STUDENT_ATTENDANCE = '/student/attendance'
 export const PERMISSIONS = '/permissions'
 export const ROLES = '/role'
 export const MARKS = '/marks'
-<<<<<<< Updated upstream
 export const TRANSACTIONS = '/transactions'
-=======
 export const DESIGNATION = '/designation'
->>>>>>> Stashed changes

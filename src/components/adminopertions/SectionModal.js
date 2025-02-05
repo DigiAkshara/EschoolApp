@@ -9,7 +9,7 @@ import { postData } from "../../app/api";
 import { DESIGNATION, SECTIONS } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const SectionModal = ({ isOpen, onClose, onSubmit }) => {
+const SectionModal = ({  onClose, onSubmit }) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -27,7 +27,6 @@ const SectionModal = ({ isOpen, onClose, onSubmit }) => {
     });
   };
 
-  if (!isOpen) return null;
 
   const handleSubmit = async (values) => {
     console.log(values);
