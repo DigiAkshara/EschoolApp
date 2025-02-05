@@ -1,18 +1,20 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { getData } from "../../app/api";
 import {
   attendanceOptions,
-  staffCategory,
+  handleApiResponse,
+  staffCategories,
 } from "../../commonComponent/CommonFunctions";
 import CustomButton from "../../commonComponent/CustomButton";
 import CustomDate from "../../commonComponent/CustomDate";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import CustomSelect from "../../commonComponent/CustomSelect";
+import { useSelector } from "react-redux";
 
 const AttendanceSidebar = ({
   values,
   setFieldValue,
-  holidaysData,
   user,
   handleRadioChange,
   handleStaffCategory,
@@ -21,65 +23,57 @@ const AttendanceSidebar = ({
   classes,
   sections,
   getSections,
-  attendanceMessage,
-  attendanceDates,
-  staffAttendanceData,
-  studentAttendance,
-  setAttendanceMessage
 }) => {
-
+  const holidays = useSelector((state) => state.attendance.holidays);
   const [attendanceMarked, setAttendanceMarked] = useState(false)
   const [holiday, setHoliday] = useState(false)
+  const [holidayReason, setHolidayReason] = useState("")
 
   useEffect(() => {
     checkHoliday();
-    checkAttendanceForSelectedDate();
-  }, [values.date, holidaysData, staffAttendanceData]);
+  }, [values.date, holidays]);
 
-
-
-  const checkHoliday = () => {
-    const selectedDate = moment(values.date).startOf('day');
-    const todayDate = moment().startOf('day');
-    const currentDate = selectedDate || todayDate;
-
-    const isHolidayToday = holidaysData?.some((holiday) => {
-      const holidayStart = moment(holiday.startDate, 'YYYY-MM-DD'); // Parse correctly
-      const holidayEnd = moment(holiday.endDate, 'YYYY-MM-DD');
-      return currentDate.isSameOrAfter(holidayStart, 'day') && currentDate.isSameOrBefore(holidayEnd, 'day') || currentDate.day() === 0;
-    });
-
-
-    if (isHolidayToday) {
-      setHoliday(true);
-    } else {
-      setHoliday(false);
+  useEffect(() => {
+    if (values.date) {
+      checkHoliday(values.date);
+      checkDayAttendance(values.date)
     }
-  };
+  }, [values.date])
 
-  const checkAttendanceForSelectedDate = () => {
-    // Check if attendance has been marked for the selected date
-    const isStaffMarked = staffAttendanceData?.some((staff) =>
-      staff.attendance.some(
-        (entry) => moment(entry.date).isSame(moment(values.date), 'day')
-      )
-    );
 
-    // Check if attendance has been marked for the selected date (student)
-    const isStudentMarked = studentAttendance?.some((student) =>
-      student.attendance.some(
-        (entry) => moment(entry.date).isSame(moment(values.date), 'day')
-      )
-    );
 
-    // Set attendance status
-    const isMarked = isStaffMarked || isStudentMarked;
-    setAttendanceMarked(isMarked);
+  const checkHoliday = (date) => {
+    setHoliday(false)
+    setHolidayReason("")
+    let checkDate = moment(date, "YYYY-MM-DD");
 
-    if (isMarked) {
-      setAttendanceMessage("Attendance already marked for this date.");
-    } else {
-      setAttendanceMessage("");
+    // Check if it's a Sunday
+    if (checkDate.day() === 0) {
+      setHoliday(true)
+      setHolidayReason('Sunday')
+    }
+
+    // Check if it's in the holiday list
+    for (let holiday of holidays) {
+      let start = moment(holiday.startDate, "YYYY-MM-DD");
+      let end = moment(holiday.endDate, "YYYY-MM-DD");
+
+      if (checkDate.isBetween(start, end, null, "[]")) { // '[]' includes boundary dates
+        setHoliday(true)
+        setHolidayReason(holiday.name)
+      }
+    }
+  }
+
+
+
+  const checkDayAttendance = async (date) => {
+    setAttendanceMarked(false)
+    try {
+      const res = await getData("/attendance?date=" + date + "&userType=staff");
+      setAttendanceMarked(res.data.data.length > 0 ? true : false)
+    } catch (error) {
+      handleApiResponse(error)
     }
   };
 
@@ -126,7 +120,7 @@ const AttendanceSidebar = ({
         <div className="mb-4">
           <CustomSelect
             name="staffCategory"
-            options={staffCategory}
+            options={staffCategories}
             label="Select Staff Type"
             value={values.staffCategory}
             onChange={(e) =>
@@ -210,11 +204,6 @@ const AttendanceSidebar = ({
       {!holiday && !attendanceMarked && (
         <CustomButton type="submit" label="Save Attendance" />
       )}
-      {holiday && (
-        <div className="mt-4 text-center text-red-500 font-semibold">
-          Today Holiday
-        </div>
-      )}
 
       <div className="mt-6">
         <ul>
@@ -239,14 +228,13 @@ const AttendanceSidebar = ({
         </ul>
       </div>
       {/* Attendance Marked */}
-      {attendanceMessage && (
-        <div
-          className={`mt-4 p-2 rounded-md ${attendanceMessage === "Attendance Marked"
-            ? "bg-green-100 text-green-600"
-            : "bg-red-100 text-red-600"
-            }`}
-        >
-          {attendanceMessage}
+      {holiday ? (
+        <div className="mt-4 p-2 rounded-md bg-red-100 text-red-600">
+          {holidayReason}
+        </div>
+      ) : attendanceMarked && (
+        <div className={`mt-4 p-2 rounded-md bg-red-100 text-red-600`}>
+          Attendance Marked
         </div>
       )}
     </div>
