@@ -7,31 +7,40 @@ import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { getData, updateData } from "../../app/api";
-import { ACADEMIC_YEAR, ATTENDANCE, STAFF } from "../../app/url";
+import { ACADEMIC_YEAR, ATTENDANCE, HOLIDAYS, STAFF } from "../../app/url";
 import {
   handleApiResponse,
   monthsName,
-  staffCategory,
+  staffCategories,
 } from "../../commonComponent/CommonFunctions";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
+import moment from "moment";
 
 function StaffRegister() {
   const [academicYears, setAcademicYears] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredData, setFilteredData] = useState([])
   const [selectedAttendance, setSelectedAttendance] = useState(null);
   const [openMenuDay, setOpenMenuDay] = useState(null); // Track the currently open menu
+
   const [staffs, setStaffs] = useState([]);
   const [staffList, setStaffList] = useState([]);
-  const [month, setMonth] = useState("1");
-  const [year, setYear] = useState("2025");
+
+  const [staffCategory, setStaffCategory] = useState("teaching");
+  const [month, setMonth] = useState(moment().month() + 1);
+  const [year, setYear] = useState(moment().year());
+  const [days, setDays] = useState([]);
+  const [holidays, setHolidays] = useState([])
+  const [noOfWorkingDays, setNoOfWorkingDays] = useState(0)
+
   const [currentPage, setCurrentPage] = useState(1);
+
 
   const getInitialValues = () => {
     return {
       staffCategory: "teaching",
-      month: "1",
+      month: moment().month() + 1,
+      year: moment().year(),
       academicYear: academicYears[0]?.value,
       attendance: "",
     };
@@ -46,10 +55,7 @@ function StaffRegister() {
     });
   };
 
-  useEffect(() => {
-    academicYear();
-    getStaffData();
-  }, []);
+
 
 
 
@@ -58,14 +64,15 @@ function StaffRegister() {
     setSearchTerm(term);
     if (term === "") {
       // If the search term is empty, reset the staff list to the original list
-      setStaffList(filteredData);
+      setStaffList(staffs.filter((staff) => staff.category === staffCategory));
     } else {
       // Filter staff list based on the search term
-      const filtered = filteredData.filter((item) =>
-        item.name.toLowerCase().includes(term.toLowerCase()) // Access 'name' property
+      const filtered = staffs.filter((item) =>
+        (item.category === staffCategory && item.name.toLowerCase().includes(term.toLowerCase())) // Access 'name' property
       );
       setStaffList(filtered);
     };
+
   }
 
   const academicYear = async () => {
@@ -83,67 +90,123 @@ function StaffRegister() {
     }
   };
 
-  const getStaffData = async () => {
+  const getStaffData = async (monTh, yeAr) => {
     try {
-      const response = await getData(STAFF + "/attendance");
-      const processedData = response.data.data.map((staff) => {
-        // Create an object to map dates to attendance statuses
-        const attendanceMap = {};
-        staff.attendance.forEach((record) => {
-          const date = new Date(record.date).getDate();
-          const statusMap = {
-            present: "P",
-            absent: "A",
-            sick: "S",
-            leave: "L",
-          };
-          attendanceMap[date] = statusMap[record.attendanceStatus] || "N/A";
-        });
-
-        return {
-          _id: staff._id,
-          name: `${staff.firstName} ${staff.lastName}`,
-          profilePicture: staff.profilePic || "default-profile-pic-url", // Default picture if null
-          category: staff.staffType,
-          attendance: attendanceMap,
-        };
-      });
-      setStaffs(processedData);
-      const staffData = processedData?.filter(
+      const response = await getData("/attendance?month=" + monTh + "&year=" + yeAr + "&userType=staff");
+      let data = transformAttendanceData(response.data.data)
+      setStaffs(data);
+      const staffData = data?.filter(
         (staffMember) => staffMember.category === "teaching"
       );
       setStaffList(staffData);
-      setFilteredData(staffData)
     } catch (error) {
       handleApiResponse(error);
     }
   };
 
+  function transformAttendanceData(data) {
+    const result = {};
+    const statusMap = {
+      "present": "P",
+      "absent": "A",
+      "half-day": "F",
+      "leave": "L",
+    };
+    data.forEach(record => {
+      const formattedDate = moment(record.date).format("YYYY-MM-DD");
+
+      record.attendance.forEach(att => {
+        if (!result[att.userId._id]) {
+          result[att.userId._id] = {
+            userId: att.userId._id,
+            name: att.userId.firstName + ' ' + att.userId.lastName,
+            profilePic: att.userId.profilePic,
+            category: att.userId.staffType,
+            empId: att.userId.empId, // You can replace this with actual user names if available
+            attendance: {},
+            noOfLeaves: 0
+          };
+        }
+        let date = moment(formattedDate).format("DD")
+        result[att.userId._id].attendance[date] = statusMap[att.attendanceStatus] || "-"
+        result[att.userId._id].noOfLeaves = result[att.userId._id].noOfLeaves + (att.attendanceStatus === 'leave' ? 1 : att.attendanceStatus === 'half-day' ? 0.5 : 0)
+      });
+    });
+
+    return Object.values(result);
+  }
+
+  const getHolidays = async () => {
+    try {
+      let res = await getData(HOLIDAYS)
+      setHolidays(res.data.data)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
+  useEffect(() => {
+    academicYear();
+    getHolidays()
+  }, []);
+
   const handleStaffCategory = (e, setFieldValue) => {
     const category = e.target.value;
     const staffData = staffs.filter((staff) => staff.category === category);
     setFieldValue("staffCategory", category);
+    setStaffCategory(category)
     setStaffList(staffData);
-    setFilteredData(staffData)
   };
 
-  const daysInMonth = (month, year) => {
-    const daysArray = [];
-    const date = new Date(year, month - 1, 1);
-    const lastDay = new Date(year, month, 0).getDate();
 
-    for (let i = 1; i <= lastDay; i++) {
-      const day = new Date(year, month - 1, i);
-      const dayName = day.toLocaleString("en-us", { weekday: "short" }); // e.g., 'Wed'
+  function getDaysOfMonth(month, year) {
+    let start = moment(`${year}-${month}-01`, "YYYY-MM-DD");
+    let end = start.clone().endOf("month");
+    let daysArray = [];
+    while (start.isSameOrBefore(end)) {
       daysArray.push({
-        day: i,
-        dayName: dayName,
+        day: start.format("DD"),     // Get day as 01, 02, ...
+        dayName: start.format("ddd") // Get short day name (Mon, Tue, ...)
       });
+      start.add(1, "day"); // Move to the next day
     }
-    return daysArray;
-  };
+    setDays(daysArray)
+  }
 
-  const days = daysInMonth(parseInt(month), year);
+  const getWorkingDays = (month, year, holidays) => {
+    let start = moment(`${year}-${month}-01`, "YYYY-MM-DD");
+    let end = start.clone().endOf("month");
+    let holidayDates = new Set();
+    // Convert holiday start and end dates into a list of dates
+    holidays.forEach(holiday => {
+      let holidayStart = moment(holiday.startDate);
+      let holidayEnd = moment(holiday.endDate);
+  
+      while (holidayStart.isSameOrBefore(holidayEnd)) {
+        holidayDates.add(holidayStart.format("YYYY-MM-DD"));
+        holidayStart.add(1, "day");
+      }
+    });
+  
+    let workingDays = 0;
+  
+    // Loop through the days of the month
+    while (start.isSameOrBefore(end)) {
+      let isSunday = start.day() === 0; // Sunday (0 in Moment.js)
+      let isHoliday = holidayDates.has(start.format("YYYY-MM-DD")); // Check if it's a holiday
+  
+      if (!isSunday && !isHoliday) {
+        workingDays++; // Count only if it's not a Sunday or holiday
+      }
+  
+      start.add(1, "day"); // Move to the next day
+    }
+    setNoOfWorkingDays(workingDays)
+    
+    // return workingDays; 
+  }
+
+
   const handleAttendanceChange = (e) => {
     e.preventDefault();
     setSelectedAttendance(e.target.value);
@@ -167,6 +230,15 @@ function StaffRegister() {
     }
   };
 
+  useEffect(() => {
+    if (month && year) {
+      getDaysOfMonth(parseInt(month), year)
+      getStaffData(month, year);
+      getWorkingDays(month, year, holidays)
+    }
+  }, [month, year]);
+
+
   return (
     <>
       <Formik
@@ -181,13 +253,14 @@ function StaffRegister() {
               <div className="left-form-blk flex space-x-4">
                 <CustomSelect
                   name="staffCategory"
-                  options={staffCategory}
+                  placeholder="Staff Type"
+                  options={staffCategories}
                   value={values.staffCategory}
                   onChange={(e) => handleStaffCategory(e, setFieldValue)}
                 />
                 <CustomSelect
                   name="month"
-                  placeholder=" Month"
+                  placeholder="Month"
                   options={monthsName}
                   onChange={(e) => {
                     const selectedMonth = e.target.value;
@@ -200,12 +273,21 @@ function StaffRegister() {
                   name="academicYear"
                   placeholder="Academic year"
                   options={academicYears}
+                  onChange={(e) => {
+                    const selectedYear = e.target.value;
+                    setFieldValue("academicYear", selectedYear);
+                    academicYears.forEach((year) => {
+                      if (year.value === selectedYear) {
+                        setYear(year.label.split("-")[1]);
+                      }
+                    })
+                  }}
                 />
               </div>
 
               <div className="content-item flex items-center">
                 <dt className="text-sm/6 text-gray-500">No. Of Working Days</dt>
-                <dd className="text-base text-gray-700 font-medium pl-2">24</dd>
+                <dd className="text-base text-gray-700 font-medium pl-2">{noOfWorkingDays}</dd>
               </div>
             </div>
 
@@ -337,13 +419,16 @@ function StaffRegister() {
                               className="text-purple-600 hover:text-purple-900"
                             >
                               <div className="flex items-center">
-                                <div className="size-9 shrink-0">
+                                {staff.profilePic ? <div className="size-9 shrink-0">
                                   <img
                                     alt=""
-                                    src={staff.profilePicture}
+                                    src={staff.profilePic}
                                     className="size-9 rounded-full"
                                   />
-                                </div>
+                                </div> :
+                                  <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                    <span className="font-medium text-gray-600 dark:text-gray-300">{staff.name.charAt(0)}</span>
+                                  </div>}
                                 <div className="ml-4">
                                   <div className="font-medium text-gray-900 text-purple-600">
                                     {staff.name}
@@ -358,7 +443,7 @@ function StaffRegister() {
 
                           {/* Total Absents */}
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                            0
+                            {staff.noOfLeaves}
                           </td>
 
                           {days.map((dayObj, index) => {
@@ -367,7 +452,7 @@ function StaffRegister() {
 
                             const attendanceValue =
                               staff.attendance[dayObj.day] ||
-                              (isSunday ? "S" : "N/A");
+                              (isSunday ? "S" : "-");
 
 
                             const attendanceClass = isSunday

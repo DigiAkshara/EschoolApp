@@ -1,12 +1,11 @@
-import moment from 'moment'
-import { getData, postData } from '../app/api'
-import { CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD } from '../app/url'
-import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { toast } from 'react-toastify';
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-
+import moment from 'moment';
+import { toast } from 'react-toastify';
+import * as XLSX from "xlsx";
+import { getData, postData } from '../app/api';
+import { CLASS_CATEGORIES, CLASSES, HOLIDAYS, SECTIONS, UPLOAD } from '../app/url';
 
 export const getAcademicYears = () => {
   const currentDate = new Date()
@@ -107,7 +106,7 @@ export const occupation = [
   { value: 'other', label: 'Other' },
 ]
 
-export const staffCategory = [
+export const staffCategories = [
   { value: 'teaching', label: 'Teacher' },
   { value: 'non-teaching', label: 'Non Teaching Staff' },
 ]
@@ -328,7 +327,7 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
 
 export const handleDownloadPDF = (data, fileName, columns, title, tenant, logoUrl, orientation = "portrait") => {
   const defaultLogo = "./schoolLogo.jpg";
-  
+
   // Initialize jsPDF with dynamic orientation
   const doc = new jsPDF(orientation, "mm", "a4"); // Use dynamic orientation
   doc.setFont("helvetica", "bold");
@@ -346,7 +345,7 @@ export const handleDownloadPDF = (data, fileName, columns, title, tenant, logoUr
 
   // Adjust header formatting for portrait and landscape orientation
   doc.setFontSize(14);
-  
+
   // Calculate X position for centering in landscape mode
   const centerX = orientation === "landscape" ? 148 : 105; // 148 is half of the A4 landscape width, 105 is half of portrait
 
@@ -370,9 +369,9 @@ export const handleDownloadPDF = (data, fileName, columns, title, tenant, logoUr
 
   // Extract column headers and row data
   const tableColumnHeaders = columns.map((col) => col.label);
-  const tableRows = data.map((row) => 
+  const tableRows = data.map((row) =>
     columns.map((col) => {
-      const value = row[col.key] || "-"; 
+      const value = row[col.key] || "-";
       if (col.key === "date" || col.key === "dateOfBirth") {
         return moment(value).format('DD-MM-YYYY'); // Format date
       }

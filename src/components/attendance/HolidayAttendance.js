@@ -1,17 +1,20 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getData } from "../../app/api";
+import { deleteData, getData } from "../../app/api";
 import { setSelectedHoliday } from "../../app/reducers/holidaySlice";
 import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import TableComponent from "../../commonComponent/TableComponent";
-import ManageHolidaySidebar from "./ManageHolidaySidebar";
+import HolidaySidebar from "./HolidaySidebar";
+import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 
-const ManageHolidayAttendance = () => {
+const HolidayAttendance = () => {
   const [academicYears, setAcademicYears] = useState([]);
   const [holidaysData, setHolidaysData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const dispatch = useDispatch();
@@ -22,20 +25,12 @@ const ManageHolidayAttendance = () => {
   }, []);
 
   const columns = [
-    { title: "Si.No.", key: "siNo" },
+    { title: "S.No.", key: "siNo" },
     { title: "Holiday", key: "name" },
     { title: "Date", key: "displayDate" },
     { title: "No.of Days", key: "totalDays" },
     { title: "Actions", key: "actions" },
   ];
-
-  const formatHolidayDate = (startDate, endDate) => {
-    const formatStartDate = moment(startDate).format("DD-MM-YYYY");
-    const formatEndDate = moment(endDate).format("DD-MM-YYYY");
-    return formatStartDate === formatEndDate
-      ? formatStartDate
-      : `${formatStartDate} to ${formatEndDate}`;
-  };
 
   const academicyear = async () => {
     try {
@@ -53,24 +48,20 @@ const ManageHolidayAttendance = () => {
   };
   const getHolidayData = async () => {
     try {
-      const response = await getData(HOLIDAYS);
-      const holidayResonse = response.data.data;
+      const res = await getData(HOLIDAYS);
+      const holidayResonse = res.data.data;
       const holidayData = holidayResonse.map((item) => {
-        const academicYearLabel = academicYears.find(
-          (year) => year.value === item.academicYear
-        )?.label;
-        const totalDays = Math.ceil(
-          (new Date(item.endDate) - new Date(item.startDate)) /
-          (1000 * 60 * 60 * 24)
-        );
+        let start = moment(item.startDate, "YYYY-MM-DD");
+        let end = moment(item.endDate, "YYYY-MM-DD");
+        const totalDays = end.diff(start, "days") + 1;
         return {
           _id: item._id,
           name: item.name,
           startDate: item.startDate,
           endDate: item.endDate,
-          displayDate: formatHolidayDate(item.startDate, item.endDate),
+          displayDate: `${moment(item.startDate).format('DD-MM-YYYY')} to  ${moment(item.endDate).format('DD-MM-YYYY')}`,
           totalDays,
-          academicYear: academicYearLabel || item.academicYear,
+          academicYear: item.academicYear,
           status: item.status,
           actions: [
             { label: "Edit", actionHandler: onHandleEdit },
@@ -85,37 +76,31 @@ const ManageHolidayAttendance = () => {
     }
   };
 
-  const handleSearch = (searchTerm) => {
-    const filtered = holidaysData.filter((item) =>
-      columns.some((col) =>
-        String(item[col.key]).toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    )
-    setFilteredData(filtered)
-  }
-
-
-
   const onHandleEdit = async (holidayId) => {
     try {
-      const response = await getData(HOLIDAYS + "/" + holidayId);
-      const holiday = response.data.data;
-      const academicYearLabel = academicYears.find(
-        (year) => year.value === holiday.academicYear
-      )?.label;
-      const updatedHoliday = {
-        ...holiday,
-        academicYear: academicYearLabel || holiday.academicYear,
-      };
-      dispatch(setSelectedHoliday(updatedHoliday));
+      const res = await getData(HOLIDAYS + "/" + holidayId);
+      dispatch(setSelectedHoliday(res.data.data));
     } catch (error) {
       handleApiResponse(error);
     }
   };
 
+  const onDelete = (Id) => {
+    setDeleteId(Id)
+    setDeleteConfirm(true);
+  }
 
-  const onDelete = () => {
-    console.log("delete");
+
+  const holidayDelete = async () => {
+    try {
+      let res = await deleteData(HOLIDAYS + "/" + deleteId)
+      handleApiResponse(res.data.message, 'success')
+      getHolidayData()
+      setDeleteConfirm(false)
+      setDeleteId(null)
+    } catch (error) {
+      handleApiResponse(error)
+    }
   };
 
   const handlePageChange = (page) => {
@@ -133,8 +118,7 @@ const ManageHolidayAttendance = () => {
     <>
       <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
         {/* Sidebar */}
-        <ManageHolidaySidebar
-          setHolidaysData={setHolidaysData}
+        <HolidaySidebar
           getHolidayData={getHolidayData}
           academicYears={academicYears}
         />
@@ -145,9 +129,6 @@ const ManageHolidayAttendance = () => {
             <div className="relative">
               <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
                 {/* Table View */}
-                {/* <FilterComponent 
-                      onSearch={handleSearch}
-                      /> */}
                 <TableComponent
                   columns={columns}
                   data={paginatedData}
@@ -162,8 +143,14 @@ const ManageHolidayAttendance = () => {
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        showModal={deleteConfirm}
+        onYes={holidayDelete}
+        onCancel={() => { setDeleteConfirm(false) }}
+      />
+
     </>
   );
 };
 
-export default ManageHolidayAttendance;
+export default HolidayAttendance;

@@ -82,7 +82,6 @@ export default function StudentsList() {
           aadharNumber: item.student.aadharNumber,
           gender: gender.find((gender) => gender.value === item.student.gender)
             .label,
-
           dateOfBirth: item.student.DOB,
           aadharNumber: item.student.aadharNumber,
           fatherName: item.student.fatherDetails?.name,

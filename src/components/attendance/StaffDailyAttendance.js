@@ -1,29 +1,25 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   ArrowDownTrayIcon,
   ArrowsUpDownIcon,
 } from "@heroicons/react/24/outline";
 import { FieldArray, Form, Formik } from "formik";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { getData, postData } from "../../app/api";
 import { ATTENDANCE, STAFF } from "../../app/url";
 import {
   attendanceOptions,
-  designations,
-  handleApiResponse,
+  handleApiResponse
 } from "../../commonComponent/CommonFunctions";
 import CustomRadio from "../../commonComponent/CustomRadio";
-import AttendanceSidebar from "./AttendanceSidebar";
-import moment from "moment";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
+import AttendanceSidebar from "./AttendanceSidebar";
 
 const StaffDailyAttendance = () => {
   const [staffList, setStaffList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [attendanceMessage, setAttendanceMessage] = useState("");
-  const [attendanceDates, setAttendanceDates] = useState([]);
-  const [staffAttendanceData, setStaffAttendanceData] = useState([]);
 
   const getInitialValues = () => {
     return {
@@ -49,18 +45,7 @@ const StaffDailyAttendance = () => {
   };
   useEffect(() => {
     getStaff();
-    getStaffData();
   }, []);
-
-  const getStaffData = async () => {
-    try {
-      const response = await getData(STAFF + "/attendance");
-      setStaffAttendanceData(response.data.data); // Store fetched attendance data
-    } catch (error) {
-      handleApiResponse(error)
-    }
-  };
-
 
   const getStaff = async () => {
     try {
@@ -83,6 +68,7 @@ const StaffDailyAttendance = () => {
 
   };
 
+
   const handleStaffCategory = (e, setFieldValue) => {
     const category = e.target.value;
     const staffData = staffList.filter((staff) => staff.category === category);
@@ -90,9 +76,9 @@ const StaffDailyAttendance = () => {
     setFieldValue("attendance", staffData);
   };
 
-  const handleSearch = (e,setFieldValue) => {
+  const handleSearch = (e, values, setFieldValue) => {
     const query = e.target.value?.toLowerCase();
-    const staffData = staffList.filter((staff) => staff.name.toLowerCase().includes(query));
+    const staffData = staffList.filter((staff) => staff.category === values.staffCategory && staff.name.toLowerCase().includes(query));
     setFieldValue("attendance", staffData);
   };
 
@@ -129,7 +115,6 @@ const StaffDailyAttendance = () => {
     try {
       const response = await postData(ATTENDANCE, values);
       handleApiResponse(response.data.message, "success");
-      getStaffData();
     } catch (error) {
       handleApiResponse(error)
     }
@@ -155,8 +140,6 @@ const StaffDailyAttendance = () => {
                 handleStaffCategory={handleStaffCategory}
                 attendanceMessage={attendanceMessage}
                 setAttendanceMessage={setAttendanceMessage}
-                attendanceDates={attendanceDates}
-                staffAttendanceData={staffAttendanceData}
               />
 
               {/* Main Content */}
@@ -172,7 +155,7 @@ const StaffDailyAttendance = () => {
                                 <input
                                   name="search"
                                   placeholder="Search"
-                                  onChange={(e)=>handleSearch(e, setFieldValue)}
+                                  onChange={(e) => handleSearch(e, values, setFieldValue)}
                                   className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
                                 />
                               </div>
