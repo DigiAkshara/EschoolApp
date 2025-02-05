@@ -243,8 +243,12 @@ export default function StaffDetails() {
       { label: "Gender", key: "gender" },
     ], "Staff Details Report", tenant, undefined, "landscape");
   };
+<<<<<<< Updated upstream
 
 
+=======
+ 
+>>>>>>> Stashed changes
   return (
     <>
       {/* Secondary Tabs */}

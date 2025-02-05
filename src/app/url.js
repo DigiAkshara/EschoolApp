@@ -1,5 +1,5 @@
 export const LOGIN = '/login'
-export const CLASSES = '/classes'
+export const CLASSES = '/class'
 export const CLASS_CATEGORIES = '/classCategory'
 export const STAFF = '/staff'
 export const SUBJECTS = '/subjects'
@@ -22,4 +22,8 @@ export const STUDENT_ATTENDANCE = '/student/attendance'
 export const PERMISSIONS = '/permissions'
 export const ROLES = '/role'
 export const MARKS = '/marks'
+<<<<<<< Updated upstream
 export const TRANSACTIONS = '/transactions'
+=======
+export const DESIGNATION = '/designation'
+>>>>>>> Stashed changes
