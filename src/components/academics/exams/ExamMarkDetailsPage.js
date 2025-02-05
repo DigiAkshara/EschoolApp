@@ -246,8 +246,8 @@ function ExamMarkDetailsPage({ onClose }) {
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <DialogPanel
               transition
-              className="pointer-events-auto w-screen max-w-7xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
-            >
+              className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
+              >
               <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                 <div className="flex min-h-0 flex-1 flex-col">
                   <div className="bg-purple-900 px-3 py-3 sm:px-6">
