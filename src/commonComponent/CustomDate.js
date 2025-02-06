@@ -43,7 +43,7 @@ export default function CustomDate(props) {
                 disabled={disabled}
                 minDate={minDate ? moment(minDate).toDate() : null}
                 maxDate={maxDate ? moment(maxDate).toDate() : null}
-                asSingle
+                asSingle={true}
                 displayFormat="DD/MM/YYYY"
                 useRange={false}
                 placeholder={placeholder}

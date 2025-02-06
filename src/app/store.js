@@ -11,6 +11,7 @@ import holidayReducer  from './reducers/holidaySlice'
 import staffSlice from './reducers/staffSlice'
 import feeSlice from "./reducers/feeSlice";
 import designationReducer from './reducers/designationSlice'
+import attendanceSlice from './reducers/attendanceSlice'
 
 export const store = configureStore({
   reducer: {
@@ -25,6 +26,7 @@ export const store = configureStore({
     staff: staffSlice,
     fees: feeSlice,
     tenantData : tenantReducer,
-    designation : designationReducer
+    designation : designationReduce,
+    attendance : attendanceSlice,
   },
 })
