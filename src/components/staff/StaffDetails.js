@@ -243,7 +243,7 @@ export default function StaffDetails() {
       { label: "Gender", key: "gender" },
     ], "Staff Details Report", tenant, undefined, "landscape");
   };
-
+ 
 
   return (
     <>
