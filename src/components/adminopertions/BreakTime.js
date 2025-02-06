@@ -1,12 +1,18 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
 import TableComponent from '../../commonComponent/TableComponent';
 import BreakModal from './BreakModal';
+import { deleteData, getData } from '../../app/api';
+import { BREAKTIME } from '../../app/url';
+import { handleApiResponse } from '../../commonComponent/CommonFunctions';
+import ConfirmationModal from '../../commonComponent/ConfirmationModal';
 
 function BreakTime() {
-  const [classData, setClassData] = useState([]);
+  const [breakData, setBreakData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+      const [deleteId, setDeleteId] = useState(null);
+      const [deleteConfirm, setDeleteConfirm] = useState(false);
     const [isSectionModal, setIsSectionModal] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -15,9 +21,58 @@ function BreakTime() {
   const columns = [
     { title: "Si. No", key: "siNo" },
     { title: "Break Name", key: "name" },
-    { title: "Break Time", key: "time" },
+    { title: "Break Time", key: "timeRange" },
     { title: 'Actions', key: 'actions' },
   ];
+
+    useEffect(() => {
+      getBreakTime();
+    }, []);
+  
+    const getBreakTime = async () => {
+      try {
+        const response = await getData(BREAKTIME);
+        console.log("BREAK DATA:", response.data);
+        const breakResponse = response.data.data;
+        const BreakData = breakResponse.map((item, index) => {
+          return {
+            _id: item._id,
+            siNo: index + 1,
+            name: item.name,
+            timeRange: `${item.startTime} - ${item.endTime}`, 
+            actions: [
+              { label: "Edit", actionHandler: onHandleEdit },
+              { label: "Delete", actionHandler: onDelete },
+            ],
+          };
+        });
+        setBreakData(BreakData);
+        setFilteredData(BreakData);
+      } catch (error) {
+        handleApiResponse(error)
+      }
+    };
+
+      const onHandleEdit = async (Id) => {
+        console.log("Edited");
+      };
+    
+      const onDelete = (Id) => {
+        setDeleteId(Id);
+        setDeleteConfirm(true);
+      };
+    
+      const deleteRecord = async () => {
+         try {
+           let res = await deleteData(BREAKTIME + '/' + deleteId)
+           handleApiResponse(res.data.message, 'success')
+           getBreakTime()
+           setDeleteConfirm(false)
+           setDeleteId(null)
+         } catch (error) {
+           handleApiResponse(error)
+         }
+      };
 
   const handleOpen = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -71,7 +126,15 @@ function BreakTime() {
           </div>
         </div>
       </div>
-      <BreakModal isOpen={isModalOpen} onClose={handleCloseModal}  />
+
+      {isModalOpen && <BreakModal onClose={handleCloseModal} getBreakTime={getBreakTime}  />}
+ <ConfirmationModal
+        showModal={deleteConfirm}
+        onYes={deleteRecord}
+        onCancel={() => {
+          setDeleteConfirm(false);
+        }}
+      />
 
     </>
   )

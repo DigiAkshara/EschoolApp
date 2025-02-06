@@ -1,25 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { staffType } from "../../commonComponent/CommonFunctions";
-import { postData } from "../../app/api";
-import { DESIGNATION, SECTIONS } from "../../app/url";
+import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
+import { getData, postData } from "../../app/api";
+import { CLASSES, DESIGNATION, SECTIONS } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const SectionModal = ({  onClose, onSubmit }) => {
-  const navigate = useNavigate();
+const SectionModal = ({ onClose, onSubmit }) => {
+  const [classDatas, setClassData] = useState([]);
 
   const [formData, setFormData] = useState({
-    name: "",
+    section: "",
     class: "",
   });
 
   const getValidationSchema = () => {
     return Yup.object({
-      name: Yup.string()
+      section: Yup.string()
         .matches(/^[A-Z]{1,2}$/, "Only 1 or 2 capital letters are allowed")
         .required("Section name is required"),
 
@@ -27,6 +27,24 @@ const SectionModal = ({  onClose, onSubmit }) => {
     });
   };
 
+  const getClasses = async () => {
+    try {
+      const response = await getData(CLASSES);
+      console.log("Response: class :   999999", response);
+      const responseData = response.data.data;
+      const classData = responseData.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      });
+      setClassData(classData);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getClasses();
+  }, []);
 
   const handleSubmit = async (values) => {
     console.log(values);
@@ -35,6 +53,7 @@ const SectionModal = ({  onClose, onSubmit }) => {
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
+        handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
       console.log(error);
@@ -68,11 +87,11 @@ const SectionModal = ({  onClose, onSubmit }) => {
                   <CustomSelect
                     name="class"
                     label="Class"
-                    options={staffType}
+                    options={classDatas}
                     required={true}
                   />
                   <CustomInput
-                    name="name"
+                    name="section"
                     label="Section"
                     placeholder="Enter section"
                     required={true}

@@ -2,19 +2,22 @@ import React, { useEffect, useState } from "react";
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import TableComponent from "../../commonComponent/TableComponent";
 import DesignationModal from "./DesignationModal";
-import { getData } from "../../app/api";
+import { deleteData, getData } from "../../app/api";
 import { DESIGNATION } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import { useDispatch } from "react-redux";
 import { setSelectedDesignation } from "../../app/reducers/designationSlice";
+import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 
 function Designation() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [designation, setDesignation] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const rowsPerPage = 10;
-  const [showAddStaffModal, setShowAddStaffModal] = useState(false)
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -22,64 +25,69 @@ function Designation() {
     { title: "Si. No", key: "siNo" },
     { title: "Designation Name", key: "name" },
     { title: "Staff Type", key: "staffType" },
-    { title: 'Actions', key: 'actions' },
+    { title: "Actions", key: "actions" },
   ];
-
 
   useEffect(() => {
     getDesignations();
   }, []);
 
-  const getDesignations = async () =>{
+  const getDesignations = async () => {
     try {
-        const response = await getData(DESIGNATION +"/type")
-        console.log("[DESIGNATIONS]:",response.data.data);
-        const desigResponse = response.data.data;
-        const desigData = desigResponse.map((item, index) => {
-            return{
-                _id: item._id,
-                siNo: index + 1,
-                name: item.name,
-                staffType: item.staffType,
-                actions: [
-                    { label: 'Edit', actionHandler: onHandleEdit },
-                    { label: 'Delete', actionHandler: onDelete },
-                  ],
-            }
-        })
-        console.log("Designation Data44444:", desigData);
-        
-        setDesignation(desigData);
-        setFilteredData(desigData);
-        
+      const response = await getData(DESIGNATION + "/type");
+      console.log("[DESIGNATIONS]:", response.data.data);
+      const desigResponse = response.data.data;
+      const desigData = desigResponse.map((item, index) => {
+        return {
+          _id: item._id,
+          siNo: index + 1,
+          name: item.name,
+          staffType: item.staffType,
+          actions: [
+            { label: "Edit", actionHandler: onHandleEdit },
+            { label: "Delete", actionHandler: onDelete },
+          ],
+        };
+      });
+      console.log("Designation Data44444:", desigData);
+
+      setDesignation(desigData);
+      setFilteredData(desigData);
     } catch (error) {
-        handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
 
-    const onHandleEdit = async (Id) => {
-        console.log("edited",Id);
-        
-      try {
-        const designationDetails = await getData(DESIGNATION + '/' + Id)
-        console.log("[DESIGNATION DETAILS]:",designationDetails.data);
-        
-        dispatch(setSelectedDesignation({...designationDetails.data.data}));
-        setShowAddStaffModal(true)
-      } catch (error) {
-        handleApiResponse(error)
-      }
-    }
-  
-    const onDelete = (Id) => {
-        console.log("deleted");
+  const onHandleEdit = async (Id) => {
+    console.log("edited", Id);
 
+    try {
+      const designationDetails = await getData(DESIGNATION + "/" + Id);
+      console.log("[DESIGNATION DETAILS]:", designationDetails.data);
+
+      dispatch(setSelectedDesignation({ ...designationDetails.data.data }));
+      setShowAddStaffModal(true);
+    } catch (error) {
+      handleApiResponse(error);
     }
-  
-    const deleteRecord  = async() =>{
-    
-    }
-  
+  };
+
+  const onDelete = (Id) => {
+    setDeleteId(Id);
+    setDeleteConfirm(true);
+  };
+
+  const deleteRecord = async () => {
+     try {
+       let res = await deleteData(DESIGNATION + '/' + deleteId)
+       handleApiResponse(res.data.message, 'success')
+       getDesignations()
+       setDeleteConfirm(false)
+       setDeleteId(null)
+     } catch (error) {
+       handleApiResponse(error)
+     }
+  };
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -130,10 +138,14 @@ function Designation() {
       </div>
 
       {/* Modal */}
-      {
-        isModalOpen && <DesignationModal onClose={handleCloseModal}  />
-      }
-      
+      {isModalOpen && <DesignationModal onClose={handleCloseModal} getDesignations={getDesignations} />}
+      <ConfirmationModal
+        showModal={deleteConfirm}
+        onYes={deleteRecord}
+        onCancel={() => {
+          setDeleteConfirm(false);
+        }}
+      />
     </>
   );
 }

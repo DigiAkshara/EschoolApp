@@ -3,36 +3,45 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
-import CustomSelect from "../../commonComponent/CustomSelect";
-import { staffType } from "../../commonComponent/CommonFunctions";
+import { handleApiResponse} from "../../commonComponent/CommonFunctions";
 import { postData } from "../../app/api";
-import { DESIGNATION, SECTIONS } from "../../app/url";
+import { BREAKTIME,  } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const BreakModal = ({ isOpen, onClose, onSubmit }) => {
-  const navigate = useNavigate();
+const BreakModal = ({ onClose, getBreakTime }) => {
 
   const [formData, setFormData] = useState({
     name: "",
-    
+    startTime: "",
+    endTime: "",
   });
 
   const getValidationSchema = () => {
     return Yup.object({
- 
-        name: Yup.string().required(" Subject is required"),
+      name: Yup.string().required(" Subject is required"),
+      startTime: Yup.string().required(" Start time is required"),
+      endTime: Yup.string()
+        .required("End time is required")
+        .test(
+          "is-after",
+          "End time must be after start time",
+          function (endTime) {
+            const { startTime } = this.parent;
+            return startTime < endTime;
+          }
+        ),
     });
   };
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (values) => {
     console.log(values);
     try {
-      const response = await postData(SECTIONS, values);
-      console.log("[RESPONSE]:", response);
+      const response = await postData(BREAKTIME, values);
+      console.log("[BREAK RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
+        getBreakTime();
+        handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
       console.log(error);
@@ -63,17 +72,24 @@ const BreakModal = ({ isOpen, onClose, onSubmit }) => {
 
                 {/* Modal Body */}
                 <div className="p-6">
-                 
                   <CustomInput
                     name="name"
                     label="Break Name"
                     placeholder="Enter break name"
                     required={true}
                   />
-                   <CustomInput
-                    name="time"
-                    label="Break Time"
-                    placeholder="Enter time"
+                  <CustomInput
+                    name="startTime"
+                    type="time"
+                    label="Break Start Time"
+                    placeholder="Enter Start time"
+                    required={true}
+                  />
+                  <CustomInput
+                    name="endTime"
+                    type="time"
+                    label="Break End Time"
+                    placeholder="Enter End time"
                     required={true}
                   />
                 </div>

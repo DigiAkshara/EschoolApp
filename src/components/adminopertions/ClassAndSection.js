@@ -17,9 +17,13 @@ function ClassAndSection() {
 
   const columns = [
     { title: "Si. No", key: "siNo" },
-    { title: "Class and Section", key: "class" },
+    { title: "Class and Section", key: "name" },
     { title: "Actions", key: "actions" },
   ];
+
+  useEffect(()=>{
+    getClasses()
+  },[])
 
   const getClasses = async () => {
     try {

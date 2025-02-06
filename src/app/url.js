@@ -24,3 +24,7 @@ export const ROLES = '/role'
 export const MARKS = '/marks'
 export const TRANSACTIONS = '/transactions'
 export const DESIGNATION = '/designation'
+export const BREAKTIME = '/breakTime'
+export const SUBJECT = '/subject'
+
+

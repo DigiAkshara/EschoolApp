@@ -1,62 +1,77 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
-import TableComponent from '../../commonComponent/TableComponent';
-import ClassModal from './ClassModal';
-import SectionModal from './SectionModal';
-import SubjectModal from './SubjectModal';
-import { SUBJECTS } from '../../app/url';
-import { getData } from '../../app/api';
+import TableComponent from "../../commonComponent/TableComponent";
+import ClassModal from "./ClassModal";
+import SectionModal from "./SectionModal";
+import SubjectModal from "./SubjectModal";
+import { SUBJECT, SUBJECTS } from "../../app/url";
+import { deleteData, getData } from "../../app/api";
+import ConfirmationModal from "../../commonComponent/ConfirmationModal";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
 function Subjects() {
   const [subjectData, setSubjectData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isSectionModal, setIsSectionModal] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSectionModal, setIsSectionModal] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-
 
   const columns = [
     { title: "Si. No", key: "siNo" },
     { title: "Subjects", key: "name" },
-    { title: 'Actions', key: 'actions' },
+    { title: "Actions", key: "actions" },
   ];
 
   useEffect(() => {
-    getSubjects()
-  }, [])
+    getSubjects();
+  }, []);
 
-  const getSubjects = async ()=>{
+  const getSubjects = async () => {
     try {
-      const response = await getData(SUBJECTS)
+      const response = await getData(SUBJECT);
       console.log("SUB DATA:", response.data);
       const subResponse = response.data.data;
-      const SubData = subResponse.map((item, index) =>{
-        return{
-          siNo : index+1,
-          name : item.name,
+      const SubData = subResponse.map((item, index) => {
+        return {
+          _id:item._id,
+          siNo: index + 1,
+          name: item.name,
           actions: [
-            { label: 'Edit', actionHandler: onHandleEdit },
-            { label: 'Delete', actionHandler: onDelete },
+            { label: "Edit", actionHandler: onHandleEdit },
+            { label: "Delete", actionHandler: onDelete },
           ],
-        }
-      })   
-      setSubjectData(SubData) 
-      setFilteredData(SubData) 
+        };
+      });
+      setSubjectData(SubData);
+      setFilteredData(SubData);
     } catch (error) {
-      
+      handleApiResponse(error)
     }
-  }
+  };
 
-    const onHandleEdit = async (Id) => {
-     console.log("Edited");
-     
-    }
-  
-    const onDelete = (Id) => {
-      console.log("Deleted");
-      
-    }
+  const onHandleEdit = async (Id) => {
+    console.log("Edited");
+  };
+
+  const onDelete = (Id) => {
+    setDeleteId(Id);
+    setDeleteConfirm(true);
+  };
+
+  const deleteRecord = async () => {
+     try {
+       let res = await deleteData(SUBJECT + '/' + deleteId)
+       handleApiResponse(res.data.message, 'success')
+       getSubjects()
+       setDeleteConfirm(false)
+       setDeleteId(null)
+     } catch (error) {
+       handleApiResponse(error)
+     }
+  };
 
   const handleOpen = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -70,17 +85,14 @@ function Subjects() {
     setCurrentPage(page);
   };
 
- 
   return (
     <>
-    <div className="mt-4 flex justify-between">
+      <div className="mt-4 flex justify-between">
         {/* active tab with count block */}
         <div className="sm:hidden"></div>
         <div className="hidden sm:block"></div>
 
         <div className="right-btns-blk space-x-4">
-       
-
           <button
             type="button"
             onClick={handleOpen}
@@ -95,7 +107,6 @@ function Subjects() {
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-                          
               <TableComponent
                 columns={columns}
                 data={paginatedData}
@@ -105,15 +116,22 @@ function Subjects() {
                   onPageChange: handlePageChange,
                 }}
               />
-            
             </div>
           </div>
         </div>
       </div>
-      <SubjectModal isOpen={isModalOpen} onClose={handleCloseModal}  />
 
+      {isModalOpen && <SubjectModal onClose={handleCloseModal} getSubjects={getSubjects} />}
+
+      <ConfirmationModal
+        showModal={deleteConfirm}
+        onYes={deleteRecord}
+        onCancel={() => {
+          setDeleteConfirm(false);
+        }}
+      />
     </>
-  )
+  );
 }
 
-export default Subjects
+export default Subjects;
