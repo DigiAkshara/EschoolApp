@@ -1,6 +1,8 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../../app/api";
+import { ACADEMICS } from "../../app/url";
 import {
   attendanceOptions,
   handleApiResponse,
@@ -10,7 +12,7 @@ import CustomButton from "../../commonComponent/CustomButton";
 import CustomDate from "../../commonComponent/CustomDate";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { useSelector } from "react-redux";
+import { updateStudents } from "../../app/reducers/attendanceSlice";
 
 const AttendanceSidebar = ({
   values,
@@ -21,24 +23,45 @@ const AttendanceSidebar = ({
   handleClassChange,
   handleSectionChange,
   classes,
-  sections,
-  getSections,
+  sections
 }) => {
   const holidays = useSelector((state) => state.attendance.holidays);
+  const dispatch = useDispatch()
   const [attendanceMarked, setAttendanceMarked] = useState(false)
   const [holiday, setHoliday] = useState(false)
   const [holidayReason, setHolidayReason] = useState("")
 
-  useEffect(() => {
-    checkHoliday();
-  }, [values.date, holidays]);
+  const getStudents = async (classId, sectionID) => {
+    try {
+      const res = await getData(ACADEMICS + "/" + classId + "/" + sectionID);
+      const stuData = res.data.data.map((item) => ({
+        _id: item.student._id,
+        pic: item.student.profilePic?.Location || "",
+        name: `${item.student.firstName} ${item.student.lastName}`,
+        admissionNo: item.student.admissionNumber,
+        className: item.class?.name || "N/A",
+        class: item.class?._id || null,
+        section: item.section || "N/A",
+      }));
+      dispatch(updateStudents(stuData))
+      setFieldValue('attendance', stuData);
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  };
 
   useEffect(() => {
-    if (values.date) {
+    if (values.class && values.section) {
+      getStudents(values.class, values.section)
+    }
+  }, [values.class, values.section]);
+
+  useEffect(() => {
+    if (values.date || (values.class && values.section)) {
       checkHoliday(values.date);
       checkDayAttendance(values.date)
     }
-  }, [values.date])
+  }, [values.date,values.class, values.section])
 
 
 
@@ -46,13 +69,11 @@ const AttendanceSidebar = ({
     setHoliday(false)
     setHolidayReason("")
     let checkDate = moment(date, "YYYY-MM-DD");
-
     // Check if it's a Sunday
     if (checkDate.day() === 0) {
       setHoliday(true)
       setHolidayReason('Sunday')
     }
-
     // Check if it's in the holiday list
     for (let holiday of holidays) {
       let start = moment(holiday.startDate, "YYYY-MM-DD");
@@ -65,12 +86,14 @@ const AttendanceSidebar = ({
     }
   }
 
-
-
   const checkDayAttendance = async (date) => {
     setAttendanceMarked(false)
     try {
-      const res = await getData("/attendance?date=" + date + "&userType=staff");
+      let URL = "/attendance?date=" + date + "&userType="+user;
+      if(user === "student"){
+        URL  = URL + "&classId=" + values.class + "&sectionId=" + values.section
+      }
+      const res = await getData(URL);
       setAttendanceMarked(res.data.data.length > 0 ? true : false)
     } catch (error) {
       handleApiResponse(error)
@@ -113,7 +136,15 @@ const AttendanceSidebar = ({
 
       {/* Date Picker */}
       <div className="mb-4">
-        <CustomDate name="date" label="Date" required={true} maxDate={moment().format('MM-DD-YYYY')} />
+        <CustomDate 
+          name="date" 
+          label="Date" 
+          required={true} 
+          maxDate={moment().format('MM-DD-YYYY')} 
+          onChange={(value) => {
+            setFieldValue("date",value)
+            setFieldValue("allAttendance", "")
+          }} />
       </div>
 
       {user === "staff" && (
@@ -138,11 +169,11 @@ const AttendanceSidebar = ({
             <div className="w-full lg:w-1/2">
               <CustomSelect
                 name="class"
+                placeholder="Class"
                 value={values.class}
                 options={classes}
                 onChange={(e) => {
-                  handleClassChange(e, values, setFieldValue);
-                  getSections(e.target.value); // Fetch and set sections
+                  handleClassChange(e, setFieldValue);
                 }}
               />
             </div>
@@ -150,8 +181,9 @@ const AttendanceSidebar = ({
             <div className="w-full lg:w-1/2">
               <CustomSelect
                 name="section"
+                placeholder="Section"
                 value={values.section}
-                options={sections}
+                options={sections.filter((section) => section.class === values.class)}
                 onChange={(e) => {
                   handleSectionChange(e, values, setFieldValue)
                 }}
@@ -202,7 +234,7 @@ const AttendanceSidebar = ({
       )}
 
       {!holiday && !attendanceMarked && (
-        <CustomButton type="submit" label="Save Attendance" />
+        <CustomButton type="submit" label="Save Attendance" disabled={values.attendance.length === 0} />
       )}
 
       <div className="mt-6">

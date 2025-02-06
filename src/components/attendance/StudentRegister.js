@@ -1,46 +1,50 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  MagnifyingGlassIcon,
+  MagnifyingGlassIcon
 } from "@heroicons/react/20/solid";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, updateData } from "../../app/api";
 import {
   ACADEMIC_YEAR,
   ATTENDANCE,
-  CLASSES,
-  HOLIDAYS,
-  SECTIONS,
-  STUDENT,
+  HOLIDAYS
 } from "../../app/url";
 import { handleApiResponse, monthsName } from "../../commonComponent/CommonFunctions";
 import CustomSelect from "../../commonComponent/CustomSelect";
+import PaginationComponent from "../../commonComponent/PaginationComponent";
 
 function ManageStudentRegister() {
+  const { classes, sections } = useSelector((state) => state.students)
   const [academicYears, setAcademicYears] = useState([]);
-  const [holidaysData, setHolidaysData] = useState([]);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
-  const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
   const [openMenuDay, setOpenMenuDay] = useState(null); // Track the currently open menu
-  const [studentsData, setStudentsData] = useState([]);
   const [studentList, setStudentList] = useState([]);
-  const [month, setMonth] = useState("1");
-  const [year, setYear] = useState("2025");
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const [allSections, setAllSections] = useState([]);
+  const [cls, setCls] = useState(classes[0]?.value);
+  const [section, setSection] = useState([]);
+  const [month, setMonth] = useState(moment().month() + 1);
+  const [year, setYear] = useState(moment().year());
+  const [days, setDays] = useState([]);
+  const [holidays, setHolidays] = useState([])
+  const [noOfWorkingDays, setNoOfWorkingDays] = useState(0)
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+
 
   const getInitialValues = () => {
     return {
       class: classes[0]?.value,
-      section: sections[0]?.value,
-      month: "1",
+      section: sections.filter((section) => section.class === classes[0]?.value)[0]?.value,
+      month: moment().month() + 1,
+      year: moment().year(),
       academicYear: academicYears[0]?.value,
       attendance: "",
     };
@@ -56,34 +60,14 @@ function ManageStudentRegister() {
     });
   };
 
-  useEffect(() => {
-    getStudentData();
-    academicYear();
-    getClasses();
-    getHolidayData();
-  }, []);
-
-  useEffect(() => {
-    if (studentsData.length > 0 && classes.length > 0) {
-      const initialClassId = classes[0]?.value; // First class ID
-      if (initialClassId) {
-        getSections(initialClassId);
-      }
+  const getHolidays = async () => {
+    try {
+      let res = await getData(HOLIDAYS)
+      setHolidays(res.data.data)
+    } catch (error) {
+      handleApiResponse(error)
     }
-  }, [studentsData, classes]); // Run this effect when studentsData or classes are updated
-
-  const handleSearch = (event) => {
-    const term = event.target.value;
-    setSearchTerm(term);
-    if (term === "") {
-      setStudentList(filteredData);
-    } else {
-      const filtered = filteredData.filter((item) =>
-        item.name.toLowerCase().includes(term.toLowerCase())
-      );
-      setStudentList(filtered);
-    }
-  };
+  }
 
   const academicYear = async () => {
     try {
@@ -100,198 +84,140 @@ function ManageStudentRegister() {
     }
   };
 
-  const getClasses = async () => {
-    try {
-      const res = await getData(CLASSES);
-      const classData = res.data.data.map((item) => ({
-        label: item.name,
-        value: item._id,
-      }));
-      setClasses(classData);
-      if (classData.length > 0) {
-        const defaultClassId = classData[0]?.value; // Default to the first class
-        getSections(defaultClassId);
-      }
-    } catch (error) {
-      console.error("Error fetching classes:", error);
-    }
-  };
+  useEffect(() => {
+    academicYear();
+    getHolidays()
+  }, []);
 
-  // const getClasses = async () => {
-  //   const res = await getData(CLASSES);
-  //   const classData = res.data.data.map((item) => {
-  //     return {
-  //       label: item.name, // Displayed text in the dropdown
-  //       value: item._id,
-  //     };
-  //   });
-  //   setClasses(classData);
-  //   if (classData.length > 0) {
-  //     getSections(classData[0]?.value);
-  //     // filterSection(classData[0]?.value);
-  //   }
-  // };
 
-  // const getAllSection = async () => {
-  //   const res = await getData(SECTIONS);
-  //   console.log("Response data for sections:", res.data.data);
-
-  //   const sectionData = res.data.data.map((item) => {
-  //     return {
-  //       label: item.section, // Displayed text in the dropdown
-  //       value: item._id,
-  //     };
-  //   });
-  //   setAllSections(sectionData);
-  // };
-
-  // const filterSection =  async (classId) => {
-  //  const filtered = allSections.filter((section) => section.class === classId);
-  //   setSections(filtered);
-  //   fliterStudents(classId, filtered[0]?.value);
-  // };
-
-  // const fliterStudents = async (classId, sectionId) => {
-  //   const filtered = studentsData.filter(
-  //     (student) => student.classId === classId && student.sectionId === sectionId
-  //   );
-  //   setStudentList(filtered);
-  //   setFilteredData(filtered)
-
-  // };
-
-  const getSections = async (classId) => {
-    try {
-      const response = await getData(SECTIONS + "/" + classId);
-      if (response.data?.data?.length > 0) {
-        const sectionData = response.data.data.map((item) => ({
-          label: item.section,
-          value: item._id,
-        }));
-        setSections(sectionData);
-
-        const firstSectionId = sectionData[0]?.value;
-        if (firstSectionId) {
-          const filteredStudents = studentsData.filter(
-            (student) =>
-              student.classId === classId &&
-              student.sectionId === firstSectionId
-          );
-          setStudentList(filteredStudents);
-          setFilteredData(filteredStudents);
-        }
-      } else {
-        console.warn("No sections available for the selected class.");
-        setSections([]);
-      }
-    } catch (error) {
-      console.error("Error fetching sections:", error);
-      setSections([]);
-    }
-  };
-
-  const getStudentData = async () => {
-    try {
-      const response = await getData(STUDENT + "/attendance");
-      const processedData = response.data.data.map((student) => {
-        // Create an object to map dates to attendance statuses
-        const attendanceMap = {};
-        let totalAbsents = 0;
-        student.attendance.forEach((record) => {
-          const date = new Date(record.date).getDate();
-          const statusMap = {
-            present: "P",
-            absent: "A",
-            "half-day": "F",
-            leave: "L",
-          };
-          const attendanceStatus = statusMap[record.attendanceStatus] || "N/A";
-          // attendanceMap[date] = statusMap[record.attendanceStatus] || "N/A";
-          if (attendanceStatus === "A") {
-            totalAbsents++;
-          }
-          attendanceMap[date] = attendanceStatus;
-        });
-        const classId = student.academics.classDetails?._id || null;
-        const sectionId = student.academics.sectionDetails?._id || null;
-
-        return {
-          _id: student._id,
-          name: `${student.firstName} ${student.lastName}`,
-          profilePicture: student.profilePic || "default-profile-pic-url",
-          attendance: attendanceMap,
-          totalAbsents,
-          classId,
-          sectionId,
-        };
-      });
-      setStudentsData(processedData);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
-
-  const handleClassChange = (e, values, setFieldValue) => {
-    const classValue = e.target.value;
-    getSections(classValue);
-    setFieldValue("class", classValue);
-  };
-
-  const handleSectionChange = (e, values, setFieldValue) => {
-    const sectionValue = e.target.value;
-    setFieldValue("section", sectionValue);
-    const filteredStudents = studentsData?.filter(
-      (student) =>
-        student.classId === values.class && student.sectionId === sectionValue
-    );
-    setStudentList(filteredStudents);
-    setFilteredData(filteredStudents);
-  };
-
-  const daysInMonth = (month, year) => {
-    const daysArray = [];
-    const date = new Date(year, month - 1, 1); // month - 1 because JavaScript months are 0-based
-    const lastDay = new Date(year, month, 0).getDate(); // last day of the month
-
-    for (let i = 1; i <= lastDay; i++) {
-      const day = new Date(year, month - 1, i);
-      const dayName = day.toLocaleString("en-us", { weekday: "short" }); // e.g., 'Wed'
-      daysArray.push({
-        day: i,
-        dayName: dayName,
-      });
-    }
-    return daysArray;
-  };
-
-  const days = daysInMonth(parseInt(month), year);
-
-  const getHolidayData = async () => {
-    try {
-      const response = await getData(HOLIDAYS);
-      setHolidaysData(response.data.data);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
-
-  // Filter holidays for the selected month
-  const getHolidaysForMonth = (holidays, month) => {
-    return holidays.filter((holiday) => {
-      const holidayStartDate = new Date(holiday.startDate);
-      const holidayEndDate = new Date(holiday.endDate);
-      // Check if the holiday falls within the selected month
-      return (
-        holidayStartDate.getMonth() + 1 === month ||
-        holidayEndDate.getMonth() + 1 === month
+  const handleSearch = (event) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+    if (term === "") {
+      setStudentList(filteredData);
+    } else {
+      const filtered = filteredData.filter((item) =>
+        item.name.toLowerCase().includes(term.toLowerCase())
       );
-    });
+      setStudentList(filtered);
+    }
   };
 
-  // In your component rendering:
-  const holidaysForMonth = getHolidaysForMonth(holidaysData, parseInt(month));
 
-  const holiday = [];
+
+  const getStudentData = async (month, year, cls, section) => {
+    try {
+      const response = await getData("/attendance?month=" + month + "&year=" + year + "&userType=student" + "&class=" + cls + "&section=" + section);
+      let data = transformAttendanceData(response.data.data)
+      setStudentList(data);
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  };
+
+  function transformAttendanceData(data) {
+    const result = {};
+    const statusMap = {
+      "present": "P",
+      "absent": "A",
+      "half-day": "F",
+      "leave": "L",
+    };
+    data.forEach(record => {
+      const formattedDate = moment(record.date).format("YYYY-MM-DD");
+      record.attendance.forEach(att => {
+        if (!result[att.userId._id]) {
+          result[att.userId._id] = {
+            userId: att.userId._id,
+            name: att.userId.firstName + ' ' + att.userId.lastName,
+            profilePic: att.userId.profilePic,
+            category: att.userId.staffType,
+            rollNumber: att.userId.rollNumber, // You can replace this with actual user names if available
+            attendance: {},
+            noOfLeaves: 0
+          };
+        }
+        let date = moment(formattedDate).format("DD")
+        result[att.userId._id].attendance[date] = isHoliday(record.date) ? "H" : statusMap[att.attendanceStatus] || "-"
+        result[att.userId._id].noOfLeaves = result[att.userId._id].noOfLeaves + (att.attendanceStatus === 'absent' ? 1 : att.attendanceStatus === 'half-day' ? 0.5 : 0)
+      });
+    });
+
+    return Object.values(result);
+  }
+
+  function isHoliday(date) {
+    let isHoliday = false
+    let checkDate = moment(date).format("YYYY-MM-DD");
+    for (let holiday of holidays) {
+      let start = moment(holiday.startDate).format("YYYY-MM-DD");
+      let end = moment(holiday.endDate).format("YYYY-MM-DD");
+      // Check if the date falls within the holiday period
+      if (moment(checkDate).isBetween(start, end, null, "[]")) { // '[]' includes start and end dates
+        isHoliday =  true
+      }
+    }
+    return isHoliday
+  }
+
+
+  function getDaysOfMonth(month, year) {
+    let start = moment(`${year}-${month}-01`, "YYYY-MM-DD");
+    let end = start.clone().endOf("month");
+    let daysArray = [];
+    while (start.isSameOrBefore(end)) {
+      daysArray.push({
+        day: start.format("DD"),     // Get day as 01, 02, ...
+        dayName: start.format("ddd") // Get short day name (Mon, Tue, ...)
+      });
+      start.add(1, "day"); // Move to the next day
+    }
+    setDays(daysArray)
+  }
+
+  const getWorkingDays = (month, year, holidays) => {
+    let start = moment(`${year}-${month}-01`, "YYYY-MM-DD");
+    let end = start.clone().endOf("month");
+    let holidayDates = new Set();
+    // Convert holiday start and end dates into a list of dates
+    holidays.forEach(holiday => {
+      let holidayStart = moment(holiday.startDate);
+      let holidayEnd = moment(holiday.endDate);
+
+      while (holidayStart.isSameOrBefore(holidayEnd)) {
+        holidayDates.add(holidayStart.format("YYYY-MM-DD"));
+        holidayStart.add(1, "day");
+      }
+    });
+
+    let workingDays = 0;
+
+    // Loop through the days of the month
+    while (start.isSameOrBefore(end)) {
+      let isSunday = start.day() === 0; // Sunday (0 in Moment.js)
+      let isHoliday = holidayDates.has(start.format("YYYY-MM-DD")); // Check if it's a holiday
+
+      if (!isSunday && !isHoliday) {
+        workingDays++; // Count only if it's not a Sunday or holiday
+      }
+
+      start.add(1, "day"); // Move to the next day
+    }
+    setNoOfWorkingDays(workingDays)
+  }
+
+  useEffect(() => {
+    if (month && year) {
+      getDaysOfMonth(parseInt(month), year)
+      getWorkingDays(month, year, holidays)
+    }
+  }, [month, year]);
+
+  useEffect(() => {
+    if (month && year && cls && section) {
+      getStudentData(month, year, cls, section);
+    }
+  }, [month, year, cls, section]);
 
   const handleAttendanceChange = (e) => {
     e.preventDefault();
@@ -307,8 +233,8 @@ function ManageStudentRegister() {
     };
     try {
       const response = await updateData(ATTENDANCE, payload);
-        getStudentData();
-        handleApiResponse(response.data.message,'success')
+      // getStudentData();
+      handleApiResponse(response.data.message, 'success')
     } catch (error) {
       handleApiResponse(error);
     }
@@ -332,19 +258,22 @@ function ManageStudentRegister() {
               <div className="left-form-blk flex space-x-4">
                 <CustomSelect
                   name="class"
-                  placeholder=" Class"
+                  placeholder="Class"
                   value={values.class}
                   options={classes}
                   onChange={(e) => {
-                    handleClassChange(e, values, setFieldValue);
+                    setFieldValue("class", e.target.value);
+                    setFieldValue("section", "");
+                    setCls(e.target.value);
                   }}
                 />
                 <CustomSelect
                   name="section"
                   placeholder=" Section"
-                  options={sections}
+                  options={sections.filter((section) => section.class === values.class)}
                   onChange={(e) => {
-                    handleSectionChange(e, values, setFieldValue);
+                    setFieldValue("section", e.target.value);
+                    setSection(e.target.value);
                   }}
                 />
                 <CustomSelect
@@ -362,12 +291,21 @@ function ManageStudentRegister() {
                   name="academicYear"
                   placeholder="Academic year"
                   options={academicYears}
+                  onChange={(e) => {
+                    const selectedYear = e.target.value;
+                    setFieldValue("academicYear", selectedYear);
+                    academicYears.forEach((year) => {
+                      if (year.value === selectedYear) {
+                        setYear(year.label.split("-")[1]);
+                      }
+                    })
+                  }}
                 />
               </div>
 
               <div className="content-item flex items-center">
                 <dt className="text-sm/6 text-gray-500">No. Of Working Days</dt>
-                <dd className="text-base text-gray-700 font-medium pl-2">24</dd>
+                <dd className="text-base text-gray-700 font-medium pl-2">{noOfWorkingDays}</dd>
               </div>
             </div>
 
@@ -407,8 +345,6 @@ function ManageStudentRegister() {
                           />
                         </div>
                         <input
-                          id="search"
-                          name="search"
                           type="text"
                           placeholder="Search"
                           value={searchTerm}
@@ -502,13 +438,16 @@ function ManageStudentRegister() {
                               className="text-purple-600 hover:text-purple-900"
                             >
                               <div className="flex items-center">
-                                <div className="size-9 shrink-0">
+                                {student.profilePic ? <div className="size-9 shrink-0">
                                   <img
                                     alt=""
-                                    src={student.profilePicture}
+                                    src={student.profilePic}
                                     className="size-9 rounded-full"
                                   />
-                                </div>
+                                </div> :
+                                  <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                    <span className="font-medium text-gray-600 dark:text-gray-300">{student.name.charAt(0)}</span>
+                                  </div>}
                                 <div className="ml-4">
                                   <div className="font-medium text-gray-900 text-purple-600">
                                     {student.name}
@@ -523,36 +462,14 @@ function ManageStudentRegister() {
 
                           {/* Total Absents */}
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                            {student.totalAbsents}
+                            {student.noOfLeaves}
                           </td>
 
                           {days.map((dayObj, index) => {
                             const isSunday = dayObj.dayName === "Sun";
-
-                            // const attendanceValue =
-                            //   student.attendance[dayObj.day] ||
-                            //   (isSunday ? "S" : "N/A");
-
-                            const isHoliday = holidaysForMonth.some(
-                              (holiday) => {
-                                const holidayStart = new Date(
-                                  holiday.startDate
-                                ).getDate();
-                                const holidayEnd = new Date(
-                                  holiday.endDate
-                                ).getDate();
-                                return (
-                                  dayObj.day >= holidayStart &&
-                                  dayObj.day <= holidayEnd
-                                );
-                              }
-                            );
-
-                            const attendanceValue = isHoliday
-                              ? "H"
-                              : isSunday
-                                ? "S"
-                                : student.attendance[dayObj.day] || "N/A";
+                            const attendanceValue =
+                              student.attendance[dayObj.day] ||
+                              (isSunday ? "S" : "-");
 
                             const attendanceClass = isSunday
                               ? "bg-red-100 text-gray-900" // Sundays
@@ -562,15 +479,14 @@ function ManageStudentRegister() {
                                   ? "text-yellow-800 bg-yellow-100" // Absent
                                   : attendanceValue === "F"
                                     ? "text-gray-900 bg-blue-100" // Half Day
-                                    : "text-gray-500";
+                                    : attendanceValue === "H"
+                                      ? "text-red-500" // Sunday
+                                      : "text-gray-500";
 
                             return (
                               <td
                                 key={dayObj.day}
-                                className={`whitespace-nowrap px-2 py-2 text-sm text-center ${holiday.includes(dayObj.day)
-                                    ? "text-red-500"
-                                    : attendanceClass
-                                  }`}
+                                className={`whitespace-nowrap px-2 py-2 text-sm text-center ${attendanceClass}`}
                               >
                                 <Menu
                                   as="div"
@@ -684,101 +600,13 @@ function ManageStudentRegister() {
                   </tbody>
                 </table>
               </div>
-              <div className="pagination">
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-3 py-3 sm:px-3">
-                  <div className="flex flex-1 justify-between sm:hidden">
-                    <a
-                      href="#"
-                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Previous
-                    </a>
-                    <a
-                      href="#"
-                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Next
-                    </a>
-                  </div>
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Showing <span className="font-medium">1</span> to{" "}
-                        <span className="font-medium">10</span> of{" "}
-                        <span className="font-medium">97</span> results
-                      </p>
-                    </div>
-                    <div>
-                      <nav
-                        aria-label="Pagination"
-                        className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                      >
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          <span className="sr-only">Previous</span>
-                          <ChevronLeftIcon
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </a>
-                        {/* Current: "z-10 bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
-                        <a
-                          href="#"
-                          aria-current="page"
-                          className="relative z-10 inline-flex items-center bg-purple-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-                        >
-                          1
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          2
-                        </a>
-                        <a
-                          href="#"
-                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                        >
-                          3
-                        </a>
-                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-                          ...
-                        </span>
-                        <a
-                          href="#"
-                          className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                        >
-                          8
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          9
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          10
-                        </a>
-                        <a
-                          href="#"
-                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                          <span className="sr-only">Next</span>
-                          <ChevronRightIcon
-                            aria-hidden="true"
-                            className="size-5"
-                          />
-                        </a>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {studentList.length > 10 && (
+                <PaginationComponent
+                  totalCount={studentList.length}
+                  currentPage={currentPage}
+                  onPageChange={(page) => setCurrentPage(page)}
+                />
+              )}
             </div>
           </Form>
         )}

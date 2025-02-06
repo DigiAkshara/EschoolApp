@@ -51,9 +51,9 @@ const HolidayAttendance = () => {
       const res = await getData(HOLIDAYS);
       const holidayResonse = res.data.data;
       const holidayData = holidayResonse.map((item) => {
-        let start = moment(item.startDate, "YYYY-MM-DD");
-        let end = moment(item.endDate, "YYYY-MM-DD");
-        const totalDays = end.diff(start, "days") + 1;
+        let start = moment(item.startDate).format("YYYY-MM-DD");
+        let end = moment(item.endDate).format("YYYY-MM-DD");
+        const totalDays = moment(end).diff(start, "days") + 1;
         return {
           _id: item._id,
           name: item.name,
