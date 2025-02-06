@@ -4,6 +4,7 @@ const attendanceSlice = createSlice({
     name: 'attendance',
     initialState: {
         staff: [],
+        students:[],
         holidays: [],
     },
     reducers: {
@@ -13,8 +14,11 @@ const attendanceSlice = createSlice({
         updateHolidays: (state, action) => {
             state.holidays = action.payload
         },
+        updateStudents:(state,action)=>{
+            state.students = action.payload
+        }
     },
 })
 
-export const { updateHolidays, updateStaff } = attendanceSlice.actions
+export const { updateHolidays, updateStaff,updateStudents } = attendanceSlice.actions
 export default attendanceSlice.reducer

@@ -1,35 +1,31 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   ArrowDownTrayIcon,
   ArrowsUpDownIcon,
 } from "@heroicons/react/24/outline";
 import { FieldArray, Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
+import moment from "moment";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import * as Yup from "yup";
-import { getData, postData } from "../../app/api";
-import { ACADEMICS, ATTENDANCE, CLASSES, HOLIDAYS, SECTIONS, STUDENT } from "../../app/url";
+import { postData } from "../../app/api";
+import { ATTENDANCE } from "../../app/url";
 import { attendanceOptions, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomRadio from "../../commonComponent/CustomRadio";
+import PaginationComponent from "../../commonComponent/PaginationComponent";
 import AttendanceSidebar from "./AttendanceSidebar";
 
-const ManageStudentDailyAttendance = () => {
-  const [studentList, setStudentList] = useState([]);
-  const [holidaysData, setHolidaysData] = useState([])
-  const [classes, setClasses] = useState([]);
-  const [sections, setSections] = useState([]);
+const StudentDailyAttendance = () => {
+  const { classes, sections } = useSelector((state) => state.students)
+  const studentList = useSelector((state) => state.attendance.students)
   const [currentPage, setCurrentPage] = useState(1)
-  const rowsPerPage = 10
   const [attendanceMessage, setAttendanceMessage] = useState("");
-  const [studentAttendance, setStudentAttendance] = useState([]);
-
-
-
 
   const getInitialValues = () => {
     return {
-      date: new Date().toISOString().split("T")[0],
+      userType: 'student',
+      date: moment().format("YYYY-MM-DD"),
       class: classes[0]?.value,
-      section: sections[0]?.value,
+      section: sections.filter((section) => section.class === classes[0]?.value)[0]?.value,
       allAttendance: "",
       attendance: []
     };
@@ -39,7 +35,7 @@ const ManageStudentDailyAttendance = () => {
     return Yup.object({
       class: Yup.string(),
       section: Yup.string(),
-      date: Yup.date().nullable().required(" Date  is required"),
+      date: Yup.date().nullable().required("Date is required"),
       allAttendance: Yup.string(),
       attendance: Yup.array().of(
         Yup.object({
@@ -48,114 +44,6 @@ const ManageStudentDailyAttendance = () => {
       ),
     });
   };
-
-  useEffect(() => {
-    getStudents();
-    getClasses();
-    getHolidayData();
-    getStudentAttendance();
-  }, []);
-
-
-
-  const columns = [
-    { title: 'Student Name', key: 'name' },
-    { title: 'Admission Number', key: 'admissionNo' },
-    { title: 'Attendance', key: 'attendance' },
-
-  ]
-
-  const getHolidayData = async () => {
-    try {
-      const response = await getData(HOLIDAYS)
-
-      setHolidaysData(response.data.data)
-    } catch (error) {
-      console.error('Error getting data:', error)
-    }
-  }
-
-
-
-  const getClasses = async () => {
-    const res = await getData(CLASSES);
-    const classData = res.data.data.map((item) => {
-      return {
-        label: item.name, // Displayed text in the dropdown
-        value: item._id,
-      };
-    });
-    setClasses(classData);
-    if (classData.length > 0) {
-      getSections(classData[0]?.value);
-    }
-  };
-
-
-  const getSections = async (classId) => {
-    try {
-      const response = await getData(SECTIONS + "/" + classId);
-
-      if (response.data?.data?.length > 0) {
-        const sectionData = response.data.data.map((item) => ({
-          label: item.section,
-          value: item._id,
-        }));
-
-        setSections(sectionData);
-
-
-        const firstSectionId = sectionData[0]?.value;
-        if (firstSectionId) {
-          await getStudents(classId, firstSectionId);
-        }
-      } else {
-        console.warn("No sections available for the selected class.");
-        setSections([]);
-      }
-    } catch (error) {
-      console.error("Error fetching sections:", error);
-      setSections([]);
-    }
-  };
-
-
-
-  const getStudents = async (classId, sectionID) => {
-    try {
-      const res = await getData(ACADEMICS + "/" + classId + "/" + sectionID);
-
-      if (res.data?.data) {
-        const stuData = res.data.data.map((item) => ({
-          _id: item.student._id,
-          pic: item.student.profilePic?.Location || "",
-          name: `${item.student.firstName} ${item.student.lastName}`,
-          admissionNo: item.student.admissionNumber,
-          className: item.class?.name || "N/A",
-          class: item.class?._id || null,
-          section: item.section || "N/A",
-        }));
-
-        setStudentList(stuData);
-      } else {
-        console.warn("No data found for the specified class and section.");
-        setStudentList([]);
-      }
-    } catch (error) {
-      console.error("Error fetching student data:", error);
-      setStudentList([]);
-    }
-  };
-
-  const getStudentAttendance = async () => {
-    try {
-      const response = await getData(STUDENT + "/attendance");
-      setStudentAttendance(response.data.data)
-    } catch (error) {
-      console.error("Error getting data:", error);
-    }
-  };
-
 
   const handleRadioChange = (e, values, setFieldValue) => {
     const selectedStatus = e.target.value;
@@ -173,29 +61,21 @@ const ManageStudentDailyAttendance = () => {
     setFieldValue("attendance", updatedAttendance);
   };
 
-  const handleClassChange = (e, values, setFieldValue) => {
+  const handleClassChange = (e, setFieldValue) => {
     const classValue = e.target.value;
     setFieldValue("class", classValue);
-    getSections(classValue);
-
+    setFieldValue("section", "");
+    setFieldValue("allAttendance", "");
   };
 
   const handleSectionChange = (e, values, setFieldValue) => {
     const sectionValue = e.target.value;
     setFieldValue("section", sectionValue);
-    getStudents(values.class, sectionValue);
-    setFieldValue("attendance", studentList);
+    setFieldValue("allAttendance", "");
   };
-
-  const paginatedData = studentList.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage,
-  )
 
 
   const handleSubmit = async (values) => {
-    values["userType"] = "student";
-
     const incompleteAttendance = values.attendance.some(
       (student) => !student.attendanceStatus
     );
@@ -216,6 +96,11 @@ const ManageStudentDailyAttendance = () => {
     }
   };
 
+  const handleSearch = (e, setFieldValue) => {
+    const query = e.target.value?.toLowerCase();
+    const fileteredData = studentList.filter((student) =>  student.name.toLowerCase().includes(query));
+    setFieldValue("attendance", fileteredData);
+  };
 
   return (
     <>
@@ -230,17 +115,14 @@ const ManageStudentDailyAttendance = () => {
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               <AttendanceSidebar
                 values={values}
-                holidaysData={holidaysData}
                 classes={classes}
+                sections={sections}
                 handleRadioChange={handleRadioChange}
                 setFieldValue={setFieldValue}
                 handleClassChange={handleClassChange}
                 handleSectionChange={handleSectionChange}
-                sections={sections}
-                getSections={getSections}
                 attendanceMessage={attendanceMessage}
                 setAttendanceMessage={setAttendanceMessage}
-                studentAttendance={studentAttendance}
                 user="student"
               />
 
@@ -255,11 +137,9 @@ const ManageStudentDailyAttendance = () => {
                           <div className="flex items-center gap-4">
                             <div className="relative rounded-md  inline-block  ">
                               <input
-                                id="email"
-                                name="email"
-                                type="email"
+                                name="search"
                                 placeholder="Search"
-                                // onChange={handleSearch}
+                                onChange={(e) => handleSearch(e,setFieldValue)}
                                 className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
                               />
                             </div>
@@ -418,84 +298,13 @@ const ManageStudentDailyAttendance = () => {
                       </table>
                     </div>
 
-                    <div className="pagination">
-                      <div className="flex items-center justify-between border-t border-gray-200 bg-white px-3 py-3 sm:px-3">
-                        <div className="flex flex-1 justify-between sm:hidden">
-                          <a
-                            href="#"
-                            className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                          >
-                            Previous
-                          </a>
-                          <a
-                            href="#"
-                            className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                          >
-                            Next
-                          </a>
-                        </div>
-                        <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                          <div>
-                            <p className="text-sm text-gray-700">
-                              Showing <span className="font-medium">1</span>{" "}
-                              to <span className="font-medium">10</span> of{" "}
-                              <span className="font-medium">97</span> results
-                            </p>
-                          </div>
-                          <div>
-                            <nav
-                              aria-label="Pagination"
-                              className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                            >
-                              <a
-                                href="#"
-                                className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                              >
-                                <span className="sr-only">Previous</span>
-                                <ChevronLeftIcon
-                                  aria-hidden="true"
-                                  className="size-5"
-                                />
-                              </a>
-                              {/* Current: "z-10 bg-purple-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600", Default: "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0" */}
-                              <a
-                                href="#"
-                                aria-current="page"
-                                className="relative z-10 inline-flex items-center bg-purple-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-                              >
-                                1
-                              </a>
-                              <a
-                                href="#"
-                                className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                              >
-                                2
-                              </a>
-                              <a
-                                href="#"
-                                className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-                              >
-                                3
-                              </a>
-                              <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0">
-                                ...
-                              </span>
-
-                              <a
-                                href="#"
-                                className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                              >
-                                <span className="sr-only">Next</span>
-                                <ChevronRightIcon
-                                  aria-hidden="true"
-                                  className="size-5"
-                                />
-                              </a>
-                            </nav>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    {values.attendance.length > 10 && (
+                      <PaginationComponent
+                        totalCount={values.attendance.length}
+                        currentPage={currentPage}
+                        onPageChange={(page) => setCurrentPage(page)}
+                      />
+                    )}
                   </div>
                   {/* </div> */}
                 </div>
@@ -508,4 +317,4 @@ const ManageStudentDailyAttendance = () => {
   );
 };
 
-export default ManageStudentDailyAttendance;
+export default StudentDailyAttendance;
