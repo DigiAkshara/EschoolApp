@@ -26,7 +26,7 @@ export const store = configureStore({
     staff: staffSlice,
     fees: feeSlice,
     tenantData : tenantReducer,
-    designation : designationReduce,
+    designation : designationReducer,
     attendance : attendanceSlice,
   },
 })
