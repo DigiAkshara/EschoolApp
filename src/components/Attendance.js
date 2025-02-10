@@ -1,7 +1,7 @@
 'use client'
 import React, {useEffect, useState} from 'react'
 import StaffAttendance from './attendance/StaffAttendance'
-import ManageStudentAttendance from './attendance/ManageStudentAttendance'
+import StudentAttendance from './attendance/StudentAttendance'
 import HolidayAttendance from './attendance/HolidayAttendance'
 import Submenu from './Submenu'
 import { getData } from '../app/api'
@@ -9,6 +9,7 @@ import { HOLIDAYS } from '../app/url'
 import { useDispatch } from 'react-redux'
 import { updateHolidays } from '../app/reducers/attendanceSlice'
 import { handleApiResponse } from '../commonComponent/CommonFunctions'
+import { fetchInitialStudentData } from '../app/reducers/studentSlice'
 
 export default function Attendance() {
   const dispatch = useDispatch()
@@ -19,7 +20,7 @@ export default function Attendance() {
       case 'staff_attendance':
         return <StaffAttendance />
       case 'student_attendance':
-        return <ManageStudentAttendance />
+        return <StudentAttendance />
       case 'holiday_entry':
         return <HolidayAttendance />
       default:
@@ -37,6 +38,7 @@ export default function Attendance() {
     }
 
   useEffect(()=>{
+    dispatch(fetchInitialStudentData());
     getHolidays()
   },[])
 

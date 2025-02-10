@@ -434,7 +434,7 @@ function StaffRegister() {
                                     {staff.name}
                                   </div>
                                   <div className="mt-1 text-gray-500">
-                                    {staff.rollNumber}
+                                    {staff.empId}
                                   </div>
                                 </div>
                               </div>
@@ -448,13 +448,9 @@ function StaffRegister() {
 
                           {days.map((dayObj, index) => {
                             const isSunday = dayObj.dayName === "Sun";
-
-
                             const attendanceValue =
                               staff.attendance[dayObj.day] ||
                               (isSunday ? "S" : "-");
-
-
                             const attendanceClass = isSunday
                               ? "bg-red-100 text-gray-900" // Sundays
                               : attendanceValue === "P"

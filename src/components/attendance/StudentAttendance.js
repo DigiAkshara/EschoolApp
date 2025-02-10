@@ -1,30 +1,27 @@
-'use client'
-
-import React, {useEffect, useState} from 'react'
-import ManageStudentDailyAttendance from './ManageStudentDailyAttendance'
-import ManageStudentRegister from './ManageStudentRegister'
+import React, { useState } from 'react'
+import StudentDailyAttendance from './StudentDailyAttendance'
+import StudentRegister from './StudentRegister'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function ManageStudentAttendance() {
+export default function StudentAttendance() {
   const [activeTab, setActiveTab] = useState(0)
 
   const tabs2 = [
     {
       name: 'Daily Attendance',
-      component: <ManageStudentDailyAttendance />,
+      component: <StudentDailyAttendance />,
       current: true,
     },
     {
       name: 'Attendance Register ',
-      component: <ManageStudentRegister />,
+      component: <StudentRegister />,
       current: false,
     },
   ]
 
-  useEffect(() => {}, [])
 
   const handleTabChange = (index) => {
     setActiveTab(index) // Update activeTab when a tab is clicked
@@ -33,7 +30,6 @@ export default function ManageStudentAttendance() {
   return (
     <div className="flow-root">
       {/* Primary Tabs */}
-
       <div className="mt-4 flex justify-between">
         <div className="text-lg text-gray-900 font-medium">
           <div className="sm:hidden">
