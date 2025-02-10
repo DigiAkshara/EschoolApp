@@ -4,35 +4,33 @@ import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { staffType } from "../../commonComponent/CommonFunctions";
+import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
 import { postData } from "../../app/api";
-import { DESIGNATION, SECTIONS, SUBJECTS } from "../../app/url";
+import { DESIGNATION, SECTIONS, SUBJECT, SUBJECTS } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const SubjectModal = ({ isOpen, onClose, onSubmit }) => {
+const SubjectModal = ({ onClose, getSubjects }) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
-    
   });
 
   const getValidationSchema = () => {
     return Yup.object({
- 
-        name: Yup.string().required(" Subject is required"),
+      name: Yup.string().required(" Subject is required"),
     });
   };
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (values) => {
     console.log(values);
     try {
-      const response = await postData(SUBJECTS, values);
+      const response = await postData(SUBJECT, values);
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
+        getSubjects();
+        handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
       console.log(error);
@@ -63,7 +61,6 @@ const SubjectModal = ({ isOpen, onClose, onSubmit }) => {
 
                 {/* Modal Body */}
                 <div className="p-6">
-                 
                   <CustomInput
                     name="name"
                     label="Subject Name"

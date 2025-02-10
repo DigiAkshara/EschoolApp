@@ -4,59 +4,71 @@ import TableComponent from "../../commonComponent/TableComponent";
 import DesignationModal from "./DesignationModal";
 import { deleteData, getData } from "../../app/api";
 import { DESIGNATION } from "../../app/url";
-import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import { useDispatch } from "react-redux";
 import { setSelectedDesignation } from "../../app/reducers/designationSlice";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
+import CategoryCreation from "./CategoryCreation";
+import SubCategoryCreation from "./SubCategoryCreation";
 
-function Designation() {
+function CreditDebitCreation() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [designation, setDesignation] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const rowsPerPage = 10;
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+    const [isSectionModal, setIsSectionModal] = useState(false);
+  
 
   const dispatch = useDispatch();
 
+  const transactions = [
+    {
+      siNo: 1,
+      transactionType: "Debit",
+      category: "Groceries",
+      subCategory: "Vegetables"
+    },
+    {
+      siNo: 2,
+      transactionType: "Credit",
+      category: "Salary",
+      subCategory: "Monthly Pay"
+    },
+    {
+      siNo: 3,
+      transactionType: "Debit",
+      category: "Entertainment",
+      subCategory: "Movies"
+    }
+  ];
+  const [filteredData, setFilteredData] = useState(
+    transactions.map(item => ({
+      ...item,
+      actions: [
+        { label: "Edit", actionHandler: () => onHandleEdit(item.siNo) },
+        { label: "Delete", actionHandler: () => onDelete(item.siNo) },
+      ]
+    }))
+  );
+  
+
+
   const columns = [
     { title: "Si. No", key: "siNo" },
-    { title: "Designation Name", key: "name" },
-    { title: "Staff Type", key: "staffType" },
+    { title: "Transaction Type", key: "transactionType" },
+    { title: "Category", key: "category" },
+    { title: "Subcategory", key: "subCategory" },
     { title: "Actions", key: "actions" },
+
   ];
 
   useEffect(() => {
-    getDesignations();
   }, []);
 
-  const getDesignations = async () => {
-    try {
-      const response = await getData(DESIGNATION + "/type");
-      console.log("[DESIGNATIONS]:", response.data.data);
-      const desigResponse = response.data.data;
-      const desigData = desigResponse.map((item, index) => {
-        return {
-          _id: item._id,
-          siNo: index + 1,
-          name: item.name,
-          staffType: item.staffType,
-          actions: [
-            { label: "Edit", actionHandler: onHandleEdit },
-            { label: "Delete", actionHandler: onDelete },
-          ],
-        };
-      });
-      console.log("Designation Data44444:", desigData);
 
-      setDesignation(desigData);
-      setFilteredData(desigData);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
 
   const onHandleEdit = async (Id) => {
     console.log("edited", Id);
@@ -81,7 +93,7 @@ function Designation() {
      try {
        let res = await deleteData(DESIGNATION + '/' + deleteId)
        handleApiResponse(res.data.message, 'success')
-       getDesignations()
+    //    getDesignations()
        setDeleteConfirm(false)
        setDeleteId(null)
      } catch (error) {
@@ -100,25 +112,36 @@ function Designation() {
 
   const handleOpen = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+  const handleOpenSection = () => setIsSectionModal(true);
+  const handleCloseSectionModal = () => setIsSectionModal(false);
 
   return (
     <>
       <div className="mt-4 flex justify-between">
-        {/* active tab with count block */}
-        <div className="sm:hidden"></div>
-        <div className="hidden sm:block"></div>
-
-        <div className="right-btns-blk space-x-4">
-          <button
-            type="button"
-            onClick={handleOpen}
-            className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-          >
-            <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Designation
-          </button>
-        </div>
-      </div>
+              {/* active tab with count block */}
+              <div className="sm:hidden"></div>
+              <div className="hidden sm:block"></div>
+      
+              <div className="right-btns-blk space-x-4">
+                <button
+                  type="button"
+                  onClick={handleOpen}
+                  className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                >
+                  <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
+                  Add Category
+                </button>
+      
+                <button
+                  type="button"
+                  onClick={handleOpenSection}
+                  className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+                >
+                  <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
+                  Add Subcategory
+                </button>
+              </div>
+            </div>
       <div className="-mx-2 -my-2 mt-0 sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
@@ -138,7 +161,13 @@ function Designation() {
       </div>
 
       {/* Modal */}
-      {isModalOpen && <DesignationModal onClose={handleCloseModal} getDesignations={getDesignations} />}
+      {isModalOpen && <CategoryCreation onClose={handleCloseModal} />}
+      {isSectionModal && (
+        <SubCategoryCreation
+         
+          onClose={handleCloseSectionModal} 
+        />
+      )}
       <ConfirmationModal
         showModal={deleteConfirm}
         onYes={deleteRecord}
@@ -150,4 +179,4 @@ function Designation() {
   );
 }
 
-export default Designation;
+export default CreditDebitCreation;

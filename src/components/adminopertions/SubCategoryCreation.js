@@ -1,58 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
-import { getData, postData } from "../../app/api";
-import { CLASSES, DESIGNATION, SECTIONS } from "../../app/url";
+import { postData } from "../../app/api";
+import { DESIGNATION } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const SectionModal = ({ onClose, onSubmit }) => {
-  const [classDatas, setClassData] = useState([]);
+const SubCategoryCreation = ({ onClose }) => {
 
   const [formData, setFormData] = useState({
-    section: "",
-    class: "",
+    name: "",
+    category: "",
   });
 
   const getValidationSchema = () => {
     return Yup.object({
-      section: Yup.string()
-        .matches(/^[A-Z]{1,2}$/, "Only 1 or 2 capital letters are allowed")
-        .required("Section name is required"),
-
-      class: Yup.string().required(" Class is required"),
+      name: Yup.string().required("Sub Category name is required"),
+      category: Yup.string().required(" Category is required"),
     });
   };
-
-  const getClasses = async () => {
-    try {
-      const response = await getData(CLASSES);
-      console.log("Response: class :   999999", response);
-      const responseData = response.data.data;
-      const classData = responseData.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      });
-      setClassData(classData);
-    } catch (error) {}
-  };
-
-  useEffect(() => {
-    getClasses();
-  }, []);
 
   const handleSubmit = async (values) => {
     console.log(values);
     try {
-      const response = await postData(SECTIONS, values);
+      const response = await postData(DESIGNATION, values);
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
+        // getDesignations();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
@@ -73,7 +51,7 @@ const SectionModal = ({ onClose, onSubmit }) => {
               <div className="bg-white w-96 rounded-lg shadow-lg">
                 {/* Modal Header */}
                 <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
-                  <h2 className="text-lg font-semibold">Add Section</h2>
+                  <h2 className="text-lg font-semibold">Add Subcategory</h2>
                   <button
                     onClick={onClose}
                     className="text-white hover:text-gray-200"
@@ -84,16 +62,17 @@ const SectionModal = ({ onClose, onSubmit }) => {
 
                 {/* Modal Body */}
                 <div className="p-6">
-                  <CustomSelect
-                    name="class"
-                    label="Class"
-                    options={classDatas}
+                  <CustomInput
+                    name="name"
+                    label="Subcategory"
+                    placeholder="Enter Subcategory"
                     required={true}
                   />
-                  <CustomInput
-                    name="section"
-                    label="Section"
-                    placeholder="Enter section"
+
+                  <CustomSelect
+                    name="category"
+                    label="Category"
+                    // options={staffType}
                     required={true}
                   />
                 </div>
@@ -119,4 +98,4 @@ const SectionModal = ({ onClose, onSubmit }) => {
   );
 };
 
-export default SectionModal;
+export default SubCategoryCreation;
