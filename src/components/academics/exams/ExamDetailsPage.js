@@ -1,4 +1,6 @@
 import { DialogPanel, DialogTitle } from "@headlessui/react";
+import { Dialog, Transition } from "@headlessui/react";
+
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import {
   DocumentArrowDownIcon,
@@ -9,7 +11,7 @@ import { UserCircleIcon } from "@heroicons/react/24/solid";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , Fragment} from "react";
 import { useSelector } from "react-redux";
 import { getData } from "../../../app/api";
 import { ACADEMICS } from "../../../app/url";
@@ -22,6 +24,10 @@ function ExamDetailsPage({ onClose }) {
   const tenant = useSelector((state) => state.tenantData);
   const classId = selectedExam?.classObject._id;
   const sectionId = selectedExam?.sectionObject._id;
+
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [pdfBlob, setPdfBlob] = useState(null);
 
   useEffect(() => {
     getStudent();
@@ -55,8 +61,12 @@ function ExamDetailsPage({ onClose }) {
   };
 
 
+  // const handlePreview = () => {
+  //   navigate("/hall-ticket-preview", { state: { students, selectedExam, tenant } });
+  // };
 
-  const generatePDFs = async () => {
+
+  const generatePDFPreview = async () => {
     const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
     const pdfPromises = students.map(async (student, index) => {
       const container = document.createElement("div");
@@ -80,8 +90,8 @@ function ExamDetailsPage({ onClose }) {
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
             <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${tenant?.name?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant?.phoneNumber || ""}  | Email: ${tenant.email}</p>
-            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant.city}, ${tenant.district}, ${tenant.state}, ${tenant.pincode}</p>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant?.phoneNumber || ""}  | Email: ${tenant?.email}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant?.city}, ${tenant?.district}, ${tenant?.state}, ${tenant?.pincode}</p>
           </div>
         </div>
         <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
@@ -158,6 +168,8 @@ function ExamDetailsPage({ onClose }) {
       </div>
     `;
 
+ 
+
       document.body.appendChild(container);
 
       // Convert HTML to image using html2canvas
@@ -172,7 +184,7 @@ function ExamDetailsPage({ onClose }) {
       doc.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
 
       // Cleanup DOM after rendering
-      document.body.removeChild(container);
+      // document.body.removeChild(container);
 
       // Add a page for the next student's hall ticket (except for the last student)
       if (index < students.length - 1) {
@@ -183,8 +195,26 @@ function ExamDetailsPage({ onClose }) {
     // Wait for all student PDFs to be added to the document
     await Promise.all(pdfPromises);
 
+    const pdfBlob = doc.output("blob");
+    const pdfPreviewUrl = URL.createObjectURL(pdfBlob);
+
+    setPdfBlob(pdfBlob); 
+    setPdfUrl(pdfPreviewUrl);
+    setIsPreviewOpen(true);
+
     // Save the final PDF as a single file
-    doc.save("Hall_Tickets.pdf");
+    // doc.save("Hall_Tickets.pdf");
+  };
+
+  const handleDownload = () => {
+    if (pdfBlob) {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = "Hall_Tickets.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
 
@@ -427,7 +457,8 @@ function ExamDetailsPage({ onClose }) {
                           </div>
 
                           <div className="px-4 py-4 text-sm/6"
-                            onClick={generatePDFs}
+                            // onClick={generatePDFs}
+                            onClick={generatePDFPreview}
                             role="button"
                             tabIndex={0}>
                             <ul
@@ -460,6 +491,43 @@ function ExamDetailsPage({ onClose }) {
                               </li>
                             </ul>
                           </div>
+           {/* Modal for PDF Preview */}
+           <Transition show={isPreviewOpen} as={Fragment}>
+  <Dialog as="div" className="relative z-50" onClose={() => setIsPreviewOpen(false)}>
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
+
+    <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
+      <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
+        
+        {/* Header with Close Button */}
+        <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
+          <h3 className="text-lg font-semibold">Hall Ticket Preview</h3>
+          <button onClick={() => setIsPreviewOpen(false)} className="text-white text-xl">
+            ✖
+          </button>
+        </div>
+
+        {/* PDF Preview */}
+        <div className="flex-1 overflow-auto">
+          {pdfUrl && (
+            <iframe src={pdfUrl} className="w-full h-full"></iframe>
+          )}
+        </div>
+
+        {/* Footer Buttons */}
+        <div className="flex justify-between p-4 bg-gray-100">
+          <button onClick={handleDownload} className="px-4 py-2 bg-purple-600 text-white rounded-md">
+            Download PDF
+          </button>
+          <button onClick={() => setIsPreviewOpen(false)} className="px-4 py-2 bg-gray-400 text-white rounded-md">
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </Dialog>
+</Transition>
                         </li>
                       </ul>
                     </div>
