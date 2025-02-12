@@ -265,6 +265,11 @@
                 "title": "Academics",
                 "name": "academics",
                 "path": "/academics"
+            },
+            {
+                "title": "Finance",
+                "name": "finance",
+                "path": "/finance"
             }
         ]
         
