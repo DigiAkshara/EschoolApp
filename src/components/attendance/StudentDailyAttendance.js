@@ -242,13 +242,15 @@ const StudentDailyAttendance = () => {
                                     <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                       <div className="flex items-center">
                                         {/* Staff Image */}
-                                        <div className="h-9 w-9 shrink-0">
+                                        {student.profilePic ? <div className="h-9 w-9 shrink-0">
                                           <img
                                             alt="Staff"
-                                            src="https://stu-images.mos.ap-southeast-2.sufybkt.com/1734344416163.jpeg"
+                                            src={student.profilePic} 
                                             className="h-9 w-9 rounded-full"
                                           />
-                                        </div>
+                                        </div> : <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                            <span className="font-medium text-gray-600 dark:text-gray-300">{student.name.charAt(0)}</span>
+                                          </div>}
                                         {/* Staff Details */}
                                         <div className="ml-4">
                                           <div className="font-medium text-gray-900 text-purple-600">

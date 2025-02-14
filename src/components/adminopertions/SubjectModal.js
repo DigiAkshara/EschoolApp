@@ -6,7 +6,7 @@ import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
 import { postData } from "../../app/api";
-import { DESIGNATION, SECTIONS, SUBJECT, SUBJECTS } from "../../app/url";
+import { DESIGNATION, SECTIONS, SUBJECT } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
 const SubjectModal = ({ onClose, getSubjects }) => {

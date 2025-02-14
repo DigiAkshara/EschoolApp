@@ -282,8 +282,7 @@ function Staff({ onClose, getStaff }) {
               : true;
           }
         )
-        .length(11, "IFSC code must be exactly 11 characters long")
-        .required("IFSC code is required"),
+        .length(11, "IFSC code must be exactly 11 characters long"),
       bankName: Yup.string().test(
         "bank-name-required",
         "Bank name is required",
@@ -360,6 +359,7 @@ function Staff({ onClose, getStaff }) {
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
         {({ values, setFieldValue, errors }) => (
+          console.log(errors),
           <Form>
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">

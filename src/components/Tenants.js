@@ -2,9 +2,10 @@ import {Dialog} from '@headlessui/react'
 import {PlusIcon} from '@heroicons/react/20/solid'
 import {useEffect, useState} from 'react'
 import {getData} from '../app/api'
-import {TENANT} from '../app/url'
+import {TENANT, BRANCH} from '../app/url'
 import TableComponent from '../commonComponent/TableComponent'
 import Tenant from './tenants/Tenant'
+import { handleApiResponse } from '../commonComponent/CommonFunctions';
 
 export default function Tenants() {
   const [tenantList, setTenantList] = useState([])
@@ -20,10 +21,8 @@ export default function Tenants() {
   const columns = [
     {title: 'School Name', key: 'name'},
     {title: 'Email', key: 'email'},
-    {title: 'Phone Number', key: 'phoneNumber'},
     {title: 'Admin Name', key: 'adminName'},
     {title: 'Mobile Number', key: 'mobileNumber'},
-    {title: 'Email', key: 'email'},
     {title: 'Actions', key: 'actions'},
   ]
 
@@ -31,7 +30,37 @@ export default function Tenants() {
   const handleClose = () => setOpen(false)
 
   const getTenants = async () => {
-    const response = await getData(TENANT)
+    try {
+      const response = await getData(BRANCH+'?isDefault=true')
+      let data=[]
+      if (response.data.data) {
+        data = response.data.data.map((item) => {
+          return {
+            _id: item.tenant._id,
+            name: item.name,
+            email: item.tenant.email,
+            adminName: 'test',
+            mobileNumber: item.tenant.mobileNumber,
+            actions: [
+              { label: "Edit", actionHandler: onHandleEdit },
+              { label: "Delete", actionHandler: onDelete },
+            ],
+          }
+        })
+        setFilteredData(data)
+        setTenantList(data)
+      };
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  };
+
+  const onHandleEdit = async (tenantId) => {
+    console.log("edited", tenantId);  
+  }
+
+  const onDelete = async (tenantId) => {
+    console.log("deleted", tenantId);
   }
 
   const filters = [
@@ -146,9 +175,9 @@ export default function Tenants() {
                 <TableComponent
                   columns={columns}
                   data={paginatedData}
-                  filters={filters}
-                  onSearch={handleSearch}
-                  onFilter={handleFilter}
+                  // filters={filters}
+                  // onSearch={handleSearch}
+                  // onFilter={handleFilter}
                   pagination={{
                     currentPage,
                     totalCount: filteredData.length,
@@ -164,7 +193,7 @@ export default function Tenants() {
 
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
-        <Tenant onClose={handleClose} />
+        <Tenant onClose={handleClose} loadTenants={getTenants}/>
       </Dialog>
     </div>
   )

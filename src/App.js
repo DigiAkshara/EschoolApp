@@ -25,6 +25,7 @@ import Sidebar from './components/Sidebar'
 import Staff from './components/Staff'
 import Students from './components/Students'
 import Tenants from './components/Tenants'
+import Loader from './commonComponent/Loader'
 
 function App() {
   const { user } = useSelector((state) => state.appConfig)
@@ -82,6 +83,7 @@ function App() {
   return (
     <BrowserRouter>
       <div>
+        <Loader />
         <div className='toastcls'>
           <ToastContainer />
         </div>

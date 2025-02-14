@@ -15,6 +15,7 @@ import {
   setAcademicYear,
   setActiveMenu,
   setBranchs,
+  setIsLoader,
   setUser,
 } from '../app/reducers/appConfigSlice'
 import {BRANCH, LOGIN, TENANT} from '../app/url'
@@ -45,6 +46,7 @@ export default function Login() {
   })
   const handleSubmit = async (values) => {
     try {
+      dispatch(setIsLoader(true))
       let response = await postData(LOGIN, values)
       const user = jwtDecode(response.data.token)
       if(user.permissions) {
@@ -73,9 +75,11 @@ export default function Login() {
         handleApiResponse({
           message: "You don't have permission to login"
         })
-      } 
+      }
     } catch (error) {
       handleApiResponse(error)
+    } finally {
+      dispatch(setIsLoader(false))
     }
   }
 
