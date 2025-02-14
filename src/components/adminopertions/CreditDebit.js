@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
 import TableComponent from "../../commonComponent/TableComponent";
-import ClassModal from "./ClassModal";
-import SectionModal from "./SectionModal";
+import CategoryCreation from "./CategoryCreation";
+import SubcategoryCreation from "./SubCategoryCreation";
 import { getData } from "../../app/api";
 import { CLASSES, SECTIONS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
-function ClassAndSection() {
+function CreditDebit() {
   const [classData, setClassData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,79 +17,57 @@ function ClassAndSection() {
 
   const columns = [
     { title: "Si. No", key: "siNo" },
-    { title: "Class and Section", key: "classSection" },
+    { title: "Type", key: "type" },
+    { title: "Category", key: "category" },
+    { title: "Sub Category", key: "subCategory" },
     { title: "Actions", key: "actions" },
   ];
 
   useEffect(()=>{
-    getClasses()
   },[])
+
+
 
   // const getClasses = async () => {
   //   try {
-  //     const response = await getData(CLASSES);
-  //     console.log("[CLASSES]:", response.data.data);
-  //     const classResponse = response.data.data;
-  //     const classData = classResponse.map((item, index) => {
+  //     const [sectionsResponse, classesResponse] = await Promise.all([
+  //       getData(SECTIONS),
+  //       getData(CLASSES) // Fetch all class details
+  //     ]);
+  
+  //     console.log("[SECTIONS]:", sectionsResponse.data.data);
+  //     console.log("[CLASSES]:", classesResponse.data.data);
+  
+  //     // Create a lookup map for class IDs to class names
+  //     const classesMap = {};
+  //     classesResponse.data.data.forEach(cls => {
+  //       if (cls._id && cls.name) {
+  //         classesMap[cls._id] = cls.name;
+  //       }
+  //     });
+  
+  //     const classData = sectionsResponse.data.data.map((item, index) => {
+  //       const className = classesMap[item.class]?.toString() || "Unknown Class";
+  //       const sectionName = item.section || "Unknown Section";
+  
   //       return {
   //         _id: item._id,
   //         siNo: index + 1,
-  //         name: item.name,
+  //         classSection: `${className} - ${sectionName}`, // Combine class and section
   //         actions: [
-  //           { label: "Edit", actionHandler: onHandleEdit },
-  //           { label: "Delete", actionHandler: onDelete },
+  //           { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
+  //           { label: "Delete", actionHandler: () => onDelete(item._id) },
   //         ],
   //       };
   //     });
-  //     console.log("Designation Data44444:", classData);
+  
+  //     console.log("Processed Class Data:", classData);
   //     setClassData(classData);
   //     setFilteredData(classData);
   //   } catch (error) {
   //     handleApiResponse(error);
   //   }
   // };
-
-
-  const getClasses = async () => {
-    try {
-      const [sectionsResponse, classesResponse] = await Promise.all([
-        getData(SECTIONS),
-        getData(CLASSES) // Fetch all class details
-      ]);
-  
-      console.log("[SECTIONS]:", sectionsResponse.data.data);
-      console.log("[CLASSES]:", classesResponse.data.data);
-  
-      // Create a lookup map for class IDs to class names
-      const classesMap = {};
-      classesResponse.data.data.forEach(cls => {
-        if (cls._id && cls.name) {
-          classesMap[cls._id] = cls.name;
-        }
-      });
-  
-      const classData = sectionsResponse.data.data.map((item, index) => {
-        const className = classesMap[item.class]?.toString() || "Unknown Class";
-        const sectionName = item.section || "Unknown Section";
-  
-        return {
-          _id: item._id,
-          siNo: index + 1,
-          classSection: `${className} - ${sectionName}`, // Combine class and section
-          actions: [
-            { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
-            { label: "Delete", actionHandler: () => onDelete(item._id) },
-          ],
-        };
-      });
-  
-      console.log("Processed Class Data:", classData);
-      setClassData(classData);
-      setFilteredData(classData);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
 
   
   const onHandleEdit = async (Id) => {
@@ -128,7 +106,7 @@ function ClassAndSection() {
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Class
+            Add Category
           </button>
 
           <button
@@ -137,7 +115,7 @@ function ClassAndSection() {
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Setion
+            Add Sub-Category
           </button>
         </div>
       </div>
@@ -158,15 +136,12 @@ function ClassAndSection() {
           </div>
         </div>
       </div>
-      {isModalOpen && <ClassModal onClose={handleCloseModal} getClasses={getClasses}  />}
+      {isModalOpen && <CategoryCreation onClose={handleCloseModal} />}
       {isSectionModal && (
-        <SectionModal
-         
-          onClose={handleCloseSectionModal} getClasses={getClasses} 
-        />
+        <SubcategoryCreation onClose={handleCloseSectionModal} />
       )}
     </>
   );
 }
 
-export default ClassAndSection;
+export default CreditDebit;

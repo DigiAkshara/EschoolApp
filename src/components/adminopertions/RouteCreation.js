@@ -4,30 +4,27 @@ import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { financeType, handleApiResponse, paymentType, staffType, transactionType } from "../../commonComponent/CommonFunctions";
+import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
 import { postData } from "../../app/api";
-import { DESIGNATION } from "../../app/url";
+import { DESIGNATION, ROUTE } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const CategoryCreation = ({ onClose }) => {
-  const navigate = useNavigate();
+const RouteCreation = ({ onClose }) => {
 
   const [formData, setFormData] = useState({
     name: "",
-    transactionType: "",
   });
 
   const getValidationSchema = () => {
     return Yup.object({
-      name: Yup.string().required(" Category name is required"),
-      transactionType: Yup.string().required(" Transaction type is required"),
+      name: Yup.string().required(" Route name is required"),
     });
   };
 
   const handleSubmit = async (values) => {
     console.log(values);
     try {
-      const response = await postData(DESIGNATION, values);
+      const response = await postData(ROUTE, values);
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
@@ -52,7 +49,7 @@ const CategoryCreation = ({ onClose }) => {
               <div className="bg-white w-96 rounded-lg shadow-lg">
                 {/* Modal Header */}
                 <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
-                  <h2 className="text-lg font-semibold">Add Category</h2>
+                  <h2 className="text-lg font-semibold">Add Route Name</h2>
                   <button
                     onClick={onClose}
                     className="text-white hover:text-gray-200"
@@ -65,17 +62,12 @@ const CategoryCreation = ({ onClose }) => {
                 <div className="p-6">
                   <CustomInput
                     name="name"
-                    label="Category Name"
-                    placeholder="Enter Category"
+                    label="Route Name"
+                    placeholder="Enter Route"
                     required={true}
                   />
 
-                  <CustomSelect
-                    name="transactionType"
-                    label="Transaction Type"
-                    options={financeType}
-                    required={true}
-                  />
+                 
                 </div>
 
                 {/* Modal Footer */}
@@ -99,4 +91,4 @@ const CategoryCreation = ({ onClose }) => {
   );
 };
 
-export default CategoryCreation;
+export default RouteCreation;

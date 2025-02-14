@@ -55,7 +55,7 @@
             "student",
             "staff"
         ],
-        "icon": "FolderIcon",
+        "icon": "UsersIcon",
         "submenu": [
             {
                 "title": "Students",
@@ -160,7 +160,7 @@
                 "path": "/staff_salaries"
             },
             {
-                "title": "Expenses",
+                "title": "Expenses/ Loans",
                 "name": "expenses",
                 "path": "/expenses"
             },
@@ -265,6 +265,16 @@
                 "title": "Academics",
                 "name": "academics",
                 "path": "/academics"
+            },
+            {
+                "title": "Route Map",
+                "name": "routeMap",
+                "path": "/routeMap"
+            },
+            {
+                "title": "Branch",
+                "name": "branch",
+                "path": "/branch"
             },
             {
                 "title": "Finance",

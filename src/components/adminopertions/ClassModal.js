@@ -7,8 +7,9 @@ import CustomSelect from "../../commonComponent/CustomSelect";
 import { getData, postData } from "../../app/api";
 import { CLASS_CATEGORIES, CLASSES, DESIGNATION } from "../../app/url";
 import { useNavigate } from "react-router-dom";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
-const ClassModal = ({ onClose }) => {
+const ClassModal = ({ onClose , getClasses}) => {
 
   const [classCategory , setClassCategory] = useState([])
   const [formData, setFormData] = useState({
@@ -53,6 +54,9 @@ useEffect(() => {
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
+        getClasses();
+        handleApiResponse(response.data.message, "success");
+        
       }
     } catch (error) {
       console.log(error);

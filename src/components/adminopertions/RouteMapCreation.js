@@ -1,37 +1,58 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { financeType, handleApiResponse, paymentType, staffType, transactionType } from "../../commonComponent/CommonFunctions";
-import { postData } from "../../app/api";
-import { DESIGNATION } from "../../app/url";
+import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
+import { getData, postData } from "../../app/api";
+import { CLASSES, DESIGNATION, ROUTE, SECTIONS, STOPS } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const CategoryCreation = ({ onClose }) => {
-  const navigate = useNavigate();
+const RouteMapCreation = ({ onClose, onSubmit }) => {
+  const [routeData, setRouteData] = useState([]);
 
   const [formData, setFormData] = useState({
+    route: "",
     name: "",
-    transactionType: "",
+    amount : ""
   });
 
   const getValidationSchema = () => {
     return Yup.object({
-      name: Yup.string().required(" Category name is required"),
-      transactionType: Yup.string().required(" Transaction type is required"),
+        route: Yup.string().required(" Route is required"),
+        name: Yup.string().required(" Stop is required"),
+        amount: Yup.string().required(" Amount is required"),
+
     });
   };
+
+  const getRouteName = async () => {
+    try {
+      const response = await getData(ROUTE);
+      console.log("Response Route :   999999", response.data);
+      const responseData = response.data.data;
+      const routeResponse = responseData.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      });
+      setRouteData(routeResponse);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getRouteName();
+  }, []);
 
   const handleSubmit = async (values) => {
     console.log(values);
     try {
-      const response = await postData(DESIGNATION, values);
+      const response = await postData(STOPS, values);
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
-        // getDesignations();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
@@ -52,7 +73,7 @@ const CategoryCreation = ({ onClose }) => {
               <div className="bg-white w-96 rounded-lg shadow-lg">
                 {/* Modal Header */}
                 <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
-                  <h2 className="text-lg font-semibold">Add Category</h2>
+                  <h2 className="text-lg font-semibold">Add Route Map</h2>
                   <button
                     onClick={onClose}
                     className="text-white hover:text-gray-200"
@@ -63,17 +84,22 @@ const CategoryCreation = ({ onClose }) => {
 
                 {/* Modal Body */}
                 <div className="p-6">
-                  <CustomInput
-                    name="name"
-                    label="Category Name"
-                    placeholder="Enter Category"
+                  <CustomSelect
+                    name="route"
+                    label="Route Name"
+                    options={routeData}
                     required={true}
                   />
-
-                  <CustomSelect
-                    name="transactionType"
-                    label="Transaction Type"
-                    options={financeType}
+                  <CustomInput
+                    name="name"
+                    label="Stop"
+                    placeholder="Enter Stop"
+                    required={true}
+                  />
+                  <CustomInput
+                    name="amount"
+                    label="Amount"
+                    placeholder="Enter Amount"
                     required={true}
                   />
                 </div>
@@ -99,4 +125,4 @@ const CategoryCreation = ({ onClose }) => {
   );
 };
 
-export default CategoryCreation;
+export default RouteMapCreation;

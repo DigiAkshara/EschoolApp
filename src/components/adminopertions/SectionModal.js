@@ -9,7 +9,7 @@ import { getData, postData } from "../../app/api";
 import { CLASSES, DESIGNATION, SECTIONS } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
-const SectionModal = ({ onClose, onSubmit }) => {
+const SectionModal = ({ onClose, getClasses }) => {
   const [classDatas, setClassData] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ const SectionModal = ({ onClose, onSubmit }) => {
     });
   };
 
-  const getClasses = async () => {
+  const getClass= async () => {
     try {
       const response = await getData(CLASSES);
       console.log("Response: class :   999999", response);
@@ -43,7 +43,7 @@ const SectionModal = ({ onClose, onSubmit }) => {
   };
 
   useEffect(() => {
-    getClasses();
+    getClass();
   }, []);
 
   const handleSubmit = async (values) => {
@@ -53,6 +53,7 @@ const SectionModal = ({ onClose, onSubmit }) => {
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
+        getClasses();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
