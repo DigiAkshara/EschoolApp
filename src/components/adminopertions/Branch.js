@@ -1,58 +1,73 @@
 import React, { useEffect, useState } from "react";
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import TableComponent from "../../commonComponent/TableComponent";
-import ClassModal from "./ClassModal";
-import SectionModal from "./SectionModal";
-import SubjectModal from "./SubjectModal";
-import { SUBJECT, SUBJECTS } from "../../app/url";
+import DesignationModal from "./DesignationModal";
 import { deleteData, getData } from "../../app/api";
+import { BRANCH, DESIGNATION } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import { useDispatch } from "react-redux";
+import { setSelectedDesignation } from "../../app/reducers/designationSlice";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
-import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
+import BranchCreation from "./BranchCreation";
+import { Dialog } from '@headlessui/react'
 
-function Subjects() {
-  const [subjectData, setSubjectData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+
+function Branch() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSectionModal, setIsSectionModal] = useState(false);
+  const [branch, setBranches] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+  const [showAddStaffModal, setShowAddStaffModal] = useState(false);
+
+  const dispatch = useDispatch();
 
   const columns = [
     { title: "Si. No", key: "siNo" },
-    { title: "Subjects", key: "name" },
-    { title: "Actions", key: "actions" },
+    { title: "Branch Name", key: "name" },
+    { title: "City", key: "city" },
+    { title: "State", key: "state" },
+    { title: "Pincode", key: "pincode" },
   ];
 
   useEffect(() => {
-    getSubjects();
+    getBranches();
   }, []);
 
-  const getSubjects = async () => {
+  const getBranches = async () => {
     try {
-      const response = await getData(SUBJECT);
-      const subResponse = response.data.data;
-      const SubData = subResponse.map((item, index) => {
+      const response = await getData(BRANCH);
+      const branchResponse = response.data.data;
+      console.log("BRANCH DATA:", branchResponse);
+      
+      const branchData = branchResponse.map((item, index) => {
         return {
-          _id:item._id,
+          _id: item._id,
           siNo: index + 1,
-          name: capitalizeWords(item.name),
+          name: item.name,
+          city : item.address.city,
+          state : item.address.state,
+          pincode : item.address.pincode,
           actions: [
             { label: "Edit", actionHandler: onHandleEdit },
             { label: "Delete", actionHandler: onDelete },
           ],
         };
       });
-      setSubjectData(SubData);
-      setFilteredData(SubData);
+
+      setBranches(branchData);
+      setFilteredData(branchData);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
   };
 
   const onHandleEdit = async (Id) => {
-    console.log("Edited");
+    console.log("edited", Id);
+
+  
   };
 
   const onDelete = (Id) => {
@@ -62,18 +77,15 @@ function Subjects() {
 
   const deleteRecord = async () => {
      try {
-       let res = await deleteData(SUBJECT + '/' + deleteId)
+       let res = await deleteData(BRANCH + '/' + deleteId)
        handleApiResponse(res.data.message, 'success')
-       getSubjects()
+       getBranches()
        setDeleteConfirm(false)
        setDeleteId(null)
      } catch (error) {
        handleApiResponse(error)
      }
   };
-
-  const handleOpen = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -83,6 +95,9 @@ function Subjects() {
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
+
+  const handleOpen = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
   return (
     <>
@@ -98,7 +113,7 @@ function Subjects() {
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Subjects
+            Add Branch
           </button>
         </div>
       </div>
@@ -120,7 +135,12 @@ function Subjects() {
         </div>
       </div>
 
-      {isModalOpen && <SubjectModal onClose={handleCloseModal} getSubjects={getSubjects} />}
+      {/* Modal */}
+
+      <Dialog open={isModalOpen} onClose={handleCloseModal} className="relative z-50">
+        <div className="fixed inset-0" />
+        <BranchCreation onClose={handleCloseModal} getBranches={getBranches}  />
+      </Dialog>
 
       <ConfirmationModal
         showModal={deleteConfirm}
@@ -133,4 +153,4 @@ function Subjects() {
   );
 }
 
-export default Subjects;
+export default Branch;

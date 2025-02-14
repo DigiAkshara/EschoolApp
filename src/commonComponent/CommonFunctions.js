@@ -111,6 +111,26 @@ export const staffCategories = [
   { value: 'non-teaching', label: 'Non Teaching Staff' },
 ]
 
+export const financeType  = [
+  { value: 'credit', label: 'Credit' },
+  { value: 'debit', label: 'Debit' },
+]
+
+export const paymentType  = [
+  { value: 'cash', label: 'Cash' },
+  { value: 'online', label: 'Online' },
+]
+
+export const financeCategoryDebit  = [
+  { value: 'loan', label: 'Loan' },
+  { value: 'expenses', label: 'Expenses' },
+]
+
+export const financeCategoryCredit  = [
+  { value: 'loan-advance', label: 'Loan/Advance Payment' },
+  { value: 'other-income', label: 'Other Income' },
+]
+
 export const states = [
   { value: 'andhrapradesh', label: 'Andhra Pradesh' },
   { value: 'telangana', label: 'Telangana' },

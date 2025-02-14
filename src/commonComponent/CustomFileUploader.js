@@ -74,7 +74,7 @@ export default function CustomFileUploader(props) {
                           <p className="pl-1">or drag and drop</p>
                         </div>
                         <p className="text-xs/5 text-gray-600">
-                          PNG, JPG, up to 10MB
+                          PNG, JPG, up to 2MB
                         </p>
                       </div>
                     </div>

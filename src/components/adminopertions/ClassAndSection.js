@@ -4,7 +4,7 @@ import TableComponent from "../../commonComponent/TableComponent";
 import ClassModal from "./ClassModal";
 import SectionModal from "./SectionModal";
 import { getData } from "../../app/api";
-import { CLASSES } from "../../app/url";
+import { CLASSES, SECTIONS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
 function ClassAndSection() {
@@ -17,7 +17,7 @@ function ClassAndSection() {
 
   const columns = [
     { title: "Si. No", key: "siNo" },
-    { title: "Class and Section", key: "name" },
+    { title: "Class and Section", key: "classSection" },
     { title: "Actions", key: "actions" },
   ];
 
@@ -25,23 +25,65 @@ function ClassAndSection() {
     getClasses()
   },[])
 
+  // const getClasses = async () => {
+  //   try {
+  //     const response = await getData(CLASSES);
+  //     console.log("[CLASSES]:", response.data.data);
+  //     const classResponse = response.data.data;
+  //     const classData = classResponse.map((item, index) => {
+  //       return {
+  //         _id: item._id,
+  //         siNo: index + 1,
+  //         name: item.name,
+  //         actions: [
+  //           { label: "Edit", actionHandler: onHandleEdit },
+  //           { label: "Delete", actionHandler: onDelete },
+  //         ],
+  //       };
+  //     });
+  //     console.log("Designation Data44444:", classData);
+  //     setClassData(classData);
+  //     setFilteredData(classData);
+  //   } catch (error) {
+  //     handleApiResponse(error);
+  //   }
+  // };
+
+
   const getClasses = async () => {
     try {
-      const response = await getData(CLASSES);
-      console.log("[CLASSES]:", response.data.data);
-      const classResponse = response.data.data;
-      const classData = classResponse.map((item, index) => {
+      const [sectionsResponse, classesResponse] = await Promise.all([
+        getData(SECTIONS),
+        getData(CLASSES) // Fetch all class details
+      ]);
+  
+      console.log("[SECTIONS]:", sectionsResponse.data.data);
+      console.log("[CLASSES]:", classesResponse.data.data);
+  
+      // Create a lookup map for class IDs to class names
+      const classesMap = {};
+      classesResponse.data.data.forEach(cls => {
+        if (cls._id && cls.name) {
+          classesMap[cls._id] = cls.name;
+        }
+      });
+  
+      const classData = sectionsResponse.data.data.map((item, index) => {
+        const className = classesMap[item.class]?.toString() || "Unknown Class";
+        const sectionName = item.section || "Unknown Section";
+  
         return {
           _id: item._id,
           siNo: index + 1,
-          name: item.name,
+          classSection: `${className} - ${sectionName}`, // Combine class and section
           actions: [
-            { label: "Edit", actionHandler: onHandleEdit },
-            { label: "Delete", actionHandler: onDelete },
+            { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
+            { label: "Delete", actionHandler: () => onDelete(item._id) },
           ],
         };
       });
-      console.log("Designation Data44444:", classData);
+  
+      console.log("Processed Class Data:", classData);
       setClassData(classData);
       setFilteredData(classData);
     } catch (error) {
@@ -49,6 +91,7 @@ function ClassAndSection() {
     }
   };
 
+  
   const onHandleEdit = async (Id) => {
     console.log("edited", Id);
   };

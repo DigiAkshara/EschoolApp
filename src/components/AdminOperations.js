@@ -6,6 +6,8 @@ import Designation from './adminopertions/Designation'
 import Academics from './adminopertions/Academics'
 import ClassAndSection from './adminopertions/ClassAndSection'
 import RouteMap from './adminopertions/RouteMap'
+import Finance from './adminopertions/Finance'
+import Branch from './adminopertions/Branch'
 
 const AdminOperations = () => {
   const [activeTab, setActiveTab] = useState(null)
@@ -20,8 +22,12 @@ const AdminOperations = () => {
           return <Designation />
           case 'academics':
             return <Academics />
-          case 'Route Map' :
+          case 'routeMap' :
             return <RouteMap />
+            case 'branch' :
+              return <Branch />
+            case 'finance' :
+              return <Finance />
       default:
         return <h2>No Content Available</h2>
     }

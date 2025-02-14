@@ -35,7 +35,6 @@ function Designation() {
   const getDesignations = async () => {
     try {
       const response = await getData(DESIGNATION + "/type");
-      console.log("[DESIGNATIONS]:", response.data.data);
       const desigResponse = response.data.data;
       const desigData = desigResponse.map((item, index) => {
         return {
@@ -49,7 +48,6 @@ function Designation() {
           ],
         };
       });
-      console.log("Designation Data44444:", desigData);
 
       setDesignation(desigData);
       setFilteredData(desigData);

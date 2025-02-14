@@ -7,9 +7,19 @@ import CustomInput from "../../../commonComponent/CustomInput";
 import CustomFileUploader from "../../../commonComponent/CustomFileUploader";
 import CustomDate from "../../../commonComponent/CustomDate";
 import CustomSelect from "../../../commonComponent/CustomSelect";
-import { staffType } from "../../../commonComponent/CommonFunctions";
+import {
+  banks,
+  financeCategory,
+  financeCategoryCredit,
+  financeType,
+  paymentType,
+  staffType,
+} from "../../../commonComponent/CommonFunctions";
 
 function SpecialCredits({ onClose }) {
+  const [selectedTransactionType, setSelectedTransactionType] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
   const [formData, setFormData] = useState({
     type: "",
     category: "",
@@ -36,25 +46,27 @@ function SpecialCredits({ onClose }) {
                 "fileFormat",
                 "Photo must be in JPG, JPEG, or PNG format",
                 (value) => {
-                  if (!value) return true; 
+                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
+      
                   const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-      
-                  // Check MIME type first
-                  if (supportedFormats.includes(value.type)) {
-                    return true; // Valid MIME type
-                  }
-      
-                  const fileExtension = value.name.split(".").pop().toLowerCase();
-                  const supportedExtensions = ["jpg", "jpeg", "png"];
-                  return supportedExtensions.includes(fileExtension); 
+                  return supportedFormats.includes(value.type);
                 }
               )
               .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-                if (!value) return true; 
-                const maxSizeInBytes = 2 * 1024 * 1024; 
-                return value.size <= maxSizeInBytes; 
+                if (!value || !(value instanceof File)) return true; // Allow empty/null value
+      
+                const maxSizeInBytes = 2 * 1024 * 1024;
+                return value.size <= maxSizeInBytes;
               }),
     });
+  };
+
+  const handleTransactionTypeChange = (e) => {
+    setSelectedTransactionType(e.target.value);
+  };
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
   };
 
   const handleSubmit = async (values) => {
@@ -115,17 +127,8 @@ function SpecialCredits({ onClose }) {
                                   <div className="sm:col-span-1">
                                     <CustomSelect
                                       name="type"
-                                      label="Select Credit or Debit"
-                                      //   options={}
-                                      required={true}
-                                    />
-                                  </div>
-
-                                  <div className="sm:col-span-1">
-                                    <CustomSelect
-                                      name="category"
-                                      label="Category"
-                                      //   options={}
+                                      label=" Credit or Debit"
+                                      options={financeType}
                                       required={true}
                                     />
                                   </div>
@@ -134,18 +137,63 @@ function SpecialCredits({ onClose }) {
                                     <CustomSelect
                                       name="transactionType"
                                       label="Transaction Type"
-                                      //   options={}
+                                      options={paymentType}
+                                      required={true}
+                                      onChange={handleTransactionTypeChange}
+                                    />
+                                  </div>
+                                  {selectedTransactionType === "online" && (
+                                    <>
+                                    <div className="sm:col-span-1">
+                                      <CustomSelect
+                                        name="account"
+                                        label="Bank Name"
+                                        options={banks}
+                                        required={true}
+                                      />
+                                    </div>
+                                    <div className="sm:col-span-1">
+                                    <CustomInput
+                                      name="transactionID"
+                                      label="Transaction ID"
                                       required={true}
                                     />
                                   </div>
+                                  </>
+                                  )}
+
                                   <div className="sm:col-span-1">
                                     <CustomSelect
-                                      name="account"
-                                      label="Bank Account"
-                                      //   options={}
+                                      name="category"
+                                      label="Category"
+                                      options={financeCategoryCredit}
                                       required={true}
+                                      onChange={handleCategoryChange}
                                     />
                                   </div>
+
+                                  {selectedCategory === "loan-advance" && (
+                                    <div className="sm:col-span-1">
+                                      <CustomSelect
+                                        name="staff"
+                                        label="Staff"
+                                        // options={}
+                                        required={true}
+                                      />
+                                    </div>
+                                  )}
+
+                                  {selectedCategory === "other-income" && (
+                                    <div className="sm:col-span-1">
+                                      <CustomInput
+                                        name="subCategory"
+                                        label="Sub Category"
+                                        placeholder="Enter Sub-Category"
+                                        required={true}
+                                      />
+                                    </div>
+                                  )}
+
                                   <div className="sm:col-span-1">
                                     <CustomInput
                                       name="amount"

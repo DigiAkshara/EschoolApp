@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
 import TableComponent from "../../commonComponent/TableComponent";
-import ClassModal from "./ClassModal";
-import SectionModal from "./SectionModal";
+import CategoryCreation from "./CategoryCreation";
+import SubcategoryCreation from "./SubCategoryCreation";
 import { getData } from "../../app/api";
-import { CLASSES, ROUTE, STOPS } from "../../app/url";
+import { CLASSES, SECTIONS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
-import RouteCreation from "./RouteCreation";
-import RouteMapCreation from "./RouteMapCreation";
-import { Route } from "react-router-dom";
 
-function RouteMap() {
+function CreditDebit() {
   const [classData, setClassData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,58 +17,59 @@ function RouteMap() {
 
   const columns = [
     { title: "Si. No", key: "siNo" },
-    { title: "Route Name", key: "name" },
-    { title: "Stops", key: "stop" },
-    { title: "Amount", key: "amount" },
+    { title: "Type", key: "type" },
+    { title: "Category", key: "category" },
+    { title: "Sub Category", key: "subCategory" },
     { title: "Actions", key: "actions" },
   ];
 
   useEffect(()=>{
-    getRouteMap()
   },[])
 
-    const getRouteMap = async () => {
-      try {
-        const [routeMapResponse, routeResponse ] = await Promise.all([
-          getData(STOPS),
-          getData(ROUTE) 
-        ]);
-    
-        console.log("[ROUTE]:", routeResponse.data.data);
-        console.log("[Route Map]:", routeMapResponse.data.data);
-    
-        // Create a lookup map for class IDs to class names
-        const routeMap = {};
-        routeResponse.data.data.forEach(route => {
-          if (route._id && route.name) {
-            routeMap[route._id] = route.name;
-          }
-        });
-    
-        const routeData = routeMapResponse.data.data.map((item, index) => {
-          const routeName = routeMap[item.route]?.toString() || "Unknown Route";
-    
-          return {
-            _id: item._id,
-            siNo: index + 1,
-            name : routeName,
-            stop : item.name,
-            amount : item.amount,
-            actions: [
-              { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
-              { label: "Delete", actionHandler: () => onDelete(item._id) },
-            ],
-          };
-        });
-    
-        console.log("Processed Class Data:", routeData);
-        setClassData(routeData);
-        setFilteredData(routeData);
-      } catch (error) {
-        handleApiResponse(error);
-      }
-    };
 
+
+  // const getClasses = async () => {
+  //   try {
+  //     const [sectionsResponse, classesResponse] = await Promise.all([
+  //       getData(SECTIONS),
+  //       getData(CLASSES) // Fetch all class details
+  //     ]);
+  
+  //     console.log("[SECTIONS]:", sectionsResponse.data.data);
+  //     console.log("[CLASSES]:", classesResponse.data.data);
+  
+  //     // Create a lookup map for class IDs to class names
+  //     const classesMap = {};
+  //     classesResponse.data.data.forEach(cls => {
+  //       if (cls._id && cls.name) {
+  //         classesMap[cls._id] = cls.name;
+  //       }
+  //     });
+  
+  //     const classData = sectionsResponse.data.data.map((item, index) => {
+  //       const className = classesMap[item.class]?.toString() || "Unknown Class";
+  //       const sectionName = item.section || "Unknown Section";
+  
+  //       return {
+  //         _id: item._id,
+  //         siNo: index + 1,
+  //         classSection: `${className} - ${sectionName}`, // Combine class and section
+  //         actions: [
+  //           { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
+  //           { label: "Delete", actionHandler: () => onDelete(item._id) },
+  //         ],
+  //       };
+  //     });
+  
+  //     console.log("Processed Class Data:", classData);
+  //     setClassData(classData);
+  //     setFilteredData(classData);
+  //   } catch (error) {
+  //     handleApiResponse(error);
+  //   }
+  // };
+
+  
   const onHandleEdit = async (Id) => {
     console.log("edited", Id);
   };
@@ -108,7 +106,7 @@ function RouteMap() {
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Route
+            Add Category
           </button>
 
           <button
@@ -117,7 +115,7 @@ function RouteMap() {
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Route Map
+            Add Sub-Category
           </button>
         </div>
       </div>
@@ -138,12 +136,12 @@ function RouteMap() {
           </div>
         </div>
       </div>
-      {isModalOpen && <RouteCreation onClose={handleCloseModal}  />}
+      {isModalOpen && <CategoryCreation onClose={handleCloseModal} />}
       {isSectionModal && (
-        <RouteMapCreation  onClose={handleCloseSectionModal} />
+        <SubcategoryCreation onClose={handleCloseSectionModal} />
       )}
     </>
   );
 }
 
-export default RouteMap;
+export default CreditDebit;
