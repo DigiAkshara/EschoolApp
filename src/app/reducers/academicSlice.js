@@ -1,6 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import {getData} from '../api'
-import {CLASS_CATEGORIES, CLASSES, SECTIONS, STAFF, SUBJECTS} from '../url'
+import {CLASS_CATEGORIES, CLASSES, SECTIONS, STAFF, SUBJECT} from '../url'
 
 export const fetchInitialAcademicData = createAsyncThunk(
   'data/fetchInitialAcademicData',
@@ -11,7 +11,7 @@ export const fetchInitialAcademicData = createAsyncThunk(
         getData(CLASSES),
         getData(SECTIONS),
         getData(STAFF),
-        getData(SUBJECTS)
+        getData(SUBJECT)
       ]) // Replace with your API endpoint
       return {
         classCategories: classCategories.data.data,

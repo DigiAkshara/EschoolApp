@@ -8,13 +8,14 @@ import { Dialog } from '@headlessui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteData, getData } from '../../app/api'
 import { selectStaff, setSubjects } from '../../app/reducers/staffSlice'
-import { STAFF, SUBJECTS, TENANT } from '../../app/url'
+import { STAFF, SUBJECT, TENANT } from '../../app/url'
 import { capitalizeWords, designations, handleApiResponse, handleDownload, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
 import CommonUpload from '../../commonComponent/CommonUpload'
 import ConfirmModal from '../../commonComponent/ConfirmationModal'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
 import Staff from './Staff'
+import { setIsLoader } from '../../app/reducers/appConfigSlice'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -52,7 +53,7 @@ export default function StaffDetails() {
 
   const getSubjects = async () => {
     try {
-      const res = await getData(SUBJECTS)
+      const res = await getData(SUBJECT)
       const subjectsData = res.data.data.map((item) => {
         return {
           label: capitalizeWords(item.name), // Displayed text in the dropdown
@@ -82,6 +83,7 @@ export default function StaffDetails() {
 
   const getStaff = async () => {
     try {
+      dispatch(setIsLoader(true))
       const response = await getData(STAFF)
       let teachingCount = 0;
       let nonTeachingCount = 0;
@@ -100,8 +102,8 @@ export default function StaffDetails() {
           date: item.DOJ,
           dateOfBirth: item.DOB,
           phoneNumber: item.mobileNumber,
-          designationName: capitalizeWords(item.designation),
-          designation: item.designation,
+          designationName: capitalizeWords(item.designation?.name),
+          designation: item.designation._id,
           subjectName: item.subjects.map(item => item.label).join(', '),
           subjects: item.subjects.map(item => item.value).join(', '),
           class: item.class,
@@ -139,6 +141,8 @@ export default function StaffDetails() {
       setFilteredData(staffData)
     } catch (error) {
       handleApiResponse(error)
+    } finally {
+      dispatch(setIsLoader(false))
     }
 
   }

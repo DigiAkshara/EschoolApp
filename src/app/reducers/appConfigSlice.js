@@ -27,6 +27,7 @@ const AppConfigSlice = createSlice({
     navConfig: [],
     tenantId: null,
     formData: null,
+    isLoading: false
   },
   reducers: {
     loadNavConfig: (state, action) => {
@@ -55,6 +56,9 @@ const AppConfigSlice = createSlice({
     setFormData: (state, action) => {
       state.formData = action.payload
     },
+    setIsLoader: (state, action) => {
+      state.isLoading = action.payload
+    },
     clearFormData: (state) => {
       state.formData = null
     },
@@ -71,5 +75,6 @@ export const {
   clearFormData,
   setAcademicYear,
   setBranchs,
+  setIsLoader,
 } = AppConfigSlice.actions
 export default AppConfigSlice.reducer

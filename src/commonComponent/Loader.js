@@ -1,7 +1,11 @@
-const Loader = ({ isLoading }) => {
+import { useSelector } from "react-redux";
+
+const Loader = () => {
+  let { isLoading } = useSelector((state) => state.appConfig);
   return (
-    <div class="text-center">
+    <div class="relative">
       {isLoading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div role="status">
           <svg
             aria-hidden="true"
@@ -20,6 +24,7 @@ const Loader = ({ isLoading }) => {
             />
           </svg>
           <span class="sr-only">Loading...</span>
+        </div>
         </div>
       )}
     </div>

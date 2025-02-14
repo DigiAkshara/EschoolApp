@@ -8,12 +8,11 @@ import {
 } from "../../commonComponent/CommonFunctions";
 import CustomFileUploader from "../../commonComponent/CustomFileUploader";
 import CustomInput from "../../commonComponent/CustomInput";
-import { useEffect } from "react";
-import { getData, postData } from "../../app/api";
+import { postData } from "../../app/api";
 import { TENANT } from "../../app/url";
 import CustomRadio from "../../commonComponent/CustomRadio";
 
-export default function Tenant({ onClose }) {
+export default function Tenant({ onClose, loadTenants }) {
   const getInitialValues = () => {
     return {
       name: "",
@@ -123,22 +122,9 @@ export default function Tenant({ onClose }) {
   const handleSubmit = async (values) => {
     try {
       const response = await postData(TENANT, values);
-      console.log(response);
       handleApiResponse(response.data.message, "success");
+      loadTenants();
       onClose();
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
-
-  useEffect(() => {
-    getTenants();
-  }, []);
-
-  const getTenants = async () => {
-    try {
-      const response = await getData(TENANT);
-      console.log(response);
     } catch (error) {
       handleApiResponse(error);
     }

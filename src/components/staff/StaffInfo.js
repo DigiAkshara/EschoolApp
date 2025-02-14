@@ -1,13 +1,30 @@
-import React from 'react'
-import { useSelector } from 'react-redux'
-import { designations, staffType } from '../../commonComponent/CommonFunctions'
-import CustomDate from '../../commonComponent/CustomDate'
-import CustomInput from '../../commonComponent/CustomInput'
-import CustomSelect from '../../commonComponent/CustomSelect'
-import MutliSelect from '../../commonComponent/MultiSelect'
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
+import CustomDate from "../../commonComponent/CustomDate";
+import CustomInput from "../../commonComponent/CustomInput";
+import CustomSelect from "../../commonComponent/CustomSelect";
+import MutliSelect from "../../commonComponent/MultiSelect";
+import { DESIGNATION } from "../../app/url";
+import { getData } from "../../app/api";
 function StaffInfo({ values, setFieldValue }) {
-  const subjects = useSelector((state) => state.staff?.subjects)
-
+  const subjects = useSelector((state) => state.staff?.subjects);
+  const [designations, setDesignations] = useState([]);
+  const getDesignations = async (e, setFieldValue) => {
+    try {
+      setFieldValue(e.target.name, e.target.value);
+      const response = await getData(DESIGNATION+'?staffType=' + e.target.value);
+      let desigList = response.data.data.map((item) => {
+        return {
+          label: item.name,
+          value: item._id,
+        };
+      })
+      setDesignations(desigList);
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  }
   return (
     <>
       <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -21,6 +38,7 @@ function StaffInfo({ values, setFieldValue }) {
               label="Staff Type"
               options={staffType}
               required={true}
+              onChange={(e) => { getDesignations(e, setFieldValue) }}
             />
           </div>
           <div className="sm:col-span-2">
@@ -50,11 +68,13 @@ function StaffInfo({ values, setFieldValue }) {
           </div>
 
           <div className="sm:col-span-2">
-            <CustomDate name="DOJ" label="Date Of Joining" required={true} maxDate={new Date()} />
+            <CustomDate
+              name="DOJ"
+              label="Date Of Joining"
+              required={true}
+              maxDate={new Date()}
+            />
           </div>
-
-
-
 
           <div className="sm:col-span-2">
             <CustomSelect
@@ -64,7 +84,6 @@ function StaffInfo({ values, setFieldValue }) {
               required={true}
             />
           </div>
-
 
           <div className="sm:col-span-2">
             <CustomInput
@@ -88,18 +107,17 @@ function StaffInfo({ values, setFieldValue }) {
               name="subjects"
               label="Dealing Subjects"
               options={subjects}
-              required={values.staffType === 'teaching'}
+              required={values.staffType === "teaching"}
               value={values.subjects}
-              onChange={value => {
-                setFieldValue('subjects', value ? value : [])
+              onChange={(value) => {
+                setFieldValue("subjects", value ? value : []);
               }}
             />
           </div>
-
         </div>
       </div>
     </>
-  )
+  );
 }
 
-export default StaffInfo
+export default StaffInfo;

@@ -4,7 +4,7 @@ import TableComponent from "../../commonComponent/TableComponent";
 import ClassModal from "./ClassModal";
 import SectionModal from "./SectionModal";
 import SubjectModal from "./SubjectModal";
-import { SUBJECT, SUBJECTS } from "../../app/url";
+import { SUBJECT } from "../../app/url";
 import { deleteData, getData } from "../../app/api";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";

@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 import { getData, postData, updateData } from '../../app/api'
-import { SUBJECTS, TIMETABLE } from '../../app/url'
+import { SUBJECT, TIMETABLE } from '../../app/url'
 import { boardOptions, capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
@@ -32,7 +32,7 @@ function AddClass({ onClose, getClassData }) {
 
   const getSubjects = async () => {
     try {
-      const res = await getData(SUBJECTS)
+      const res = await getData(SUBJECT)
       const fetchedSubjects = res.data.data
       const subData = fetchedSubjects.map((item) => {
         return {
@@ -182,7 +182,7 @@ function AddClass({ onClose, getClassData }) {
       setTheorySubject((prev) => [...prev, { label: subjectName }])
     } else {
       try {
-        const response = await postData(SUBJECTS, {
+        const response = await postData(SUBJECT, {
           name: subjectName,
           category: 'theory',
         })
@@ -210,7 +210,7 @@ function AddClass({ onClose, getClassData }) {
       setLabSubject((prev) => [...prev, { label: subjectName }])
     } else {
       try {
-        const response = await postData(SUBJECTS, {
+        const response = await postData(SUBJECT, {
           name: subjectName,
           category: 'lab',
         })
@@ -240,7 +240,7 @@ function AddClass({ onClose, getClassData }) {
       setExtraCurricular((prev) => [...prev, { label: subjectName }])
     } else {
       try {
-        const response = await postData(SUBJECTS, {
+        const response = await postData(SUBJECT, {
           name: subjectName,
           category: 'extraCurricular',
         })
