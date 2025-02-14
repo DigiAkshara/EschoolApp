@@ -26,5 +26,4 @@ export const TRANSACTIONS = '/transactions'
 export const DESIGNATION = '/designation'
 export const BREAKTIME = '/breakTime'
 export const SUBJECT = '/subject'
-
-
+export const BRANCH = '/branch'

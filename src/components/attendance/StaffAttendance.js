@@ -46,7 +46,7 @@ export default function StaffAttendance() {
               name="tabs2"
               value={activeTab}
               onChange={(e) => handleTabChange(Number(e.target.value))}
-              className="block w-full rounded-full border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+              className="mt-2 block w-full rounded-full border-gray-300 focus:border-purple-500 focus:ring-purple-500"
             >
               {tabs2.map((tab) => (
                 <option key={tab.name}>{tab.name}</option>

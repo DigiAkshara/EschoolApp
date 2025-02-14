@@ -45,16 +45,22 @@ export default function Login() {
   const handleSubmit = async (values) => {
     try {
       let response = await postData(LOGIN, values)
-      localStorage.setItem('studentManagement', response.data.token)
-      localStorage.setItem('academicYear', response.data.academicYear._id)
       const user = jwtDecode(response.data.token)
-      dispatch(setUser(user))
-      dispatch(setAcademicYear(response.data.academicYear))
-      dispatch(setActiveMenu("home"))
-      dispatch(loadNavConfig(user.permissions.permissions))
-      const tenantResponse = await getData(TENANT);
-      dispatch(setTenant(tenantResponse.data.data));
-      navigate('/')
+      if(user.permissions) {
+        localStorage.setItem('studentManagement', response.data.token)
+        localStorage.setItem('academicYear', response.data.academicYear._id)
+        dispatch(setUser(user))
+        dispatch(setAcademicYear(response.data.academicYear))
+        dispatch(setActiveMenu("home"))
+        dispatch(loadNavConfig(user.permissions.permissions))
+        const tenantResponse = await getData(TENANT+'/' + user.tenant);
+        dispatch(setTenant(tenantResponse.data.data));
+        navigate('/')
+      } else {
+        handleApiResponse({
+          message: "You don't have permission to login"
+        })
+      } 
     } catch (error) {
       handleApiResponse(error)
     }
@@ -81,7 +87,7 @@ export default function Login() {
                 <div>
                   <img
                     alt="Your Company"
-                    src="https://tailwindui.com/plus/img/logos/mark.svg?color=purple&shade=600"
+                    src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=purple&shade=600"
                     className="h-10 w-auto"
                   />
                   <h2 className="mt-8 text-2xl/9 font-bold tracking-tight text-gray-900">

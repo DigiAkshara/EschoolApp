@@ -5,8 +5,7 @@ export default function CustomRadio(props) {
     name,
     label,
     required = false,
-    options,
-    defaultValue = 'present',
+    options = [],
   } = props
 
   return (

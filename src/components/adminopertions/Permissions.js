@@ -2,15 +2,17 @@ import { Form, Formik } from 'formik'
 import { useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import { getData, postData } from '../../app/api'
-import { PERMISSIONS, ROLES } from '../../app/url'
+import { BRANCH, PERMISSIONS, ROLES } from '../../app/url'
 import navData from '../../assets/json/nav.json'
 import { handleApiResponse } from '../../commonComponent/CommonFunctions'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomSelect from '../../commonComponent/CustomSelect'
 const Permissions = () => {
   const [roles, setRoles] = useState([])
+  const [tenants, setTenants] = useState([])
   const initialValues = {
     role: '',
+    tenant: '',
     permissions: navData.map((item) => {
       return {
         name: item.name,
@@ -32,6 +34,7 @@ const Permissions = () => {
   const getValidationSchema = () => {
     return Yup.object({
       role: Yup.string().required('Role is required'),
+      tenant: Yup.string().required('Tenant is required'),
       permissions: Yup.array().of(
         Yup.object({
           name: Yup.string(),
@@ -99,10 +102,26 @@ const Permissions = () => {
     }
   }
 
-  const handleRoleChange = async (e, setFieldValue) => {
-    setFieldValue('role', e.target.value)
+  const getBraches = async () => {
     try {
-      let res = await getData(PERMISSIONS + '/' + e.target.value)
+      const data = await getData(BRANCH+'?isDefault=true')
+      let branchData = data.data.data.map((item) => {
+        return {
+          label: item.name, // Displayed text in the dropdown
+          value: item.tenant,
+        }
+      })
+      setTenants(branchData)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
+  const handleChange = async (e, setFieldValue, values) => {
+    setFieldValue(e.target.name, e.target.value)
+    try {
+      if(values.role && values.tenant) {
+      let res = await getData(PERMISSIONS + '/' + values.role + '/' + values.tenant)
       let dumpLIst = []
       navData.forEach((item) => {
         let obj = {
@@ -120,22 +139,25 @@ const Permissions = () => {
             }))
             : [],
         }
-        let index = res.data.data.permissions.findIndex((i) => i.name === item.name)
-        if (index != -1) {
-          obj.read = true
-          obj.submenu.forEach((submenu) => {
-            let subIndex = res.data.data.permissions[index].submenu.findIndex((i) => i.name === submenu.name)
-            if (subIndex != -1) {
-              submenu.read = res.data.data.permissions[index].submenu[subIndex].read
-              submenu.write = res.data.data.permissions[index].submenu[subIndex].write
-              submenu.edit = res.data.data.permissions[index].submenu[subIndex].edit
-              submenu.delete = res.data.data.permissions[index].submenu[subIndex].delete
-            }
-          })
+        if (res.data.data) {
+          let index = res.data.data.permissions.findIndex((i) => i.name === item.name)
+          if (index != -1) {
+            obj.read = true
+            obj.submenu.forEach((submenu) => {
+              let subIndex = res.data.data.permissions[index].submenu.findIndex((i) => i.name === submenu.name)
+              if (subIndex != -1) {
+                submenu.read = res.data.data.permissions[index].submenu[subIndex].read
+                submenu.write = res.data.data.permissions[index].submenu[subIndex].write
+                submenu.edit = res.data.data.permissions[index].submenu[subIndex].edit
+                submenu.delete = res.data.data.permissions[index].submenu[subIndex].delete
+              }
+            })
+          }
         }
         dumpLIst.push(obj)
       })
       setFieldValue('permissions', dumpLIst)
+      }
     } catch (error) {
       handleApiResponse(error)
     }
@@ -143,6 +165,7 @@ const Permissions = () => {
 
   useEffect(() => {
     getRoles()
+    getBraches()
   }, [])
 
   return (
@@ -154,13 +177,20 @@ const Permissions = () => {
       {({ values, setFieldValue, errors }) => (
         <Form>
           <div className="mt-4 flex justify-between">
-            <div className="right-btns-blk space-x-4">
+          <div className="right-btns-blk space-x-4">
+              <CustomSelect
+                isRequired={true}
+                label="Tenant"
+                name="tenant"
+                options={tenants}
+                onChange={(e) => handleChange(e, setFieldValue, values)}
+              />
               <CustomSelect
                 isRequired={true}
                 label="Role"
                 name="role"
                 options={roles}
-                onChange={(e) => handleRoleChange(e, setFieldValue)}
+                onChange={(e) => handleChange(e, setFieldValue, values)}
               />
             </div>
           </div>
