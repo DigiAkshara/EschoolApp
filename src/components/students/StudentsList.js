@@ -20,6 +20,7 @@ import FilterComponent from "../../commonComponent/FilterComponent";
 import TableComponent from "../../commonComponent/TableComponent";
 import StudentProfileModal from "./Profile";
 import Student from "./Student";
+import Loader from "../../commonComponent/loader";
 
 export default function StudentsList() {
   const dispatch = useDispatch();
@@ -35,6 +36,7 @@ export default function StudentsList() {
   const [showProfile, setShowProfile] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const rowsPerPage = 10;
   const tenant = useSelector((state) => state.tenantData);
 
@@ -65,6 +67,7 @@ export default function StudentsList() {
 
   const getStudents = async () => {
     try {
+      setIsLoading(true);
       const student = await getData(ACADEMICS);
       const studentRes = student.data.data;
       const studentData = studentRes.map((item) => {
@@ -116,6 +119,7 @@ export default function StudentsList() {
       });
       setStudentList(studentData);
       setFilteredData(studentData);
+      setIsLoading(false);
     } catch (error) {
       handleApiResponse(error);
     }
@@ -313,6 +317,7 @@ export default function StudentsList() {
                 }}
                 showModal={showStudentProfile}
               />
+              <Loader isLoading={isLoading} />
               <StudentProfileModal
                 data={activeStudent}
                 show={showProfile}

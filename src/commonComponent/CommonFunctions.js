@@ -419,7 +419,7 @@ export const handleApiResponse = (res, type = "error") => {
     } else {
       // Something happened in setting up the request
       console.error('Unknown Error:', res.message);
-      message = 'An unexpected error occurred. Please try again.'
+      message = res.message || 'An unexpected error occurred. Please try again.'
     }
     toast.error(message, options)
   } else {

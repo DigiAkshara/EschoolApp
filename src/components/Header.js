@@ -1,13 +1,15 @@
 import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/react'
 import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
 import {Bars3Icon, BellIcon} from '@heroicons/react/24/outline'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 import {useNavigate} from 'react-router-dom'
 import {clearSession} from '../app/reducers/appConfigSlice'
 
 function Header({updateSideBar}) {
-  
+  const { branchs } = useSelector((state) => state.appConfig)
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [allBranchs, setAllBranchs] = useState([]);
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const logOut = () => {
@@ -15,9 +17,20 @@ function Header({updateSideBar}) {
     dispatch(clearSession())
     navigate('/login')
   }
+  useEffect(() => {
+    if (branchs.length > 0) {
+      let setBranchs = branchs.map((branch) => {
+        if(branch.isDefault){
+          setSelectedBranch(branch._id)
+        }
+        return {value: branch._id, label: branch.name}
+      })
+      setAllBranchs(setBranchs)
+    }
+  }, [branchs])
   return (
     <>
-      <div className="sticky top-0 z- flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+      <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
         <button
           type="button"
           onClick={() => updateSideBar(true)}
@@ -32,7 +45,7 @@ function Header({updateSideBar}) {
 
         <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
           <form action="#" method="GET" className="relative flex flex-1">
-            <label htmlFor="search-field" className="sr-only">
+            {/* <label htmlFor="search-field" className="sr-only">
               Search
             </label>
             <MagnifyingGlassIcon
@@ -45,9 +58,25 @@ function Header({updateSideBar}) {
               type="search"
               placeholder="Search..."
               className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-            />
+            /> */}
           </form>
           <div className="flex items-center gap-x-4 lg:gap-x-6">
+          <select name="branch"
+            className="mt-2 block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-purple-600 sm:text-sm/6 pl-6"
+            onChange={(e) => setSelectedBranch(e.target.value)} value={selectedBranch}>
+            <option value="">Select Branch</option>
+            {allBranchs.map((branch) => (
+              <option key={branch.value} value={branch.value}>
+                {branch.label}
+              </option>
+            ))}
+          </select>
+
+            {/* Separator */}
+            <div
+              aria-hidden="true"
+              className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-900/10"
+            />
             <button
               type="button"
               className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"

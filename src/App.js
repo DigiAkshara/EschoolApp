@@ -8,9 +8,10 @@ import {
   loadNavConfig,
   setAcademicYear,
   setActiveMenu,
+  setBranchs,
   setUser,
 } from './app/reducers/appConfigSlice'
-import { ACADEMIC_YEAR } from './app/url'
+import { ACADEMIC_YEAR, BRANCH } from './app/url'
 import { handleApiResponse } from './commonComponent/CommonFunctions'
 import ProtectedRoute from './commonComponent/ProtectedRoutes'
 import Academics from './components/Academics'
@@ -47,8 +48,9 @@ function App() {
 
   const getAcademicData = async () => {
     try {
-      const res = await getData(ACADEMIC_YEAR)
-      dispatch(setAcademicYear(res.data.data))
+      const [academic] = await Promise.all([getData(ACADEMIC_YEAR)])
+      dispatch(setAcademicYear(academic.data.data))
+      // dispatch(setBranchs(branch.data.data))
     } catch (error) {
       if (error.status === 401 || error.status === 403) {
         dispatch(setUser(null))

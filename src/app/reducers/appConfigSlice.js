@@ -22,6 +22,7 @@ const AppConfigSlice = createSlice({
   initialState: {
     activeMenu: 'home',
     academicYear: null,
+    branchs: [],
     user: null,
     navConfig: [],
     tenantId: null,
@@ -45,6 +46,9 @@ const AppConfigSlice = createSlice({
     setAcademicYear: (state, action) => {
       state.academicYear = action.payload
     },
+    setBranchs: (state, action) => {
+      state.branchs = action.payload
+    },
     setTenantId: (state, action) => {
       state.tenantId = action.payload
     },
@@ -66,5 +70,6 @@ export const {
   setFormData,
   clearFormData,
   setAcademicYear,
+  setBranchs,
 } = AppConfigSlice.actions
 export default AppConfigSlice.reducer
