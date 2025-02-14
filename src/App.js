@@ -42,15 +42,17 @@ function App() {
         dispatch(loadNavConfig(user.permissions.permissions))
         dispatch(setActiveMenu(window.location.pathname.split('/')[1]))
         getAcademicData()
+        if (user.role.name !== 'superadmin') {
+          getBranchs()
+        }
       }
     }
   }, [])
 
   const getAcademicData = async () => {
     try {
-      const [academic] = await Promise.all([getData(ACADEMIC_YEAR)])
+      const academic = await getData(ACADEMIC_YEAR)
       dispatch(setAcademicYear(academic.data.data))
-      // dispatch(setBranchs(branch.data.data))
     } catch (error) {
       if (error.status === 401 || error.status === 403) {
         dispatch(setUser(null))
@@ -59,6 +61,22 @@ function App() {
       } else {
         handleApiResponse(error)
       }
+    }
+  }
+
+  const getBranchs = async () => {
+    try {
+      const resp = await getData(BRANCH)
+      let branchs = resp.data.data.map(branch => ({
+        value: branch._id,
+        label: branch.name,
+        address: branch.address,
+        logo: branch.logo,
+        isDefault: branch.isDefault
+      }))
+      dispatch(setBranchs(branchs))
+    } catch (error) {
+      handleApiResponse(error)
     }
   }
   return (

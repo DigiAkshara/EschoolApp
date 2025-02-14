@@ -14,9 +14,10 @@ import {
   loadNavConfig,
   setAcademicYear,
   setActiveMenu,
+  setBranchs,
   setUser,
 } from '../app/reducers/appConfigSlice'
-import {LOGIN, TENANT} from '../app/url'
+import {BRANCH, LOGIN, TENANT} from '../app/url'
 import {handleApiResponse, roles} from '../commonComponent/CommonFunctions'
 import CustomButton from '../commonComponent/CustomButton'
 import CustomInput from '../commonComponent/CustomInput'
@@ -56,6 +57,18 @@ export default function Login() {
         const tenantResponse = await getData(TENANT+'/' + user.tenant);
         dispatch(setTenant(tenantResponse.data.data));
         navigate('/')
+        if(user.role.name !== 'superadmin') {
+          const resp = await getData(BRANCH)
+          let branchs = resp.data.data.map(branch=>({
+            value:branch._id,
+            label:branch.name,
+            address:branch.address,
+            logo:branch.logo,
+            isDefault:branch.isDefault
+          }))
+          dispatch(setBranchs(branchs))
+        }
+
       } else {
         handleApiResponse({
           message: "You don't have permission to login"
