@@ -26,13 +26,9 @@ export const TRANSACTIONS = '/transactions'
 export const DESIGNATION = '/designation'
 export const BREAKTIME = '/breakTime'
 export const SUBJECT = '/subject'
-<<<<<<< Updated upstream
-export const BRANCH = '/branch'
-=======
 export const ROUTE = '/route'
 export const STOPS = '/stops'
 export const BRANCH = '/branch'
 
 
 
->>>>>>> Stashed changes

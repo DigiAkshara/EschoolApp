@@ -158,11 +158,11 @@ function ClassAndSection() {
           </div>
         </div>
       </div>
-      {isModalOpen && <ClassModal onClose={handleCloseModal} />}
+      {isModalOpen && <ClassModal onClose={handleCloseModal} getClasses={getClasses}  />}
       {isSectionModal && (
         <SectionModal
          
-          onClose={handleCloseSectionModal}
+          onClose={handleCloseSectionModal} getClasses={getClasses} 
         />
       )}
     </>
