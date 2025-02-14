@@ -15,7 +15,7 @@ function LoansTab() {
 	const [filteredData, setFilteredData] = useState([])
 	const [expenseData, setExpenseData] = useState([])
 	const [showAddLoanModal, setShowAddLoanModal] = useState(false);
-	const [showCollectLoanModal, setShowCollectLoanModal] = useState(true)
+	const [showCollectLoanModal, setShowCollectLoanModal] = useState(false)
 	const [currentPage, setCurrentPage] = useState(1);
 	const rowsPerPage = 10;
 	const columns = [

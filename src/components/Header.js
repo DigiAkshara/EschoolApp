@@ -1,15 +1,14 @@
-import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/react'
-import {ChevronDownIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
-import {Bars3Icon, BellIcon} from '@heroicons/react/24/outline'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { Bars3Icon, BellIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
-import {useDispatch, useSelector} from 'react-redux'
-import {useNavigate} from 'react-router-dom'
-import {clearSession} from '../app/reducers/appConfigSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { clearSession } from '../app/reducers/appConfigSlice'
 
-function Header({updateSideBar}) {
-  const { branchs } = useSelector((state) => state.appConfig)
+function Header({ updateSideBar }) {
+  const { branchs, user } = useSelector((state) => state.appConfig)
   const [selectedBranch, setSelectedBranch] = useState(null);
-  const [allBranchs, setAllBranchs] = useState([]);
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const logOut = () => {
@@ -19,13 +18,17 @@ function Header({updateSideBar}) {
   }
   useEffect(() => {
     if (branchs.length > 0) {
-      let setBranchs = branchs.map((branch) => {
-        if(branch.isDefault){
-          setSelectedBranch(branch._id)
+      branchs.forEach((branch) => {
+        if (user?.role.name == 'admin') {
+          if (branch.isDefault) {
+            setSelectedBranch(branch.value)
+          }
+        } else {
+          if (user?.role.name !== 'superadmin') {
+            setSelectedBranch(user.branch)
+          }
         }
-        return {value: branch._id, label: branch.name}
       })
-      setAllBranchs(setBranchs)
     }
   }, [branchs])
   return (
@@ -60,17 +63,20 @@ function Header({updateSideBar}) {
               className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
             /> */}
           </form>
+
           <div className="flex items-center gap-x-4 lg:gap-x-6">
-          <select name="branch"
-            className="mt-2 block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-purple-600 sm:text-sm/6 pl-6"
-            onChange={(e) => setSelectedBranch(e.target.value)} value={selectedBranch}>
-            <option value="">Select Branch</option>
-            {allBranchs.map((branch) => (
-              <option key={branch.value} value={branch.value}>
-                {branch.label}
-              </option>
-            ))}
-          </select>
+            {user?.role.name !== 'superadmin' && (
+              <select name="branch"
+                disabled={user?.role.name !== 'admin'}
+                className="mt-2 block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-purple-600 sm:text-sm/6 pl-6"
+                onChange={(e) => setSelectedBranch(e.target.value)} value={selectedBranch}>
+                <option value="">Select Branch</option>
+                {branchs.map((branch) => (
+                  <option key={branch.value} value={branch.value}>
+                    {branch.label}
+                  </option>
+                ))}
+              </select>)}
 
             {/* Separator */}
             <div
