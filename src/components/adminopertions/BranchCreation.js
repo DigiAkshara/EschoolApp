@@ -29,8 +29,8 @@ function BranchCreation({ onClose, getBranches }) {
     logo: null,
     whatsappCount: "",
     smsCount: "",
-    studentPortalEnabled: false,  // Added field
-    staffPortalEnabled: false,   // Added field
+    studentPortalEnabled: false,  
+    staffPortalEnabled: false,   
   });
 
   const getValidationSchema = () => {
