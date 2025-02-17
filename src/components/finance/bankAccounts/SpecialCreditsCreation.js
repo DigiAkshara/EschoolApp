@@ -41,23 +41,23 @@ function SpecialCredits({ onClose }) {
       date: Yup.date().required("Date is required"),
       reason: Yup.string(),
       proofPic: Yup.mixed()
-              .nullable()
-              .test(
-                "fileFormat",
-                "Photo must be in JPG, JPEG, or PNG format",
-                (value) => {
-                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                  return supportedFormats.includes(value.type);
-                }
-              )
-              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-                if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                const maxSizeInBytes = 2 * 1024 * 1024;
-                return value.size <= maxSizeInBytes;
-              }),
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return supportedFormats.includes(value.type);
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+          const maxSizeInBytes = 2 * 1024 * 1024;
+          return value.size <= maxSizeInBytes;
+        }),
     });
   };
 
@@ -142,8 +142,8 @@ function SpecialCredits({ onClose }) {
                                       onChange={handleTransactionTypeChange}
                                     />
                                   </div>
+
                                   {selectedTransactionType === "online" && (
-                                    <>
                                     <div className="sm:col-span-1">
                                       <CustomSelect
                                         name="account"
@@ -152,14 +152,6 @@ function SpecialCredits({ onClose }) {
                                         required={true}
                                       />
                                     </div>
-                                    <div className="sm:col-span-1">
-                                    <CustomInput
-                                      name="transactionID"
-                                      label="Transaction ID"
-                                      required={true}
-                                    />
-                                  </div>
-                                  </>
                                   )}
 
                                   <div className="sm:col-span-1">
@@ -195,6 +187,14 @@ function SpecialCredits({ onClose }) {
                                   )}
 
                                   <div className="sm:col-span-1">
+                                    <CustomDate
+                                      name="date"
+                                      label="Date of Transaction"
+                                      required={true}
+                                    />
+                                  </div>
+
+                                  <div className="sm:col-span-1">
                                     <CustomInput
                                       name="amount"
                                       label="Amount "
@@ -202,13 +202,16 @@ function SpecialCredits({ onClose }) {
                                       required={true}
                                     />
                                   </div>
-                                  <div className="sm:col-span-1">
-                                    <CustomDate
-                                      name="date"
-                                      label="Date of Transaction"
-                                      required={true}
-                                    />
-                                  </div>
+
+                                  {selectedTransactionType === "online" && (
+                                    <div className="sm:col-span-1">
+                                      <CustomInput
+                                        name="transactionID"
+                                        label="Transaction ID"
+                                        required={true}
+                                      />
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="sm:col-span-4 mt-2">
                                   <label

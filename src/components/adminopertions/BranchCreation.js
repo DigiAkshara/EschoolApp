@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { Form, Formik } from "formik";
+import { Form, Formik, Field  } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
@@ -29,6 +29,8 @@ function BranchCreation({ onClose, getBranches }) {
     logo: null,
     whatsappCount: "",
     smsCount: "",
+    studentPortalEnabled: false,  // Added field
+    staffPortalEnabled: false,   // Added field
   });
 
   const getValidationSchema = () => {
@@ -56,6 +58,8 @@ function BranchCreation({ onClose, getBranches }) {
       studentCount: Yup.number().required(" Maximum Student Count is required"),
       whatsappCount: Yup.number().required(" WhatsApp Count is required"),
       smsCount: Yup.number().required("SMS Count is required"),
+      studentPortalEnabled: Yup.boolean(),
+      staffPortalEnabled: Yup.boolean(),
       logo: Yup.mixed()
         .nullable()
         .test(
@@ -215,6 +219,18 @@ function BranchCreation({ onClose, getBranches }) {
                                     />
                                   </div>
                                 </div>
+
+                                   {/* Checkbox Fields */}
+                            <div className="grid grid-cols-2 gap-x-4 mt-4">
+                              <label className="flex items-center space-x-2">
+                                <Field type="checkbox" name="studentPortalEnabled" className="h-5 w-5 text-purple-600" />
+                                <span>Student Portal Enabled</span>
+                              </label>
+                              <label className="flex items-center space-x-2">
+                                <Field type="checkbox" name="staffPortalEnabled" className="h-5 w-5 text-purple-600" />
+                                <span>Staff Portal Enabled</span>
+                              </label>
+                            </div>
 
                                 <div className="sm:col-span-4 mt-2">
                                   <CustomFileUploader
