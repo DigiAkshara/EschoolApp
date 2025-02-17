@@ -81,10 +81,10 @@ export default function Tenant({ onClose, loadTenants }) {
       studentCount: Yup.string().required("Students Count is required").max(5),
       smsCount: Yup.string().required("SMS Count is required").max(5),
       whatsAppCount: Yup.string().required("WhatsApp Count is required").max(5),
-      portalEnabledStudents: Yup.boolean().required(
+      portalEnabledStudents: Yup.string().required(
         "Portal Enabled Students is required"
       ),
-      portalEnabledStaff: Yup.boolean().required(
+      portalEnabledStaff: Yup.string().required(
         "Portal Enabled Staff is required"
       ),
       logo: Yup.mixed()
@@ -245,14 +245,14 @@ export default function Tenant({ onClose, loadTenants }) {
                               <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
                                 Portal Settings
                               </h2>
-                              <div className=" grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
+                              <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
                                 <div className="sm:col-span-2">
                                   <CustomRadio
                                     name="portalEnabledStaff"
                                     label="Portal Enabled for Staff"
                                     options={[
-                                      { value: true, label: "Yes" },
-                                      { value: false, label: "No" },
+                                      { value: "yes", label: "Yes" },
+                                      { value: "no", label: "No" },
                                     ]}
                                     required={true}
                                   />
@@ -262,8 +262,8 @@ export default function Tenant({ onClose, loadTenants }) {
                                     name="portalEnabledStudents"
                                     label="Portal Enabled for Students"
                                     options={[
-                                      { value: true, label: "Yes" },
-                                      { value: false, label: "No" },
+                                      { value: "yes", label: "Yes" },
+                                      { value: "no", label: "No" },
                                     ]}
                                     required={true}
                                   />
