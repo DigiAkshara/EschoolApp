@@ -187,81 +187,60 @@ function Student({ onClose, loadStudents }) {
         .required("Aadhar Number is required"),
       DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
       profilePic: Yup.mixed()
-        .nullable()
-        .test(
-          "fileFormat",
-          "Photo must be in JPG, JPEG, or PNG format",
-          (value) => {
-            if (!value) return true; // If no file is uploaded, skip the test
-            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-
-            // Check MIME type first
-            if (supportedFormats.includes(value.type)) {
-              return true; // Valid MIME type
-            }
-
-            // If MIME type is incorrect, check the file extension as a fallback
-            const fileExtension = value.name.split(".").pop().toLowerCase();
-            const supportedExtensions = ["jpg", "jpeg", "png"];
-            return supportedExtensions.includes(fileExtension); // Check file extension
-          }
-        )
-        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-          if (!value) return true; // If no file is uploaded, skip the test
-          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-          return value.size <= maxSizeInBytes; // Check if file size is within limit
-        }),
+              .nullable()
+              .test(
+                "fileFormat",
+                "Photo must be in JPG, JPEG, or PNG format",
+                (value) => {
+                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
+      
+                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+                  return supportedFormats.includes(value.type);
+                }
+              )
+              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+                if (!value || !(value instanceof File)) return true; // Allow empty/null value
+      
+                const maxSizeInBytes = 2 * 1024 * 1024;
+                return value.size <= maxSizeInBytes;
+              }),
 
       aadharPic: Yup.mixed()
-        .nullable()
-        .test(
-          "fileFormat",
-          "Photo must be in JPG, JPEG, or PNG format",
-          (value) => {
-            if (!value) return true; // If no file is uploaded, skip the test
-            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-
-            // Check MIME type first
-            if (supportedFormats.includes(value.type)) {
-              return true; // Valid MIME type
-            }
-
-            // If MIME type is incorrect, check the file extension as a fallback
-            const fileExtension = value.name.split(".").pop().toLowerCase();
-            const supportedExtensions = ["jpg", "jpeg", "png"];
-            return supportedExtensions.includes(fileExtension); // Check file extension
-          }
-        )
-        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-          if (!value) return true; // If no file is uploaded, skip the test
-          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-          return value.size <= maxSizeInBytes; // Check if file size is within limit
-        }),
+              .nullable()
+              .test(
+                "fileFormat",
+                "Photo must be in JPG, JPEG, or PNG format",
+                (value) => {
+                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
+      
+                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+                  return supportedFormats.includes(value.type);
+                }
+              )
+              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+                if (!value || !(value instanceof File)) return true; // Allow empty/null value
+      
+                const maxSizeInBytes = 2 * 1024 * 1024;
+                return value.size <= maxSizeInBytes;
+              }),
       parentIdProof: Yup.mixed()
-        .nullable()
-        .test(
-          "fileFormat",
-          "Photo must be in JPG, JPEG, or PNG format",
-          (value) => {
-            if (!value) return true; // If no file is uploaded, skip the test
-            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-
-            // Check MIME type first
-            if (supportedFormats.includes(value.type)) {
-              return true; // Valid MIME type
-            }
-
-            // If MIME type is incorrect, check the file extension as a fallback
-            const fileExtension = value.name.split(".").pop().toLowerCase();
-            const supportedExtensions = ["jpg", "jpeg", "png"];
-            return supportedExtensions.includes(fileExtension); // Check file extension
-          }
-        )
-        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-          if (!value) return true; // If no file is uploaded, skip the test
-          const maxSizeInBytes = 2 * 1024 * 1024; // 2MB in bytes
-          return value.size <= maxSizeInBytes; // Check if file size is within limit
-        }),
+              .nullable()
+              .test(
+                "fileFormat",
+                "Photo must be in JPG, JPEG, or PNG format",
+                (value) => {
+                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
+      
+                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+                  return supportedFormats.includes(value.type);
+                }
+              )
+              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+                if (!value || !(value instanceof File)) return true; // Allow empty/null value
+      
+                const maxSizeInBytes = 2 * 1024 * 1024;
+                return value.size <= maxSizeInBytes;
+              }),
     }),
     Yup.object({
       academics: Yup.object({
