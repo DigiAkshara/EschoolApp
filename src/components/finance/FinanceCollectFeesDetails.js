@@ -284,8 +284,6 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const handleSubmit = async (values) => {
     try {
       const res = await postData(STUDENT_FEE, values);
-      console.log("[RESPONSE]:", res.data.data);
-      
       handleApiResponse(res.data.message, "success");
       fetchData();
       const formattedFees = res.data.data.fees.map(feeItem => {
@@ -316,10 +314,6 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   };
 
   useEffect(() => {
-    console.log("Student data for downloading:",studentData);
-    console.log("Fees data for downloding:",feesData);
-    
-    
     if (selectedData) {
       const classId = selectedData?.academic.class._id;
       getFeesData(classId);
@@ -715,7 +709,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     </Formik>
 
 <Transition show={isReceiptOpen} as={Fragment}>
-<Dialog as="div" className="relative z-50" onClose={() => setIsReceiptOpen(false)}>
+<Dialog as="div" className="relative z-50" onClose={handleCloseReceipt}>
   <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
 
   <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
@@ -724,7 +718,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
       {/* Header */}
       <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
         <h3 className="text-lg font-semibold">Fee Receipt Preview</h3>
-        <button onClick={() => setIsReceiptOpen(false)} className="text-white text-xl">
+        <button onClick={handleCloseReceipt} className="text-white text-xl">
           ✖
         </button>
       </div>
