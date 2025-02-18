@@ -49,6 +49,8 @@ export default function StudentsList() {
   useEffect(() => {
     dispatch(fetchInitialStudentData());
     getStudents();
+    console.log("tenant", tenant);
+    
   }, [dispatch]);
 
   const columns = [
@@ -225,7 +227,7 @@ export default function StudentsList() {
     const schoolName = tenant.name || "Unknown School";
     const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""
       }, ${tenant.pincode || ""}`.trim();
-    const phoneNumber = tenant.phoneNumber || "N/A";
+    const phoneNumber = tenant.mobileNumber || "N/A";
     const email = tenant.email || "N/A";
     handleDownload(
       filteredData,

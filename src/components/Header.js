@@ -4,7 +4,7 @@ import { Bars3Icon, BellIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { clearSession } from '../app/reducers/appConfigSlice'
+import { clearSession, setBranchId } from '../app/reducers/appConfigSlice'
 
 function Header({ updateSideBar }) {
   const { branchs, user } = useSelector((state) => state.appConfig)

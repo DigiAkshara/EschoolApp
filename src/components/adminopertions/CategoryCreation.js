@@ -6,7 +6,7 @@ import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import { financeType, handleApiResponse, paymentType, staffType, transactionType } from "../../commonComponent/CommonFunctions";
 import { postData } from "../../app/api";
-import { DESIGNATION } from "../../app/url";
+import { DESIGNATION, FEE_CATEGORY } from "../../app/url";
 import { useNavigate } from "react-router-dom";
 
 const CategoryCreation = ({ onClose }) => {
@@ -27,7 +27,7 @@ const CategoryCreation = ({ onClose }) => {
   const handleSubmit = async (values) => {
     console.log(values);
     try {
-      const response = await postData(DESIGNATION, values);
+      const response = await postData(FEE_CATEGORY, values);
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
