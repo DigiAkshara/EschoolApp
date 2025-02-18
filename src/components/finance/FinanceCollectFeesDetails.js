@@ -364,11 +364,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const handleSubmit = async (values) => {
     try {
       const res = await postData(STUDENT_FEE, values);
-<<<<<<< Updated upstream
-=======
       console.log("[RESPONSE]:", res.data.data);
-
->>>>>>> Stashed changes
       handleApiResponse(res.data.message, "success");
       await fetchData();
 
@@ -404,12 +400,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   };
 
   useEffect(() => {
-<<<<<<< Updated upstream
-=======
-    console.log("Student data for downloading:", studentData);
-    console.log("Fees data for downloding:", feesData);
 
->>>>>>> Stashed changes
     if (selectedData) {
       const classId = selectedData?.academic.class._id;
       getFeesData(classId);
@@ -862,69 +853,9 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
               </div>
             </div>
           </div>
-<<<<<<< Updated upstream
-          <div className="flex shrink-0 px-4 py-4 bg-gray-100 w-full justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-            >
-              Submit
-            </button>
-          </div>
-        </Form>
-      )}
-    </Formik>
-
-<Transition show={isReceiptOpen} as={Fragment}>
-<Dialog as="div" className="relative z-50" onClose={handleCloseReceipt}>
-  <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
-
-  <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
-    <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
-      
-      {/* Header */}
-      <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
-        <h3 className="text-lg font-semibold">Fee Receipt Preview</h3>
-        <button onClick={handleCloseReceipt} className="text-white text-xl">
-          ✖
-        </button>
-      </div>
-
-      {/* PDF Preview */}
-      <div className="flex-1 overflow-auto">
-        {receiptData && (
-          <iframe src={generateReceiptPDF(receiptData, "./schoolLogo.jpg")} className="w-full h-full"></iframe>
-        )}
-      </div>
-
-      {/* Footer Buttons */}
-      <div className="flex justify-between p-4 bg-gray-100">
-        <button onClick={() => generateReceiptPDF(receiptData, "./schoolLogo.jpg","portrait", true)} className="px-4 py-2 bg-purple-600 text-white rounded-md">
-          Download PDF
-        </button>
-        <button onClick={handleCloseReceipt} className="px-4 py-2 bg-gray-400 text-white rounded-md">
-          Close
-        </button>
-      </div>
-
-    </div>
-  </div>
-</Dialog>
-</Transition>
-</>
-
-=======
         </Dialog>
       </Transition>
     </>
->>>>>>> Stashed changes
   );
 }
 
