@@ -1,167 +1,161 @@
-import { Form, Formik } from 'formik'
-import { useEffect, useState } from 'react'
-import * as Yup from 'yup'
-import { getData, postData } from '../../app/api'
-import { BRANCH, PERMISSIONS, ROLES } from '../../app/url'
-import navData from '../../assets/json/nav.json'
-import { handleApiResponse } from '../../commonComponent/CommonFunctions'
-import CustomCheckBox from '../../commonComponent/CustomCheckBox'
-import CustomSelect from '../../commonComponent/CustomSelect'
-import { useSelector } from 'react-redux'
+import { Form, Formik } from "formik";
+import { useEffect, useState } from "react";
+import * as Yup from "yup";
+import { getData, postData } from "../../app/api";
+import { BRANCH, PERMISSIONS, ROLES } from "../../app/url";
+import navData from "../../assets/json/nav.json";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import CustomCheckBox from "../../commonComponent/CustomCheckBox";
+import CustomSelect from "../../commonComponent/CustomSelect";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsLoader } from "../../app/reducers/appConfigSlice";
 const Permissions = () => {
-  const { user } = useSelector((state) => state.appConfig)
-  const [roles, setRoles] = useState([])
-  const [tenants, setTenants] = useState([])
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.appConfig);
+  const [roles, setRoles] = useState([]);
+  const [tenants, setTenants] = useState([]);
+  const [mainPermissions, setMainPermissions] = useState(navData);
+  const [adminRole, setAdminRole] = useState(null);
   const initialValues = {
-    role: '',
-    tenant: user?.role.name === 'superadmin' ? '' : user?.tenant,
-    permissions: navData.map((item) => {
+    role: "",
+    tenant: user?.role.name === "superadmin" ? "" : user?.tenant,
+    permissions: mainPermissions.map((item) => {
       return {
         name: item.name,
         title: item.title,
         read: false,
         submenu: item.submenu
           ? item.submenu.map((menu) => ({
-            title: menu.title,
-            name: menu.name,
-            read: false,
-            write: false,
-            delete: false,
-            edit: false,
-          }))
+              title: menu.title,
+              name: menu.name,
+              read: false,
+              write: false,
+              delete: false,
+              edit: false,
+            }))
           : [],
-      }
+      };
     }),
-  }
+  };
   const getValidationSchema = () => {
     return Yup.object({
-      role: Yup.string().required('Role is required'),
-      tenant: Yup.string().required('Tenant is required'),
+      role: Yup.string().required("Role is required"),
+      tenant: Yup.string().required("Tenant is required"),
       permissions: Yup.array().of(
         Yup.object({
           name: Yup.string(),
           title: Yup.string(),
           read: Yup.boolean(),
-          submenu: Yup.array()
-            .of(
-              Yup.object().shape({
-                delete: Yup.boolean(),
-                edit: Yup.boolean(),
-                read: Yup.boolean(),
-                write: Yup.boolean(),
-                name: Yup.string(),
-                title: Yup.string(),
-              }),
-            )
-            .test(
-              'submenu-permission-check',
-              'At least one permission (delete, edit, read, write) must be true in the submenu when menu is checked',
-              function (submenu) {
-                const { read } = this.parent // Access 'menu.read'
-                if (!read || submenu.length === 0) return true // Skip validation if 'menu.read' is false
-                return submenu.some(
-                  (item) => item.delete || item.edit || item.read || item.write,
-                )
-              },
-            ),
-        }),
+          submenu: Yup.array().of(
+            Yup.object().shape({
+              delete: Yup.boolean(),
+              edit: Yup.boolean(),
+              read: Yup.boolean(),
+              write: Yup.boolean(),
+              name: Yup.string(),
+              title: Yup.string(),
+            })
+          ),
+          // .test(
+          //   "submenu-permission-check",
+          //   "At least one permission (delete, edit, read, write) must be true in the submenu when menu is checked",
+          //   function (submenu) {
+          //     const { read } = this.parent; // Access 'menu.read'
+          //     if (!read || submenu.length === 0) return true; // Skip validation if 'menu.read' is false
+          //     return submenu.some(
+          //       (item) => item.delete || item.edit || item.read || item.write
+          //     );
+          //   }
+          // ),
+        })
       ),
-    })
-  }
+    });
+  };
   const handleSubmit = async (values) => {
     try {
-      let res = await postData(PERMISSIONS, values)
-      handleApiResponse(res.data.message, 'success')
+      let res = await postData(PERMISSIONS, values);
+      handleApiResponse(res.data.message, "success");
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
 
   const handleMenuPermissions = (e, index, values, setFieldValue) => {
-    let dumpList = [...values.permissions]
-    dumpList[index].read = e.target.checked
+    let dumpList = [...values.permissions];
+    dumpList[index].read = e.target.checked;
     dumpList[index].submenu.forEach((item) => {
-      item.read = false
-      item.write = false
-      item.edit = false
-      item.delete = false
-    })
-    setFieldValue('permissions', dumpList)
-  }
+      item.read = false;
+      item.write = false;
+      item.edit = false;
+      item.delete = false;
+    });
+    setFieldValue("permissions", dumpList);
+  };
 
-  const getRoles = async () => {
+  const getRoles = async (user) => {
     try {
-      const res = await getData(ROLES)
-      let roleData = res.data.data.filter((item) => item.name !== 'superadmin').map((item) => {
-        return {
-          label: item.name, // Displayed text in the dropdown
-          value: item._id,
-        }
-      })
-      setRoles(roleData)
+      const res = await getData(ROLES);
+      let roleData = res.data.data
+        .filter((item) => item.name !== "superadmin")
+        .map((item) => {
+          if (item.name === "admin") {
+            setAdminRole(item._id);
+          }
+          return {
+            label: item.name, // Displayed text in the dropdown
+            value: item._id,
+          };
+        });
+      if (user?.role.name === "admin") {
+        roleData = roleData.filter((item) => item.label !== "admin");
+      }
+      setRoles(roleData);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
 
   const getBraches = async () => {
     try {
-      const data = await getData(BRANCH + '?isDefault=true')
+      const data = await getData(BRANCH + "?isDefault=true");
       let branchData = data.data.data.map((item) => {
         return {
           label: item.name, // Displayed text in the dropdown
           value: item.tenant._id,
-        }
-      })
-      setTenants(branchData)
+        };
+      });
+      setTenants(branchData);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
 
   const handleChange = async (e, setFieldValue, values) => {
-    setFieldValue(e.target.name, e.target.value)
-    let role = values.role
-    let tenant = values.tenant
-    if(e.target.name === 'role'){
-      role = e.target.value
-    }else{
-      tenant = values.tenant
+    setFieldValue(e.target.name, e.target.value);
+    let role = values.role;
+    let tenant = values.tenant;
+    if (e.target.name === "role") {
+      role = e.target.value;
+    } else {
+      tenant = values.tenant;
     }
-    if(role && tenant){getPermissions(role, tenant, setFieldValue)}
-  }
+    if (role && tenant) {
+      getPermissions(role, tenant, setFieldValue);
+    }
+  };
 
-  const getPermissions = async(role, tenant, setFieldValue)=>{
-    try{
-      let res = await getData(PERMISSIONS + '/' + role + '/' + tenant)
-      if (res.data.data) {
-        let permissions = []
-        if (user?.role.name !== 'superadmin') {
-          res.data.data.permissions.forEach((item) => {
-            if (item.read) {
-              let submenus = item.submenu.filter((submenu) => {
-                if (submenu.read) {
-                  return submenu
-                }
-              })
-              permissions.push({
-                ...item,
-                submenu: submenus
-              })
-            }
-          })
-        } else {
-          permissions = res.data.data.permissions
-        }
-        setFieldValue('permissions', permissions)
-      } else {
-        setFieldValue('permissions', navData.map((item) => {
-          return {
-            name: item.name,
-            title: item.title,
-            read: false,
-            submenu: item.submenu
-              ? item.submenu.map((menu) => ({
+  const getPermissions = async (role, tenant, setFieldValue) => {
+    try {
+      dispatch(setIsLoader(true));
+      let res = await getData(PERMISSIONS + "/" + role + "/" + tenant);
+      let dumpLIst = [];
+      mainPermissions.forEach((item) => {
+        let obj = {
+          name: item.name,
+          title: item.title,
+          read: false,
+          submenu: item.submenu
+            ? item.submenu.map((menu) => ({
                 title: menu.title,
                 name: menu.name,
                 read: false,
@@ -169,20 +163,80 @@ const Permissions = () => {
                 delete: false,
                 edit: false,
               }))
-              : [],
+            : [],
+        };
+        if (res.data.data) {
+          let index = res.data.data.permissions.findIndex(
+            (i) => i.name === item.name
+          );
+          if (index != -1) {
+            obj.read = true;
+            obj.submenu.forEach((submenu) => {
+              let subIndex = res.data.data.permissions[index].submenu.findIndex(
+                (i) => i.name === submenu.name
+              );
+              if (subIndex != -1) {
+                submenu.read =
+                  res.data.data.permissions[index].submenu[subIndex].read;
+                submenu.write =
+                  res.data.data.permissions[index].submenu[subIndex].write;
+                submenu.edit =
+                  res.data.data.permissions[index].submenu[subIndex].edit;
+                submenu.delete =
+                  res.data.data.permissions[index].submenu[subIndex].delete;
+              }
+            });
           }
-        }))
-      }
-    }catch(error){
-      handleApiResponse(error)
+        }
+        dumpLIst.push(obj);
+      });
+      setFieldValue("permissions", dumpLIst);
+    } catch (error) {
+      handleApiResponse(error);
+    } finally {
+      dispatch(setIsLoader(false));
     }
-  }
-  
+  };
+
+  const getAdminPermissions = async (role, tenant) => {
+    try {
+      dispatch(setIsLoader(true));
+      let res = await getData(PERMISSIONS + "/" + role + "/" + tenant);
+      if (res.data.data) {
+        let permissions = [];
+        res.data.data.permissions.forEach((item) => {
+          if (item.read) {
+            let submenus = item.submenu.filter((submenu) => {
+              if (submenu.read) {
+                return submenu;
+              }
+            });
+            permissions.push({
+              ...item,
+              submenu: submenus,
+            });
+          }
+        });
+        setMainPermissions(permissions);
+      }
+    } catch (error) {
+      handleApiResponse(error);
+    } finally {
+      dispatch(setIsLoader(false));
+    }
+  };
 
   useEffect(() => {
-    getRoles()
-    getBraches()
-  }, [])
+    getRoles(user);
+    getBraches();
+  }, [user]);
+
+  useEffect(() => {
+    if (user?.role.name !== "superadmin") {
+      let tenant = user?.tenant;
+      if (adminRole && tenant) getAdminPermissions(adminRole, tenant);
+    }
+  }, [user, adminRole]);
 
   return (
     <Formik
@@ -195,23 +249,28 @@ const Permissions = () => {
         <Form>
           <div className="mt-4 flex justify-between">
             <div className=" grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
-              {user?.role.name === 'superadmin' &&
+              {user?.role.name === "superadmin" && (
                 <div className="sm:col-span-2">
                   <CustomSelect
                     required={true}
                     label="Tenant"
                     name="tenant"
                     options={tenants}
-                    onChange={(e) =>{handleChange(e, setFieldValue, values)}}
+                    onChange={(e) => {
+                      handleChange(e, setFieldValue, values);
+                    }}
                   />
-                </div>}
+                </div>
+              )}
               <div className="sm:col-span-2">
                 <CustomSelect
                   required={true}
                   label="Role"
                   name="role"
                   options={roles}
-                  onChange={(e) =>{handleChange(e, setFieldValue, values)}}
+                  onChange={(e) => {
+                    handleChange(e, setFieldValue, values);
+                  }}
                 />
               </div>
             </div>
@@ -234,20 +293,24 @@ const Permissions = () => {
                               className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
                             >
                               <div className="relative flex items-start mb-4">
-                                {user?.role.name !== 'superadmin'?item.title:<CustomCheckBox
-                                  name={`permissions[${ind}].read`}
-                                  checked={item.read}
-                                  label={item.title}
-                                  disabled={user?.role.name !== 'superadmin'}
-                                  onChange={(e) =>
-                                    handleMenuPermissions(
-                                      e,
-                                      ind,
-                                      values,
-                                      setFieldValue,
-                                    )
-                                  }
-                                />}
+                                {user?.role.name !== "superadmin" ? (
+                                  item.title
+                                ) : (
+                                  <CustomCheckBox
+                                    name={`permissions[${ind}].read`}
+                                    checked={item.read}
+                                    label={item.title}
+                                    disabled={user?.role.name !== "superadmin"}
+                                    onChange={(e) =>
+                                      handleMenuPermissions(
+                                        e,
+                                        ind,
+                                        values,
+                                        setFieldValue
+                                      )
+                                    }
+                                  />
+                                )}
                               </div>
                               {item.submenu.length > 0 &&
                                 errors?.permissions?.[ind]?.submenu && (
@@ -263,8 +326,9 @@ const Permissions = () => {
                             {item.submenu.map((menu, index) => (
                               <tr key={index} className="bg-gray-50">
                                 <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                  {user?.role.name !== 'superadmin' ?
-                                    menu.title : 
+                                  {user?.role.name !== "superadmin" ? (
+                                    menu.title
+                                  ) : (
                                     <div className="relative flex items-start mb-4">
                                       <CustomCheckBox
                                         name={`permissions[${ind}].submenu[${index}].read`}
@@ -272,9 +336,10 @@ const Permissions = () => {
                                         checked={menu.read}
                                         disabled={!item.read}
                                       />
-                                    </div>}
+                                    </div>
+                                  )}
                                 </td>
-                                {user?.role.name !== 'superadmin' ?
+                                {user?.role.name !== "superadmin" ? (
                                   <>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                                       <div className="relative flex items-start mb-4">
@@ -298,7 +363,7 @@ const Permissions = () => {
                                     </td>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                                       <div className="relative flex items-start mb-4">
-                                        {' '}
+                                        {" "}
                                         <CustomCheckBox
                                           name={`permissions[${ind}].submenu[${index}].edit`}
                                           checked={menu.edit}
@@ -309,7 +374,7 @@ const Permissions = () => {
                                     </td>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                                       <div className="relative flex items-start mb-4">
-                                        {' '}
+                                        {" "}
                                         <CustomCheckBox
                                           name={`permissions[${ind}].submenu[${index}].delete`}
                                           checked={menu.delete}
@@ -318,12 +383,15 @@ const Permissions = () => {
                                         />
                                       </div>
                                     </td>
-                                  </> :
+                                  </>
+                                ) : (
                                   <>
-                                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500" colSpan={4}>
-
-                                    </td>
-                                  </>}
+                                    <td
+                                      className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                                      colSpan={4}
+                                    ></td>
+                                  </>
+                                )}
                               </tr>
                             ))}
                           </tbody>
@@ -355,6 +423,6 @@ const Permissions = () => {
         </Form>
       )}
     </Formik>
-  )
-}
-export default Permissions
+  );
+};
+export default Permissions;
