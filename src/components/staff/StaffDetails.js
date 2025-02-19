@@ -16,6 +16,7 @@ import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
 import Staff from './Staff'
 import { setIsLoader } from '../../app/reducers/appConfigSlice'
+import { useLocation } from 'react-router-dom'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -28,6 +29,8 @@ const tabs2 = [
 
 export default function StaffDetails() {
   const subjects = useSelector((state) => state.staff?.subjects)
+  const location = useLocation()
+  const openModel = location.state?.openModel || false
   const [open2, setOpen2] = useState(false)
   const [selectedPeople, setSelectedPeople] = useState([])
   const [showAddStaffModal, setShowAddStaffModal] = useState(false)
@@ -69,6 +72,9 @@ export default function StaffDetails() {
   useEffect(() => {
     getSubjects()
     getStaff()
+    if (openModel) {
+      setShowAddStaffModal(true)
+    }
   }, [dispatch])
 
   const columns = [
