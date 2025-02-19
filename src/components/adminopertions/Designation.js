@@ -44,7 +44,7 @@ function Designation() {
           name: item.name,
           staffType: item.staffType,
           actions: [
-            { label: "Edit", actionHandler: onHandleEdit },
+            // { label: "Edit", actionHandler: onHandleEdit },
             { label: "Delete", actionHandler: onDelete },
           ],
         };

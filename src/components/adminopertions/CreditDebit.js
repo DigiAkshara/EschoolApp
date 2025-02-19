@@ -4,7 +4,7 @@ import TableComponent from "../../commonComponent/TableComponent";
 import CategoryCreation from "./CategoryCreation";
 import SubcategoryCreation from "./SubCategoryCreation";
 import { getData } from "../../app/api";
-import { CLASSES, SECTIONS } from "../../app/url";
+import { CLASSES, FEE_CATEGORY, FEE_SUBCATEGORY, SECTIONS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
 function CreditDebit() {
@@ -24,22 +24,23 @@ function CreditDebit() {
   ];
 
   useEffect(()=>{
+    // getCategory()
   },[])
 
 
 
-  // const getClasses = async () => {
+  // const getCategory = async () => {
   //   try {
-  //     const [sectionsResponse, classesResponse] = await Promise.all([
-  //       getData(SECTIONS),
-  //       getData(CLASSES) // Fetch all class details
+  //     const [categoryResponse, subCategoryResponse] = await Promise.all([
+  //       getData(FEE_CATEGORY),
+  //       getData(FEE_SUBCATEGORY) // Fetch all class details
   //     ]);
   
-  //     console.log("[SECTIONS]:", sectionsResponse.data.data);
-  //     console.log("[CLASSES]:", classesResponse.data.data);
+  //     console.log("[CATEGORY]:", categoryResponse.data.data);
+  //     console.log("[SUB CATEGORY]:", subCategoryResponse.data.data);
   
   //     // Create a lookup map for class IDs to class names
-  //     const classesMap = {};
+  //     const categoryMap = {};
   //     classesResponse.data.data.forEach(cls => {
   //       if (cls._id && cls.name) {
   //         classesMap[cls._id] = cls.name;

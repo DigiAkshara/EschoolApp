@@ -26,6 +26,7 @@ const AppConfigSlice = createSlice({
     user: null,
     navConfig: [],
     tenantId: null,
+    branchId:null,
     formData: null,
     isLoading: false
   },
@@ -53,6 +54,9 @@ const AppConfigSlice = createSlice({
     setTenantId: (state, action) => {
       state.tenantId = action.payload
     },
+    setBranchId: (state, action) => {
+      state.branchId = action.payload
+    },
     setFormData: (state, action) => {
       state.formData = action.payload
     },
@@ -71,6 +75,7 @@ export const {
   setUser,
   clearSession,
   setTenantId,
+  setBranchId,
   setFormData,
   clearFormData,
   setAcademicYear,

@@ -39,7 +39,7 @@ function Subjects() {
           siNo: index + 1,
           name: capitalizeWords(item.name),
           actions: [
-            { label: "Edit", actionHandler: onHandleEdit },
+            // { label: "Edit", actionHandler: onHandleEdit },
             { label: "Delete", actionHandler: onDelete },
           ],
         };

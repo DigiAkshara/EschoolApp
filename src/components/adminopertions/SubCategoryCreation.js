@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
-import { postData } from "../../app/api";
-import { DESIGNATION } from "../../app/url";
-import { useNavigate } from "react-router-dom";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import { getData, postData } from "../../app/api";
+import { DESIGNATION, FEE_CATEGORY, FEE_SUBCATEGORY } from "../../app/url";
 
 const SubCategoryCreation = ({ onClose }) => {
+
+  const [category, setCategory] = useState([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -23,10 +24,27 @@ const SubCategoryCreation = ({ onClose }) => {
     });
   };
 
+  const getCategory = async () => {
+    try {
+      const response = await getData(FEE_CATEGORY);
+      console.log(response);
+      const responseData = response.data.data;
+      const categoryData = responseData.map((item) => {
+        return {
+          value: item._id,
+          label: item.name,
+        };
+      })
+      setCategory(categoryData)
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const handleSubmit = async (values) => {
     console.log(values);
     try {
-      const response = await postData(DESIGNATION, values);
+      const response = await postData(FEE_SUBCATEGORY, values);
       console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
@@ -37,6 +55,10 @@ const SubCategoryCreation = ({ onClose }) => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    getCategory();
+  }, []);
 
   return (
     <>
@@ -72,7 +94,7 @@ const SubCategoryCreation = ({ onClose }) => {
                   <CustomSelect
                     name="category"
                     label="Category"
-                    // options={staffType}
+                    options={category}
                     required={true}
                   />
                 </div>

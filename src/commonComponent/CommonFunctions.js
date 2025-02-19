@@ -355,7 +355,7 @@ export const handleDownloadPDF = (data, fileName, columns, title, tenant, logoUr
   // School Header Information
   const schoolName = (tenant?.name || "Unknown School").toUpperCase();
   const schoolAddress = `${tenant?.city || ""}, ${tenant?.district || ""}, ${tenant?.state || ""}, ${tenant?.pincode || ""}`.trim();
-  const phoneNumber = tenant?.phoneNumber || "N/A";
+  const phoneNumber = tenant?.mobileNumber || "N/A";
   const email = tenant?.email || "N/A";
 
   const logo = logoUrl || defaultLogo;

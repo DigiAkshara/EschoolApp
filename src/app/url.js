@@ -28,6 +28,10 @@ export const SUBJECT = '/subject'
 export const ROUTE = '/route'
 export const STOPS = '/stops'
 export const BRANCH = '/branch'
+export const FEE_CATEGORY = '/feeCategory'
+export const FEE_SUBCATEGORY = '/feeSubCategory'
+
+
 
 
 
