@@ -21,9 +21,12 @@ import TableComponent from "../../commonComponent/TableComponent";
 import StudentProfileModal from "./Profile";
 import Student from "./Student";
 import { setIsLoader } from "../../app/reducers/appConfigSlice";
+import { useLocation } from "react-router-dom";
 
 export default function StudentsList() {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const {openModel} = location.state || {openModel: false}
   const { classes: clsOptions, sections: sectionOptions } = useSelector(
     (state) => state.students
   );
@@ -49,8 +52,9 @@ export default function StudentsList() {
   useEffect(() => {
     dispatch(fetchInitialStudentData());
     getStudents();
-    console.log("tenant", tenant);
-    
+    if (openModel) {
+      setOpen(true)
+    }
   }, [dispatch]);
 
   const columns = [

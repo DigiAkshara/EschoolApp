@@ -9,6 +9,7 @@ import { clearSession, setBranchId } from '../app/reducers/appConfigSlice'
 function Header({ updateSideBar }) {
   const { branchs, user } = useSelector((state) => state.appConfig)
   const [selectedBranch, setSelectedBranch] = useState(null);
+  const [branch, setBranch] = useState(null)
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const logOut = () => {
@@ -22,10 +23,12 @@ function Header({ updateSideBar }) {
         if (user?.role.name == 'admin') {
           if (branch.isDefault) {
             setSelectedBranch(branch.value)
+            setBranch(branch)
           }
         } else {
           if (user?.role.name !== 'superadmin') {
             setSelectedBranch(user.branch)
+            setBranch(branchs.find((branch) => branch.value === user.branch))
           }
         }
       })
@@ -47,7 +50,12 @@ function Header({ updateSideBar }) {
         <div aria-hidden="true" className="h-6 w-px bg-gray-900/10 lg:hidden" />
 
         <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-          <form action="#" method="GET" className="relative flex flex-1">
+          <div className="relative flex flex-1 lg:items-center">
+            <img
+              alt=""
+              src= {branch?.logo.Location || "https://tailwindui.com/plus-assets/img/logos/mark.svg?color=purple&shade=600"}
+              className="h-8 w-auto"
+            />
             {/* <label htmlFor="search-field" className="sr-only">
               Search
             </label>
@@ -62,7 +70,7 @@ function Header({ updateSideBar }) {
               placeholder="Search..."
               className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
             /> */}
-          </form>
+          </div>
 
           <div className="flex items-center gap-x-4 lg:gap-x-6">
             {user?.role.name !== 'superadmin' && (
@@ -103,7 +111,7 @@ function Header({ updateSideBar }) {
                 <span className="sr-only">Open user menu</span>
                 <img
                   alt=""
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                  src={branch?.logo?.Location || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"}
                   className="h-8 w-8 rounded-full bg-gray-50"
                 />
                 <span className="hidden lg:flex lg:items-center">
@@ -112,7 +120,7 @@ function Header({ updateSideBar }) {
                       aria-hidden="true"
                       className="text-sm/6 font-semibold text-gray-900"
                     >
-                      Tom Cook
+                      {branch?.label}
                     </span>
                     <span className="text-xs text-gray-500">Admin</span>
                   </div>
