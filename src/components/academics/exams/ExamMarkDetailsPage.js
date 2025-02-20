@@ -19,7 +19,8 @@ function ExamMarkDetailsPage({ onClose }) {
   const selectedExamDetails = useSelector((state) => state.exams.selectedExamDetails)
   const subjectOptions = useSelector((state) => state.academics.subjects)
   const [studentMarks, setStudents] = useState([])
-  const tenant = useSelector((state) => state.tenantData);
+  const { branchData } = useSelector((state) => state.appConfig)
+  
 
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [pdfUrl, setPdfUrl] = useState("");
@@ -78,6 +79,8 @@ function ExamMarkDetailsPage({ onClose }) {
   }
 
   useEffect(() => {
+    console.log("SELECTED EXAM DETAILS:", selectedExamDetails);
+    
     if (selectedExamDetails) {
       let dumpList = []
       selectedExamDetails.marksDetails.forEach((item) => {
@@ -103,6 +106,8 @@ function ExamMarkDetailsPage({ onClose }) {
           result: getResult(item.marks, selectedExamDetails?.exam.timeTable),
         })
       })
+      console.log("DUMP LIST:", dumpList);
+      
       setStudents(dumpList)
     }
   }, [selectedExamDetails]);
@@ -112,6 +117,8 @@ function ExamMarkDetailsPage({ onClose }) {
   const generatePDFPreview = async () => {
     const doc = new jsPDF("p", "mm", "a4");
     const pdfPromises = studentMarks.map(async (student, index) => {
+      console.log("STUDENT INSIDE PROGRESS DOWNLOAD:", student);
+      
       const container = document.createElement("div");
       container.style.width = "800px"; // Set a fixed width for consistent rendering
 
@@ -132,9 +139,9 @@ function ExamMarkDetailsPage({ onClose }) {
 
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
-            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${tenant?.name?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant?.phoneNumber || ""} | Email: ${tenant?.email}</p>
-            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant?.city || ""}, ${tenant?.district || ""}, ${tenant?.state || ""}, ${tenant?.pincode || ""}</p>
+            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${branchData?.label?.toUpperCase()}</h1>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${branchData?.phoneNumber || "NILL"} | Email: ${branchData?.email||"NILL"}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}</p>
           </div>
         </div>
         <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
@@ -146,9 +153,13 @@ function ExamMarkDetailsPage({ onClose }) {
           <!-- Left Section (Student details) -->
           <div style="flex: 1; padding-right: 10px;">
             <p><strong>Name of Student:</strong> ${student.firstName || ""} ${student.lastName || ""}</p>
-            <p><strong>Mother's Name:</strong> ${student.motherName || ""}</p>
-            <p><strong>Father's Name:</strong> ${student.fatherName || ""}</p>
-            <p><strong>Address:</strong> ${student.address || ""}</p>
+            <p><strong>Mother's Name:</strong> ${student.motherDetails.name || "Nill"}</p>
+            <p><strong>Father's Name:</strong> ${student.fatherDetails.name || "Nill"}</p>
+            <p><strong>Address:</strong> ${
+              student?.presentAddress?.area
+            }, ${student?.presentAddress?.city}, ${student?.presentAddress?.state}, ${
+              student?.presentAddress?.pincode
+      }</p>
           </div>
 
           <!-- Right Section (5 details) -->
@@ -160,9 +171,8 @@ function ExamMarkDetailsPage({ onClose }) {
             <p><strong>Academic Year:</strong> ${selectedExamDetails.academicYear.year || ""}</p>
           </div>
           <div style="flex: 1; text-align: center;  display: flex; justify-content: center; align-items: center; ">
-<div style="text-align: center; width: 75px; height: 100px; border: 1px solid #ccc;  justify-content: center; align-items: center; ">
-  <img src="path_to_student_photo.jpg" alt="Student Photo" style="max-width: 100%; max-height: 100%; object-fit: cover;">
-</div>
+<img src="${student?.profilePic?.Location || "/default-profile.png"}"  alt="School Emblem" 
+         style="width: 100%; height: 100%; object-fit: contain; max-width: 110px; max-height: 110px;">
 </div>
 
         </div>
@@ -215,7 +225,7 @@ function ExamMarkDetailsPage({ onClose }) {
       document.body.appendChild(container);
 
       // Convert the HTML element to a canvas using html2canvas
-      const canvas = await html2canvas(container, { scale: 2 });
+      const canvas = await html2canvas(container, { scale: 2, useCORS: true });
       const imgData = canvas.toDataURL("image/png");
 
       // Calculate PDF dimensions based on canvas size

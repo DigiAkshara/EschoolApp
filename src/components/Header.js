@@ -4,7 +4,7 @@ import { Bars3Icon, BellIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { clearSession, setBranchId } from '../app/reducers/appConfigSlice'
+import { clearSession, setBranchData, setBranchId } from '../app/reducers/appConfigSlice'
 
 function Header({ updateSideBar }) {
   const { branchs, user } = useSelector((state) => state.appConfig)
@@ -23,17 +23,51 @@ function Header({ updateSideBar }) {
         if (user?.role.name == 'admin') {
           if (branch.isDefault) {
             setSelectedBranch(branch.value)
+<<<<<<< Updated upstream
             setBranch(branch)
+=======
+            dispatch(setBranchId(branch.value))
+            handleBranch(branch.value)
+>>>>>>> Stashed changes
           }
         } else {
           if (user?.role.name !== 'superadmin') {
             setSelectedBranch(user.branch)
+<<<<<<< Updated upstream
             setBranch(branchs.find((branch) => branch.value === user.branch))
+=======
+            dispatch(setBranchId(user.branch))
+            handleBranch(user.branch)
+>>>>>>> Stashed changes
           }
         }
       })
     }
-  }, [branchs])
+  }, [branchs, user])
+
+  const handleBranchChange = (e) => {
+    const branchId = e.target.value;
+    setSelectedBranch(branchId);
+    dispatch(setBranchId(branchId));
+    handleBranch(branchId);
+  };
+
+  const handleBranch = (branchId) => {
+    const selectedBranchData = branchs.find(branch => branch.value === branchId);
+  console.log("BRANCH DATA:", selectedBranchData);
+  
+    if (selectedBranchData) {
+      dispatch(
+        setBranchData({
+          ...selectedBranchData,
+          logo: selectedBranchData.logo || null, // Ensuring `logo` is always defined
+        })
+      );
+    }
+  };
+  
+
+
   return (
     <>
       <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -77,7 +111,7 @@ function Header({ updateSideBar }) {
               <select name="branch"
                 disabled={user?.role.name !== 'admin'}
                 className="mt-2 block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-purple-600 sm:text-sm/6 pl-6"
-                onChange={(e) => setSelectedBranch(e.target.value)} value={selectedBranch}>
+                onChange={handleBranchChange} value={selectedBranch}>
                 <option value="">Select Branch</option>
                 {branchs.map((branch) => (
                   <option key={branch.value} value={branch.value}>
