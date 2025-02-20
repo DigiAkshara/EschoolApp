@@ -53,13 +53,10 @@ export default function StudentsList() {
   useEffect(() => {
     dispatch(fetchInitialStudentData());
     getStudents();
-<<<<<<< Updated upstream
     if (openModel) {
       setOpen(true)
     }
-=======
-   
->>>>>>> Stashed changes
+
   }, [dispatch]);
 
   const columns = [

@@ -23,22 +23,16 @@ function Header({ updateSideBar }) {
         if (user?.role.name == 'admin') {
           if (branch.isDefault) {
             setSelectedBranch(branch.value)
-<<<<<<< Updated upstream
             setBranch(branch)
-=======
             dispatch(setBranchId(branch.value))
             handleBranch(branch.value)
->>>>>>> Stashed changes
           }
         } else {
           if (user?.role.name !== 'superadmin') {
             setSelectedBranch(user.branch)
-<<<<<<< Updated upstream
             setBranch(branchs.find((branch) => branch.value === user.branch))
-=======
             dispatch(setBranchId(user.branch))
             handleBranch(user.branch)
->>>>>>> Stashed changes
           }
         }
       })
