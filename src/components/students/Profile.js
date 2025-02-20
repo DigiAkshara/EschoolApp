@@ -12,6 +12,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import moment from 'moment'
+import { useEffect } from 'react'
 
 const people2 = [
   {
@@ -36,6 +37,11 @@ const studentInfotabs = [
 ]
 
 const StudentProfileModal = ({ data, show, close }) => {
+
+  useEffect(() => {
+console.log(("STUDENT DATA PROFILE:", data));
+
+  },[])
   return (
     <Dialog open={show} onClose={close} className="relative z-50">
       <div className="fixed inset-0" />

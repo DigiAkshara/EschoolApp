@@ -48,6 +48,8 @@ export default function StaffDetails() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const tenant = useSelector((state) => state.tenantData);
+  const { branchData } = useSelector((state) => state.appConfig)
+
 
   const handleOpen = () => setShowAddStaffModal(true)
   const handleClose = () => { setShowAddStaffModal(false); dispatch(selectStaff(null)) }
@@ -70,6 +72,8 @@ export default function StaffDetails() {
   }
 
   useEffect(() => {
+    console.log("BRANCH:", branchData);
+    
     getSubjects()
     getStaff()
     if (openModel) {
@@ -91,6 +95,8 @@ export default function StaffDetails() {
     try {
       dispatch(setIsLoader(true))
       const response = await getData(STAFF)
+      console.log("RESPONSE", response.data.data);
+      
       let teachingCount = 0;
       let nonTeachingCount = 0;
       const staffData = []
@@ -230,10 +236,10 @@ export default function StaffDetails() {
   )
 
   const downloadListxlsx = () => {
-    const schoolName = tenant.name || "Unknown School";
-    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
-    const phoneNumber = tenant.phoneNumber || "N/A";
-    const email = tenant.email || "N/A";
+    const schoolName = branchData?.label || "Unknown School";
+    const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
+    const phoneNumber = branchData.phoneNumber || "N/A";
+    const email = branchData.email || "N/A";
     handleDownload(filteredData, "StaffList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress, ["Staff List is below"]);
   };
 
@@ -242,7 +248,7 @@ export default function StaffDetails() {
       { label: "Staff Name", key: "name" },
       { label: "Phone Number", key: "phoneNumber" },
       { label: "EmpId", key: "staffId" },
-      { label: "Designation", key: "designation" },
+      { label: "Designation", key: "designationName" },
       { label: "Staff Type", key: "staffType" },
       { label: "DOJ", key: "date" },
       { label: "DOB", key: "dateOfBirth" },
@@ -251,7 +257,7 @@ export default function StaffDetails() {
       { label: "Subjects", key: "subjectName" },
       { label: "Present Address", key: "presentAddress" },
       { label: "Gender", key: "gender" },
-    ], "Staff Details Report", tenant, undefined, "landscape");
+    ], "Staff Details Report", branchData, undefined, "landscape");
   };
  
 

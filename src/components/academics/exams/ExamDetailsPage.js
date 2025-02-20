@@ -11,7 +11,7 @@ import { UserCircleIcon } from "@heroicons/react/24/solid";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import moment from "moment";
-import React, { useEffect, useState , Fragment} from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { useSelector } from "react-redux";
 import { getData } from "../../../app/api";
 import { ACADEMICS } from "../../../app/url";
@@ -21,9 +21,9 @@ function ExamDetailsPage({ onClose }) {
   const [students, setStudents] = useState([]);
   const selectedExam = useSelector((state) => state.exams.selectedExam);
   const subjects = useSelector((state) => state.academics.subjects);
-  const tenant = useSelector((state) => state.tenantData);
   const classId = selectedExam?.classObject._id;
   const sectionId = selectedExam?.sectionObject._id;
+  const { branchData } = useSelector((state) => state.appConfig);
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState("");
@@ -31,10 +31,12 @@ function ExamDetailsPage({ onClose }) {
 
   useEffect(() => {
     getStudent();
-  }, [])
+  }, []);
   const getStudent = async () => {
     try {
-      const response = await getData(ACADEMICS + "/" + classId + "/" + sectionId);
+      const response = await getData(
+        ACADEMICS + "/" + classId + "/" + sectionId
+      );
       const studentsData = response.data.data.map((item) => ({
         _id: item.student._id,
         pic: item.student.profilePic?.Location || "",
@@ -43,12 +45,12 @@ function ExamDetailsPage({ onClose }) {
         DOB: moment(item.student.DOB).format("DD-MM-YYYY"),
         mothersName: item.student.motherDetails.name || " ",
         className: item.class?.name || "N/A",
-      }))
+      }));
       setStudents(studentsData);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
 
   const getSubjectName = (subjectId) => {
     const subject = subjects.find((s) => s.value === subjectId);
@@ -60,15 +62,13 @@ function ExamDetailsPage({ onClose }) {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-
-  // const handlePreview = () => {
-  //   navigate("/hall-ticket-preview", { state: { students, selectedExam, tenant } });
-  // };
-
-
   const generatePDFPreview = async () => {
     const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
+    console.log("Student data inside downld function::::", students);
+
     const pdfPromises = students.map(async (student, index) => {
+      console.log("Student image inside downld function::::", student.pic);
+
       const container = document.createElement("div");
       container.style.width = "800px";
 
@@ -89,9 +89,15 @@ function ExamDetailsPage({ onClose }) {
 
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
-            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${tenant?.name?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${tenant?.phoneNumber || ""}  | Email: ${tenant?.email}</p>
-            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${tenant?.city}, ${tenant?.district}, ${tenant?.state}, ${tenant?.pincode}</p>
+            <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${branchData?.label?.toUpperCase()}</h1>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${
+              branchData?.phoneNumber || "NILL"
+            }  | Email: ${branchData?.email || "NILL"}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${
+              branchData?.address?.area
+            }, ${branchData?.address?.city}, ${branchData?.address?.state}, ${
+        branchData?.address?.pincode
+      }</p>
           </div>
         </div>
         <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
@@ -118,9 +124,9 @@ function ExamDetailsPage({ onClose }) {
 
           <!-- Image Section (Student photo) -->
            <div style="flex: 1; text-align: center;  display: flex; justify-content: center; align-items: center; ">
-<div style="text-align: center; width: 75px; height: 100px; border: 1px solid #ccc;  justify-content: center; align-items: center; ">
-  <img src="path_to_student_photo.jpg" alt="Student Photo" style="max-width: 100%; max-height: 100%; object-fit: cover;">
-</div>
+
+<img src="${student.pic || "/default-profile.png"}"  alt="School Emblem" 
+         style="width: 100%; height: 100%; object-fit: contain; max-width: 110px; max-height: 110px;">
 </div>
         </div>
 
@@ -135,18 +141,26 @@ function ExamDetailsPage({ onClose }) {
           </thead>
           <tbody>
               ${selectedExam?.timeTable
-          .map(
-            (exam, index) => `
+                .map(
+                  (exam, index) => `
                 <tr>
-                <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${index + 1}</td>
-                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getSubjectName(exam.subject)}</td>
-                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${exam.examDate}</td>
-                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${exam.startTime} - ${exam.endTime}</td>
+                <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${
+                  index + 1
+                }</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getSubjectName(
+                    exam.subject
+                  )}</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${
+                    exam.examDate
+                  }</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${
+                    exam.startTime
+                  } - ${exam.endTime}</td>
                  
                 </tr>
               `
-          )
-          .join("")}
+                )
+                .join("")}
             </tbody>
         </table>
         
@@ -168,12 +182,11 @@ function ExamDetailsPage({ onClose }) {
       </div>
     `;
 
- 
-
       document.body.appendChild(container);
 
       // Convert HTML to image using html2canvas
-      const canvas = await html2canvas(container, { scale: 2 });
+      const canvas = await html2canvas(container, { scale: 2, useCORS: true });
+
       const imgData = canvas.toDataURL("image/png");
 
       // Calculate PDF dimensions based on canvas size
@@ -198,7 +211,7 @@ function ExamDetailsPage({ onClose }) {
     const pdfBlob = doc.output("blob");
     const pdfPreviewUrl = URL.createObjectURL(pdfBlob);
 
-    setPdfBlob(pdfBlob); 
+    setPdfBlob(pdfBlob);
     setPdfUrl(pdfPreviewUrl);
     setIsPreviewOpen(true);
 
@@ -216,7 +229,6 @@ function ExamDetailsPage({ onClose }) {
       document.body.removeChild(link);
     }
   };
-
 
   return (
     <>
@@ -456,11 +468,13 @@ function ExamDetailsPage({ onClose }) {
                             </div>
                           </div>
 
-                          <div className="px-4 py-4 text-sm/6"
+                          <div
+                            className="px-4 py-4 text-sm/6"
                             // onClick={generatePDFs}
                             onClick={generatePDFPreview}
                             role="button"
-                            tabIndex={0}>
+                            tabIndex={0}
+                          >
                             <ul
                               role="list"
                               className="grid grid-cols-4 gap-x-6 gap-y-8"
@@ -478,7 +492,11 @@ function ExamDetailsPage({ onClose }) {
                                       />
                                     </div>
                                     <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-                                      <span>{selectedExam?.examName} - {selectedExam?.className}-{selectedExam?.sectionName}</span>
+                                      <span>
+                                        {selectedExam?.examName} -{" "}
+                                        {selectedExam?.className}-
+                                        {selectedExam?.sectionName}
+                                      </span>
                                     </div>
                                   </div>
                                   <a href="#" className="text-gray-400">
@@ -491,43 +509,59 @@ function ExamDetailsPage({ onClose }) {
                               </li>
                             </ul>
                           </div>
-           {/* Modal for PDF Preview */}
-           <Transition show={isPreviewOpen} as={Fragment}>
-  <Dialog as="div" className="relative z-50" onClose={() => setIsPreviewOpen(false)}>
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
+                          {/* Modal for PDF Preview */}
+                          <Transition show={isPreviewOpen} as={Fragment}>
+                            <Dialog
+                              as="div"
+                              className="relative z-50"
+                              onClose={() => setIsPreviewOpen(false)}
+                            >
+                              <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
 
-    <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
-      <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
-        
-        {/* Header with Close Button */}
-        <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
-          <h3 className="text-lg font-semibold">Hall Ticket Preview</h3>
-          <button onClick={() => setIsPreviewOpen(false)} className="text-white text-xl">
-            ✖
-          </button>
-        </div>
+                              <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
+                                <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
+                                  {/* Header with Close Button */}
+                                  <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
+                                    <h3 className="text-lg font-semibold">
+                                      Hall Ticket Preview
+                                    </h3>
+                                    <button
+                                      onClick={() => setIsPreviewOpen(false)}
+                                      className="text-white text-xl"
+                                    >
+                                      ✖
+                                    </button>
+                                  </div>
 
-        {/* PDF Preview */}
-        <div className="flex-1 overflow-auto">
-          {pdfUrl && (
-            <iframe src={pdfUrl} className="w-full h-full"></iframe>
-          )}
-        </div>
+                                  {/* PDF Preview */}
+                                  <div className="flex-1 overflow-auto">
+                                    {pdfUrl && (
+                                      <iframe
+                                        src={pdfUrl}
+                                        className="w-full h-full"
+                                      ></iframe>
+                                    )}
+                                  </div>
 
-        {/* Footer Buttons */}
-        <div className="flex justify-between p-4 bg-gray-100">
-          <button onClick={handleDownload} className="px-4 py-2 bg-purple-600 text-white rounded-md">
-            Download PDF
-          </button>
-          <button onClick={() => setIsPreviewOpen(false)} className="px-4 py-2 bg-gray-400 text-white rounded-md">
-            Close
-          </button>
-        </div>
-
-      </div>
-    </div>
-  </Dialog>
-</Transition>
+                                  {/* Footer Buttons */}
+                                  <div className="flex justify-between p-4 bg-gray-100">
+                                    <button
+                                      onClick={handleDownload}
+                                      className="px-4 py-2 bg-purple-600 text-white rounded-md"
+                                    >
+                                      Download PDF
+                                    </button>
+                                    <button
+                                      onClick={() => setIsPreviewOpen(false)}
+                                      className="px-4 py-2 bg-gray-400 text-white rounded-md"
+                                    >
+                                      Close
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </Dialog>
+                          </Transition>
                         </li>
                       </ul>
                     </div>

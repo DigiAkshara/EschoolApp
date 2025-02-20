@@ -13,7 +13,6 @@ import TableComponent from "../../commonComponent/TableComponent";
 import { Fragment } from "react"; // Required for <Fragment>
 import autoTable from "jspdf-autotable";
 
-
 function FinanceCollectFeeHistory() {
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,6 +23,7 @@ function FinanceCollectFeeHistory() {
   const selectedData = useSelector((state) => state.fees.selectedFee);
   const studentData = selectedData?.academic;
   const tenant = useSelector((state) => state.tenantData);
+  const { branchData } = useSelector((state) => state.appConfig);
 
   const columns = [
     { title: "Transaction Id", key: "transactionId" },
@@ -56,23 +56,21 @@ function FinanceCollectFeeHistory() {
           >
             View
           </button>
-        ), 
+        ),
       }));
       setTransactions(list);
-
     } catch (error) {
       handleApiResponse(error);
     }
   };
 
-
   const showInvoice = (feeData) => {
-  
-    const formattedFees = feeData.fees?.map((feeItem) => ({
-      feeName: capitalizeWords(feeItem.fee.name),
-      amount: feeItem.amount,
-    })) || [];
-  
+    const formattedFees =
+      feeData.fees?.map((feeItem) => ({
+        feeName: capitalizeWords(feeItem.fee.name),
+        amount: feeItem.amount,
+      })) || [];
+
     const receiptData = {
       ...feeData,
       name: capitalizeWords(
@@ -83,24 +81,24 @@ function FinanceCollectFeeHistory() {
       classSection: `${studentData.class?.name || "N/A"} / ${
         studentData.section?.section || "N/A"
       }`,
-      fatersName: capitalizeWords(studentData.student.fatherDetails?.name || "N/A"),
-      mothersName: capitalizeWords(studentData.student.motherDetails?.name || "N/A"),
-      tenant: tenant,
+      fatersName: capitalizeWords(
+        studentData.student.fatherDetails?.name || "N/A"
+      ),
+      mothersName: capitalizeWords(
+        studentData.student.motherDetails?.name || "N/A"
+      ),
+      branch: branchData,
       fees: formattedFees, // Store fees separately
     };
-  
+
     console.log("RECEIPT Data::", receiptData);
     setReceiptData(receiptData);
     setIsReceiptOpen(true);
   };
-  
-  
-  
 
   const handleCloseReceipt = () => {
     setIsReceiptOpen(false);
   };
- 
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -117,8 +115,8 @@ function FinanceCollectFeeHistory() {
     orientation = "portrait",
     save = false
   ) => {
-    console.log("DATA FOR Download::::",data);
-    
+    console.log("DATA FOR Download::::", data);
+
     const defaultLogo = "./schoolLogo.jpg";
     const doc = new jsPDF(orientation, "mm", "a4");
     doc.setFont("helvetica", "bold");
@@ -128,22 +126,22 @@ function FinanceCollectFeeHistory() {
     // **Header Section**
     doc.addImage(logoUrl || defaultLogo, "PNG", 10, 5, 28, 28);
     doc.setFontSize(14);
-    doc.text((data.tenant?.name || "School Name").toUpperCase(), centerX, 15, {
+    doc.text((data.branch?.label || "School Name").toUpperCase(), centerX, 15, {
       align: "center",
     });
     doc.setFontSize(10);
     doc.text(
-      `Phone: ${data.tenant?.phoneNumber || "N/A"} | Email: ${
-        data.tenant?.email || "N/A"
+      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${
+        data.branch?.email || "N/A"
       }`,
       centerX,
       21,
       { align: "center" }
     );
     doc.text(
-      `Address: ${data.tenant?.city || "N/A"}, ${
-        data.tenant?.district || "N/A"
-      }, ${data.tenant?.state || "N/A"}, ${data.tenant?.pincode || "N/A"}`,
+      `Address: ${data.branch?.address?.area || "N/A"}, ${
+        data.branch?.address?.city || "N/A"
+      }, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"}`,
       centerX,
       27,
       { align: "center" }
@@ -218,7 +216,6 @@ function FinanceCollectFeeHistory() {
       headStyles: { fillColor: [206, 175, 240] },
       styles: { fontSize: 10 },
     });
-
 
     // Function to convert amount to words (basic implementation)
     const numberToWords = (num) => {
@@ -303,62 +300,62 @@ function FinanceCollectFeeHistory() {
       </div>
 
       <Transition show={isReceiptOpen} as={Fragment}>
-              <Dialog
-                as="div"
-                className="relative z-50"
-                onClose={() => setIsReceiptOpen(false)}
-              >
-                <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
-      
-                <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
-                  <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
-                    {/* Header */}
-                    <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
-                      <h3 className="text-lg font-semibold">Fee Receipt Preview</h3>
-                      <button
-                        onClick={handleCloseReceipt}
-                        className="text-white text-xl"
-                      >
-                        ✖
-                      </button>
-                    </div>
-      
-                    {/* PDF Preview */}
-                    <div className="flex-1 overflow-auto">
-                      {receiptData && (
-                        <iframe
-                          src={generateReceiptPDF(receiptData, "./schoolLogo.jpg")}
-                          className="w-full h-full"
-                        ></iframe>
-                      )}
-                    </div>
-      
-                    {/* Footer Buttons */}
-                    <div className="flex justify-between p-4 bg-gray-100">
-                      <button
-                        onClick={() =>
-                          generateReceiptPDF(
-                            receiptData,
-                            "./schoolLogo.jpg",
-                            "portrait",
-                            true
-                          )
-                        }
-                        className="px-4 py-2 bg-purple-600 text-white rounded-md"
-                      >
-                        Download PDF
-                      </button>
-                      <button
-                        onClick={handleCloseReceipt}
-                        className="px-4 py-2 bg-gray-400 text-white rounded-md"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Dialog>
-            </Transition>
+        <Dialog
+          as="div"
+          className="relative z-50"
+          onClose={() => setIsReceiptOpen(false)}
+        >
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
+
+          <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
+            <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
+              {/* Header */}
+              <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
+                <h3 className="text-lg font-semibold">Fee Receipt Preview</h3>
+                <button
+                  onClick={handleCloseReceipt}
+                  className="text-white text-xl"
+                >
+                  ✖
+                </button>
+              </div>
+
+              {/* PDF Preview */}
+              <div className="flex-1 overflow-auto">
+                {receiptData && (
+                  <iframe
+                    src={generateReceiptPDF(receiptData, "./schoolLogo.jpg")}
+                    className="w-full h-full"
+                  ></iframe>
+                )}
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex justify-between p-4 bg-gray-100">
+                <button
+                  onClick={() =>
+                    generateReceiptPDF(
+                      receiptData,
+                      "./schoolLogo.jpg",
+                      "portrait",
+                      true
+                    )
+                  }
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md"
+                >
+                  Download PDF
+                </button>
+                <button
+                  onClick={handleCloseReceipt}
+                  className="px-4 py-2 bg-gray-400 text-white rounded-md"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </>
   );
 }

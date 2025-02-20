@@ -345,7 +345,7 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
 
 
 
-export const handleDownloadPDF = (data, fileName, columns, title, tenant, logoUrl, orientation = "portrait") => {
+export const handleDownloadPDF = (data, fileName, columns, title, branch, logoUrl, orientation = "portrait") => {
   const defaultLogo = "./schoolLogo.jpg";
 
   // Initialize jsPDF with dynamic orientation
@@ -353,10 +353,10 @@ export const handleDownloadPDF = (data, fileName, columns, title, tenant, logoUr
   doc.setFont("helvetica", "bold");
 
   // School Header Information
-  const schoolName = (tenant?.name || "Unknown School").toUpperCase();
-  const schoolAddress = `${tenant?.city || ""}, ${tenant?.district || ""}, ${tenant?.state || ""}, ${tenant?.pincode || ""}`.trim();
-  const phoneNumber = tenant?.mobileNumber || "N/A";
-  const email = tenant?.email || "N/A";
+  const schoolName = (branch?.label || "Unknown School").toUpperCase();
+  const schoolAddress = `${branch?.address?.area || ""}, ${branch?.address?.city || ""}, ${branch?.address?.state || ""}, ${branch?.address?.pincode || ""}`.trim();
+  const phoneNumber = branch?.mobileNumber || "N/A";
+  const email = branch?.email || "N/A";
 
   const logo = logoUrl || defaultLogo;
 

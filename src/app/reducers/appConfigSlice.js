@@ -27,6 +27,7 @@ const AppConfigSlice = createSlice({
     navConfig: [],
     tenantId: null,
     branchId:null,
+    branchData: null,
     formData: null,
     isLoading: false
   },
@@ -57,6 +58,9 @@ const AppConfigSlice = createSlice({
     setBranchId: (state, action) => {
       state.branchId = action.payload
     },
+    setBranchData: (state, action) => {
+      state.branchData = action.payload
+    },
     setFormData: (state, action) => {
       state.formData = action.payload
     },
@@ -76,6 +80,7 @@ export const {
   clearSession,
   setTenantId,
   setBranchId,
+  setBranchData,
   setFormData,
   clearFormData,
   setAcademicYear,

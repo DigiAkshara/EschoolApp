@@ -40,6 +40,7 @@ export default function StudentsList() {
   const [activeStudent, setActiveStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+  const { branchData } = useSelector((state) => state.appConfig)
   const tenant = useSelector((state) => state.tenantData);
 
 
@@ -55,6 +56,7 @@ export default function StudentsList() {
     if (openModel) {
       setOpen(true)
     }
+
   }, [dispatch]);
 
   const columns = [
@@ -122,6 +124,8 @@ export default function StudentsList() {
           ],
         };
       });
+      console.log("STUDENT DATA IN STUDENT LIST", studentData);
+      
       setStudentList(studentData);
       setFilteredData(studentData);
     } catch (error) {
@@ -228,11 +232,10 @@ export default function StudentsList() {
   );
 
   const downloadListxlsx = () => {
-    const schoolName = tenant.name || "Unknown School";
-    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""
-      }, ${tenant.pincode || ""}`.trim();
-    const phoneNumber = tenant.mobileNumber || "N/A";
-    const email = tenant.email || "N/A";
+    const schoolName = branchData?.label || "Unknown School";
+    const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
+    const phoneNumber = branchData.phoneNumber || "N/A";
+    const email = branchData.email || "N/A";
     handleDownload(
       filteredData,
       "StudentList",
@@ -262,7 +265,7 @@ export default function StudentsList() {
         { label: "Present Address", key: "presentAddress" },
       ],
       "Student Details Report",
-      tenant,
+      branchData,
       undefined,
       "landscape"
     );
