@@ -5,8 +5,7 @@ import { getData } from "../../app/api";
 import { ACADEMICS } from "../../app/url";
 import {
   attendanceOptions,
-  handleApiResponse,
-  staffCategories,
+  handleApiResponse, 
 } from "../../commonComponent/CommonFunctions";
 import CustomButton from "../../commonComponent/CustomButton";
 import CustomDate from "../../commonComponent/CustomDate";
@@ -17,24 +16,24 @@ import { updateStudents } from "../../app/reducers/attendanceSlice";
 const AttendanceSidebar = ({
   values,
   setFieldValue,
+  updateList,
   user,
   handleRadioChange,
-  handleStaffCategory,
   handleClassChange,
   handleSectionChange,
   classes,
-  sections
+  sections,
 }) => {
-  const holidays = useSelector((state) => state.attendance.holidays);
-  const dispatch = useDispatch()
-  const [attendanceMarked, setAttendanceMarked] = useState(false)
-  const [holiday, setHoliday] = useState(false)
-  const [holidayReason, setHolidayReason] = useState("")
+  const { staff,students, holidays } = useSelector((state) => state.attendance);
+  const dispatch = useDispatch();
+  const [attendanceMarked, setAttendanceMarked] = useState(false);
+  const [holiday, setHoliday] = useState(false);
+  const [holidayReason, setHolidayReason] = useState("");
 
   const getStudents = async (classId, sectionID) => {
     try {
       const res = await getData(ACADEMICS + "/" + classId + "/" + sectionID);
-      const stuData = res.data.data.map((item) => ({
+      let stuData = res.data.data.map((item) => ({
         _id: item.student._id,
         pic: item.student.profilePic?.Location || "",
         name: `${item.student.firstName} ${item.student.lastName}`,
@@ -42,64 +41,79 @@ const AttendanceSidebar = ({
         className: item.class?.name || "N/A",
         class: item.class?._id || null,
         section: item.section || "N/A",
+        attendanceStatus: "",
       }));
-      dispatch(updateStudents(stuData))
-      setFieldValue('attendance', stuData);
+      dispatch(updateStudents(stuData));
+      setFieldValue("attendance", stuData);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
   };
 
   useEffect(() => {
     if (values.class && values.section) {
-      getStudents(values.class, values.section)
+      getStudents(values.class, values.section);
     }
   }, [values.class, values.section]);
 
   useEffect(() => {
     if (values.date || (values.class && values.section)) {
       checkHoliday(values.date);
-      checkDayAttendance(values.date)
+      checkDayAttendance(values.date);
     }
-  }, [values.date,values.class, values.section])
-
-
+  }, [values.date, values.class, values.section]);
 
   const checkHoliday = (date) => {
-    setHoliday(false)
-    setHolidayReason("")
+    setHoliday(false);
+    setHolidayReason("");
     let checkDate = moment(date, "YYYY-MM-DD");
     // Check if it's a Sunday
-    if (checkDate.day() === 0) {
-      setHoliday(true)
-      setHolidayReason('Sunday')
-    }
+    // if (checkDate.day() === 0) {
+    //   setHoliday(true)
+    //   setHolidayReason('Sunday')
+    // }
     // Check if it's in the holiday list
     for (let holiday of holidays) {
       let start = moment(holiday.startDate, "YYYY-MM-DD");
       let end = moment(holiday.endDate, "YYYY-MM-DD");
 
-      if (checkDate.isBetween(start, end, null, "[]")) { // '[]' includes boundary dates
-        setHoliday(true)
-        setHolidayReason(holiday.name)
+      if (checkDate.isBetween(start, end, null, "[]")) {
+        // '[]' includes boundary dates
+        setHoliday(true);
+        setHolidayReason(holiday.name);
       }
-    }
-  }
-
-  const checkDayAttendance = async (date) => {
-    setAttendanceMarked(false)
-    try {
-      let URL = "/attendance?date=" + date + "&userType="+user;
-      if(user === "student"){
-        URL  = URL + "&classId=" + values.class + "&sectionId=" + values.section
-      }
-      const res = await getData(URL);
-      setAttendanceMarked(res.data.data.length > 0 ? true : false)
-    } catch (error) {
-      handleApiResponse(error)
     }
   };
 
+  const checkDayAttendance = async (date) => {
+    setAttendanceMarked(false);
+    try {
+      let URL = "/attendance?date=" + date + "&userType=" + user;
+      let data = staff
+      if (user === "student") {
+        data = students
+        URL = URL + "&classId=" + values.class + "&sectionId=" + values.section;
+      }
+      const res = await getData(URL);
+      setAttendanceMarked(res.data.data.length > 0 ? true : false);
+      let updatedData = data.map((item) => {
+        let obj = {...item};
+        if (res.data.data.length > 0) {
+          let index = res.data.data[0].attendance.findIndex(
+            (att) => att.userId._id === item._id
+          );
+          if (index !== -1)
+            obj.attendanceStatus =
+              res.data.data[0].attendance[index].attendanceStatus;
+        }
+        return obj;
+      });
+      updateList && updateList(updatedData);
+      setFieldValue("attendance", updatedData);
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  };
 
   const attendanceCounts = values.attendance.reduce(
     (acc, entry) => {
@@ -130,42 +144,31 @@ const AttendanceSidebar = ({
         {user === "staff"
           ? "Staff Attendance"
           : user === "student"
-            ? "Student Attendance"
-            : "Attendance"}
+          ? "Student Attendance"
+          : "Attendance"}
       </h2>
 
       {/* Date Picker */}
       <div className="mb-4">
-        <CustomDate 
-          name="date" 
-          label="Date" 
-          required={true} 
-          maxDate={moment().format('MM-DD-YYYY')} 
+        <CustomDate
+          name="date"
+          label="Date"
+          required={true}
+          maxDate={moment().format("MM-DD-YYYY")}
           onChange={(value) => {
-            setFieldValue("date",value)
-            setFieldValue("allAttendance", "")
-          }} />
+            setFieldValue("date", value);
+            setFieldValue("allAttendance", "");
+          }}
+        />
       </div>
-
-      {user === "staff" && (
-        <div className="mb-4">
-          <CustomSelect
-            name="staffCategory"
-            options={staffCategories}
-            label="Select Staff Type"
-            value={values.staffCategory}
-            onChange={(e) =>
-              handleStaffCategory(e, setFieldValue)}
-          />
-        </div>
-      )}
 
       {!holiday && user === "student" && (
         <div className="mb-4">
           {/* Heading */}
-          <h2 className="block text-sm/6 font-regular text-gray-900">Select Class and Section</h2>
+          <h2 className="block text-sm/6 font-regular text-gray-900">
+            Select Class and Section
+          </h2>
           <div className="flex flex-col lg:flex-row mb-4 gap-2">
-
             <div className="w-full lg:w-1/2">
               <CustomSelect
                 name="class"
@@ -183,9 +186,11 @@ const AttendanceSidebar = ({
                 name="section"
                 placeholder="Section"
                 value={values.section}
-                options={sections.filter((section) => section.class === values.class)}
+                options={sections.filter(
+                  (section) => section.class === values.class
+                )}
                 onChange={(e) => {
-                  handleSectionChange(e, values, setFieldValue)
+                  handleSectionChange(e, values, setFieldValue);
                 }}
               />
             </div>
@@ -234,7 +239,11 @@ const AttendanceSidebar = ({
       )}
 
       {!holiday && !attendanceMarked && (
-        <CustomButton type="submit" label="Save Attendance" disabled={values.attendance.length === 0} />
+        <CustomButton
+          type="submit"
+          label="Save Attendance"
+          disabled={values.attendance.length === 0}
+        />
       )}
 
       <div className="mt-6">
@@ -264,10 +273,12 @@ const AttendanceSidebar = ({
         <div className="mt-4 p-2 rounded-md bg-red-100 text-red-600">
           {holidayReason}
         </div>
-      ) : attendanceMarked && (
-        <div className={`mt-4 p-2 rounded-md bg-red-100 text-red-600`}>
-          Attendance Marked
-        </div>
+      ) : (
+        attendanceMarked && (
+          <div className={`mt-4 p-2 rounded-md bg-red-100 text-red-600`}>
+            Attendance Marked
+          </div>
+        )
       )}
     </div>
   );

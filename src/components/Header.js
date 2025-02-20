@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { clearSession, setBranchData, setBranchId } from '../app/reducers/appConfigSlice'
+import { capitalizeWords } from '../commonComponent/CommonFunctions'
 
 function Header({ updateSideBar }) {
   const { branchs, user } = useSelector((state) => state.appConfig)
@@ -48,7 +49,6 @@ function Header({ updateSideBar }) {
 
   const handleBranch = (branchId) => {
     const selectedBranchData = branchs.find(branch => branch.value === branchId);
-  console.log("BRANCH DATA:", selectedBranchData);
   
     if (selectedBranchData) {
       dispatch(
@@ -134,12 +134,13 @@ function Header({ updateSideBar }) {
             />
 
             {/* Profile dropdown */}
+            {user&&
             <Menu as="div" className="relative">
               <MenuButton className="-m-1.5 flex items-center p-1.5">
                 <span className="sr-only">Open user menu</span>
                 <img
                   alt=""
-                  src={branch?.logo?.Location || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"}
+                  src={user?.profilePic?.Location|| "/default-profile.png"}
                   className="h-8 w-8 rounded-full bg-gray-50"
                 />
                 <span className="hidden lg:flex lg:items-center">
@@ -148,9 +149,9 @@ function Header({ updateSideBar }) {
                       aria-hidden="true"
                       className="text-sm/6 font-semibold text-gray-900"
                     >
-                      {branch?.label}
+                      {capitalizeWords(user?.firstname)}
                     </span>
-                    <span className="text-xs text-gray-500">Admin</span>
+                    <span className="text-xs text-gray-500">{capitalizeWords(user?.role.name)}</span>
                   </div>
                   <ChevronDownIcon
                     aria-hidden="true"
@@ -173,7 +174,7 @@ function Header({ updateSideBar }) {
                   </span>
                 </MenuItem>
               </MenuItems>
-            </Menu>
+            </Menu>}
           </div>
         </div>
       </div>
