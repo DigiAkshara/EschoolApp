@@ -36,8 +36,8 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const selectedFee = selectedData?.fees;
   const studentData = selectedData?.academic;
   const feesData = selectedFee?.feeList;
-  const tenant = useSelector((state) => state.tenantData);
-  const branchId = useSelector((state) => state.appConfig.branchId);
+  const { branchData } = useSelector((state) => state.appConfig)
+
 
   const getInitialValues = () => {
     return {
@@ -202,22 +202,22 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     // **Header Section**
     doc.addImage(logoUrl || defaultLogo, "PNG", 10, 5, 28, 28);
     doc.setFontSize(14);
-    doc.text((data.tenant?.name || "School Name").toUpperCase(), centerX, 15, {
+    doc.text((data.branch?.label || "School Name").toUpperCase(), centerX, 15, {
       align: "center",
     });
     doc.setFontSize(10);
     doc.text(
-      `Phone: ${data.tenant?.phoneNumber || "N/A"} | Email: ${
-        data.tenant?.email || "N/A"
+      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${
+        data.branch?.email || "N/A"
       }`,
       centerX,
       21,
       { align: "center" }
     );
     doc.text(
-      `Address: ${data.tenant?.city || "N/A"}, ${
-        data.tenant?.district || "N/A"
-      }, ${data.tenant?.state || "N/A"}, ${data.tenant?.pincode || "N/A"}`,
+      `Address: ${data.branch?.address?.area || "N/A"}, ${
+        data.branch?.address?.city || "N/A"
+      }, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"}`,
       centerX,
       27,
       { align: "center" }
@@ -379,7 +379,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
       const receiptWithTenant = {
         ...res.data.data,
         feesDatas: formattedFees,
-        tenant: tenant,
+        branch: branchData,
         name: capitalizeWords(
           studentData.student.firstName + " " + studentData.student.lastName
         ),
@@ -390,6 +390,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         mothersName: capitalizeWords(studentData.student.motherDetails.name),
         pendingAmount: getTotalAmount(values, "pendingAmount"),
       };
+console.log("receiptWithTenant",receiptWithTenant)  ;
 
       setReceiptData(receiptWithTenant);
       setIsReceiptOpen(true);
