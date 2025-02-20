@@ -10,30 +10,27 @@ import { getData, postData } from "../../app/api";
 import { ATTENDANCE, STAFF } from "../../app/url";
 import {
   attendanceOptions,
-  handleApiResponse
+  handleApiResponse,
 } from "../../commonComponent/CommonFunctions";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
-import AttendanceSidebar from "./AttendanceSidebar";
+import AttendanceSidebar from "./AttendanceSidebar"; 
 
 const StaffDailyAttendance = () => {
   const [staffList, setStaffList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [attendanceMessage, setAttendanceMessage] = useState("");
-
   const getInitialValues = () => {
     return {
-      userType: 'staff',
+      userType: "staff",
       date: moment().format("YYYY-MM-DD"),
-      staffCategory: "teaching",
       allAttendance: "",
-      attendance: staffList.filter((staff) => staff.category === "teaching"),
+      attendance: [],
     };
   };
 
   const getValidationSchema = () => {
     return Yup.object({
-      staffCategory: Yup.string(),
       date: Yup.date().nullable().required(" Date  is required"),
       allAttendance: Yup.string(),
       attendance: Yup.array().of(
@@ -43,42 +40,13 @@ const StaffDailyAttendance = () => {
       ),
     });
   };
-  useEffect(() => {
-    getStaff();
-  }, []);
-
-  const getStaff = async () => {
-    try {
-      const response = await getData(STAFF)
-      let data = response.data.data.map((item, index) => ({
-        _id: item._id,
-        pic: item.profilePic?.Location,
-        name: item.firstName + " " + item.lastName,
-        email: item.email,
-        empId: item.empId,
-        category: item.staffType,
-        date: item.DOJ,
-        phoneNumber: item.mobileNumber,
-        class: item.class,
-      }));
-      setStaffList(data);
-    } catch (error) {
-      handleApiResponse(error)
-    }
-
-  };
-
-
-  const handleStaffCategory = (e, setFieldValue) => {
-    const category = e.target.value;
-    const staffData = staffList.filter((staff) => staff.category === category);
-    setFieldValue("staffCategory", category);
-    setFieldValue("attendance", staffData);
-  };
+  
 
   const handleSearch = (e, values, setFieldValue) => {
     const query = e.target.value?.toLowerCase();
-    const staffData = staffList.filter((staff) => staff.category === values.staffCategory && staff.name.toLowerCase().includes(query));
+    const staffData = staffList.filter((staff) =>
+      staff.name.toLowerCase().includes(query)
+    );
     setFieldValue("attendance", staffData);
   };
 
@@ -92,8 +60,8 @@ const StaffDailyAttendance = () => {
     setFieldValue("attendance", updatedAttendance);
   };
 
-  const updateAttendance = (e, index, values, setFieldValue) => {
-    const updatedAttendance = [...values.attendance];
+  const updateAttendance = (e, index, values, setFieldValue) => {    
+    let updatedAttendance = [...values.attendance];
     updatedAttendance[index].attendanceStatus = e.target.value;
     setFieldValue("attendance", updatedAttendance);
   };
@@ -116,9 +84,10 @@ const StaffDailyAttendance = () => {
       const response = await postData(ATTENDANCE, values);
       handleApiResponse(response.data.message, "success");
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
   };
+ 
 
   return (
     <>
@@ -133,11 +102,11 @@ const StaffDailyAttendance = () => {
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               {/* Sidebar */}
               <AttendanceSidebar
+                updateList={setStaffList}
                 values={values}
                 user="staff"
                 setFieldValue={setFieldValue}
                 handleRadioChange={handleRadioChange}
-                handleStaffCategory={handleStaffCategory}
                 attendanceMessage={attendanceMessage}
                 setAttendanceMessage={setAttendanceMessage}
               />
@@ -155,7 +124,9 @@ const StaffDailyAttendance = () => {
                                 <input
                                   name="search"
                                   placeholder="Search"
-                                  onChange={(e) => handleSearch(e, values, setFieldValue)}
+                                  onChange={(e) =>
+                                    handleSearch(e, values, setFieldValue)
+                                  }
                                   className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
                                 />
                               </div>
@@ -188,9 +159,9 @@ const StaffDailyAttendance = () => {
                                 <input
                                   type="checkbox"
                                   className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                                // ref={checkbox}
-                                // checked={checked}
-                                // onChange={toggleAll}
+                                  // ref={checkbox}
+                                  // checked={checked}
+                                  // onChange={toggleAll}
                                 />
                               </th>
                               <th
@@ -239,7 +210,8 @@ const StaffDailyAttendance = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
-                            {values.attendance && values.attendance.length > 0 ? (
+                            {values.attendance &&
+                            values.attendance.length > 0 ? (
                               <FieldArray name="attendance">
                                 {() =>
                                   values.attendance.map((staff, index) => (
@@ -257,15 +229,21 @@ const StaffDailyAttendance = () => {
 
                                       <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                         <div className="flex items-center">
-                                          {staff.pic ? <div className="h-9 w-9 shrink-0">
-                                            <img
-                                              alt="Staff"
-                                              src={staff.pic}
-                                              className="h-9 w-9 rounded-full"
-                                            />
-                                          </div> : <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                                            <span className="font-medium text-gray-600 dark:text-gray-300">{staff.name.charAt(0)}</span>
-                                          </div>}
+                                          {staff.pic ? (
+                                            <div className="h-9 w-9 shrink-0">
+                                              <img
+                                                alt="Staff"
+                                                src={staff.pic}
+                                                className="h-9 w-9 rounded-full"
+                                              />
+                                            </div>
+                                          ) : (
+                                            <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                              <span className="font-medium text-gray-600 dark:text-gray-300">
+                                                {staff.name.charAt(0)}
+                                              </span>
+                                            </div>
+                                          )}
                                           <div className="ml-4">
                                             <div className="font-medium text-gray-900 text-purple-600">
                                               {staff.name}{" "}
@@ -308,7 +286,7 @@ const StaffDailyAttendance = () => {
                             ) : (
                               <tr>
                                 <td colSpan={3} className="text-center">
-                                  No student data Found
+                                  No staff data Found
                                 </td>
                               </tr>
                             )}

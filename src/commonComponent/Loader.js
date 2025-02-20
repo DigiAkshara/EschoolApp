@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 const Loader = () => {
   let { isLoading } = useSelector((state) => state.appConfig);
   return (
-    <div class="relative">
+    <div class="relative z-40">
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div role="status">

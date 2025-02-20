@@ -124,8 +124,6 @@ export default function StudentsList() {
           ],
         };
       });
-      console.log("STUDENT DATA IN STUDENT LIST", studentData);
-      
       setStudentList(studentData);
       setFilteredData(studentData);
     } catch (error) {

@@ -9,25 +9,30 @@ import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { postData } from "../../app/api";
 import { ATTENDANCE } from "../../app/url";
-import { attendanceOptions, handleApiResponse } from "../../commonComponent/CommonFunctions";
+import {
+  attendanceOptions,
+  handleApiResponse,
+} from "../../commonComponent/CommonFunctions";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
 import AttendanceSidebar from "./AttendanceSidebar";
 
 const StudentDailyAttendance = () => {
-  const { classes, sections } = useSelector((state) => state.students)
-  const studentList = useSelector((state) => state.attendance.students)
-  const [currentPage, setCurrentPage] = useState(1)
+  const { classes, sections } = useSelector((state) => state.students);
+  const studentList = useSelector((state) => state.attendance.students);
+  const [currentPage, setCurrentPage] = useState(1);
   const [attendanceMessage, setAttendanceMessage] = useState("");
 
   const getInitialValues = () => {
     return {
-      userType: 'student',
+      userType: "student",
       date: moment().format("YYYY-MM-DD"),
       class: classes[0]?.value,
-      section: sections.filter((section) => section.class === classes[0]?.value)[0]?.value,
+      section: sections.filter(
+        (section) => section.class === classes[0]?.value
+      )[0]?.value,
       allAttendance: "",
-      attendance: []
+      attendance: [],
     };
   };
 
@@ -48,15 +53,15 @@ const StudentDailyAttendance = () => {
   const handleRadioChange = (e, values, setFieldValue) => {
     const selectedStatus = e.target.value;
     setFieldValue("allAttendance", selectedStatus);
-    const updatedAttendance = values.attendance.map((data) => ({
+    let updatedAttendance = values.attendance.map((data) => ({
       ...data,
       attendanceStatus: selectedStatus,
     }));
     setFieldValue("attendance", updatedAttendance);
   };
 
-  const updateAttendance = (e, index, values, setFieldValue) => {
-    const updatedAttendance = [...values.attendance];
+  const updateAttendance = (e, index, values, setFieldValue) => {    
+    let updatedAttendance = [...values.attendance];
     updatedAttendance[index].attendanceStatus = e.target.value;
     setFieldValue("attendance", updatedAttendance);
   };
@@ -74,7 +79,6 @@ const StudentDailyAttendance = () => {
     setFieldValue("allAttendance", "");
   };
 
-
   const handleSubmit = async (values) => {
     const incompleteAttendance = values.attendance.some(
       (student) => !student.attendanceStatus
@@ -90,7 +94,7 @@ const StudentDailyAttendance = () => {
 
     try {
       const response = await postData(ATTENDANCE, values);
-      handleApiResponse(response.data.message, 'success')
+      handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
     }
@@ -98,7 +102,9 @@ const StudentDailyAttendance = () => {
 
   const handleSearch = (e, setFieldValue) => {
     const query = e.target.value?.toLowerCase();
-    const fileteredData = studentList.filter((student) =>  student.name.toLowerCase().includes(query));
+    const fileteredData = studentList.filter((student) =>
+      student.name.toLowerCase().includes(query)
+    );
     setFieldValue("attendance", fileteredData);
   };
 
@@ -139,7 +145,7 @@ const StudentDailyAttendance = () => {
                               <input
                                 name="search"
                                 placeholder="Search"
-                                onChange={(e) => handleSearch(e,setFieldValue)}
+                                onChange={(e) => handleSearch(e, setFieldValue)}
                                 className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
                               />
                             </div>
@@ -172,9 +178,9 @@ const StudentDailyAttendance = () => {
                               <input
                                 type="checkbox"
                                 className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                              // ref={checkbox}
-                              // checked={checked}
-                              // onChange={toggleAll}
+                                // ref={checkbox}
+                                // checked={checked}
+                                // onChange={toggleAll}
                               />
                             </th>
                             <th
@@ -227,10 +233,7 @@ const StudentDailyAttendance = () => {
                             <FieldArray name="attendance">
                               {() =>
                                 values.attendance.map((student, index) => (
-                                  <tr
-                                    key={student._id}
-                                    className="bg-gray-50"
-                                  >
+                                  <tr key={student._id} className="bg-gray-50">
                                     <td className="relative px-7 sm:w-12 sm:px-6">
                                       <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
                                       <input
@@ -242,15 +245,21 @@ const StudentDailyAttendance = () => {
                                     <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                       <div className="flex items-center">
                                         {/* Staff Image */}
-                                        {student.profilePic ? <div className="h-9 w-9 shrink-0">
-                                          <img
-                                            alt="Staff"
-                                            src={student.profilePic} 
-                                            className="h-9 w-9 rounded-full"
-                                          />
-                                        </div> : <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                                            <span className="font-medium text-gray-600 dark:text-gray-300">{student.name.charAt(0)}</span>
-                                          </div>}
+                                        {student.profilePic ? (
+                                          <div className="h-9 w-9 shrink-0">
+                                            <img
+                                              alt="Staff"
+                                              src={student.profilePic}
+                                              className="h-9 w-9 rounded-full"
+                                            />
+                                          </div>
+                                        ) : (
+                                          <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                            <span className="font-medium text-gray-600 dark:text-gray-300">
+                                              {student.name.charAt(0)}
+                                            </span>
+                                          </div>
+                                        )}
                                         {/* Staff Details */}
                                         <div className="ml-4">
                                           <div className="font-medium text-gray-900 text-purple-600">
@@ -264,7 +273,7 @@ const StudentDailyAttendance = () => {
                                       </div>
                                     </td>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                      {student.admissionNumber}
+                                      {student.admissionNo}
                                     </td>
 
                                     <td>
@@ -291,7 +300,10 @@ const StudentDailyAttendance = () => {
                             </FieldArray>
                           ) : (
                             <tr>
-                              <td colSpan={5} className="text-center px-2 py-3.5  text-sm font-semibold text-gray-900">
+                              <td
+                                colSpan={5}
+                                className="text-center px-2 py-3.5  text-sm font-semibold text-gray-900"
+                              >
                                 No student data Found
                               </td>
                             </tr>
