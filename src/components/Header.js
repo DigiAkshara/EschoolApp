@@ -81,7 +81,7 @@ function Header({ updateSideBar }) {
           <div className="relative flex flex-1 lg:items-center">
             <img
               alt=""
-              src= {branch?.logo.Location || "https://tailwindui.com/plus-assets/img/logos/mark.svg?color=purple&shade=600"}
+              src= {branch?.logo?.Location || "https://tailwindui.com/plus-assets/img/logos/mark.svg?color=purple&shade=600"}
               className="h-8 w-auto"
             />
             {/* <label htmlFor="search-field" className="sr-only">
