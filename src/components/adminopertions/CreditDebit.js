@@ -8,7 +8,7 @@ import { CLASSES, FEE_CATEGORY, FEE_SUBCATEGORY, SECTIONS } from "../../app/url"
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 
 function CreditDebit() {
-  const [classData, setClassData] = useState([]);
+  const [categotyData, setCategoryData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSectionModal, setIsSectionModal] = useState(false);
@@ -18,57 +18,60 @@ function CreditDebit() {
   const columns = [
     { title: "Si. No", key: "siNo" },
     { title: "Type", key: "type" },
-    { title: "Category", key: "category" },
+    { title: "Category", key: "categoryName" },
     { title: "Sub Category", key: "subCategory" },
     { title: "Actions", key: "actions" },
   ];
 
   useEffect(()=>{
-    // getCategory()
+    getCategory()
   },[])
 
 
 
-  // const getCategory = async () => {
-  //   try {
-  //     const [categoryResponse, subCategoryResponse] = await Promise.all([
-  //       getData(FEE_CATEGORY),
-  //       getData(FEE_SUBCATEGORY) // Fetch all class details
-  //     ]);
+  const getCategory = async () => {
+    try {
+      const [categoryResponse, subCategoryResponse] = await Promise.all([
+        getData(FEE_CATEGORY),
+        getData(FEE_SUBCATEGORY) // Fetch all class details
+      ]);
   
-  //     console.log("[CATEGORY]:", categoryResponse.data.data);
-  //     console.log("[SUB CATEGORY]:", subCategoryResponse.data.data);
+      console.log("[CATEGORY]:", categoryResponse.data.data);
+      console.log("[SUB CATEGORY]:", subCategoryResponse.data.data);
   
-  //     // Create a lookup map for class IDs to class names
-  //     const categoryMap = {};
-  //     classesResponse.data.data.forEach(cls => {
-  //       if (cls._id && cls.name) {
-  //         classesMap[cls._id] = cls.name;
-  //       }
-  //     });
+      // Create a lookup map for class IDs to class names
+      const categoryMap = {};
+      categoryResponse.data.data.forEach(catg => {
+        if (catg._id && catg.name) {
+          categoryMap[catg._id] = catg.name;
+        }
+      });
+      console.log("categoryMap", categoryMap);
+      
   
-  //     const classData = sectionsResponse.data.data.map((item, index) => {
-  //       const className = classesMap[item.class]?.toString() || "Unknown Class";
-  //       const sectionName = item.section || "Unknown Section";
+      const catgData = subCategoryResponse.data.data.map((item, index) => {
+        const categoryName = categoryMap[item.category]?.toString() || "Unknown Category";
   
-  //       return {
-  //         _id: item._id,
-  //         siNo: index + 1,
-  //         classSection: `${className} - ${sectionName}`, // Combine class and section
-  //         actions: [
-  //           { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
-  //           { label: "Delete", actionHandler: () => onDelete(item._id) },
-  //         ],
-  //       };
-  //     });
+        return {
+          _id: item._id,
+          siNo: index + 1,
+          // type: item.type,
+          categoryName:categoryName,
+          subCategory: item.name,
+          actions: [
+            { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
+            { label: "Delete", actionHandler: () => onDelete(item._id) },
+          ],
+        };
+      });
   
-  //     console.log("Processed Class Data:", classData);
-  //     setClassData(classData);
-  //     setFilteredData(classData);
-  //   } catch (error) {
-  //     handleApiResponse(error);
-  //   }
-  // };
+      console.log("Processed Class Data:", catgData);
+      setCategoryData(catgData);
+      setFilteredData(catgData);
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  };
 
   
   const onHandleEdit = async (Id) => {
