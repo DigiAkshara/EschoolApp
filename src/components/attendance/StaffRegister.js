@@ -1,13 +1,12 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import {
-  MagnifyingGlassIcon
-} from "@heroicons/react/20/solid";
+import { Menu, MenuButton, MenuItems } from "@headlessui/react";
+import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { getData, updateData } from "../../app/api";
-import { ACADEMIC_YEAR, ATTENDANCE, HOLIDAYS, STAFF } from "../../app/url";
+import { ACADEMIC_YEAR, ATTENDANCE, HOLIDAYS } from "../../app/url";
 import {
   handleApiResponse,
   monthsName,
@@ -15,7 +14,6 @@ import {
 } from "../../commonComponent/CommonFunctions";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
-import moment from "moment";
 
 function StaffRegister() {
   const [academicYears, setAcademicYears] = useState([]);
@@ -30,11 +28,10 @@ function StaffRegister() {
   const [month, setMonth] = useState(moment().month() + 1);
   const [year, setYear] = useState(moment().year());
   const [days, setDays] = useState([]);
-  const [holidays, setHolidays] = useState([])
-  const [noOfWorkingDays, setNoOfWorkingDays] = useState(0)
+  const [holidays, setHolidays] = useState([]);
+  const [noOfWorkingDays, setNoOfWorkingDays] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
-
 
   const getInitialValues = () => {
     return {
@@ -55,9 +52,18 @@ function StaffRegister() {
     });
   };
 
-
-
-
+  const getValue = (val) => {
+    switch (val) {
+      case "P":
+        return "present";
+      case "A":
+        return "absent";
+      case "F":
+        return "half-day";
+      default:
+        return "L";
+    }
+  };
 
   const handleSearch = (event) => {
     const term = event.target.value;
@@ -67,13 +73,14 @@ function StaffRegister() {
       setStaffList(staffs.filter((staff) => staff.category === staffCategory));
     } else {
       // Filter staff list based on the search term
-      const filtered = staffs.filter((item) =>
-        (item.category === staffCategory && item.name.toLowerCase().includes(term.toLowerCase())) // Access 'name' property
+      const filtered = staffs.filter(
+        (item) =>
+          item.category === staffCategory &&
+          item.name.toLowerCase().includes(term.toLowerCase()) // Access 'name' property
       );
       setStaffList(filtered);
-    };
-
-  }
+    }
+  };
 
   const academicYear = async () => {
     try {
@@ -92,8 +99,10 @@ function StaffRegister() {
 
   const getStaffData = async (monTh, yeAr) => {
     try {
-      const response = await getData("/attendance?month=" + monTh + "&year=" + yeAr + "&userType=staff");
-      let data = transformAttendanceData(response.data.data)
+      const response = await getData(
+        "/attendance?month=" + monTh + "&year=" + yeAr + "&userType=staff"
+      );
+      let data = transformAttendanceData(response.data.data);
       setStaffs(data);
       const staffData = data?.filter(
         (staffMember) => staffMember.category === "teaching"
@@ -107,29 +116,36 @@ function StaffRegister() {
   function transformAttendanceData(data) {
     const result = {};
     const statusMap = {
-      "present": "P",
-      "absent": "A",
+      present: "P",
+      absent: "A",
       "half-day": "F",
-      "leave": "L",
+      leave: "L",
     };
-    data.forEach(record => {
+    data.forEach((record) => {
       const formattedDate = moment(record.date).format("YYYY-MM-DD");
 
-      record.attendance.forEach(att => {
+      record.attendance.forEach((att) => {
         if (!result[att.userId._id]) {
           result[att.userId._id] = {
             userId: att.userId._id,
-            name: att.userId.firstName + ' ' + att.userId.lastName,
+            name: att.userId.firstName + " " + att.userId.lastName,
             profilePic: att.userId.profilePic,
             category: att.userId.staffType,
             empId: att.userId.empId, // You can replace this with actual user names if available
             attendance: {},
-            noOfLeaves: 0
+            noOfLeaves: 0,
           };
         }
-        let date = moment(formattedDate).format("DD")
-        result[att.userId._id].attendance[date] = statusMap[att.attendanceStatus] || "-"
-        result[att.userId._id].noOfLeaves = result[att.userId._id].noOfLeaves + (att.attendanceStatus === 'leave' ? 1 : att.attendanceStatus === 'half-day' ? 0.5 : 0)
+        let date = moment(formattedDate).format("DD");
+        result[att.userId._id].attendance[date] =
+          statusMap[att.attendanceStatus] || "-";
+        result[att.userId._id].noOfLeaves =
+          result[att.userId._id].noOfLeaves +
+          (att.attendanceStatus === "leave"
+            ? 1
+            : att.attendanceStatus === "half-day"
+            ? 0.5
+            : 0);
       });
     });
 
@@ -138,26 +154,24 @@ function StaffRegister() {
 
   const getHolidays = async () => {
     try {
-      let res = await getData(HOLIDAYS)
-      setHolidays(res.data.data)
+      let res = await getData(HOLIDAYS);
+      setHolidays(res.data.data);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
-
+  };
   useEffect(() => {
     academicYear();
-    getHolidays()
+    getHolidays();
   }, []);
 
   const handleStaffCategory = (e, setFieldValue) => {
     const category = e.target.value;
     const staffData = staffs.filter((staff) => staff.category === category);
     setFieldValue("staffCategory", category);
-    setStaffCategory(category)
+    setStaffCategory(category);
     setStaffList(staffData);
   };
-
 
   function getDaysOfMonth(month, year) {
     let start = moment(`${year}-${month}-01`, "YYYY-MM-DD");
@@ -165,12 +179,12 @@ function StaffRegister() {
     let daysArray = [];
     while (start.isSameOrBefore(end)) {
       daysArray.push({
-        day: start.format("DD"),     // Get day as 01, 02, ...
-        dayName: start.format("ddd") // Get short day name (Mon, Tue, ...)
+        day: start.format("DD"), // Get day as 01, 02, ...
+        dayName: start.format("ddd"), // Get short day name (Mon, Tue, ...)
       });
       start.add(1, "day"); // Move to the next day
     }
-    setDays(daysArray)
+    setDays(daysArray);
   }
 
   const getWorkingDays = (month, year, holidays) => {
@@ -178,73 +192,71 @@ function StaffRegister() {
     let end = start.clone().endOf("month");
     let holidayDates = new Set();
     // Convert holiday start and end dates into a list of dates
-    holidays.forEach(holiday => {
+    holidays.forEach((holiday) => {
       let holidayStart = moment(holiday.startDate);
       let holidayEnd = moment(holiday.endDate);
-  
+
       while (holidayStart.isSameOrBefore(holidayEnd)) {
         holidayDates.add(holidayStart.format("YYYY-MM-DD"));
         holidayStart.add(1, "day");
       }
     });
-  
+
     let workingDays = 0;
-  
+
     // Loop through the days of the month
     while (start.isSameOrBefore(end)) {
       let isSunday = start.day() === 0; // Sunday (0 in Moment.js)
       let isHoliday = holidayDates.has(start.format("YYYY-MM-DD")); // Check if it's a holiday
-  
+
       if (!isSunday && !isHoliday) {
         workingDays++; // Count only if it's not a Sunday or holiday
       }
-  
+
       start.add(1, "day"); // Move to the next day
     }
-    setNoOfWorkingDays(workingDays)
-    
-    // return workingDays; 
-  }
+    setNoOfWorkingDays(workingDays);
 
-
-  const handleAttendanceChange = (e) => {
-    e.preventDefault();
-    setSelectedAttendance(e.target.value);
+    // return workingDays;
   };
-
 
   const handleSave = async (day, id) => {
     const formattedDate = new Date(year, month - 1, day);
     const payload = {
       userId: id, // Assuming staff has an _id field
-      // date: moment(day).format("DD/MM/YYYY"), // Use the date or appropriate identifier
       date: formattedDate,
       attendanceStatus: selectedAttendance, // Selected attendance value
     };
     try {
       const response = await updateData(ATTENDANCE, payload);
       getStaffData();
-      handleApiResponse(response.data.message, 'success')
+      handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
+    } finally {
+      setOpenMenuDay(null);
+      setSelectedAttendance("");
     }
+  };
+
+  const handleAttendanceChange = (e) => {
+    e.stopPropagation();
+    setSelectedAttendance(e.target.value);
   };
 
   useEffect(() => {
     if (month && year) {
-      getDaysOfMonth(parseInt(month), year)
+      getDaysOfMonth(parseInt(month), year);
       getStaffData(month, year);
-      getWorkingDays(month, year, holidays)
+      getWorkingDays(month, year, holidays);
     }
   }, [month, year]);
-
 
   return (
     <>
       <Formik
         initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
-        // onSubmit={handleSubmit}
         enableReinitialize
       >
         {({ values, setFieldValue, errors }) => (
@@ -280,14 +292,16 @@ function StaffRegister() {
                       if (year.value === selectedYear) {
                         setYear(year.label.split("-")[1]);
                       }
-                    })
+                    });
                   }}
                 />
               </div>
 
               <div className="content-item flex items-center">
                 <dt className="text-sm/6 text-gray-500">No. Of Working Days</dt>
-                <dd className="text-base text-gray-700 font-medium pl-2">{noOfWorkingDays}</dd>
+                <dd className="text-base text-gray-700 font-medium pl-2">
+                  {noOfWorkingDays}
+                </dd>
               </div>
             </div>
 
@@ -373,7 +387,7 @@ function StaffRegister() {
                         </a>
                       </th>
 
-                      {days.map((dayObj, index) => {
+                      {days.map((dayObj) => {
                         // Determine if the current day is a Sunday
                         const isSunday =
                           new Date(
@@ -386,8 +400,9 @@ function StaffRegister() {
                           <th
                             key={dayObj.day}
                             scope="col"
-                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${isSunday ? "w-16 bg-red-100" : "w-40"
-                              }`}
+                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${
+                              isSunday ? "w-16 bg-red-100" : "w-40"
+                            }`}
                           >
                             <a href="#" className="flex flex-col items-center">
                               <div>{dayObj.dayName}</div>
@@ -411,7 +426,7 @@ function StaffRegister() {
                       </tr>
                     ) : (
                       staffList?.map((staff) => (
-                        <tr key={staff.id}>
+                        <tr key={staff.userId}>
                           {/* staff Info */}
                           <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm">
                             <a
@@ -419,16 +434,21 @@ function StaffRegister() {
                               className="text-purple-600 hover:text-purple-900"
                             >
                               <div className="flex items-center">
-                                {staff.profilePic ? <div className="size-9 shrink-0">
-                                  <img
-                                    alt=""
-                                    src={staff.profilePic}
-                                    className="size-9 rounded-full"
-                                  />
-                                </div> :
+                                {staff.profilePic ? (
+                                  <div className="size-9 shrink-0">
+                                    <img
+                                      alt=""
+                                      src={staff.profilePic}
+                                      className="size-9 rounded-full"
+                                    />
+                                  </div>
+                                ) : (
                                   <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                                    <span className="font-medium text-gray-600 dark:text-gray-300">{staff.name.charAt(0)}</span>
-                                  </div>}
+                                    <span className="font-medium text-gray-600 dark:text-gray-300">
+                                      {staff.name.charAt(0)}
+                                    </span>
+                                  </div>
+                                )}
                                 <div className="ml-4">
                                   <div className="font-medium text-gray-900 text-purple-600">
                                     {staff.name}
@@ -446,20 +466,20 @@ function StaffRegister() {
                             {staff.noOfLeaves}
                           </td>
 
-                          {days.map((dayObj, index) => {
+                          {days.map((dayObj) => {
                             const isSunday = dayObj.dayName === "Sun";
-                            const attendanceValue =
+                            let attendanceValue =
                               staff.attendance[dayObj.day] ||
                               (isSunday ? "S" : "-");
                             const attendanceClass = isSunday
                               ? "bg-red-100 text-gray-900" // Sundays
                               : attendanceValue === "P"
-                                ? "text-gray-500" // Present
-                                : attendanceValue === "A"
-                                  ? "text-yellow-800 bg-yellow-100" // Absent
-                                  : attendanceValue === "F"
-                                    ? "text-gray-900 bg-blue-100" // Half Day
-                                    : "text-gray-500";
+                              ? "text-gray-500" // Present
+                              : attendanceValue === "A"
+                              ? "text-yellow-800 bg-yellow-100" // Absent
+                              : attendanceValue === "F"
+                              ? "text-gray-900 bg-blue-100" // Half Day
+                              : "text-gray-500";
 
                             return (
                               <td
@@ -473,13 +493,11 @@ function StaffRegister() {
                                   <div>
                                     <MenuButton
                                       className="flex items-center rounded-full text-gray-400"
-                                      onClick={() =>
-                                        setOpenMenuDay((prev) =>
-                                          prev === dayObj.day
-                                            ? null
-                                            : dayObj.day
-                                        )
-                                      }
+                                      onClick={() => {
+                                        setOpenMenuDay(dayObj.day);
+                                        let value = getValue(attendanceValue);
+                                        setSelectedAttendance(value);
+                                      }}
                                     >
                                       {attendanceValue}
                                     </MenuButton>
@@ -490,95 +508,95 @@ function StaffRegister() {
                                     ) && (
                                       <MenuItems className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <div className="py-1">
-                                          <MenuItem>
-                                            <a
-                                              href="#"
-                                              className="block px-4 py-2 text-sm text-gray-700"
+                                          <label className="flex items-center text-sm text-gray-600 p-2">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${dayObj.day}`}
+                                              value="present"
+                                              checked={
+                                                selectedAttendance === "present"
+                                              }
+                                              onClick={(e) =>
+                                                handleAttendanceChange(e)
+                                              }
+                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            Present: P
+                                          </label>
+
+                                          <label className="flex items-center text-sm text-gray-600 p-2">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${dayObj.day}`}
+                                              value="absent"
+                                              checked={
+                                                selectedAttendance === "absent"
+                                              }
+                                              onClick={(e) =>
+                                                handleAttendanceChange(e)
+                                              }
+                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            Absent: A
+                                          </label>
+
+                                          <label className="flex items-center text-sm text-gray-600 p-2">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${dayObj.day}`}
+                                              value="half-day"
+                                              checked={
+                                                selectedAttendance ===
+                                                "half-day"
+                                              }
+                                              onClick={(e) =>
+                                                handleAttendanceChange(e)
+                                              }
+                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            Half Day: F
+                                          </label>
+
+                                          <label className="flex items-center text-sm text-gray-600 p-2">
+                                            <input
+                                              type="radio"
+                                              name={`attendance-${dayObj.day}`}
+                                              value="leave"
+                                              checked={
+                                                selectedAttendance === "leave"
+                                              }
+                                              onClick={(e) =>
+                                                handleAttendanceChange(e)
+                                              }
+                                              className="mr-2 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            Leave: L
+                                          </label>
+
+                                          <div className="flex p-4">
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                setOpenMenuDay(null);
+                                                setSelectedAttendance("");
+                                              }}
+                                              className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
                                             >
-                                              Update Attendance
-                                            </a>
-                                          </MenuItem>
-                                          <MenuItem>
-                                            <label className="flex items-center text-sm text-gray-600 p-2">
-                                              <input
-                                                type="radio"
-                                                name={`attendance-${dayObj.day}`}
-                                                value="present"
-                                                onClick={(e) =>
-                                                  handleAttendanceChange(e)
-                                                }
-                                                className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                              />
-                                              Present: P
-                                            </label>
-                                          </MenuItem>
-                                          <MenuItem>
-                                            <label className="flex items-center text-sm text-gray-600 p-2">
-                                              <input
-                                                type="radio"
-                                                name={`attendance-${dayObj.day}`}
-                                                value="absent"
-                                                onClick={(e) =>
-                                                  handleAttendanceChange(e)
-                                                }
-                                                className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                              />
-                                              Absent: A
-                                            </label>
-                                          </MenuItem>
-                                          <MenuItem>
-                                            <label className="flex items-center text-sm text-gray-600 p-2">
-                                              <input
-                                                type="radio"
-                                                name={`attendance-${dayObj.day}`}
-                                                value="half-day"
-                                                onClick={(e) =>
-                                                  handleAttendanceChange(e)
-                                                }
-                                                className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                              />
-                                              Half Day: F
-                                            </label>
-                                          </MenuItem>
-                                          <MenuItem>
-                                            <label className="flex items-center text-sm text-gray-600 p-2">
-                                              <input
-                                                type="radio"
-                                                name={`attendance-${dayObj.day}`}
-                                                value="leave"
-                                                onClick={(e) =>
-                                                  handleAttendanceChange(e)
-                                                }
-                                                className="mr-2 text-indigo-600 focus:ring-indigo-500"
-                                              />
-                                              Leave: L
-                                            </label>
-                                          </MenuItem>
-                                          <MenuItem>
-                                            <div className="flex p-4">
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  setOpenMenuDay(null)
-                                                }
-                                                className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                                              >
-                                                Cancel
-                                              </button>
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  handleSave(
-                                                    dayObj.day,
-                                                    staff._id
-                                                  )
-                                                }
-                                                className="w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500"
-                                              >
-                                                Save
-                                              </button>
-                                            </div>
-                                          </MenuItem>
+                                              Cancel
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                handleSave(
+                                                  dayObj.day,
+                                                  staff.userId
+                                                )
+                                              }
+                                              className="w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500"
+                                            >
+                                              Save
+                                            </button>
+                                          </div>
                                         </div>
                                       </MenuItems>
                                     )}

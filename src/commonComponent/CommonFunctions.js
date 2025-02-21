@@ -6,6 +6,8 @@ import { toast } from 'react-toastify';
 import * as XLSX from "xlsx";
 import { getData, postData } from '../app/api';
 import { CLASS_CATEGORIES, CLASSES, HOLIDAYS, SECTIONS, UPLOAD } from '../app/url';
+import { store } from '../app/store';
+import { clearSession } from "../app/reducers/appConfigSlice";
 
 export const getAcademicYears = () => {
   const currentDate = new Date()
@@ -430,6 +432,11 @@ export const handleApiResponse = (res, type = "error") => {
       if (typeof res.response.data.message === "object") {
         message = res.response.data.message.join(", ")
       } else {
+        if(res.response.data.statusCode === 403){
+          store.dispatch(clearSession())
+          localStorage.clear()
+          window.location.href = "/login";
+        }
         message = res.response.data.message || 'Something went wrong!'
       }
     } else if (res.request) {

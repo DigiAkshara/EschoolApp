@@ -6,6 +6,7 @@ import { updateStaff } from "../../app/reducers/attendanceSlice";
 import { getData } from '../../app/api';
 import { handleApiResponse } from '../../commonComponent/CommonFunctions';
 import { STAFF } from '../../app/url';
+import { setIsLoader } from "../../app/reducers/appConfigSlice";
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
@@ -28,6 +29,7 @@ export default function StaffAttendance() {
   ]
 
   const getStaff = async () => {
+    dispatch(setIsLoader(true))
     try {
       const res = await getData(STAFF);
       const data =  res.data.data.map((item) => {
@@ -46,6 +48,8 @@ export default function StaffAttendance() {
       dispatch(updateStaff(data));
     } catch (error) {
       handleApiResponse(error);
+    }finally{
+      dispatch(setIsLoader(false))
     }
   };
 

@@ -29,11 +29,12 @@ const AttendanceSidebar = ({
   const [attendanceMarked, setAttendanceMarked] = useState(false);
   const [holiday, setHoliday] = useState(false);
   const [holidayReason, setHolidayReason] = useState("");
+  
 
   const getStudents = async (classId, sectionID) => {
     try {
       const res = await getData(ACADEMICS + "/" + classId + "/" + sectionID);
-      let stuData = res.data.data.map((item) => ({
+      const stuData = res.data.data.map((item) => {return{
         _id: item.student._id,
         pic: item.student.profilePic?.Location || "",
         name: `${item.student.firstName} ${item.student.lastName}`,
@@ -42,7 +43,7 @@ const AttendanceSidebar = ({
         class: item.class?._id || null,
         section: item.section || "N/A",
         attendanceStatus: "",
-      }));
+      }});
       dispatch(updateStudents(stuData));
       setFieldValue("attendance", stuData);
     } catch (error) {
@@ -61,7 +62,7 @@ const AttendanceSidebar = ({
       checkHoliday(values.date);
       checkDayAttendance(values.date);
     }
-  }, [values.date, values.class, values.section]);
+  }, [values.date, staff,students]);
 
   const checkHoliday = (date) => {
     setHoliday(false);
@@ -89,9 +90,9 @@ const AttendanceSidebar = ({
     setAttendanceMarked(false);
     try {
       let URL = "/attendance?date=" + date + "&userType=" + user;
-      let data = staff
+      let data = [...staff]
       if (user === "student") {
-        data = students
+        data = [...students]
         URL = URL + "&classId=" + values.class + "&sectionId=" + values.section;
       }
       const res = await getData(URL);
