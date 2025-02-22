@@ -8,10 +8,10 @@ import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import TableComponent from "../../commonComponent/TableComponent";
 import HolidaySidebar from "./HolidaySidebar";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
+import { updateHolidays } from "../../app/reducers/attendanceSlice";
 
 const HolidayAttendance = () => {
   const [academicYears, setAcademicYears] = useState([]);
-  const [holidaysData, setHolidaysData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -50,6 +50,7 @@ const HolidayAttendance = () => {
     try {
       const res = await getData(HOLIDAYS);
       const holidayResonse = res.data.data;
+      dispatch(updateHolidays(res.data.data))
       const holidayData = holidayResonse.map((item) => {
         let start = moment(item.startDate).format("YYYY-MM-DD");
         let end = moment(item.endDate).format("YYYY-MM-DD");
@@ -69,7 +70,6 @@ const HolidayAttendance = () => {
           ],
         };
       });
-      setHolidaysData(holidayData);
       setFilteredData(holidayData);
     } catch (error) {
       handleApiResponse(error);

@@ -60,8 +60,8 @@ const StudentDailyAttendance = () => {
     setFieldValue("attendance", updatedAttendance);
   };
 
-  const updateAttendance = (e, index, values, setFieldValue) => {    
-    let updatedAttendance = [...values.attendance];
+  const updateAttendance = (e, index, values, setFieldValue) => {
+    let updatedAttendance = JSON.parse(JSON.stringify(values.attendance));
     updatedAttendance[index].attendanceStatus = e.target.value;
     setFieldValue("attendance", updatedAttendance);
   };
@@ -116,7 +116,7 @@ const StudentDailyAttendance = () => {
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ values, setFieldValue, errors }) => (
+        {({ values, setFieldValue, errors }) => ( 
           <Form>
             <div className="flex flex-col lg:flex-row gap-6 mt-4 min-h-screen">
               <AttendanceSidebar
@@ -265,10 +265,6 @@ const StudentDailyAttendance = () => {
                                           <div className="font-medium text-gray-900 text-purple-600">
                                             {student.name}{" "}
                                           </div>
-                                          {/* <div className="mt-1 text-gray-500">
-                                {student.email}{" "}
-                                
-                              </div> */}
                                         </div>
                                       </div>
                                     </td>
@@ -279,7 +275,9 @@ const StudentDailyAttendance = () => {
                                     <td>
                                       <CustomRadio
                                         name={`attendance.${index}.attendanceStatus`}
-                                        options={attendanceOptions}
+                                        options={[
+                                          ...attendanceOptions
+                                        ]}
                                         value={
                                           values.attendance[index]
                                             .attendanceStatus
