@@ -1,7 +1,5 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import {
-  MagnifyingGlassIcon
-} from "@heroicons/react/20/solid";
+import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
 import moment from "moment";
@@ -9,17 +7,16 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, updateData } from "../../app/api";
+import { ACADEMIC_YEAR, ATTENDANCE, HOLIDAYS } from "../../app/url";
 import {
-  ACADEMIC_YEAR,
-  ATTENDANCE,
-  HOLIDAYS
-} from "../../app/url";
-import { handleApiResponse, monthsName } from "../../commonComponent/CommonFunctions";
+  handleApiResponse,
+  monthsName,
+} from "../../commonComponent/CommonFunctions";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
 
 function ManageStudentRegister() {
-  const { classes, sections } = useSelector((state) => state.students)
+  const { classes, sections } = useSelector((state) => state.students);
   const [academicYears, setAcademicYears] = useState([]);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
   const [openMenuDay, setOpenMenuDay] = useState(null); // Track the currently open menu
@@ -28,21 +25,23 @@ function ManageStudentRegister() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [cls, setCls] = useState(classes[0]?.value);
-  const [section, setSection] = useState([]);
+  const [section, setSection] = useState(sections.filter(
+    (section) => section.class === classes[0]?.value
+  )[0]?.value);
   const [month, setMonth] = useState(moment().month() + 1);
   const [year, setYear] = useState(moment().year());
   const [days, setDays] = useState([]);
-  const [holidays, setHolidays] = useState([])
-  const [noOfWorkingDays, setNoOfWorkingDays] = useState(0)
+  const [holidays, setHolidays] = useState([]);
+  const [noOfWorkingDays, setNoOfWorkingDays] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(1);
-
-
 
   const getInitialValues = () => {
     return {
       class: classes[0]?.value,
-      section: sections.filter((section) => section.class === classes[0]?.value)[0]?.value,
+      section: sections.filter(
+        (section) => section.class === classes[0]?.value
+      )[0]?.value,
       month: moment().month() + 1,
       year: moment().year(),
       academicYear: academicYears[0]?.value,
@@ -62,12 +61,12 @@ function ManageStudentRegister() {
 
   const getHolidays = async () => {
     try {
-      let res = await getData(HOLIDAYS)
-      setHolidays(res.data.data)
+      let res = await getData(HOLIDAYS);
+      setHolidays(res.data.data);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
 
   const academicYear = async () => {
     try {
@@ -86,9 +85,8 @@ function ManageStudentRegister() {
 
   useEffect(() => {
     academicYear();
-    getHolidays()
+    getHolidays();
   }, []);
-
 
   const handleSearch = (event) => {
     const term = event.target.value;
@@ -103,12 +101,21 @@ function ManageStudentRegister() {
     }
   };
 
-
-
   const getStudentData = async (month, year, cls, section) => {
     try {
-      const response = await getData("/attendance?month=" + month + "&year=" + year + "&userType=student" + "&class=" + cls + "&section=" + section);
-      let data = transformAttendanceData(response.data.data)
+      const response = await getData(
+        "/attendance?month=" +
+          month +
+          "&year=" +
+          year +
+          "&userType=student" +
+          "&class=" +
+          cls +
+          "&section=" +
+          section
+      );
+      let data = transformAttendanceData(response.data.data);
+      setFilteredData(data)
       setStudentList(data);
     } catch (error) {
       handleApiResponse(error);
@@ -118,28 +125,36 @@ function ManageStudentRegister() {
   function transformAttendanceData(data) {
     const result = {};
     const statusMap = {
-      "present": "P",
-      "absent": "A",
+      present: "P",
+      absent: "A",
       "half-day": "F",
-      "leave": "L",
+      leave: "L",
     };
-    data.forEach(record => {
+    data.forEach((record) => {
       const formattedDate = moment(record.date).format("YYYY-MM-DD");
-      record.attendance.forEach(att => {
+      record.attendance.forEach((att) => {
         if (!result[att.userId._id]) {
           result[att.userId._id] = {
             userId: att.userId._id,
-            name: att.userId.firstName + ' ' + att.userId.lastName,
+            name: att.userId.firstName + " " + att.userId.lastName,
             profilePic: att.userId.profilePic,
             category: att.userId.staffType,
             rollNumber: att.userId.rollNumber, // You can replace this with actual user names if available
             attendance: {},
-            noOfLeaves: 0
+            noOfLeaves: 0,
           };
         }
-        let date = moment(formattedDate).format("DD")
-        result[att.userId._id].attendance[date] = isHoliday(record.date) ? "H" : statusMap[att.attendanceStatus] || "-"
-        result[att.userId._id].noOfLeaves = result[att.userId._id].noOfLeaves + (att.attendanceStatus === 'absent' ? 1 : att.attendanceStatus === 'half-day' ? 0.5 : 0)
+        let date = moment(formattedDate).format("DD");
+        result[att.userId._id].attendance[date] = isHoliday(record.date)
+          ? "H"
+          : statusMap[att.attendanceStatus] || "-";
+        result[att.userId._id].noOfLeaves =
+          result[att.userId._id].noOfLeaves +
+          (att.attendanceStatus === "absent"
+            ? 1
+            : att.attendanceStatus === "half-day"
+            ? 0.5
+            : 0);
       });
     });
 
@@ -147,19 +162,19 @@ function ManageStudentRegister() {
   }
 
   function isHoliday(date) {
-    let isHoliday = false
+    let isHoliday = false;
     let checkDate = moment(date).format("YYYY-MM-DD");
     for (let holiday of holidays) {
       let start = moment(holiday.startDate).format("YYYY-MM-DD");
       let end = moment(holiday.endDate).format("YYYY-MM-DD");
       // Check if the date falls within the holiday period
-      if (moment(checkDate).isBetween(start, end, null, "[]")) { // '[]' includes start and end dates
-        isHoliday =  true
+      if (moment(checkDate).isBetween(start, end, null, "[]")) {
+        // '[]' includes start and end dates
+        isHoliday = true;
       }
     }
-    return isHoliday
+    return isHoliday;
   }
-
 
   function getDaysOfMonth(month, year) {
     let start = moment(`${year}-${month}-01`, "YYYY-MM-DD");
@@ -167,12 +182,12 @@ function ManageStudentRegister() {
     let daysArray = [];
     while (start.isSameOrBefore(end)) {
       daysArray.push({
-        day: start.format("DD"),     // Get day as 01, 02, ...
-        dayName: start.format("ddd") // Get short day name (Mon, Tue, ...)
+        day: start.format("DD"), // Get day as 01, 02, ...
+        dayName: start.format("ddd"), // Get short day name (Mon, Tue, ...)
       });
       start.add(1, "day"); // Move to the next day
     }
-    setDays(daysArray)
+    setDays(daysArray);
   }
 
   const getWorkingDays = (month, year, holidays) => {
@@ -180,7 +195,7 @@ function ManageStudentRegister() {
     let end = start.clone().endOf("month");
     let holidayDates = new Set();
     // Convert holiday start and end dates into a list of dates
-    holidays.forEach(holiday => {
+    holidays.forEach((holiday) => {
       let holidayStart = moment(holiday.startDate);
       let holidayEnd = moment(holiday.endDate);
 
@@ -203,13 +218,13 @@ function ManageStudentRegister() {
 
       start.add(1, "day"); // Move to the next day
     }
-    setNoOfWorkingDays(workingDays)
-  }
+    setNoOfWorkingDays(workingDays);
+  };
 
   useEffect(() => {
     if (month && year) {
-      getDaysOfMonth(parseInt(month), year)
-      getWorkingDays(month, year, holidays)
+      getDaysOfMonth(parseInt(month), year);
+      getWorkingDays(month, year, holidays);
     }
   }, [month, year]);
 
@@ -220,8 +235,21 @@ function ManageStudentRegister() {
   }, [month, year, cls, section]);
 
   const handleAttendanceChange = (e) => {
-    e.preventDefault();
+    e.stopPropagation();
     setSelectedAttendance(e.target.value);
+  };
+
+  const getValue = (val) => {
+    switch (val) {
+      case "P":
+        return "present";
+      case "A":
+        return "absent";
+      case "F":
+        return "half-day";
+      default:
+        return "L";
+    }
   };
 
   const handleSave = async (day, id) => {
@@ -233,15 +261,14 @@ function ManageStudentRegister() {
     };
     try {
       const response = await updateData(ATTENDANCE, payload);
-      // getStudentData();
-      handleApiResponse(response.data.message, 'success')
+      getStudentData();
+      handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
+    } finally {
+      setOpenMenuDay(null);
+      setSelectedAttendance("");
     }
-  };
-
-  const handleSubmit = (values) => {
-    console.log("Form submitted with values:", values);
   };
 
   return (
@@ -249,7 +276,6 @@ function ManageStudentRegister() {
       <Formik
         initialValues={getInitialValues()}
         validationSchema={getValidationSchema()}
-        onSubmit={handleSubmit}
         enableReinitialize
       >
         {({ values, setFieldValue, errors }) => (
@@ -270,7 +296,9 @@ function ManageStudentRegister() {
                 <CustomSelect
                   name="section"
                   placeholder=" Section"
-                  options={sections.filter((section) => section.class === values.class)}
+                  options={sections.filter(
+                    (section) => section.class === values.class
+                  )}
                   onChange={(e) => {
                     setFieldValue("section", e.target.value);
                     setSection(e.target.value);
@@ -298,14 +326,16 @@ function ManageStudentRegister() {
                       if (year.value === selectedYear) {
                         setYear(year.label.split("-")[1]);
                       }
-                    })
+                    });
                   }}
                 />
               </div>
 
               <div className="content-item flex items-center">
                 <dt className="text-sm/6 text-gray-500">No. Of Working Days</dt>
-                <dd className="text-base text-gray-700 font-medium pl-2">{noOfWorkingDays}</dd>
+                <dd className="text-base text-gray-700 font-medium pl-2">
+                  {noOfWorkingDays}
+                </dd>
               </div>
             </div>
 
@@ -405,8 +435,9 @@ function ManageStudentRegister() {
                           <th
                             key={dayObj.day}
                             scope="col"
-                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${isSunday ? "w-16 bg-red-100" : "w-40"
-                              }`}
+                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${
+                              isSunday ? "w-16 bg-red-100" : "w-40"
+                            }`}
                           >
                             <a href="#" className="flex flex-col items-center">
                               <div>{dayObj.dayName}</div>
@@ -430,7 +461,7 @@ function ManageStudentRegister() {
                       </tr>
                     ) : (
                       studentList.map((student) => (
-                        <tr key={student.id}>
+                        <tr key={student.userId}>
                           {/* Student Info */}
                           <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm">
                             <a
@@ -438,16 +469,21 @@ function ManageStudentRegister() {
                               className="text-purple-600 hover:text-purple-900"
                             >
                               <div className="flex items-center">
-                                {student.profilePic ? <div className="size-9 shrink-0">
-                                  <img
-                                    alt=""
-                                    src={student.profilePic}
-                                    className="size-9 rounded-full"
-                                  />
-                                </div> :
+                                {student.profilePic ? (
+                                  <div className="size-9 shrink-0">
+                                    <img
+                                      alt=""
+                                      src={student.profilePic}
+                                      className="size-9 rounded-full"
+                                    />
+                                  </div>
+                                ) : (
                                   <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                                    <span className="font-medium text-gray-600 dark:text-gray-300">{student.name.charAt(0)}</span>
-                                  </div>}
+                                    <span className="font-medium text-gray-600 dark:text-gray-300">
+                                      {student.name.charAt(0)}
+                                    </span>
+                                  </div>
+                                )}
                                 <div className="ml-4">
                                   <div className="font-medium text-gray-900 text-purple-600">
                                     {student.name}
@@ -465,7 +501,7 @@ function ManageStudentRegister() {
                             {student.noOfLeaves}
                           </td>
 
-                          {days.map((dayObj, index) => {
+                          {days.map((dayObj) => {
                             const isSunday = dayObj.dayName === "Sun";
                             const attendanceValue =
                               student.attendance[dayObj.day] ||
@@ -474,14 +510,14 @@ function ManageStudentRegister() {
                             const attendanceClass = isSunday
                               ? "bg-red-100 text-gray-900" // Sundays
                               : attendanceValue === "P"
-                                ? "text-gray-500" // Present
-                                : attendanceValue === "A"
-                                  ? "text-yellow-800 bg-yellow-100" // Absent
-                                  : attendanceValue === "F"
-                                    ? "text-gray-900 bg-blue-100" // Half Day
-                                    : attendanceValue === "H"
-                                      ? "text-red-500" // Sunday
-                                      : "text-gray-500";
+                              ? "text-gray-500" // Present
+                              : attendanceValue === "A"
+                              ? "text-yellow-800 bg-yellow-100" // Absent
+                              : attendanceValue === "F"
+                              ? "text-gray-900 bg-blue-100" // Half Day
+                              : attendanceValue === "H"
+                              ? "text-red-500" // Sunday
+                              : "text-gray-500";
 
                             return (
                               <td
@@ -495,13 +531,11 @@ function ManageStudentRegister() {
                                   <div>
                                     <MenuButton
                                       className="flex items-center rounded-full text-gray-400"
-                                      onClick={() =>
-                                        setOpenMenuDay((prev) =>
-                                          prev === dayObj.day
-                                            ? null
-                                            : dayObj.day
-                                        )
-                                      }
+                                      onClick={() => {
+                                        setOpenMenuDay(dayObj.day);
+                                        let value = getValue(attendanceValue);
+                                        setSelectedAttendance(value);
+                                      }}
                                     >
                                       {attendanceValue}
                                     </MenuButton>
@@ -526,6 +560,10 @@ function ManageStudentRegister() {
                                                 type="radio"
                                                 name={`attendance-${dayObj.day}`}
                                                 value="present"
+                                                checked={
+                                                  selectedAttendance ===
+                                                  "present"
+                                                }
                                                 onClick={(e) =>
                                                   handleAttendanceChange(e)
                                                 }
@@ -540,6 +578,10 @@ function ManageStudentRegister() {
                                                 type="radio"
                                                 name={`attendance-${dayObj.day}`}
                                                 value="absent"
+                                                checked={
+                                                  selectedAttendance ===
+                                                  "absent"
+                                                }
                                                 onClick={(e) =>
                                                   handleAttendanceChange(e)
                                                 }
@@ -554,6 +596,10 @@ function ManageStudentRegister() {
                                                 type="radio"
                                                 name={`attendance-${dayObj.day}`}
                                                 value="half-day"
+                                                checked={
+                                                  selectedAttendance ===
+                                                  "half-day"
+                                                }
                                                 onClick={(e) =>
                                                   handleAttendanceChange(e)
                                                 }
@@ -566,9 +612,10 @@ function ManageStudentRegister() {
                                             <div className="flex p-4">
                                               <button
                                                 type="button"
-                                                onClick={() =>
-                                                  setOpenMenuDay(null)
-                                                }
+                                                onClick={() => {
+                                                  setOpenMenuDay(null);
+                                                  setSelectedAttendance("");
+                                                }}
                                                 className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
                                               >
                                                 Cancel
@@ -578,7 +625,7 @@ function ManageStudentRegister() {
                                                 onClick={() =>
                                                   handleSave(
                                                     dayObj.day,
-                                                    student._id
+                                                    student.userId
                                                   )
                                                 }
                                                 className="w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500"

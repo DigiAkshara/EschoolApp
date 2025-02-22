@@ -61,7 +61,7 @@ const StaffDailyAttendance = () => {
   };
 
   const updateAttendance = (e, index, values, setFieldValue) => {    
-    let updatedAttendance = [...values.attendance];
+    let updatedAttendance = JSON.parse(JSON.stringify(values.attendance));
     updatedAttendance[index].attendanceStatus = e.target.value;
     setFieldValue("attendance", updatedAttendance);
   };
