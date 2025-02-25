@@ -21,8 +21,7 @@ const StudentDailyAttendance = () => {
   const { classes, sections } = useSelector((state) => state.students);
   const studentList = useSelector((state) => state.attendance.students);
   const [currentPage, setCurrentPage] = useState(1);
-  const [attendanceMessage, setAttendanceMessage] = useState("");
-
+  const [attendanceMarked, setAttendanceMarked] = useState(false);
   const getInitialValues = () => {
     return {
       userType: "student",
@@ -80,20 +79,17 @@ const StudentDailyAttendance = () => {
   };
 
   const handleSubmit = async (values) => {
+    setAttendanceMarked(false)
     const incompleteAttendance = values.attendance.some(
       (student) => !student.attendanceStatus
     );
-
     if (incompleteAttendance) {
-      setAttendanceMessage("Please add attendance for all the students.");
-      setTimeout(() => {
-        setAttendanceMessage("");
-      }, 5000);
+      handleApiResponse("Please add attendance for all the students.");
       return; // Stop execution if validation fails
     }
-
     try {
       const response = await postData(ATTENDANCE, values);
+      setAttendanceMarked(true)
       handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
@@ -127,9 +123,8 @@ const StudentDailyAttendance = () => {
                 setFieldValue={setFieldValue}
                 handleClassChange={handleClassChange}
                 handleSectionChange={handleSectionChange}
-                attendanceMessage={attendanceMessage}
-                setAttendanceMessage={setAttendanceMessage}
                 user="student"
+                attendanceMarkedValue={attendanceMarked}
               />
 
               {/* Main Content */}

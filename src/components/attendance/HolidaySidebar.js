@@ -36,20 +36,17 @@ const HolidaySidebar = ({ getHolidayData, academicYears }) => {
   };
 
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values,{ resetForm }) => {
     try {
       const res = values._id ? await updateData(HOLIDAYS + "/" + values._id, values) : await postData(HOLIDAYS, values);
+      dispatch(setSelectedHoliday(null))
+      resetForm()
       getHolidayData();
       handleApiResponse(res.data.message, 'success')
-      dispatch(setSelectedHoliday(null))
     } catch (error) {
       handleApiResponse(error)
     }
   };
-
-  const resetForm = () => {
-    dispatch(setSelectedHoliday(null))
-  }
 
   return (
     <>
@@ -62,7 +59,6 @@ const HolidaySidebar = ({ getHolidayData, academicYears }) => {
         >
           {({ values, setFieldValue }) => (
             <Form>
-              {/* <h2 className="text-xl font-semibold mb-4">Holiday Entry</h2> */}
               <h2 className="text-xl font-semibold mb-4">
                 {selectedHoliday ? "Edit Holiday" : "Holiday Entry"}
               </h2>
@@ -82,6 +78,10 @@ const HolidaySidebar = ({ getHolidayData, academicYears }) => {
                   name="startDate"
                   label="Holiday From Date"
                   required={true}
+                  onChange={(newValue) => {
+                    setFieldValue("startDate", newValue);
+                    setFieldValue("endDate", null);
+                  }}
                 />
               </div>
               <div className="mb-4">
@@ -105,13 +105,6 @@ const HolidaySidebar = ({ getHolidayData, academicYears }) => {
               <div className="mb-4">
               <button className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600">
                 {selectedHoliday ? "Update Holiday" : "Add Holiday"}
-              </button>
-              </div>
-              <div className="mb-4">
-              <button 
-                className="w-full rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                 type="button" onClick={() => resetForm()}>
-                Reset Form
               </button>
               </div>
             </Form>
