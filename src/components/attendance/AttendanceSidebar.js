@@ -23,14 +23,14 @@ const AttendanceSidebar = ({
   handleSectionChange,
   classes,
   sections,
+  attendanceMarkedValue,
 }) => {
   const { staff,students, holidays } = useSelector((state) => state.attendance);
   const dispatch = useDispatch();
   const [attendanceMarked, setAttendanceMarked] = useState(false);
   const [holiday, setHoliday] = useState(false);
   const [holidayReason, setHolidayReason] = useState("");
-  
-
+   
   const getStudents = async (classId, sectionID) => {
     try {
       const res = await getData(ACADEMICS + "/" + classId + "/" + sectionID);
@@ -138,6 +138,10 @@ const AttendanceSidebar = ({
     },
     { present: 0, absent: 0, halfDay: 0, leave: 0 }
   );
+
+  useEffect(() => {
+    setAttendanceMarked(attendanceMarkedValue)
+  }, [attendanceMarkedValue]);
 
   return (
     <div className="bg-white border  rounded-lg p-6 w-full lg:w-1/4">

@@ -7,7 +7,7 @@ import { postData } from "../app/api";
 import { STAFF, STUDENT } from "../app/url";
 import { handleDownload, handleDownloadCSV } from "./CommonFunctions";
 
-function CommonUpload({ onClose2, user }) {
+function CommonUpload({ onClose, user }) {
   const [bulkUploadList, setBulkUploadList] = useState([]);
   const [validationError, setValidationError] = useState("");
   const [duplicateHandlingOption, setDuplicateHandlingOption] = useState("skip");
@@ -308,7 +308,7 @@ function CommonUpload({ onClose2, user }) {
                     <div className="ml-3 flex h-7 items-center">
                       <button
                         type="button"
-                        onClick={onClose2}
+                        onClick={onClose}
                         className="relative rounded-md text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                       >
                         <span className="absolute -inset-2.5" />
@@ -430,7 +430,7 @@ function CommonUpload({ onClose2, user }) {
                 <div className="flex shrink-0 px-4 py-4 bg-gray-100 w-full justify-end">
                   <button
                     type="button"
-                    onClick={onClose2}
+                    onClick={onClose}
                     className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
                   >
                     Cancel

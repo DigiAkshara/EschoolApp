@@ -19,7 +19,7 @@ import AttendanceSidebar from "./AttendanceSidebar";
 const StaffDailyAttendance = () => {
   const [staffList, setStaffList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [attendanceMessage, setAttendanceMessage] = useState("");
+  const [attendanceMarked, setAttendanceMarked] = useState(false);
   const getInitialValues = () => {
     return {
       userType: "staff",
@@ -67,21 +67,18 @@ const StaffDailyAttendance = () => {
   };
 
   const handleSubmit = async (values) => {
+    setAttendanceMarked(false)
     // Check if any staff has a missing attendanceStatus
     const incompleteAttendance = values.attendance.some(
       (staff) => !staff.attendanceStatus
     );
-
     if (incompleteAttendance) {
-      setAttendanceMessage("Please mark attendance for all staff members.");
-      setTimeout(() => {
-        setAttendanceMessage("");
-      }, 5000);
+      handleApiResponse("Please mark attendance for all staff members.");
       return; // Stop submission if validation fails
     }
-
     try {
       const response = await postData(ATTENDANCE, values);
+      setAttendanceMarked(true)
       handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
@@ -107,8 +104,7 @@ const StaffDailyAttendance = () => {
                 user="staff"
                 setFieldValue={setFieldValue}
                 handleRadioChange={handleRadioChange}
-                attendanceMessage={attendanceMessage}
-                setAttendanceMessage={setAttendanceMessage}
+                attendanceMarkedValue={attendanceMarked}
               />
 
               {/* Main Content */}

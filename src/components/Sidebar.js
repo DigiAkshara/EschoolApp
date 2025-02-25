@@ -67,7 +67,7 @@ export default function Sidebar({sidebarOpen, updateSideBar}) {
                           'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold cursor-pointer',
                         )}
                       >
-                        {getIcon(item)}
+                         <span className="material-symbols-outlined text-white">{item.icon}</span>
                         {item.title}
                       </a>
                     </li>

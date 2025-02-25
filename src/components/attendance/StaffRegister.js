@@ -123,7 +123,6 @@ function StaffRegister() {
     };
     data.forEach((record) => {
       const formattedDate = moment(record.date).format("YYYY-MM-DD");
-
       record.attendance.forEach((att) => {
         if (!result[att.userId._id]) {
           result[att.userId._id] = {
@@ -133,10 +132,12 @@ function StaffRegister() {
             category: att.userId.staffType,
             empId: att.userId.empId, // You can replace this with actual user names if available
             attendance: {},
+            recordId:{},
             noOfLeaves: 0,
           };
         }
         let date = moment(formattedDate).format("DD");
+        result[att.userId._id].recordId[date] = record._id
         result[att.userId._id].attendance[date] =
           statusMap[att.attendanceStatus] || "-";
         result[att.userId._id].noOfLeaves =
@@ -220,16 +221,17 @@ function StaffRegister() {
     // return workingDays;
   };
 
-  const handleSave = async (day, id) => {
+  const handleSave = async (id,day, userId) => {
     const formattedDate = new Date(year, month - 1, day);
     const payload = {
-      userId: id, // Assuming staff has an _id field
+      id,
+      userId,  // Assuming staff has an _id field
       date: formattedDate,
       attendanceStatus: selectedAttendance, // Selected attendance value
     };
     try {
       const response = await updateData(ATTENDANCE, payload);
-      getStaffData();
+      getStaffData(month, year);
       handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
@@ -588,6 +590,7 @@ function StaffRegister() {
                                               type="button"
                                               onClick={() =>
                                                 handleSave(
+                                                  staff.recordId[dayObj.day],
                                                   dayObj.day,
                                                   staff.userId
                                                 )
