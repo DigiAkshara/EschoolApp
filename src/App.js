@@ -24,6 +24,7 @@ import Login from './components/Login'
 import Sidebar from './components/Sidebar'
 import Staff from './components/Staff'
 import Students from './components/Students'
+import EventsAndSms from './components/EventsAndSms'
 import Tenants from './components/Tenants'
 import Loader from './commonComponent/Loader'
 
@@ -161,6 +162,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <AdminOperations />
+                    </ProtectedRoute>
+                  }
+                />
+                 <Route
+                  path="/eventsSms"
+                  element={
+                    <ProtectedRoute>
+                      <EventsAndSms />
                     </ProtectedRoute>
                   }
                 />

@@ -41,7 +41,6 @@ export default function StudentsList() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const { branchData } = useSelector((state) => state.appConfig)
-  const tenant = useSelector((state) => state.tenantData);
 
 
   const genderOptions = [
@@ -51,6 +50,7 @@ export default function StudentsList() {
   ];
 
   useEffect(() => {
+    console.log("branch:", branchData);    
     dispatch(fetchInitialStudentData());
     getStudents();
     if (openModel) {
@@ -232,8 +232,9 @@ export default function StudentsList() {
   const downloadListxlsx = () => {
     const schoolName = branchData?.label || "Unknown School";
     const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
-    const phoneNumber = branchData.phoneNumber || "N/A";
+    const phoneNumber = branchData.mobileNumber || "N/A";
     const email = branchData.email || "N/A";
+    
     handleDownload(
       filteredData,
       "StudentList",

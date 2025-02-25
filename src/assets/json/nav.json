@@ -285,6 +285,40 @@
         
     },
     {
+        "name": "eventsSms",
+        "title": "Events And SMS",
+        "path": "/eventsSms",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "DocumentDuplicateIcon",
+        "submenu": [
+            {
+                "title": "Events",
+                "name": "events",
+                "path": "/events"
+            },
+            {
+                "title": "SMS",
+                "name": "sms",
+                "path": "/sms"
+            },
+            {
+                "title": "Templates",
+                "name": "templates",
+                "path": "/templates"
+            },
+            {
+                "title": "Whatsapp",
+                "name": "whatsapp",
+                "path": "/whatsapp"
+            }
+        ]
+    },
+    {
         "name": "notice_board",
         "title": "Notice Board",
         "path": "#",

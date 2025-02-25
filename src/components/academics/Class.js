@@ -31,6 +31,8 @@ export default function Class() {
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
   const tenant = useSelector((state) => state.tenantData);
+  const { branchData } = useSelector((state) => state.appConfig)
+
 
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -199,7 +201,7 @@ export default function Class() {
       { key: 'classTeacherName', label: 'Class Teacher' },
 
 
-    ], "Class Details Report", tenant, undefined, "portrait");
+    ], "Class Details Report", branchData, undefined, "portrait");
   };
 
   return (
