@@ -139,7 +139,7 @@ const Permissions = () => {
     } else {
       tenant = values.tenant;
     }
-    if (role && tenant) {
+    if (tenant) {
       getPermissions(role, tenant, setFieldValue);
     }
   };
@@ -147,7 +147,8 @@ const Permissions = () => {
   const getPermissions = async (role, tenant, setFieldValue) => {
     try {
       dispatch(setIsLoader(true));
-      let res = await getData(PERMISSIONS + "/" + role + "/" + tenant);
+      let res = {data:{data:null}};
+      if(role) res = await getData(PERMISSIONS + "/" + role + "/" + tenant);
       let dumpLIst = [];
       mainPermissions.forEach((item) => {
         let obj = {
@@ -334,7 +335,7 @@ const Permissions = () => {
                                         name={`permissions[${ind}].submenu[${index}].read`}
                                         label={menu.title}
                                         checked={menu.read}
-                                        disabled={!item.read}
+                                        // disabled={!item.read}
                                       />
                                     </div>
                                   )}
@@ -347,7 +348,7 @@ const Permissions = () => {
                                           name={`permissions[${ind}].submenu[${index}].read`}
                                           label="Read"
                                           checked={menu.read}
-                                          disabled={!item.read}
+                                          // disabled={!item.read}
                                         />
                                       </div>
                                     </td>
@@ -357,7 +358,7 @@ const Permissions = () => {
                                           name={`permissions[${ind}].submenu[${index}].write`}
                                           checked={menu.write}
                                           label="Write"
-                                          disabled={!item.read}
+                                          // disabled={!item.read}
                                         />
                                       </div>
                                     </td>
@@ -368,7 +369,7 @@ const Permissions = () => {
                                           name={`permissions[${ind}].submenu[${index}].edit`}
                                           checked={menu.edit}
                                           label="Edit"
-                                          disabled={!item.read}
+                                          // disabled={!item.read}
                                         />
                                       </div>
                                     </td>
@@ -379,7 +380,7 @@ const Permissions = () => {
                                           name={`permissions[${ind}].submenu[${index}].delete`}
                                           checked={menu.delete}
                                           label="Delete"
-                                          disabled={!item.read}
+                                          // disabled={!item.read}
                                         />
                                       </div>
                                     </td>
