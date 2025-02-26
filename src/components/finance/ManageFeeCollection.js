@@ -3,7 +3,7 @@ import {
   ArrowUpTrayIcon
 } from '@heroicons/react/20/solid'
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { getData } from '../../app/api'
 import { setFee } from '../../app/reducers/feeSlice'
 import { STUDENT_FEE, TENANT } from '../../app/url'
@@ -21,6 +21,8 @@ function ManageFeeCollection() {
   const [currentPage, setCurrentPage] = useState(1)
   const [tenant, setTenant] = useState(null)
   const rowsPerPage = 10
+  const { branchData } = useSelector((state) => state.appConfig)
+
   const dispatch = useDispatch()
 
   const columns = [
@@ -149,20 +151,15 @@ function ManageFeeCollection() {
   )
 
   const downloadList = () => {
-    const schoolName = tenant.name || "Unknown School";  
-    const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
-    const phoneNumber = tenant.phoneNumber || "N/A";
-    const email = tenant.email || "N/A";
-    handleDownloadPDF (filteredData, "Fee_Collection_Details", [
+       handleDownloadPDF (filteredData, "Fee_Collection_Details", [
       { key: 'name', label: 'Student Name' },
       { key: 'class', label: 'Class' },
       { key: 'payableAmount', label: 'Total Amount' },
       { key: 'pendingAmount', label: 'Pending Amount' },
       { key: 'paymentStatus', label: 'Status' },
       { key: 'phoneNo', label: 'Parent Mobile' },
-      
-     
-    ], "Fee Collection Details Report");
+          
+    ], "Fee Collection Details Report", branchData, undefined, "landscape");
   };
 
   return (

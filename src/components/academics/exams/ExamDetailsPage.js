@@ -91,7 +91,7 @@ function ExamDetailsPage({ onClose }) {
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
             <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${branchData?.label?.toUpperCase()}</h1>
             <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${
-              branchData?.phoneNumber || "NILL"
+              branchData?.mobileNumber || "NILL"
             }  | Email: ${branchData?.email || "NILL"}</p>
             <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${
               branchData?.address?.area

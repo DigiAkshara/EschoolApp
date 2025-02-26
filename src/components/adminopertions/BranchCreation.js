@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import { Form, Formik, Field  } from "formik";
+import { Form, Formik, Field } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
@@ -15,10 +15,11 @@ import { useNavigate } from "react-router-dom";
 import CustomFileUploader from "../../commonComponent/CustomFileUploader";
 import { DialogPanel, DialogTitle } from "@headlessui/react";
 
-
 function BranchCreation({ onClose, getBranches }) {
   const [formData, setFormData] = useState({
     name: "",
+    mobileNumber: "",
+    email: "",
     address: {
       area: "",
       city: "",
@@ -29,13 +30,20 @@ function BranchCreation({ onClose, getBranches }) {
     logo: null,
     whatsappCount: "",
     smsCount: "",
-    studentPortalEnabled: false,  
-    staffPortalEnabled: false,   
+    studentPortalEnabled: false,
+    staffPortalEnabled: false,
   });
 
   const getValidationSchema = () => {
     return Yup.object({
       name: Yup.string().required(" Branch name is required"),
+      mobileNumber: Yup.string().matches(
+        /^[0-9]{10}$/,
+        "Mobile number must be 10 digits"
+      ),
+      email: Yup.string()
+        .email("Enter a valid email address")
+        .required("Email is required"),
       address: Yup.object({
         area: Yup.string()
           .matches(
@@ -156,6 +164,21 @@ function BranchCreation({ onClose, getBranches }) {
                                       required={true}
                                     />
                                   </div>
+                                  <div className="sm:col-span-2">
+                                    <CustomInput
+                                      name="mobileNumber"
+                                      label="Mobile Number"
+                                      placeholder="Enter mobile"
+                                      required={true}
+                                    />
+                                  </div>
+                                  <div className="sm:col-span-2">
+                                    <CustomInput
+                                      name="email"
+                                      label="Email"
+                                      placeholder="Enter email"
+                                    />
+                                  </div>
 
                                   <div className="sm:col-span-1">
                                     <CustomInput
@@ -220,17 +243,25 @@ function BranchCreation({ onClose, getBranches }) {
                                   </div>
                                 </div>
 
-                                   {/* Checkbox Fields */}
-                            <div className="grid grid-cols-2 gap-x-4 mt-4">
-                              <label className="flex items-center space-x-2">
-                                <Field type="checkbox" name="studentPortalEnabled" className="h-5 w-5 text-purple-600" />
-                                <span>Student Portal Enabled</span>
-                              </label>
-                              <label className="flex items-center space-x-2">
-                                <Field type="checkbox" name="staffPortalEnabled" className="h-5 w-5 text-purple-600" />
-                                <span>Staff Portal Enabled</span>
-                              </label>
-                            </div>
+                                {/* Checkbox Fields */}
+                                <div className="grid grid-cols-2 gap-x-4 mt-4">
+                                  <label className="flex items-center space-x-2">
+                                    <Field
+                                      type="checkbox"
+                                      name="studentPortalEnabled"
+                                      className="h-5 w-5 text-purple-600"
+                                    />
+                                    <span>Student Portal Enabled</span>
+                                  </label>
+                                  <label className="flex items-center space-x-2">
+                                    <Field
+                                      type="checkbox"
+                                      name="staffPortalEnabled"
+                                      className="h-5 w-5 text-purple-600"
+                                    />
+                                    <span>Staff Portal Enabled</span>
+                                  </label>
+                                </div>
 
                                 <div className="sm:col-span-4 mt-2">
                                   <CustomFileUploader

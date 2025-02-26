@@ -34,6 +34,8 @@ function ManageExamResults() {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const tenant = useSelector((state) => state.tenantData);
+  const { branchData } = useSelector((state) => state.appConfig)
+
 
   const columns = [
     { key: "examName", title: "Exam Name" },
@@ -210,7 +212,7 @@ function ManageExamResults() {
       { key: "passPercentage", label: "Pass Percentage" },
 
 
-    ], "Exam Details Report", tenant, undefined, "portrait");
+    ], "Exam Details Report", branchData, undefined, "portrait");
   };
 
   return (
