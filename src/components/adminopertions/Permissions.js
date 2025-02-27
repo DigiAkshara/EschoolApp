@@ -2,7 +2,7 @@ import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { getData, postData } from "../../app/api";
-import { BRANCH, PERMISSIONS, ROLES } from "../../app/url";
+import { BRANCH, DESIGNATION, PERMISSIONS, ROLES } from "../../app/url";
 import navData from "../../assets/json/nav.json";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomCheckBox from "../../commonComponent/CustomCheckBox";
@@ -16,8 +16,10 @@ const Permissions = () => {
   const [tenants, setTenants] = useState([]);
   const [mainPermissions, setMainPermissions] = useState(navData);
   const [adminRole, setAdminRole] = useState(null);
+  const [designations, setDesignationList] = useState([]);
   const initialValues = {
     role: "",
+    designation: "",
     tenant: user?.role.name === "superadmin" ? "" : user?.tenant,
     permissions: mainPermissions.map((item) => {
       return {
@@ -56,19 +58,15 @@ const Permissions = () => {
               title: Yup.string(),
             })
           ),
-          // .test(
-          //   "submenu-permission-check",
-          //   "At least one permission (delete, edit, read, write) must be true in the submenu when menu is checked",
-          //   function (submenu) {
-          //     const { read } = this.parent; // Access 'menu.read'
-          //     if (!read || submenu.length === 0) return true; // Skip validation if 'menu.read' is false
-          //     return submenu.some(
-          //       (item) => item.delete || item.edit || item.read || item.write
-          //     );
-          //   }
-          // ),
         })
       ),
+      designation: Yup.string().test(
+          "designation validation",
+          "Designation is required",
+          function (value) {
+            return (isStaff(this.parent.role)&&user?.role.name !== "superadmin" ) ? !!value : true;
+          }
+        ),
     });
   };
   const handleSubmit = async (values) => {
@@ -130,25 +128,50 @@ const Permissions = () => {
     }
   };
 
+  const getDesignations = async () => {
+    try {
+      const res = await getData(DESIGNATION);
+      let list = res.data.data.map((item) => ({
+        label: item.name,
+        value: item._id,
+      }));
+      setDesignationList(list);
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  };
+
   const handleChange = async (e, setFieldValue, values) => {
     setFieldValue(e.target.name, e.target.value);
-    let role = values.role;
-    let tenant = values.tenant;
+    let { role, tenant, designation } = values;
     if (e.target.name === "role") {
       role = e.target.value;
+      setFieldValue("designation","");
+    } else if (e.target.name === "designation") {
+      designation = e.target.value;
     } else {
       tenant = values.tenant;
     }
     if (tenant) {
-      getPermissions(role, tenant, setFieldValue);
+      getPermissions(role, tenant, designation, setFieldValue);
     }
   };
 
-  const getPermissions = async (role, tenant, setFieldValue) => {
+  const getPermissions = async (role, tenant, designation, setFieldValue) => {
     try {
       dispatch(setIsLoader(true));
-      let res = {data:{data:null}};
-      if(role) res = await getData(PERMISSIONS + "/" + role + "/" + tenant);
+      let res = { data: { data: null } };
+      if (role) {
+        if (isStaff(role)&&user?.role.name !== "superadmin") {
+          if (designation) {
+            res = await getData(
+              PERMISSIONS + "/" + role + "/" + designation + "/" + tenant
+            );
+          }
+        } else {
+          res = await getData(PERMISSIONS + "/" + role + "/" + tenant);
+        }
+      }
       let dumpLIst = [];
       mainPermissions.forEach((item) => {
         let obj = {
@@ -227,6 +250,15 @@ const Permissions = () => {
     }
   };
 
+  const isStaff = (selectedRole) => {
+    let staff = false;
+    roles.forEach((role) => {
+      if (role.value === selectedRole && role.label.toLowerCase() === "staff")
+        staff = true;
+    });
+    return staff;
+  };
+
   useEffect(() => {
     getRoles(user);
     getBraches();
@@ -234,6 +266,7 @@ const Permissions = () => {
 
   useEffect(() => {
     if (user?.role.name !== "superadmin") {
+      getDesignations();
       let tenant = user?.tenant;
       if (adminRole && tenant) getAdminPermissions(adminRole, tenant);
     }
@@ -274,6 +307,19 @@ const Permissions = () => {
                   }}
                 />
               </div>
+              {(isStaff(values.role)&&user?.role.name !== "superadmin" )&& (
+                <div className="sm:col-span-2">
+                  <CustomSelect
+                    required={true}
+                    label="Designation"
+                    name="designation"
+                    options={designations}
+                    onChange={(e) => {
+                      handleChange(e, setFieldValue, values);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">

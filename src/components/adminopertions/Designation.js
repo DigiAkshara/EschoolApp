@@ -35,7 +35,6 @@ function Designation() {
   const getDesignations = async () => {
     try {
       const response = await getData(DESIGNATION);
-      console.log("[DESIGNATIONS]:", response.data.data);
       const desigResponse = response.data.data;
       const desigData = desigResponse.map((item, index) => {
         return {
@@ -57,13 +56,9 @@ function Designation() {
     }
   };
 
-  const onHandleEdit = async (Id) => {
-    console.log("edited", Id);
-
+  const onHandleEdit = async (Id) => { 
     try {
       const designationDetails = await getData(DESIGNATION + "/" + Id);
-      console.log("[DESIGNATION DETAILS]:", designationDetails.data);
-
       dispatch(setSelectedDesignation({ ...designationDetails.data.data }));
       setShowAddStaffModal(true);
     } catch (error) {
