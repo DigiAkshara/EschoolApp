@@ -354,7 +354,7 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
 
 
 
-export const handleDownloadPDF = (data, fileName, columns, title, branch, logoUrl, orientation = "portrait") => {
+export const handleDownloadPDF = (data, fileName, columns, title, branch,  orientation = "portrait") => {
   const defaultLogo = "./schoolLogo.jpg";
 
   // Initialize jsPDF with dynamic orientation
@@ -367,7 +367,7 @@ export const handleDownloadPDF = (data, fileName, columns, title, branch, logoUr
   const phoneNumber = branch?.mobileNumber || "N/A";
   const email = branch?.email || "N/A";
 
-  const logo = logoUrl || defaultLogo;
+  const logo = branch?.logo?.Location || defaultLogo;
 
   // Add School Logo (Left Side) with adjusted Y position
   doc.addImage(logo, "PNG", 10, 5, 28, 28); // (image, type, x, y, width, height)

@@ -120,7 +120,10 @@ function ActiveEvents() {
           </div>
         </div>
         {/* Student Onboarding Modal */}
-     
+      <Dialog open={open} onClose={handleClose} className="relative z-50">
+        <div className="fixed inset-0" />
+        <EventCreation onClose={handleClose}  />
+      </Dialog>
       </div>
 
     </>

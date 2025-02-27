@@ -133,7 +133,7 @@ function ExamMarkDetailsPage({ onClose }) {
         <div style="display: flex; justify-content: center; align-items: center; ">
           <!-- School Emblem Div (left side) -->
           <div style="flex: 0 0 auto; text-align: center; position: absolute; left: 30px; width: 120px; height: 120px;">
-    <img src='/schoolLogo.jpg' alt="School Emblem" 
+    <img src="${branchData?.logo?.Location || '/schoolLogo.jpg'}"  alt="School Emblem" 
          style="width: 100%; height: 100%; object-fit: contain; max-width: 110px; max-height: 110px;">
 </div>
 

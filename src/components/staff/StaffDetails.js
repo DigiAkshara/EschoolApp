@@ -252,7 +252,7 @@ export default function StaffDetails() {
       { label: "Subjects", key: "subjectName" },
       { label: "Present Address", key: "presentAddress" },
       { label: "Gender", key: "gender" },
-    ], "Staff Details Report", branchData, undefined, "landscape");
+    ], "Staff Details Report", branchData,  "landscape");
   };
  
 

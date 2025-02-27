@@ -278,56 +278,7 @@
         ],
         "icon": "ChartPieIcon"
     },
-    // {
-    //     "name": "admin_operations",
-    //     "title": "Admin Operations",
-    //     "path": "/admin_operations",
-    //     "role": [
-    //         "admin",
-    //         "super_admin",
-    //         "student",
-    //         "staff"
-    //     ],
-    //     "icon": "ChartPieIcon",
-    //     "submenu":[
-    //         {
-    //             "title": "Profile",
-    //             "name": "profile",
-    //             "path": "/profile"
-    //         },
-    //         {
-    //             "title": "Permissions",
-    //             "name": "permissions",
-    //             "path": "/permissions"
-    //         },
-    //         {
-    //             "title": "Designations",
-    //             "name": "designations",
-    //             "path": "/designations"
-    //         },
-    //         {
-    //             "title": "Academics",
-    //             "name": "academics",
-    //             "path": "/academics"
-    //         },
-    //         {
-    //             "title": "Route Map",
-    //             "name": "routeMap",
-    //             "path": "/routeMap"
-    //         },
-    //         {
-    //             "title": "Branch",
-    //             "name": "branch",
-    //             "path": "/branch"
-    //         },
-    //         {
-    //             "title": "Finance",
-    //             "name": "finance",
-    //             "path": "/finance"
-    //         }
-    //     ]
-        
-    // },
+    
     {
         "name": "eventsSms",
         "title": "Events And SMS",
@@ -338,7 +289,7 @@
             "student",
             "staff"
         ],
-        "icon": "DocumentDuplicateIcon",
+        "icon": "sms",
         "submenu": [
             {
                 "title": "Events",
@@ -370,13 +321,7 @@
     "role": ["admin", "super_admin", "student", "staff"],
     "icon": "sms" 
   },
-  {
-    "name": "events_sms",
-    "title": "Events & SMS",
-    "icon": "sms",
-    "role": ["admin", "super_admin", "student", "staff"],
-    "path": "#"
-  },
+
   {
     "name": "help_faq",
     "title": "Help & FAQ",
