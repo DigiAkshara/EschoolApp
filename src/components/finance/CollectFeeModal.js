@@ -20,12 +20,12 @@ function CollectFeeModal({ onClose, fetchData }) {
   const feeInfoTabs = [
     {
       name: 'Fee Details',
-      coponent: <FinanceCollectFeesDetails />,
+      component: <FinanceCollectFeesDetails />,
       current: true,
     },
     {
       name: 'Fee History',
-      coponent: <FinanceCollectFeeHistory />,
+      component: <FinanceCollectFeeHistory />,
       current: false,
     },
   ]

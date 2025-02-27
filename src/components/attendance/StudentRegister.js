@@ -135,16 +135,19 @@ function ManageStudentRegister() {
       record.attendance.forEach((att) => {
         if (!result[att.userId._id]) {
           result[att.userId._id] = {
+            _id:record._id,
             userId: att.userId._id,
             name: att.userId.firstName + " " + att.userId.lastName,
             profilePic: att.userId.profilePic,
             category: att.userId.staffType,
             rollNumber: att.userId.rollNumber, // You can replace this with actual user names if available
             attendance: {},
+            recordId:{},
             noOfLeaves: 0,
           };
         }
         let date = moment(formattedDate).format("DD");
+        result[att.userId._id].recordId[date] = record._id
         result[att.userId._id].attendance[date] = isHoliday(record.date)
           ? "H"
           : statusMap[att.attendanceStatus] || "-";
@@ -161,7 +164,7 @@ function ManageStudentRegister() {
     return Object.values(result);
   }
 
-  function isHoliday(date) {
+  const isHoliday = (date) => {
     let isHoliday = false;
     let checkDate = moment(date).format("YYYY-MM-DD");
     for (let holiday of holidays) {
@@ -252,16 +255,17 @@ function ManageStudentRegister() {
     }
   };
 
-  const handleSave = async (day, id) => {
+  const handleSave = async (id,day, userId) => {
     const formattedDate = new Date(year, month - 1, day);
     const payload = {
-      userId: id,
+      id,
+      userId,
       date: formattedDate,
       attendanceStatus: selectedAttendance,
     };
     try {
       const response = await updateData(ATTENDANCE, payload);
-      getStudentData();
+      getStudentData(month, year, cls, section);
       handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
@@ -624,6 +628,7 @@ function ManageStudentRegister() {
                                                 type="button"
                                                 onClick={() =>
                                                   handleSave(
+                                                    student.recordId[dayObj.day],
                                                     dayObj.day,
                                                     student.userId
                                                   )

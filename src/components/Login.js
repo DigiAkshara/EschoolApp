@@ -24,6 +24,7 @@ import CustomButton from '../commonComponent/CustomButton'
 import CustomInput from '../commonComponent/CustomInput'
 import CustomSelect from '../commonComponent/CustomSelect'
 import { setTenant } from '../app/reducers/tenantSlice'
+import { fetchTenant } from '../app/reducers/TenantConfigSlice'
 
 export default function Login() {
   const {id} = useParams()
@@ -56,8 +57,7 @@ export default function Login() {
         dispatch(setAcademicYear(response.data.academicYear))
         dispatch(setActiveMenu("home"))
         dispatch(loadNavConfig(user.permissions.permissions))
-        const tenantResponse = await getData(TENANT+'/' + user.tenant);
-        dispatch(setTenant(tenantResponse.data.data));
+        dispatch(fetchTenant(user.tenant))
         navigate('/')
         if(user.role.name !== 'superadmin') {
           const resp = await getData(BRANCH)

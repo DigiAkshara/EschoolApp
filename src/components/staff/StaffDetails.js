@@ -69,8 +69,6 @@ export default function StaffDetails() {
   }
 
   useEffect(() => {
-    console.log("BRANCH:", branchData);
-    
     getSubjects()
     getStaff()
     if (openModel) {
@@ -92,8 +90,6 @@ export default function StaffDetails() {
     try {
       dispatch(setIsLoader(true))
       const response = await getData(STAFF)
-      console.log("RESPONSE", response.data.data);
-      
       let teachingCount = 0;
       let nonTeachingCount = 0;
       const staffData = []
@@ -396,7 +392,7 @@ export default function StaffDetails() {
       </Dialog>
 
       <Dialog open={open2} onClose={setOpen2} className="relative z-50">
-        <CommonUpload onClose2={handleClose2} user="staff" />
+        <CommonUpload onClose={handleClose2} user="staff" />
       </Dialog>
     </>
   )

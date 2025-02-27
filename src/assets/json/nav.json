@@ -1,140 +1,229 @@
 [
-    {
-        "name": "home",
-        "title": "Dashboard",
-        "path": "/",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "HomeIcon"
-    },
-    {
-        "name": "staff",
+  {
+    "name": "home",
+    "title": "Dashboard",
+    "path": "/",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "dashboard"
+  },
+  {
+    "name": "staff",
+    "title": "Staff",
+    "path": "/staff",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "group",
+    "submenu": [
+      {
         "title": "Staff",
-        "path": "/staff",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "UsersIcon",
-        "submenu": [
-            {
-                "title": "Staff",
-                "name": "staff",
-                "path": "/details"
-            },
-            {
-                "title": "Leaves",
-                "name": "leaves",
-                "path": "/leaves"
-            },
-            {
-                "title": "Time Tables",
-                "name": "time_tables",
-                "path": "/time_tables"
-            },
-            {
-                "title": "Administrative Tasks",
-                "name": "administrative_tasks",
-                "path": "/administrative_tasks"
-            }
-        ]
-    },
-    {
-        "name": "students",
+        "name": "staff",
+        "path": "/details"
+      },
+      {
+        "title": "Leaves",
+        "name": "leaves",
+        "path": "/leaves"
+      },
+      {
+        "title": "Time Tables",
+        "name": "time_tables",
+        "path": "/time_tables"
+      },
+      {
+        "title": "Administrative Tasks",
+        "name": "administrative_tasks",
+        "path": "/administrative_tasks"
+      }
+    ]
+  },
+  {
+    "name": "students",
+    "title": "Students",
+    "path": "/students",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "badge",
+    "submenu": [
+      {
         "title": "Students",
-        "path": "/students",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "UsersIcon",
-        "submenu": [
-            {
-                "title": "Students",
-                "name": "student_details",
-                "path": "/student_details"
-            },
-            {
-                "title": "Enrollments",
-                "name": "enrollments",
-                "path": "/student_enrollments"
-            }
-        ]
-    },
-    {
-        "name": "attendance",
-        "title": "Attendance",
-        "path": "/attendance",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "CalendarIcon",
-        "submenu": [
-            {
-                "title": "Staff",
-                "name": "staff_attendance",
-                "path": "/staff_attendance"
-            },
-            {
-                "title": "Students",
-                "name": "student_attendance",
-                "path": "/student_attendance"
-            },
-            {
-                "title": "Holiday Entry",
-                "name": "holiday_entry",
-                "path": "/holiday_entry"
-            }
-        ]
-    },
-    {
-        "name": "academics",
+        "name": "student_details",
+        "path": "/student_details"
+      },
+      {
+        "title": "Enrollments",
+        "name": "enrollments",
+        "path": "/student_enrollments"
+      }
+    ]
+  },
+  {
+    "name": "attendance",
+    "title": "Attendance",
+    "path": "/attendance",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "person_check",
+    "submenu": [
+      {
+        "title": "Staff",
+        "name": "staff_attendance",
+        "path": "/staff_attendance"
+      },
+      {
+        "title": "Students",
+        "name": "student_attendance",
+        "path": "/student_attendance"
+      },
+      {
+        "title": "Holiday Entry",
+        "name": "holiday_entry",
+        "path": "/holiday_entry"
+      }
+    ]
+  },
+  {
+    "name": "academics",
+    "title": "Academics",
+    "path": "/academics",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "menu_book",
+    "submenu": [
+      {
+        "title": "Daily Time Tables",
+        "name": "daily_time_tables",
+        "path": "/daily_time_tables"
+      },
+      {
+        "title": "Classes",
+        "name": "classes",
+        "path": "/classes"
+      },
+      {
+        "title": "Exams",
+        "name": "exams",
+        "path": "/exams"
+      },
+      {
+        "title": "Certificates",
+        "name": "certificates",
+        "path": "/certificates"
+      }
+    ]
+  },
+  {
+    "name": "finance",
+    "title": "Finance",
+    "path": "/finance",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "money",
+    "submenu": [
+      {
+        "title": "Overview",
+        "name": "overview",
+        "path": "/finance"
+      },
+      {
+        "title": "Fee Collections",
+        "name": "fee_collections",
+        "path": "/fee_collections"
+      },
+      {
+        "title": "Staff Salaries",
+        "name": "staff_salaries",
+        "path": "/staff_salaries"
+      },
+      {
+        "title": "Expenses/ Loans",
+        "name": "expenses",
+        "path": "/expenses"
+      },
+      {
+        "title": "Fee Structures",
+        "name": "fee_structures",
+        "path": "/fee_structures"
+      },
+      {
+        "title": "School Bank Accounts",
+        "name": "bank_accounts",
+        "path": "/bank_accounts"
+      },
+      {
+        "title": "Discounts",
+        "name": "discounts",
+        "path": "/discounts"
+      },
+      {
+        "title": "Payrolls",
+        "name": "payrolls",
+        "path": "/payrolls"
+      }
+    ]
+  },
+  {
+    "name": "tenant",
+    "title": "Tenant",
+    "path": "/tenant",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "group"
+  },
+  {
+    "name": "reports_and_analytics",
+    "title": "Reports and Analytics",
+    "path": "#",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "lab_profile"
+  },
+  {
+    "name": "transportation",
+    "title": "Transportation",
+    "path": "#",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "directions_bus"
+  },
+  {
+    "name": "hostel_management",
+    "title": "Hostel Management",
+    "path": "#",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "apartment"
+  },
+  {
+    "name": "admin_operations",
+    "title": "Admin Operations",
+    "path": "/admin_operations",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "manage_accounts",
+    "submenu": [
+      {
+        "title": "Profile",
+        "name": "profile",
+        "path": "/profile"
+      },
+      {
+        "title": "Permissions",
+        "name": "permissions",
+        "path": "/permissions"
+      },
+      {
+        "title": "Designations",
+        "name": "designations",
+        "path": "/designations"
+      },
+      {
         "title": "Academics",
-        "path": "/academics",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "DocumentDuplicateIcon",
-        "submenu": [
-            {
-                "title": "Daily Time Tables",
-                "name": "daily_time_tables",
-                "path": "/daily_time_tables"
-            },
-            {
-                "title": "Classes",
-                "name": "classes",
-                "path": "/classes"
-            },
-            {
-                "title": "Exams",
-                "name": "exams",
-                "path": "/exams"
-            },
-            {
-                "title": "Certificates",
-                "name": "certificates",
-                "path": "/certificates"
-            }
-        ]
-    },
-    {
-        "name": "finance",
+        "name": "academics",
+        "path": "/academics"
+      },
+      {
+        "title": "Route Map",
+        "name": "routeMap",
+        "path": "/routeMap"
+      },
+      {
+        "title": "Branch",
+        "name": "branch",
+        "path": "/branch"
+      },
+      {
         "title": "Finance",
+<<<<<<< HEAD
         "path": "/finance",
         "role": [
             "admin",
@@ -331,3 +420,39 @@
         "icon": "ChartPieIcon"
     }
 ]
+=======
+        "name": "finance",
+        "path": "/finance"
+      }
+    ]
+  },
+  {
+    "name": "notice_board",
+    "title": "Notice Board",
+    "path": "#",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "icon": "sms" 
+  },
+  {
+    "name": "events_sms",
+    "title": "Events & SMS",
+    "icon": "sms",
+    "role": ["admin", "super_admin", "student", "staff"],
+    "path": "#"
+  },
+  {
+    "name": "help_faq",
+    "title": "Help & FAQ",
+    "path": "#",
+    "icon": "quiz",
+    "role": ["admin", "super_admin", "student", "staff"]
+  },
+  {
+    "name": "contact_us",
+    "title": "Contact Us",
+    "path": "#",
+    "icon": "contact_mail",
+    "role": ["admin", "super_admin", "student", "staff"]
+  }
+]
+>>>>>>> 6747aa7267045c6fe2c45c2b82cefbee21586f62

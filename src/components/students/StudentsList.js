@@ -31,8 +31,8 @@ export default function StudentsList() {
     (state) => state.students
   );
   const [studentList, setStudentList] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [open2, setOpen2] = useState(false);
+  const [showNewStudentModal, setshowNewStudentModal] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -54,7 +54,7 @@ export default function StudentsList() {
     dispatch(fetchInitialStudentData());
     getStudents();
     if (openModel) {
-      setOpen(true)
+      setshowNewStudentModal(true)
     }
 
   }, [dispatch]);
@@ -75,9 +75,8 @@ export default function StudentsList() {
   const getStudents = async () => {
     try {
       dispatch(setIsLoader(true))
-      const student = await getData(ACADEMICS);
-      const studentRes = student.data.data;
-      const studentData = studentRes.map((item) => {
+      const student = await getData(ACADEMICS); 
+      const studentData = student.data.data.map((item) => {
         return {
           _id: item.student._id,
           pic: item.student.profilePic?.Location,
@@ -133,11 +132,16 @@ export default function StudentsList() {
     }
   };
 
+ const getStudentData = async (studentId) =>{
+  const studentDetails = await getData(STUDENT + "/details/" + studentId);
+  return studentDetails.data.data;
+ }
+
   const onHandleEdit = async (studentId) => {
     try {
-      const studentDetails = await getData(STUDENT + "/details/" + studentId);
-      dispatch(selectStudent(studentDetails.data.data));
-      setOpen(true);
+      const studentDetails = await getStudentData(studentId)
+      dispatch(selectStudent(studentDetails));
+      setshowNewStudentModal(true);
     } catch (error) {
       handleApiResponse(error);
     }
@@ -148,15 +152,14 @@ export default function StudentsList() {
     setDeleteConfirm(true);
   };
 
-  const handleOpen = () => {
-    setOpen(true);
+  const addNewStudent = () => {
     dispatch(selectStudent(null));
+    setshowNewStudentModal(true);
   };
   const handleClose = () => {
-    setOpen(false);
+    setshowNewStudentModal(false);
     dispatch(selectStudent(null));
-  };
-  const handleClose2 = () => setOpen2(false);
+  }; 
 
   const deleteRecord = async () => {
     try {
@@ -219,8 +222,9 @@ export default function StudentsList() {
     setCurrentPage(page);
   };
 
-  const showStudentProfile = (data) => {
-    setActiveStudent(data);
+  const showStudentProfile = async(data) => {
+    let studentData = await getStudentData(data._id);
+    dispatch(selectStudent(studentData));
     setShowProfile(true);
   };
 
@@ -281,7 +285,7 @@ export default function StudentsList() {
         <div className="right-btns-blk space-x-4">
           <button
             type="button"
-            onClick={handleOpen}
+            onClick={addNewStudent}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
@@ -290,7 +294,7 @@ export default function StudentsList() {
 
           <button
             type="button"
-            onClick={() => setOpen2(true)}
+            onClick={() => setShowUploadModal(true)}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
@@ -326,10 +330,10 @@ export default function StudentsList() {
                 showModal={showStudentProfile}
               />
               <StudentProfileModal
-                data={activeStudent}
                 show={showProfile}
                 close={() => {
                   setShowProfile(false);
+                  dispatch(selectStudent(null));
                 }}
               />
             </div>
@@ -344,12 +348,12 @@ export default function StudentsList() {
         onCancel={() => { setDeleteConfirm(false) }}
       />
 
-      <Dialog open={open} onClose={setOpen} className="relative z-50">
+      <Dialog open={showNewStudentModal} onClose={handleClose} className="relative z-50">
         <div className="fixed inset-0" />
         <Student onClose={handleClose} loadStudents={getStudents} />
       </Dialog>
-      <Dialog open={open2} onClose={setOpen2} className="relative z-50">
-        <CommonUpload onClose2={handleClose2} user="student" />
+      <Dialog open={showUploadModal} onClose={setShowUploadModal} className="relative z-50">
+        <CommonUpload onClose={()=>setShowUploadModal(false)} user="student" />
       </Dialog>
     </>
   );
