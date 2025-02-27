@@ -69,6 +69,8 @@ export default function StaffDetails() {
   }
 
   useEffect(() => {
+    console.log("BRANCH IS:", branchData);
+    
     getSubjects()
     getStaff()
     if (openModel) {
