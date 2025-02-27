@@ -223,7 +223,6 @@
       },
       {
         "title": "Finance",
-<<<<<<< HEAD
         "path": "/finance",
         "role": [
             "admin",
@@ -420,39 +419,3 @@
         "icon": "ChartPieIcon"
     }
 ]
-=======
-        "name": "finance",
-        "path": "/finance"
-      }
-    ]
-  },
-  {
-    "name": "notice_board",
-    "title": "Notice Board",
-    "path": "#",
-    "role": ["admin", "super_admin", "student", "staff"],
-    "icon": "sms" 
-  },
-  {
-    "name": "events_sms",
-    "title": "Events & SMS",
-    "icon": "sms",
-    "role": ["admin", "super_admin", "student", "staff"],
-    "path": "#"
-  },
-  {
-    "name": "help_faq",
-    "title": "Help & FAQ",
-    "path": "#",
-    "icon": "quiz",
-    "role": ["admin", "super_admin", "student", "staff"]
-  },
-  {
-    "name": "contact_us",
-    "title": "Contact Us",
-    "path": "#",
-    "icon": "contact_mail",
-    "role": ["admin", "super_admin", "student", "staff"]
-  }
-]
->>>>>>> 6747aa7267045c6fe2c45c2b82cefbee21586f62
