@@ -1,28 +1,25 @@
-import moment from "moment";
-import React, { useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react"; // For modal transitions
+import { jsPDF } from "jspdf"; // For PDF generation
+import autoTable from "jspdf-autotable";
+import moment from "moment";
+import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getData } from "../../app/api";
 import { TRANSACTIONS } from "../../app/url";
-import { jsPDF } from "jspdf"; // For PDF generation
 import {
   capitalizeWords,
   handleApiResponse,
 } from "../../commonComponent/CommonFunctions";
 import TableComponent from "../../commonComponent/TableComponent";
-import { Fragment } from "react"; // Required for <Fragment>
-import autoTable from "jspdf-autotable";
 
 function FinanceCollectFeeHistory() {
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const rowsPerPage = 10;
   const selectedData = useSelector((state) => state.fees.selectedFee);
   const studentData = selectedData?.academic;
-  const tenant = useSelector((state) => state.tenantData);
   const { branchData } = useSelector((state) => state.appConfig);
 
   const columns = [
@@ -36,8 +33,6 @@ function FinanceCollectFeeHistory() {
   const getHistoryData = async (Id) => {
     try {
       let res = await getData(TRANSACTIONS + "/" + Id);
-      console.log("History Res::", res.data);
-
       let list = res.data.map((trans) => ({
         transactionId: trans.transactionId || "N/A",
         paidDate: moment(trans.date).format("DD-MM-YYYY"),
@@ -90,8 +85,6 @@ function FinanceCollectFeeHistory() {
       branch: branchData,
       fees: formattedFees, // Store fees separately
     };
-
-    console.log("RECEIPT Data::", receiptData);
     setReceiptData(receiptData);
     setIsReceiptOpen(true);
   };
@@ -115,8 +108,6 @@ function FinanceCollectFeeHistory() {
     orientation = "portrait",
     save = false
   ) => {
-    console.log("DATA FOR Download::::", data);
-
     const defaultLogo = "./schoolLogo.jpg";
     const doc = new jsPDF(orientation, "mm", "a4");
     doc.setFont("helvetica", "bold");
@@ -141,7 +132,9 @@ function FinanceCollectFeeHistory() {
     doc.text(
       `Address: ${data.branch?.address?.area || "N/A"}, ${
         data.branch?.address?.city || "N/A"
-      }, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"}`,
+      }, ${data.branch?.address?.state || "N/A"}, ${
+        data.branch?.address?.pincode || "N/A"
+      }`,
       centerX,
       27,
       { align: "center" }

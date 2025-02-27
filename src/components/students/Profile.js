@@ -55,7 +55,7 @@ const StudentProfileModal = ({ show, close }) => {
       case 3:
         return <FeeDeatailsTab data={data} />;
       default:
-        return <h2>Overview tab</h2>;
+        return <OverviewTab data={data} />;
     }
   };
 
@@ -291,42 +291,6 @@ const StudentProfileModal = ({ show, close }) => {
                     </div>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center justify-between px-4 py-4 bg-gray-100">
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Showing <span className="font-medium">1</span> out of{" "}
-                      <span className="font-medium">122</span> results
-                    </p>
-                  </div>
-                  <div>
-                    <nav
-                      aria-label="Pagination"
-                      className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                    >
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                      >
-                        <span className="sr-only">Previous</span>
-                        <ChevronLeftIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </a>
-
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                      >
-                        <span className="sr-only">Next</span>
-                        <ChevronRightIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </a>
-                    </nav>
-                  </div>
-                </div>
               </div>
             </DialogPanel>
           </div>
@@ -336,383 +300,355 @@ const StudentProfileModal = ({ show, close }) => {
   );
 };
 
-// const OverviewTab = () => {
-//   return (
-//     <ul
-//     role="list"
-//     className="grid grid-cols-3 gap-x-6 gap-y-8"
-//   >
-//     <li
-//       key="12"
-//       className="overflow-hidden rounded-xl border border-gray-300"
-//     >
-//       <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-//         <div className="flex items-center item-title-blk">
-//           <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
-//             <ClipboardDocumentCheckIcon
-//               aria-hidden="true"
-//               className="size-5"
-//             />
-//           </div>
-//           <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-//             <span>Attendance</span>
-//             <span className="text-xs text-gray-500">
-//               Total Days
-//               <span className="pl-2 font-medium text-gray-900">
-//                 180
-//               </span>
-//             </span>
-//           </div>
-//         </div>
-//         <a href="#" className="text-gray-400">
-//           <ArrowUpRightIcon
-//             aria-hidden="true"
-//             className="size-5"
-//           />
-//         </a>
-//       </div>
+const OverviewTab = ({ data }) => {
+  const graphdata = [
+    { name: "Collected Fee ", value: 16000 },
+    { name: "Pending Fee", value: 6000 },
+  ];
 
-//       <div
-//         className="px-4 py-4 text-sm/6"
-//         style={{ width: "100%", height: 200 }}
-//       >
-//         <ResponsiveContainer>
-//           <PieChart>
-//             <Pie
-//               data={graphdata}
-//               cx={120}
-//               cy={80}
-//               innerRadius={60}
-//               outerRadius={80}
-//               fill="#8884d8"
-//               paddingAngle={0}
-//               dataKey="value"
-//               legendType="circle"
-//               label
-//             >
-//               {graphdata.map((entry, index) => (
-//                 <Cell
-//                   key={`cell-${index}`}
-//                   fill={
-//                     GraphCOLORS[
-//                       index % GraphCOLORS.length
-//                     ]
-//                   }
-//                 />
-//               ))}
-//               <Label
-//                 fontSize="18"
-//                 width={30}
-//                 position="center"
-//               >
-//                 76%
-//               </Label>
-//             </Pie>
-//             <Legend
-//               layout="vertical"
-//               align="right"
-//               verticalAlign="middle"
-//             />
-//           </PieChart>
-//         </ResponsiveContainer>
-//       </div>
-//     </li>
-//     <li
-//       key="12"
-//       className="overflow-hidden rounded-xl border border-gray-300"
-//     >
-//       <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-//         <div className="flex items-center item-title-blk">
-//           <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
-//             <ClipboardDocumentCheckIcon
-//               aria-hidden="true"
-//               className="size-5"
-//             />
-//           </div>
-//           <div className="text-lg pl-4 font-medium text-gray-900">
-//             Contact Details
-//           </div>
-//         </div>
-//         <a href="#" className="text-gray-400">
-//           <ArrowUpRightIcon
-//             aria-hidden="true"
-//             className="size-5"
-//           />
-//         </a>
-//       </div>
+  const GraphCOLORS = ["#10B981", "#F59E0B"];
 
-//       <div className="px-6 py-4 text-sm/6">
-//         <div className="flex justify-between gap-x-4 py-3">
-//           <dl className="grid gap-4">
-//             <div className="content-item pb-2 border-b border-gray-300">
-//               <dt className="text-sm/6 text-gray-500">
-//                 Father Name & Mobile
-//               </dt>
-//               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-//                 Satya Murthy | 912345678
-//               </dd>
-//             </div>
-//             <div className="content-item pb-2 border-b border-gray-300">
-//               <dt className="text-sm/6 text-gray-500">
-//                 Mother Name & Mobile
-//               </dt>
-//               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-//                 Rama Lakshmi | 912345644
-//               </dd>
-//             </div>
-//           </dl>
-//         </div>
-//       </div>
-//     </li>
-//     <li
-//       key="12"
-//       className="overflow-hidden rounded-xl border border-gray-300"
-//     >
-//       <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-//         <div className="flex items-center item-title-blk">
-//           <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
-//             <ClipboardDocumentCheckIcon
-//               aria-hidden="true"
-//               className="size-5"
-//             />
-//           </div>
-//           <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
-//             <span>Fee Details</span>
-//             <span className="text-xs text-gray-500">
-//               Total Fee
-//               <span className="pl-2 font-medium text-gray-900">
-//                 18000
-//               </span>
-//             </span>
-//           </div>
-//         </div>
-//         <a href="#" className="text-gray-400">
-//           <ArrowUpRightIcon
-//             aria-hidden="true"
-//             className="size-5"
-//           />
-//         </a>
-//       </div>
+  const bargraphdata = [
+    {
+      name: "Jan 10",
+      collection: 90000,
+      expenses: 18000,
+      salaries: 30000,
+    },
+    {
+      name: "Jan 11",
+      collection: 55000,
+      expenses: 20000,
+      salaries: 18000,
+    },
+    {
+      name: "Jan 12",
+      collection: 97000,
+      expenses: 20000,
+      salaries: 30000,
+    },
+    {
+      name: "Jan 13",
+      collection: 87000,
+      expenses: 22000,
+      salaries: 11000,
+    },
+    {
+      name: "Jan 14",
+      collection: 57000,
+      expenses: 15000,
+      salaries: 1700,
+    },
+    {
+      name: "Jan 15",
+      collection: 77000,
+      expenses: 13000,
+      salaries: 15000,
+    },
+  ];
+  return (
+    <ul role="list" className="grid grid-cols-3 gap-x-6 gap-y-8">
+      <li className="overflow-hidden rounded-xl border border-gray-300">
+        <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
+          <div className="flex items-center item-title-blk">
+            <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
+              <ClipboardDocumentCheckIcon
+                aria-hidden="true"
+                className="size-5"
+              />
+            </div>
+            <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
+              <span>Attendance</span>
+              <span className="text-xs text-gray-500">
+                Total Days
+                <span className="pl-2 font-medium text-gray-900">180</span>
+              </span>
+            </div>
+          </div>
+          <a href="#" className="text-gray-400">
+            <ArrowUpRightIcon aria-hidden="true" className="size-5" />
+          </a>
+        </div>
 
-//       <div className="px-6 py-4 text-sm/6">
-//         <div
-//           className="px-4 py-4 text-sm/6"
-//           style={{ width: "100%", height: 200 }}
-//         >
-//           <ResponsiveContainer>
-//             <PieChart>
-//               <Pie
-//                 data={graphdata2}
-//                 cx={120}
-//                 cy={80}
-//                 innerRadius={60}
-//                 outerRadius={80}
-//                 fill="#8884d8"
-//                 paddingAngle={0}
-//                 dataKey="value"
-//                 legendType="circle"
-//                 label
-//               >
-//                 {graphdata.map((entry, index) => (
-//                   <Cell
-//                     key={`cell-${index}`}
-//                     fill={
-//                       GraphCOLORS2[
-//                         index % GraphCOLORS.length
-//                       ]
-//                     }
-//                   />
-//                 ))}
-//                 <Label
-//                   fontSize="18"
-//                   width={30}
-//                   position="center"
-//                 >
-//                   80%
-//                 </Label>
-//               </Pie>
-//               <Legend
-//                 layout="vertical"
-//                 align="right"
-//                 verticalAlign="middle"
-//               />
-//             </PieChart>
-//           </ResponsiveContainer>
-//         </div>
-//       </div>
-//     </li>
-//     <li
-//       key="12"
-//       className="overflow-hidden rounded-xl border border-gray-300"
-//     >
-//       <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-//         <div className="flex items-center item-title-blk">
-//           <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
-//             <ClipboardDocumentCheckIcon
-//               aria-hidden="true"
-//               className="size-5"
-//             />
-//           </div>
-//           <div className="text-lg pl-4 font-medium text-gray-900">
-//             Marks Scored
-//           </div>
-//         </div>
-//         <a href="#" className="text-gray-400">
-//           <ArrowUpRightIcon
-//             aria-hidden="true"
-//             className="size-5"
-//           />
-//         </a>
-//       </div>
+        <div
+          className="px-4 py-4 text-sm/6"
+          style={{ width: "100%", height: 200 }}
+        >
+          <ResponsiveContainer>
+            <PieChart>
+              <Pie
+                data={graphdata}
+                cx={120}
+                cy={80}
+                innerRadius={60}
+                outerRadius={80}
+                fill="#8884d8"
+                paddingAngle={0}
+                dataKey="value"
+                legendType="circle"
+                label
+              >
+                {graphdata.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={GraphCOLORS[index % GraphCOLORS.length]}
+                  />
+                ))}
+                <Label fontSize="18" width={30} position="center">
+                  76%
+                </Label>
+              </Pie>
+              <Legend layout="vertical" align="right" verticalAlign="middle" />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </li>
+      <li className="overflow-hidden rounded-xl border border-gray-300">
+        <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
+          <div className="flex items-center item-title-blk">
+            <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
+              <ClipboardDocumentCheckIcon
+                aria-hidden="true"
+                className="size-5"
+              />
+            </div>
+            <div className="text-lg pl-4 font-medium text-gray-900">
+              Contact Details
+            </div>
+          </div>
+          <a href="#" className="text-gray-400">
+            <ArrowUpRightIcon aria-hidden="true" className="size-5" />
+          </a>
+        </div>
 
-//       <div
-//         className="px-6 py-4 text-sm/6"
-//         style={{ width: "100%", height: 200 }}
-//       >
-//         <ResponsiveContainer width="100%" height="100%">
-//           <BarChart
-//             data={bargraphdata}
-//             margin={{
-//               top: 0,
-//               right: 0,
-//               left: 0,
-//               bottom: 0,
-//             }}
-//             barSize={10}
-//           >
-//             <CartesianGrid strokeDasharray="3 3" />
-//             <XAxis dataKey="name" />
-//             <YAxis />
-//             <Tooltip />
-//             <Bar
-//               dataKey="marks"
-//               fill="#4ade80"
-//               activeBar={
-//                 <Rectangle
-//                   fill="#15803d"
-//                   stroke="#15803d"
-//                 />
-//               }
-//             />
-//           </BarChart>
-//         </ResponsiveContainer>
-//       </div>
-//     </li>
-//     <li
-//       key="12"
-//       className="overflow-hidden rounded-xl border border-gray-300"
-//     >
-//       <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-//         <div className="flex items-center item-title-blk">
-//           <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
-//             <ClipboardDocumentCheckIcon
-//               aria-hidden="true"
-//               className="size-5"
-//             />
-//           </div>
-//           <div className="text-lg pl-4 font-medium text-gray-900">
-//             Transport Details
-//           </div>
-//         </div>
-//         <a href="#" className="text-gray-400">
-//           <ArrowUpRightIcon
-//             aria-hidden="true"
-//             className="size-5"
-//           />
-//         </a>
-//       </div>
+        <div className="px-6 py-4 text-sm/6">
+          <div className="flex justify-between gap-x-4 py-3">
+            <dl className="grid gap-4">
+              <div className="content-item pb-2 border-b border-gray-300">
+                <dt className="text-sm/6 text-gray-500">
+                  Father Name & Mobile
+                </dt>
+                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                  {data?.fatherDetails.name} |{" "}
+                  {data?.fatherDetails.mobileNumber}
+                </dd>
+              </div>
+              <div className="content-item pb-2 border-b border-gray-300">
+                <dt className="text-sm/6 text-gray-500">
+                  Mother Name & Mobile
+                </dt>
+                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                  {data?.motherDetails.name || "N/A"} |{" "}
+                  {data?.motherDetails.mobileNumber || "N/A"}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </li>
+      <li className="overflow-hidden rounded-xl border border-gray-300">
+        <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
+          <div className="flex items-center item-title-blk">
+            <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
+              <ClipboardDocumentCheckIcon
+                aria-hidden="true"
+                className="size-5"
+              />
+            </div>
+            <div className="flex flex-col text-lg pl-4 font-medium text-gray-900">
+              <span>Fee Details</span>
+              <span className="text-xs text-gray-500">
+                Total Fee
+                <span className="pl-2 font-medium text-gray-900">18000</span>
+              </span>
+            </div>
+          </div>
+          <a href="#" className="text-gray-400">
+            <ArrowUpRightIcon aria-hidden="true" className="size-5" />
+          </a>
+        </div>
 
-//       <div className="px-6 py-4 text-sm/6">
-//         <div className="flex justify-between gap-x-4 py-3">
-//           <dl className="grid gap-4">
-//             <div className="grid grid-cols-2 gap-4">
-//               <div className="content-item pb-2 border-b border-gray-300">
-//                 <dt className="text-sm/6 text-gray-500">
-//                   Transport allocated Date
-//                 </dt>
-//                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-//                   22-07-2024
-//                 </dd>
-//               </div>
-//               <div className="content-item pb-2 border-b border-gray-300">
-//                 <dt className="text-sm/6 text-gray-500">
-//                   Bus Fee
-//                 </dt>
-//                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-//                   5000
-//                 </dd>
-//               </div>
-//             </div>
-//             <div className="content-item pb-2 border-b border-gray-300">
-//               <dt className="text-sm/6 text-gray-500">
-//                 Pickup Location
-//               </dt>
-//               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-//                 Ram Nagar, Street 5
-//               </dd>
-//             </div>
-//           </dl>
-//         </div>
-//       </div>
-//     </li>
-//     <li
-//       key="12"
-//       className="overflow-hidden rounded-xl border border-gray-300"
-//     >
-//       <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
-//         <div className="flex items-center item-title-blk">
-//           <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
-//             <ClipboardDocumentCheckIcon
-//               aria-hidden="true"
-//               className="size-5"
-//             />
-//           </div>
-//           <div className="text-lg pl-4 font-medium text-gray-900">
-//             Hostel Details
-//           </div>
-//         </div>
-//         <a href="#" className="text-gray-400">
-//           <ArrowUpRightIcon
-//             aria-hidden="true"
-//             className="size-5"
-//           />
-//         </a>
-//       </div>
+        <div className="px-6 py-4 text-sm/6">
+          <div
+            className="px-4 py-4 text-sm/6"
+            style={{ width: "100%", height: 200 }}
+          >
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={graphdata}
+                  cx={120}
+                  cy={80}
+                  innerRadius={60}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  paddingAngle={0}
+                  dataKey="value"
+                  legendType="circle"
+                  label
+                >
+                  {graphdata.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={GraphCOLORS[index % GraphCOLORS.length]}
+                    />
+                  ))}
+                  <Label fontSize="18" width={30} position="center">
+                    80%
+                  </Label>
+                </Pie>
+                <Legend
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </li>
+      <li className="overflow-hidden rounded-xl border border-gray-300">
+        <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
+          <div className="flex items-center item-title-blk">
+            <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
+              <ClipboardDocumentCheckIcon
+                aria-hidden="true"
+                className="size-5"
+              />
+            </div>
+            <div className="text-lg pl-4 font-medium text-gray-900">
+              Marks Scored
+            </div>
+          </div>
+          <a href="#" className="text-gray-400">
+            <ArrowUpRightIcon aria-hidden="true" className="size-5" />
+          </a>
+        </div>
 
-//       <div className="px-6 py-4 text-sm/6">
-//         <div className="flex justify-between gap-x-4 py-3">
-//           <dl className="grid gap-4">
-//             <div className="content-item pb-2 border-b border-gray-300">
-//               <dt className="text-sm/6 text-gray-500">
-//                 Hostel allocated Date
-//               </dt>
-//               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-//                 22-07-2024
-//               </dd>
-//             </div>
-//             <div className="content-item pb-2 border-b border-gray-300">
-//               <dt className="text-sm/6 text-gray-500">
-//                 Hostel Room & Bed Details
-//               </dt>
-//               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-//                 Hostel 1 \ Room 501 | 2 Bed
-//               </dd>
-//             </div>
-//           </dl>
-//         </div>
-//       </div>
-//     </li>
-//   </ul>
-//   );
-// };
+        <div
+          className="px-6 py-4 text-sm/6"
+          style={{ width: "100%", height: 200 }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={bargraphdata}
+              margin={{
+                top: 0,
+                right: 0,
+                left: 0,
+                bottom: 0,
+              }}
+              barSize={10}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar
+                dataKey="marks"
+                fill="#4ade80"
+                activeBar={<Rectangle fill="#15803d" stroke="#15803d" />}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </li>
+      <li className="overflow-hidden rounded-xl border border-gray-300">
+        <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
+          <div className="flex items-center item-title-blk">
+            <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
+              <ClipboardDocumentCheckIcon
+                aria-hidden="true"
+                className="size-5"
+              />
+            </div>
+            <div className="text-lg pl-4 font-medium text-gray-900">
+              Transport Details
+            </div>
+          </div>
+          <a href="#" className="text-gray-400">
+            <ArrowUpRightIcon aria-hidden="true" className="size-5" />
+          </a>
+        </div>
+
+        <div className="px-6 py-4 text-sm/6">
+          <div className="flex justify-between gap-x-4 py-3">
+            <dl className="grid gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="content-item pb-2 border-b border-gray-300">
+                  <dt className="text-sm/6 text-gray-500">
+                    Transport allocated Date
+                  </dt>
+                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                    22-07-2024
+                  </dd>
+                </div>
+                <div className="content-item pb-2 border-b border-gray-300">
+                  <dt className="text-sm/6 text-gray-500">Bus Fee</dt>
+                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                    5000
+                  </dd>
+                </div>
+              </div>
+              <div className="content-item pb-2 border-b border-gray-300">
+                <dt className="text-sm/6 text-gray-500">Pickup Location</dt>
+                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                  Ram Nagar, Street 5
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </li>
+      <li className="overflow-hidden rounded-xl border border-gray-300">
+        <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
+          <div className="flex items-center item-title-blk">
+            <div className="inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white">
+              <ClipboardDocumentCheckIcon
+                aria-hidden="true"
+                className="size-5"
+              />
+            </div>
+            <div className="text-lg pl-4 font-medium text-gray-900">
+              Hostel Details
+            </div>
+          </div>
+          <a href="#" className="text-gray-400">
+            <ArrowUpRightIcon aria-hidden="true" className="size-5" />
+          </a>
+        </div>
+
+        <div className="px-6 py-4 text-sm/6">
+          <div className="flex justify-between gap-x-4 py-3">
+            <dl className="grid gap-4">
+              <div className="content-item pb-2 border-b border-gray-300">
+                <dt className="text-sm/6 text-gray-500">
+                  Hostel allocated Date
+                </dt>
+                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                  22-07-2024
+                </dd>
+              </div>
+              <div className="content-item pb-2 border-b border-gray-300">
+                <dt className="text-sm/6 text-gray-500">
+                  Hostel Room & Bed Details
+                </dt>
+                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
+                  Hostel 1 \ Room 501 | 2 Bed
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </li>
+    </ul>
+  );
+};
 
 const PersonalDetailsTab = ({ data }) => {
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
-      <li
-        key="12"
-        className="overflow-hidden rounded-xl border border-gray-300"
-      >
+      <li className="overflow-hidden rounded-xl border border-gray-300">
         <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
           <div className="flex items-center item-title-blk">
             <div className="inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white">
@@ -729,58 +665,56 @@ const PersonalDetailsTab = ({ data }) => {
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">DOB</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.DOB?moment(data?.DOB).format('DD-MM-YYYY'):'N/A'}
+                {data?.DOB ? moment(data?.DOB).format("DD-MM-YYYY") : "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Gender</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.gender?capitalizeWords(data?.gender):"N/A"}
+                {data?.gender ? capitalizeWords(data?.gender) : "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Nationality</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.nationality?capitalizeWords(data?.nationality):"N/A"}
+                {data?.nationality ? capitalizeWords(data?.nationality) : "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Religion</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.religion?capitalizeWords(data?.religion):"N/A"}
+                {data?.religion ? capitalizeWords(data?.religion) : "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Cast</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.cast?capitalizeWords(data?.cast):"N/A"}
+                {data?.cast ? capitalizeWords(data?.cast) : "N/A"}
               </dd>
             </div>
 
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Blood Group</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.bloodGroup?capitalizeWords(data?.bloodGroup):"N/A"}
+                {data?.bloodGroup ? capitalizeWords(data?.bloodGroup) : "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Aadhar Number</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.aadharNumber||"N/A"}
+                {data?.aadharNumber || "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Aadhar Card</dt>
               <dd className="mt-1 text-base text-purple-500 sm:mt-2 font-medium">
-                <a href="#">View Aadhar</a>
+                {data?.aadharPic?<a href={data?.aadharPic?.Location} target="_blank">View Aadhar</a>:"N/A"}
               </dd>
             </div>
           </dl>
         </div>
       </li>
-      <li 
-        className="overflow-hidden rounded-xl border border-gray-300"
-      >
+      <li className="overflow-hidden rounded-xl border border-gray-300">
         <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
           <div className="flex items-center item-title-blk">
             <div className="inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white">
@@ -904,7 +838,7 @@ const PersonalDetailsTab = ({ data }) => {
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">ID Proofs </dt>
               <dd className="mt-1 text-base text-purple-500 sm:mt-2 font-medium">
-                <a href="#">View ID Proofs </a>
+                {data?.parentIdProof?<a href={data?.parentIdProof.Location} target="_blank">View ID Proofs </a>:"N/A"}
               </dd>
             </div>
           </dl>
@@ -955,12 +889,11 @@ const PersonalDetailsTab = ({ data }) => {
   );
 };
 
-const AcademicDeatilsTab = ({ data }) => {//console.log(data)
+const AcademicDeatilsTab = ({ data }) => {
+  //console.log(data)
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
-      <li 
-        className="overflow-hidden rounded-xl border border-gray-300"
-      >
+      <li className="overflow-hidden rounded-xl border border-gray-300">
         <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
           <div className="flex items-center item-title-blk">
             <div className="inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white">
@@ -983,27 +916,27 @@ const AcademicDeatilsTab = ({ data }) => {//console.log(data)
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Date Of Admission</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.admissionDate?moment(data?.admissionDate).format('DD-MM-YYYY'):'N/A'}
+                {data?.admissionDate
+                  ? moment(data?.admissionDate).format("DD-MM-YYYY")
+                  : "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Admission Number</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.admissionNumber||'N/A'}
+                {data?.admissionNumber || "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Class & Section</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.academics.class.name}/A{data?.academics.section.section}
+                {data?.academics.class.name}/{data?.academics.section.section}
               </dd>
             </div>
           </dl>
         </div>
       </li>
-      <li 
-        className="overflow-hidden rounded-xl border border-gray-300"
-      >
+      <li className="overflow-hidden rounded-xl border border-gray-300">
         <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
           <div className="flex items-center item-title-blk">
             <div className="inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white">
@@ -1122,10 +1055,7 @@ const AcademicDeatilsTab = ({ data }) => {//console.log(data)
         </div>
       </li>
 
-      <li
-        key="12"
-        className="overflow-hidden rounded-xl border border-gray-300"
-      >
+      <li className="overflow-hidden rounded-xl border border-gray-300">
         <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
           <div className="flex items-center item-title-blk">
             <div className="inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white">
@@ -1142,31 +1072,31 @@ const AcademicDeatilsTab = ({ data }) => {//console.log(data)
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Year of study</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                2021-2022
+                {data?.previousSchool.yearOfStudy || "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">School Name</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                Narayana School
+                {data?.previousSchool.schoolName || "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Class</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                UKG
+                {data?.previousSchool.classStudied || "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Total Marks Scored</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                667
+                {data?.previousSchool.totalMarks || "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">TC</dt>
               <dd className="mt-1 text-base text-purple-500 sm:mt-2 font-medium">
-                <a href="#">View TC</a>
+                {data?.previousSchool.studyProof?<a href={data?.previousSchool.studyProof.Location} target="_blank">View TC</a>:"N/A"}
               </dd>
             </div>
           </dl>
@@ -1176,13 +1106,11 @@ const AcademicDeatilsTab = ({ data }) => {//console.log(data)
   );
 };
 
-const FeeDeatailsTab = () => {
+const FeeDeatailsTab = ({ data }) => {
+  console.log(data);
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
-      <li
-        key="12"
-        className="overflow-hidden rounded-xl border border-gray-300"
-      >
+      <li className="overflow-hidden rounded-xl border border-gray-300">
         <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
           <div className="flex items-center item-title-blk">
             <div className="inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white">
@@ -1267,101 +1195,53 @@ const FeeDeatailsTab = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              <tr>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  Admission Fee
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  2 Installments
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  1000
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  0
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  500
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  500
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  22-10-2024
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
-                    Pending
-                  </span>
-                </td>
-              </tr>
-
-              <tr>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  Book Fee
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  One TIme
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  1000
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  200 Discount
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  800
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  0
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  -
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                    Paid
-                  </span>
-                </td>
-              </tr>
-
-              <tr>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  Tution Fee
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  2 Installments
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  1000
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  0
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  500
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  500
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  22-10-2024
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  <span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
-                    Pending
-                  </span>
-                </td>
-              </tr>
+              {data?.fees?.feeList.map((item) => {
+                let cls =
+                  item.paymentStatus.toLowerCase() === "paid"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-800";
+                return (
+                  <tr key={item._id}>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {capitalizeWords(item.fee.name)}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {capitalizeWords(item.duration)}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {item.fee.amount}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {item.discount}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {item.paidAmount}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {item.pendingAmount}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      {moment(item.dueDate).format("DD-MM-YYYY")}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                      <span
+                        className={
+                          "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium " +
+                          cls
+                        }
+                      >
+                        {capitalizeWords(item.paymentStatus)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </li>
 
-      <li
-        key="12"
-        className="overflow-hidden rounded-xl border border-gray-300"
-      >
+      <li className="overflow-hidden rounded-xl border border-gray-300">
         <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
           <div className="flex items-center item-title-blk">
             <div className="inline-flex rounded-lg p-3 bg-teal-50 text-purple-500 ring-4 ring-white">
