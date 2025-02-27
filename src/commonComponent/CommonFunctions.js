@@ -55,6 +55,11 @@ export const gender = [
   { value: 'other', label: 'Other' },
 ]
 
+export const eventFor = [
+  { value: 'wholeSchool', label: 'Whole School' },
+  { value: 'classWise', label: 'Class Wise' },
+]
+
 export const boardOptions = [
   { value: 'cbse', label: 'CBSE' },
   { value: 'state', label: 'State' },
@@ -301,9 +306,8 @@ export const getSections = async () => {
   }
 }
 
-export const handleDownload = (filteredData, fileName, excludedFields = [], schoolName = "Your School Name") => {
+export const handleDownload = (filteredData, fileName, excludedFields = [], schoolName = "Your School Name",phoneNumber,email,schoolAddress) => {
   try {
-    console.log("Download started");
 
     // Filter data to exclude unnecessary fields
     const exportData = filteredData.map((item) => {
@@ -317,17 +321,20 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
 
     // Add custom rows (school name and message)
     XLSX.utils.sheet_add_aoa(worksheet, [[schoolName]], { origin: "A1" }); // School name in row 1
-    XLSX.utils.sheet_add_aoa(worksheet, [[""]], { origin: "A2" });        // Empty row in row 2
-    XLSX.utils.sheet_add_aoa(worksheet, [["Student list is below"]], { origin: "A3" }); // Message in row 3
+    XLSX.utils.sheet_add_aoa(worksheet, [[phoneNumber]], { origin: "A2" });
+    XLSX.utils.sheet_add_aoa(worksheet, [[email]], { origin: "A3" });
+    XLSX.utils.sheet_add_aoa(worksheet, [[schoolAddress]], { origin: "A4" });
+    XLSX.utils.sheet_add_aoa(worksheet, [[""]], { origin: "A5" });        // Empty row in row 2
+    XLSX.utils.sheet_add_aoa(worksheet, [["Student list is below"]], { origin: "A6" }); // Message in row 3
 
     // Add headers (capitalized)
     const headers = Object.keys(exportData[0] || {}).map(
       (header) => header.charAt(0).toUpperCase() + header.slice(1)
     );
-    XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A4" }); // Headers start from row 4
+    XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A7" }); // Headers start from row 4
 
     // Add student data below headers
-    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A5", skipHeader: true });
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A8", skipHeader: true });
 
     // Create workbook and append the worksheet
     const workbook = XLSX.utils.book_new();
@@ -347,7 +354,7 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
 
 
 
-export const handleDownloadPDF = (data, fileName, columns, title, branch, logoUrl, orientation = "portrait") => {
+export const handleDownloadPDF = (data, fileName, columns, title, branch,  orientation = "portrait") => {
   const defaultLogo = "./schoolLogo.jpg";
 
   // Initialize jsPDF with dynamic orientation
@@ -360,7 +367,7 @@ export const handleDownloadPDF = (data, fileName, columns, title, branch, logoUr
   const phoneNumber = branch?.mobileNumber || "N/A";
   const email = branch?.email || "N/A";
 
-  const logo = logoUrl || defaultLogo;
+  const logo = branch?.logo?.Location || defaultLogo;
 
   // Add School Logo (Left Side) with adjusted Y position
   doc.addImage(logo, "PNG", 10, 5, 28, 28); // (image, type, x, y, width, height)

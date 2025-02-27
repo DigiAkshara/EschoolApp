@@ -226,8 +226,94 @@
         "name": "finance",
         "path": "/finance"
       }
+
     ]
   },
+   
+    {
+        "name": "tenant",
+        "title": "Tenant",
+        "path": "/tenant",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "DocumentDuplicateIcon"
+    },
+    {
+        "name": "reports_and_analytics",
+        "title": "Reports and Analytics",
+        "path": "#",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "ChartPieIcon"
+    },
+    {
+        "name": "transportation",
+        "title": "Transportation",
+        "path": "#",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "ChartPieIcon"
+    },
+    {
+        "name": "hostel_management",
+        "title": "Hostel Management",
+        "path": "#",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "ChartPieIcon"
+    },
+    
+    {
+        "name": "eventsSms",
+        "title": "Events And SMS",
+        "path": "/eventsSms",
+        "role": [
+            "admin",
+            "super_admin",
+            "student",
+            "staff"
+        ],
+        "icon": "sms",
+        "submenu": [
+            {
+                "title": "Events",
+                "name": "events",
+                "path": "/events"
+            },
+            {
+                "title": "SMS",
+                "name": "sms",
+                "path": "/sms"
+            },
+            {
+                "title": "Templates",
+                "name": "templates",
+                "path": "/templates"
+            },
+            {
+                "title": "Whatsapp",
+                "name": "whatsapp",
+                "path": "/whatsapp"
+            }
+        ]
+    },
+  
   {
     "name": "notice_board",
     "title": "Notice Board",
@@ -235,13 +321,7 @@
     "role": ["admin", "super_admin", "student", "staff"],
     "icon": "sms" 
   },
-  {
-    "name": "events_sms",
-    "title": "Events & SMS",
-    "icon": "sms",
-    "role": ["admin", "super_admin", "student", "staff"],
-    "path": "#"
-  },
+
   {
     "name": "help_faq",
     "title": "Help & FAQ",
@@ -257,3 +337,4 @@
     "role": ["admin", "super_admin", "student", "staff"]
   }
 ]
+

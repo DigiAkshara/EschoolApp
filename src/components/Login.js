@@ -61,11 +61,14 @@ export default function Login() {
         navigate('/')
         if(user.role.name !== 'superadmin') {
           const resp = await getData(BRANCH)
+         
           let branchs = resp.data.data.map(branch=>({
             value:branch._id,
             label:branch.name,
             address:branch.address,
             logo:branch.logo,
+            email:branch.email,
+            mobileNumber:branch.mobileNumber,
             isDefault:branch.isDefault
           }))
           dispatch(setBranchs(branchs))
