@@ -6,7 +6,6 @@ import * as Yup from "yup";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomDate from "../../commonComponent/CustomDate";
-import CustomFileUploader from "../../commonComponent/CustomFileUploader";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import MutliSelect from "../../commonComponent/MultiSelect";
 import {
@@ -14,7 +13,7 @@ import {
   msgSendOptions,
 } from "../../commonComponent/CommonFunctions";
 
-function EventCreation({ onClose }) {
+function SmsSending({ onClose }) {
   const [formData, setFormData] = useState({
     eventFor: "",
     class: "",
@@ -99,7 +98,7 @@ function EventCreation({ onClose }) {
                           <div className="bg-purple-900 px-3 py-3 sm:px-6">
                             <div className="flex items-start justify-between">
                               <DialogTitle className=" text-base font-semibold text-white">
-                                Add Event
+                                Send SMS
                               </DialogTitle>
                               <div className="ml-3 flex h-7 items-center">
                                 <button
@@ -124,7 +123,7 @@ function EventCreation({ onClose }) {
                                   <div className="sm:col-span-2">
                                     <CustomRadio
                                       name="eventFor"
-                                      label="Event For"
+                                      label="SMS For"
                                       required={true}
                                       options={eventFor}
                                     />
@@ -154,36 +153,13 @@ function EventCreation({ onClose }) {
                                       label="Participents"
                                     />
                                   </div>
-                                  <div className="sm:col-span-2">
-                                    <CustomInput
-                                      name="lastName"
-                                      label="Event Title"
-                                      placeholder="Enter Title"
-                                    />
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <CustomDate
-                                      name="DOJ"
-                                      label="Event Date"
-                                      required={true}
-                                      // maxDate={new Date()}
-                                    />
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <CustomInput
-                                      name="time"
-                                      label="Event Time"
-                                      type="time"
-                                      required={true}
-                                    />
-                                  </div>
                                 </div>
-                                <div className="sm:col-span-4 mt-2">
+                                <div className="sm:col-span-4 mt-2 mb-2">
                                   <label
                                     htmlFor="notes"
                                     className="block text-sm font-medium text-gray-700"
                                   >
-                                    Event Description
+                                    Description
                                   </label>
                                   <textarea
                                     id="reason"
@@ -201,18 +177,12 @@ function EventCreation({ onClose }) {
                                     options={msgSendOptions}
                                   />
                                 </div>
-                                <div className="sm:col-span-2">
+                                <div className="sm:col-span-1">
                                   <CustomInput
                                     name="scheduleDateTime"
                                     label="Schedule Date and Time"
                                     type="datetime-local"
                                     required={true}
-                                  />
-                                </div>
-                                <div className="sm:col-span-4 mt-2">
-                                  <CustomFileUploader
-                                    label="Upload Proof "
-                                    name="proofPic"
                                   />
                                 </div>
                               </div>
@@ -250,4 +220,4 @@ function EventCreation({ onClose }) {
   );
 }
 
-export default EventCreation;
+export default SmsSending;

@@ -38,6 +38,11 @@ export const staffType = [
   { value: 'non-teaching', label: 'Non-Teaching' }
 ]
 
+export const msgSendOptions = [
+  { value: 'send-now', label: 'Send Now' },
+  { value: 'schedule', label: 'Schedule' }
+]
+
 export const feeduration = [
   { value: 'onetime', label: 'One Time' },
   { value: 'installments', label: 'Installments' },

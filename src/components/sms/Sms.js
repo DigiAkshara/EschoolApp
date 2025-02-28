@@ -9,6 +9,8 @@ import { CursorArrowRaysIcon, EnvelopeOpenIcon, UsersIcon } from '@heroicons/rea
 import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/20/solid'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import TableComponent from '../../commonComponent/TableComponent'
+import SmsSending from './SmsSending'
+import { Dialog } from "@headlessui/react";
 
 
 function classNames(...classes) {
@@ -16,10 +18,10 @@ function classNames(...classes) {
   }
   
   const stats = [
-    { id: 1, name: 'Total Cash Received', stat: '1,897', icon: DocumentCurrencyRupeeIcon, change: '122', changeType: 'increase' },
-    { id: 2, name: 'Expenses & Advances', stat: '2400', icon: EnvelopeOpenIcon, change: '5.4%', changeType: 'increase' },
-    { id: 3, name: 'Closing Balance ', stat: '18000', icon: UsersIcon, change: '3.2%', changeType: 'decrease' },
-    { id: 4, name: 'Other Income', stat: '60000', icon: DocumentCurrencyRupeeIcon, change: '3.2%', changeType: 'decrease' },
+    { id: 1, name: 'Total Messages Available ', stat: '1,3000', icon: DocumentCurrencyRupeeIcon,   },
+    { id: 2, name: 'Total Used', stat: '2400', icon: EnvelopeOpenIcon,  },
+    { id: 3, name: 'Messages Sent Today', stat: '25', icon: UsersIcon,  },
+    { id: 4, name: 'SMS at Queue', stat: '10', icon: DocumentCurrencyRupeeIcon,  },
     
   ]
 
@@ -118,21 +120,7 @@ export default function Sms() {
                 </dt>
                 <dd className="ml-16 flex items-baseline">
                   <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
-                  <p
-                    className={classNames(
-                      item.changeType === 'increase' ? 'text-green-600' : 'text-red-600',
-                      'ml-2 flex items-baseline text-sm font-semibold',
-                    )}
-                  >
-                    {item.changeType === 'increase' ? (
-                      <ArrowUpIcon aria-hidden="true" className="size-5 shrink-0 self-center text-green-500" />
-                    ) : (
-                      <ArrowDownIcon aria-hidden="true" className="size-5 shrink-0 self-center text-red-500" />
-                    )}
-
-                    <span className="sr-only"> {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by </span>
-                    {item.change}
-                  </p>
+                  
                 
                 </dd>
               </div>
@@ -146,7 +134,7 @@ export default function Sms() {
         <div className="right-btns-blk space-x-4">
           <button
             type="button"
-            // onClick={() => setShowAddClassModal(true)}
+            onClick={() => setOpen(true)}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
@@ -173,6 +161,10 @@ export default function Sms() {
                         </div>
         </div>
       </div>
+      <Dialog open={open} onClose={handleClose} className="relative z-50">
+        <div className="fixed inset-0" />
+        <SmsSending onClose={handleClose}  />
+      </Dialog>
     </div>
        </>
     )
