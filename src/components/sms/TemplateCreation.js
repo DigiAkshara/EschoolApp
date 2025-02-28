@@ -1,68 +1,27 @@
 import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { FieldArray, Form, Formik } from "formik";
+import {  Form, Formik } from "formik";
 import React, { useState } from "react";
 import * as Yup from "yup";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import CustomInput from "../../commonComponent/CustomInput";
-import CustomDate from "../../commonComponent/CustomDate";
 import CustomFileUploader from "../../commonComponent/CustomFileUploader";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import MutliSelect from "../../commonComponent/MultiSelect";
-import {
-  eventFor,
-  msgSendOptions,
-} from "../../commonComponent/CommonFunctions";
+import { eventFor } from "../../commonComponent/CommonFunctions";
 
-function EventCreation({ onClose }) {
+function TemplateCreation({ onClose }) {
   const [formData, setFormData] = useState({
-    eventFor: "",
-    class: "",
-    section: "",
-    template: "",
-    participants: "",
-    title: "",
-    date: "",
-    time: "",
+    templateType: "",
+    templateTitle: "",
     discription: "",
-    notificationType: "",
-    sendingOption: "",
-    schedule: "",
-    eventPic: null,
   });
 
   const getValidationSchema = () => {
     return Yup.object({
-      eventFor: Yup.string().required(" Events For is required"),
-      class: Yup.string().required(" Class is required"),
-      section: Yup.string().required(" Section is required"),
-      template: Yup.string().required(" Template is required"),
-      participants: Yup.string().required(" Participants is required"),
-      title: Yup.string().required(" Title is required"),
-      time: Yup.string().required(" Time is required"),
-      date: Yup.date().required("Date is required"),
-      discription: Yup.string().required(" Discription is required"),
-      notificationType: Yup.string().required(" Notification Type is required"),
-      sendingOption: Yup.string().required(" Sending Option is required"),
-      schedule: Yup.string().required(" Schedule is required"),
-      eventPic: Yup.mixed()
-        .nullable()
-        .test(
-          "fileFormat",
-          "Photo must be in JPG, JPEG, or PNG format",
-          (value) => {
-            if (!value || !(value instanceof File)) return true; // Allow empty/null value
-
-            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-            return supportedFormats.includes(value.type);
-          }
-        )
-        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-          if (!value || !(value instanceof File)) return true; // Allow empty/null value
-
-          const maxSizeInBytes = 2 * 1024 * 1024;
-          return value.size <= maxSizeInBytes;
-        }),
+        templateType: Yup.string().required(" Template Type is required"),
+        templateTitle: Yup.string().required(" Template Title is required"),
+        discription: Yup.string().required(" Discription is required"),      
     });
   };
 
@@ -99,7 +58,7 @@ function EventCreation({ onClose }) {
                           <div className="bg-purple-900 px-3 py-3 sm:px-6">
                             <div className="flex items-start justify-between">
                               <DialogTitle className=" text-base font-semibold text-white">
-                                Add Event
+                                Add Template
                               </DialogTitle>
                               <div className="ml-3 flex h-7 items-center">
                                 <button
@@ -121,26 +80,7 @@ function EventCreation({ onClose }) {
                             <div className="form-content">
                               <div className="pb-4 mb-4">
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-                                  <div className="sm:col-span-2">
-                                    <CustomRadio
-                                      name="eventFor"
-                                      label="Event For"
-                                      required={true}
-                                      options={eventFor}
-                                    />
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <MutliSelect
-                                      name="subjects"
-                                      label="Select Class"
-                                    />
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <MutliSelect
-                                      name="subjects"
-                                      label="Select Section"
-                                    />
-                                  </div>
+                                                                    
                                   <div className="sm:col-span-2">
                                     <CustomSelect
                                       name="type"
@@ -148,35 +88,15 @@ function EventCreation({ onClose }) {
                                       required={true}
                                     />
                                   </div>
-                                  <div className="sm:col-span-2">
-                                    <MutliSelect
-                                      name="subjects"
-                                      label="Participents"
-                                    />
-                                  </div>
+                                  
                                   <div className="sm:col-span-2">
                                     <CustomInput
                                       name="lastName"
-                                      label="Event Title"
-                                      placeholder="Enter Title"
+                                      label="Last Name"
+                                      placeholder="Enter last Name"
                                     />
                                   </div>
-                                  <div className="sm:col-span-1">
-                                    <CustomDate
-                                      name="DOJ"
-                                      label="Event Date"
-                                      required={true}
-                                      // maxDate={new Date()}
-                                    />
-                                  </div>
-                                  <div className="sm:col-span-1">
-                                    <CustomInput
-                                      name="time"
-                                      label="Event Time"
-                                      type="time"
-                                      required={true}
-                                    />
-                                  </div>
+                                                                   
                                 </div>
                                 <div className="sm:col-span-4 mt-2">
                                   <label
@@ -192,28 +112,6 @@ function EventCreation({ onClose }) {
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 sm:text-sm"
                                     placeholder="Enter Reason."
                                   ></textarea>
-                                </div>
-                                <div className="sm:col-span-2">
-                                  <CustomRadio
-                                    name="eventFor"
-                                    label="Sending Option"
-                                    required={true}
-                                    options={msgSendOptions}
-                                  />
-                                </div>
-                                <div className="sm:col-span-2">
-                                  <CustomInput
-                                    name="scheduleDateTime"
-                                    label="Schedule Date and Time"
-                                    type="datetime-local"
-                                    required={true}
-                                  />
-                                </div>
-                                <div className="sm:col-span-4 mt-2">
-                                  <CustomFileUploader
-                                    label="Upload Proof "
-                                    name="proofPic"
-                                  />
                                 </div>
                               </div>
                             </div>
@@ -250,4 +148,4 @@ function EventCreation({ onClose }) {
   );
 }
 
-export default EventCreation;
+export default TemplateCreation;

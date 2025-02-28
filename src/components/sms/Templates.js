@@ -9,7 +9,8 @@ import { CursorArrowRaysIcon, EnvelopeOpenIcon, UsersIcon } from '@heroicons/rea
 import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/20/solid'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import TableComponent from '../../commonComponent/TableComponent'
-
+import TemplateCreation from './TemplateCreation'
+import { Dialog } from "@headlessui/react";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -97,9 +98,7 @@ export default function Templates() {
     const handlePageChange = (page) => {
       setCurrentPage(page);
     };
-  
-
-    
+      
     return (
        <>
 
@@ -109,7 +108,7 @@ export default function Templates() {
         <div className="right-btns-blk space-x-4">
           <button
             type="button"
-            // onClick={() => setShowAddClassModal(true)}
+            onClick={() => setOpen(true)}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
@@ -136,6 +135,10 @@ export default function Templates() {
                         </div>
         </div>
       </div>
+      <Dialog open={open} onClose={handleClose} className="relative z-50">
+        <div className="fixed inset-0" />
+        <TemplateCreation onClose={handleClose}  />
+      </Dialog>
     </div>
        </>
     )
