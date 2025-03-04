@@ -140,11 +140,11 @@ export default function FeesList() {
   const handleClose = () => setOpen(false);
 
   const downloadList = () => {
-    const schoolName = tenant.name || "Unknown School";  
+    const schoolName = tenant.name || "Unknown School";
     const schoolAddress = `${tenant.city || ""}, ${tenant.district || ""}, ${tenant.state || ""}, ${tenant.pincode || ""}`.trim();
     const phoneNumber = tenant.phoneNumber || "N/A";
     const email = tenant.email || "N/A";
-    handleDownloadPDF (filteredData, "Fee_Structure_Details", [
+    handleDownloadPDF(filteredData, "Fee_Structure_Details", [
       { label: "Academic Year", key: "academicYear" },
       { label: "Fee Group", key: "feeGroup" },
       { label: "Fee Name", key: "feeName" },

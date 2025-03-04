@@ -11,8 +11,8 @@ import {
 import CustomDate from '../../../commonComponent/CustomDate'
 import CustomFileUploader from '../../../commonComponent/CustomFileUploader'
 import CustomInput from '../../../commonComponent/CustomInput'
-import CustomSelect from '../../../commonComponent/CustomSelect'
 import CustomRadio from '../../../commonComponent/CustomRadio'
+import CustomSelect from '../../../commonComponent/CustomSelect'
 
 function CollectLoanDetails({ onClose }) {
   const getInitialValues = () => {
@@ -75,7 +75,6 @@ function CollectLoanDetails({ onClose }) {
     { value: 'partial', label: 'Other Amount' },
   ]
 
-
   return (
     <Formik
       initialValues={getInitialValues()}
@@ -131,7 +130,7 @@ function CollectLoanDetails({ onClose }) {
                 </dl>
               </div>
             </div>
-            <hr className="my-4"/>
+            <hr className="my-4" />
             <div className=" pb-4 mb-4 mt-4">
               <div className=" grid grid-cols-4 gap-x-4 gap-y-4">
                 <div className="sm:col-span-full">

@@ -159,7 +159,7 @@ function ExamTimeTable({values, setFieldValue}) {
           onClick={addRow}
           className="text-purple-600 font-medium hover:text-purple-900"
         >
-          Add Another Exam <span className="sr-only">add new period</span>
+          Add Another Subject <span className="sr-only">add new period</span>
         </button>
       </div>
     </>

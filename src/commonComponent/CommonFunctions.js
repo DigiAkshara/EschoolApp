@@ -249,7 +249,7 @@ export const uploadFile = async (file) => {
       alert(response.message)
     }
   } catch (error) {
-    console.log(error)
+    handleApiResponse(error)
   }
 }
 
@@ -351,9 +351,8 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
 
     // Save the file
     saveAs(dataBlob, `${fileName}.xlsx`);
-    console.log("Download complete");
   } catch (error) {
-    console.error("Error during download:", error);
+    handleApiResponse(error);
   }
 };
 

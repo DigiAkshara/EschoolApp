@@ -25,17 +25,14 @@ const CategoryCreation = ({ onClose }) => {
   };
 
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const response = await postData(FEE_CATEGORY, values);
-      console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
-        // getDesignations();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 

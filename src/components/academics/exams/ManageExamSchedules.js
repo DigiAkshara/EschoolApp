@@ -28,7 +28,6 @@ function ManageExamSchedules() {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-  const tenant = useSelector((state) => state.tenantData);
   const { branchData } = useSelector((state) => state.appConfig)
 
   const columns = [
@@ -37,8 +36,7 @@ function ManageExamSchedules() {
     { key: "sectionName", title: "Section" },
     { key: "examDates", title: "Exam Dates" },
     { key: "totalSubjects", title: "Subjects Included" },
-    { key: "timeTableSyllabus", title: "Time Table/ Syllabus" },
-    { key: "hallTickets", title: "Hall tickets" },
+    { key: "timeTableSyllabus", title: "Time Table/ Hall tickets" },
     { key: "actions", title: "Actions" },
   ];
 
@@ -104,7 +102,6 @@ function ManageExamSchedules() {
         timeTable: timeTableFormatted, // Add the formatted timeTable data
         totalSubjects: item.timeTable.length,
         timeTableSyllabus: "View",
-        hallTickets: "View",
         actions: actions,
       })
     });
@@ -243,7 +240,7 @@ function ManageExamSchedules() {
                   totalCount: filteredData.length,
                   onPageChange: handlePageChange,
                 }}
-                modalColumn={["timeTableSyllabus", "hallTickets"]}
+                modalColumn={["timeTableSyllabus"]}
                 showModal={(data) => handleViewDetails(data)}
               />
             </div>

@@ -96,7 +96,7 @@ function App() {
             }}
           />
         )}
-        <div className={user ? 'lg:pl-72' : ''}>
+        <div className={user ? 'lg:pl-72 pb-[36px]' : ''}>
           {user && (
             <Header
               updateSideBar={(val) => {
@@ -165,7 +165,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                 <Route
+                <Route
                   path="/eventsSms"
                   element={
                     <ProtectedRoute>
@@ -176,6 +176,9 @@ function App() {
               </Routes>
             </div>
           </main>
+          <div className='flex items-center justify-center px-2 py-2 bg-gray-200 fixed bottom-0 w-[calc(100%-18rem)]'>
+            <p className='text-sm'>© 2025 Svadhyaya Software Consultancy (OPC) Pvt Ltd. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </BrowserRouter>

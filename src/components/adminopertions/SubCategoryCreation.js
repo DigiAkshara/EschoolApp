@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
+import { getData, postData } from "../../app/api";
+import { FEE_CATEGORY, FEE_SUBCATEGORY } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { handleApiResponse } from "../../commonComponent/CommonFunctions";
-import { getData, postData } from "../../app/api";
-import { DESIGNATION, FEE_CATEGORY, FEE_SUBCATEGORY } from "../../app/url";
 
 const SubCategoryCreation = ({ onClose }) => {
 
@@ -27,7 +27,6 @@ const SubCategoryCreation = ({ onClose }) => {
   const getCategory = async () => {
     try {
       const response = await getData(FEE_CATEGORY);
-      console.log(response);
       const responseData = response.data.data;
       const categoryData = responseData.map((item) => {
         return {
@@ -37,22 +36,19 @@ const SubCategoryCreation = ({ onClose }) => {
       })
       setCategory(categoryData)
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   }
 
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const response = await postData(FEE_SUBCATEGORY, values);
-      console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
-        // getDesignations();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 
