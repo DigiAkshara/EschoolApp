@@ -359,7 +359,6 @@ function Staff({ onClose, getStaff }) {
         onSubmit={currentStep === 3 ? handleSubmit : handleNext}
       >
         {({ values, setFieldValue, errors }) => (
-          console.log(errors),
           <Form>
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">

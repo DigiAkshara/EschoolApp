@@ -72,7 +72,7 @@ function Header({ updateSideBar }) {
 
   return (
     <>
-      <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+      <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-6">
         <button
           type="button"
           onClick={() => updateSideBar(true)}
@@ -86,11 +86,11 @@ function Header({ updateSideBar }) {
         <div aria-hidden="true" className="h-6 w-px bg-gray-900/10 lg:hidden" />
 
         <div className="flex flex-1 justify-between items-center gap-x-4 self-stretch lg:gap-x-6 ">
-          <div className="flex items-center ">
+          <div className="flex items-center h-full py-1">
             <img
-              alt={branch?.logo?.Location||"Logo not found"}
-              src={branch?.logo?.Location||""}
-              className="h-14 w-14 mr-2"
+              alt={branch?.logo?.Location || "Logo not found"}
+              src={branch?.logo?.Location || "/schoolLogo.jpg"}
+              className="h-full mr-2"
             />
             <h3 className="font-medium text-xl w-64 truncate">
               {branch?.label || "Branch Name"}
@@ -102,11 +102,10 @@ function Header({ updateSideBar }) {
               <select
                 name="branch"
                 disabled={user?.role.name !== "admin"}
-                className="mt-2 block w-full rounded-md border-0 py-1.5 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300  focus:ring-2 focus:ring-purple-600 sm:text-sm/6 pl-6"
+                className="mt-2 block w-40 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
                 onChange={handleBranchChange}
                 value={selectedBranch}
               >
-                <option value="">Select Branch</option>
                 {branchs.map((branch) => (
                   <option key={branch.value} value={branch.value}>
                     {branch.label}
@@ -142,7 +141,7 @@ function Header({ updateSideBar }) {
                     <div className="flex flex-col items-start ml-4">
                       <span
                         aria-hidden="true"
-                        className="text-sm/6 font-semibold text-gray-900"
+                        className="text-sm/6 font-semibold text-gray-900 w-24 truncate"
                       >
                         {capitalizeWords(user?.firstname)}
                       </span>

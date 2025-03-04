@@ -1,13 +1,12 @@
-import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
-import * as Yup from "yup";
-import CustomInput from "../../commonComponent/CustomInput";
-import CustomSelect from "../../commonComponent/CustomSelect";
-import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
-import { postData } from "../../app/api";
-import { DESIGNATION, SECTIONS, SUBJECT } from "../../app/url";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import * as Yup from "yup";
+import { postData } from "../../app/api";
+import { SUBJECT } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import CustomInput from "../../commonComponent/CustomInput";
 
 const SubjectModal = ({ onClose, getSubjects }) => {
   const navigate = useNavigate();
@@ -22,18 +21,17 @@ const SubjectModal = ({ onClose, getSubjects }) => {
     });
   };
 
+
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const response = await postData(SUBJECT, values);
-      console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
         getSubjects();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 

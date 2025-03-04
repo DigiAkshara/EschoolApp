@@ -29,7 +29,6 @@ const ClassModal = ({ onClose , getClasses}) => {
 const getClassCategories = async ()=>{
   try {
     const response = await getData(CLASS_CATEGORIES)
-    console.log("CLASS CATEGOTY:",response.data );
     const categoryResponse = response.data.data;
     const CategoryData = categoryResponse.map((item) => {
       return{
@@ -39,7 +38,7 @@ const getClassCategories = async ()=>{
     })
     setClassCategory(CategoryData)
   } catch (error) {
-    
+    handleApiResponse(error)
   }
 }
 
@@ -48,18 +47,15 @@ useEffect(() => {
 }, [])
 
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const response = await postData(CLASSES, values);
-      console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
         getClasses();
         handleApiResponse(response.data.message, "success");
-        
       }
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 

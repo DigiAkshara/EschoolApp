@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
+import { getData, postData } from "../../app/api";
+import { ROUTE, STOPS } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
-import { getData, postData } from "../../app/api";
-import { CLASSES, DESIGNATION, ROUTE, SECTIONS, STOPS } from "../../app/url";
-import { useNavigate } from "react-router-dom";
 
 const RouteMapCreation = ({ onClose, onSubmit }) => {
   const [routeData, setRouteData] = useState([]);
@@ -15,14 +14,14 @@ const RouteMapCreation = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     route: "",
     name: "",
-    amount : ""
+    amount: ""
   });
 
   const getValidationSchema = () => {
     return Yup.object({
-        route: Yup.string().required(" Route is required"),
-        name: Yup.string().required(" Stop is required"),
-        amount: Yup.string().required(" Amount is required"),
+      route: Yup.string().required(" Route is required"),
+      name: Yup.string().required(" Stop is required"),
+      amount: Yup.string().required(" Amount is required"),
 
     });
   };
@@ -30,7 +29,6 @@ const RouteMapCreation = ({ onClose, onSubmit }) => {
   const getRouteName = async () => {
     try {
       const response = await getData(ROUTE);
-      console.log("Response Route :   999999", response.data);
       const responseData = response.data.data;
       const routeResponse = responseData.map((item) => {
         return {
@@ -39,7 +37,9 @@ const RouteMapCreation = ({ onClose, onSubmit }) => {
         };
       });
       setRouteData(routeResponse);
-    } catch (error) {}
+    } catch (error) {
+      handleApiResponse(error);
+    }
   };
 
   useEffect(() => {
@@ -47,16 +47,14 @@ const RouteMapCreation = ({ onClose, onSubmit }) => {
   }, []);
 
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const response = await postData(STOPS, values);
-      console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 

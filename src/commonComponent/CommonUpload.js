@@ -116,9 +116,6 @@ function CommonUpload({ onClose, user }) {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        console.log("Uploaded Data:", jsonData);
-
         let newData = [];
         const existingData = [...bulkUploadList];
 
@@ -204,12 +201,6 @@ function CommonUpload({ onClose, user }) {
         }
 
         // Parse and map the data
-
-        console.log(
-          `Parsed ${user === "student" ? "Student" : "Staff"} Data:`,
-          newData
-        );
-
         const requiredFields =
           user === "student"
             ? ["firstName", "lastName", "admissionNumber", "gender", "fatherDetails.name", "fatherDetails.mobileNumber", "presentAddress.area", "presentAddress.city", "presentAddress.state", "presentAddress.pincode", "permanentAddress.area", "permanentAddress.city", "permanentAddress.state", "permanentAddress.pincode", "aadharNumber", "DOB", "class", "section", "admissionDate",]

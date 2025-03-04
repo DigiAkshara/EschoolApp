@@ -173,7 +173,7 @@ function FinanceCollectFeeHistory() {
       20,
       detailsStartY + 30
     );
-    doc.text(`Branch: ${data?.branch || "N/A"}`, 140, detailsStartY + 30);
+    doc.text(`Branch: ${data?.branch.label || "N/A"}`, 140, detailsStartY + 30);
 
     doc.text(
       `Father's Name: ${data?.fatersName || "N/A"}`,
@@ -286,8 +286,6 @@ function FinanceCollectFeeHistory() {
             totalCount: transactions.length,
             onPageChange: handlePageChange,
           }}
-          showModal={showInvoice}
-          modalColumn={["invoice"]}
           checkColumn={false}
         />
       </div>

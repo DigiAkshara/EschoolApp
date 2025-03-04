@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
+import { getData, postData } from "../../app/api";
+import { CLASSES, SECTIONS } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
-import { getData, postData } from "../../app/api";
-import { CLASSES, DESIGNATION, SECTIONS } from "../../app/url";
-import { useNavigate } from "react-router-dom";
 
 const SectionModal = ({ onClose, getClasses }) => {
   const [classDatas, setClassData] = useState([]);
@@ -27,10 +26,9 @@ const SectionModal = ({ onClose, getClasses }) => {
     });
   };
 
-  const getClass= async () => {
+  const getClass = async () => {
     try {
       const response = await getData(CLASSES);
-      console.log("Response: class :   999999", response);
       const responseData = response.data.data;
       const classData = responseData.map((item) => {
         return {
@@ -39,7 +37,9 @@ const SectionModal = ({ onClose, getClasses }) => {
         };
       });
       setClassData(classData);
-    } catch (error) {}
+    } catch (error) {
+      handleApiResponse(error)
+    }
   };
 
   useEffect(() => {
@@ -47,17 +47,15 @@ const SectionModal = ({ onClose, getClasses }) => {
   }, []);
 
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const response = await postData(SECTIONS, values);
-      console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
         getClasses();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 

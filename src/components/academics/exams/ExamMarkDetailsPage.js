@@ -79,8 +79,6 @@ function ExamMarkDetailsPage({ onClose }) {
   }
 
   useEffect(() => {
-    console.log("SELECTED EXAM DETAILS:", selectedExamDetails);
-    
     if (selectedExamDetails) {
       let dumpList = []
       selectedExamDetails.marksDetails.forEach((item) => {
@@ -106,8 +104,6 @@ function ExamMarkDetailsPage({ onClose }) {
           result: getResult(item.marks, selectedExamDetails?.exam.timeTable),
         })
       })
-      console.log("DUMP LIST:", dumpList);
-      
       setStudents(dumpList)
     }
   }, [selectedExamDetails]);
@@ -117,16 +113,12 @@ function ExamMarkDetailsPage({ onClose }) {
   const generatePDFPreview = async () => {
     const doc = new jsPDF("p", "mm", "a4");
     const pdfPromises = studentMarks.map(async (student, index) => {
-      console.log("STUDENT INSIDE PROGRESS DOWNLOAD:", student);
-      
       const container = document.createElement("div");
       container.style.width = "800px"; // Set a fixed width for consistent rendering
-
       container.style.position = "absolute"; // Keep it offscreen
       container.style.left = "-9999px"; // Prevent flickering
       container.style.top = "-9999px"; // Keep it out of view
       //container.style.visibility = "hidden"; // Hide it from the user
-
       container.innerHTML = `
       <div style="padding: 30px; font-family: Arial, sans-serif;">
         <!-- Header Section -->

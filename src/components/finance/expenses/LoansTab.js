@@ -1,12 +1,12 @@
 "use client";
+import { Dialog } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+import { setLoan } from "../../../app/reducers/feeSlice";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import TableComponent from "../../../commonComponent/TableComponent";
-import { Dialog } from "@headlessui/react";
 import AddLoanModal from "./AddLoanModal";
-import { setLoan } from "../../../app/reducers/feeSlice";
 import CollectLoanModal from "./CollectLoanModal";
 
 function LoansTab() {

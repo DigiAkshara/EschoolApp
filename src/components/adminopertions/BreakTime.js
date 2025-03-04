@@ -32,7 +32,6 @@ function BreakTime() {
     const getBreakTime = async () => {
       try {
         const response = await getData(BREAKTIME);
-        console.log("BREAK DATA:", response.data);
         const breakResponse = response.data.data;
         const BreakData = breakResponse.map((item, index) => {
           return {

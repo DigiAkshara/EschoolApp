@@ -34,17 +34,15 @@ const BreakModal = ({ onClose, getBreakTime }) => {
   };
 
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const response = await postData(BREAKTIME, values);
-      console.log("[BREAK RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
         getBreakTime();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 

@@ -30,29 +30,6 @@ function ClassAndSection() {
     getClasses();
   }, []);
 
-  // const getClasses = async () => {
-  //   try {
-  //     const response = await getData(CLASSES);
-  //     console.log("[CLASSES]:", response.data.data);
-  //     const classResponse = response.data.data;
-  //     const classData = classResponse.map((item, index) => {
-  //       return {
-  //         _id: item._id,
-  //         siNo: index + 1,
-  //         name: item.name,
-  //         actions: [
-  //           { label: "Edit", actionHandler: onHandleEdit },
-  //           { label: "Delete", actionHandler: onDelete },
-  //         ],
-  //       };
-  //     });
-  //     console.log("Designation Data44444:", classData);
-  //     setClassData(classData);
-  //     setFilteredData(classData);
-  //   } catch (error) {
-  //     handleApiResponse(error);
-  //   }
-  // };
 
   const getClasses = async () => {
     try {
@@ -60,10 +37,6 @@ function ClassAndSection() {
         getData(SECTIONS),
         getData(CLASSES), // Fetch all class details
       ]);
-
-      console.log("[SECTIONS]:", sectionsResponse.data.data);
-      console.log("[CLASSES]:", classesResponse.data.data);
-
       // Create a lookup map for class IDs to class names
       const classesMap = {};
       classesResponse.data.data.forEach((cls) => {
@@ -75,28 +48,20 @@ function ClassAndSection() {
       const classData = sectionsResponse.data.data.map((item, index) => {
         const className = classesMap[item.class]?.toString() || "Unknown Class";
         const sectionName = item.section || "Unknown Section";
-
         return {
           _id: item._id,
           siNo: index + 1,
           classSection: `${className} - ${sectionName}`, // Combine class and section
           actions: [
-            // { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
             { label: "Delete", actionHandler: () => onDelete(item._id) },
           ],
         };
       });
-
-      console.log("Processed Class Data:", classData);
       setClassData(classData);
       setFilteredData(classData);
     } catch (error) {
       handleApiResponse(error);
     }
-  };
-
-  const onHandleEdit = async (Id) => {
-    console.log("edited", Id);
   };
 
   const onDelete = (Id) => {

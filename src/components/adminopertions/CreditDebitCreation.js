@@ -19,8 +19,8 @@ function CreditDebitCreation() {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const rowsPerPage = 10;
   const [showAddStaffModal, setShowAddStaffModal] = useState(false);
-    const [isSectionModal, setIsSectionModal] = useState(false);
-  
+  const [isSectionModal, setIsSectionModal] = useState(false);
+
 
   const dispatch = useDispatch();
 
@@ -53,7 +53,7 @@ function CreditDebitCreation() {
       ]
     }))
   );
-  
+
 
 
   const columns = [
@@ -71,12 +71,8 @@ function CreditDebitCreation() {
 
 
   const onHandleEdit = async (Id) => {
-    console.log("edited", Id);
-
     try {
       const designationDetails = await getData(DESIGNATION + "/" + Id);
-      console.log("[DESIGNATION DETAILS]:", designationDetails.data);
-
       dispatch(setSelectedDesignation({ ...designationDetails.data.data }));
       setShowAddStaffModal(true);
     } catch (error) {
@@ -90,15 +86,14 @@ function CreditDebitCreation() {
   };
 
   const deleteRecord = async () => {
-     try {
-       let res = await deleteData(DESIGNATION + '/' + deleteId)
-       handleApiResponse(res.data.message, 'success')
-    //    getDesignations()
-       setDeleteConfirm(false)
-       setDeleteId(null)
-     } catch (error) {
-       handleApiResponse(error)
-     }
+    try {
+      let res = await deleteData(DESIGNATION + '/' + deleteId)
+      handleApiResponse(res.data.message, 'success')
+      setDeleteConfirm(false)
+      setDeleteId(null)
+    } catch (error) {
+      handleApiResponse(error)
+    }
   };
 
   const paginatedData = filteredData.slice(
@@ -118,30 +113,30 @@ function CreditDebitCreation() {
   return (
     <>
       <div className="mt-4 flex justify-between">
-              {/* active tab with count block */}
-              <div className="sm:hidden"></div>
-              <div className="hidden sm:block"></div>
-      
-              <div className="right-btns-blk space-x-4">
-                <button
-                  type="button"
-                  onClick={handleOpen}
-                  className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-                >
-                  <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-                  Add Category
-                </button>
-      
-                <button
-                  type="button"
-                  onClick={handleOpenSection}
-                  className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-                >
-                  <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-                  Add Subcategory
-                </button>
-              </div>
-            </div>
+        {/* active tab with count block */}
+        <div className="sm:hidden"></div>
+        <div className="hidden sm:block"></div>
+
+        <div className="right-btns-blk space-x-4">
+          <button
+            type="button"
+            onClick={handleOpen}
+            className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+          >
+            <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
+            Add Category
+          </button>
+
+          <button
+            type="button"
+            onClick={handleOpenSection}
+            className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+          >
+            <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
+            Add Subcategory
+          </button>
+        </div>
+      </div>
       <div className="-mx-2 -my-2 mt-0 sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
@@ -164,8 +159,8 @@ function CreditDebitCreation() {
       {isModalOpen && <CategoryCreation onClose={handleCloseModal} />}
       {isSectionModal && (
         <SubCategoryCreation
-         
-          onClose={handleCloseSectionModal} 
+
+          onClose={handleCloseSectionModal}
         />
       )}
       <ConfirmationModal

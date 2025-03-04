@@ -1,14 +1,14 @@
 'use client'
-import React, { useState } from 'react'
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { Dialog } from "@headlessui/react";
-import EventCreation from './EventCreation';
+import { PlusIcon } from "@heroicons/react/20/solid";
+import React, { useState } from 'react';
 import TableComponent from '../../commonComponent/TableComponent';
+import EventCreation from './EventCreation';
 
 
 function ActiveEvents() {
   const [open, setOpen] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
   const tableData = [
@@ -24,16 +24,16 @@ function ActiveEvents() {
       title: "Library Books",
       date: "2024-02-04",
       class: "Class 2",
-      section: "B",  
-      time: "11:00 AM",    
+      section: "B",
+      time: "11:00 AM",
       participants: "participants 2",
     },
     {
       title: "Donation",
       date: "2024-02-03",
       class: "Class 3",
-      section: "C",   
-      time: "12:00 PM",   
+      section: "C",
+      time: "12:00 PM",
       participants: "participants 3",
     },
   ];
@@ -64,12 +64,10 @@ function ActiveEvents() {
   const onHandleEdit = (row) => {
     console.log("Editing:", row);
   };
-  
+
   const onHandleDelete = (row) => {
     console.log("Deleting:", row);
   };
-  
-
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -80,16 +78,15 @@ function ActiveEvents() {
     setCurrentPage(page);
   };
 
- 
   return (
     <>
-    <div className="mt-4 flex justify-between">
+      <div className="mt-4 flex justify-between">
         {/* active tab with count block */}
         <div className="sm:hidden"></div>
         <div className="hidden sm:block"></div>
 
         <div className="right-btns-blk space-x-4">
-       
+
 
           <button
             type="button"
@@ -105,7 +102,7 @@ function ActiveEvents() {
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-                          
+
               <TableComponent
                 columns={columns}
                 data={paginatedData}
@@ -115,15 +112,15 @@ function ActiveEvents() {
                   onPageChange: handlePageChange,
                 }}
               />
-            
+
             </div>
           </div>
         </div>
         {/* Student Onboarding Modal */}
-      <Dialog open={open} onClose={handleClose} className="relative z-50">
-        <div className="fixed inset-0" />
-        <EventCreation onClose={handleClose}  />
-      </Dialog>
+        <Dialog open={open} onClose={handleClose} className="relative z-50">
+          <div className="fixed inset-0" />
+          <EventCreation onClose={handleClose} />
+        </Dialog>
       </div>
 
     </>

@@ -50,7 +50,6 @@ export default function StudentsList() {
   ];
 
   useEffect(() => {
-    console.log("branch:", branchData);    
     dispatch(fetchInitialStudentData());
     getStudents();
     if (openModel) {

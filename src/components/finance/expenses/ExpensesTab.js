@@ -1,10 +1,10 @@
+import { Dialog } from "@headlessui/react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+import { setExpense } from "../../../app/reducers/feeSlice";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import TableComponent from "../../../commonComponent/TableComponent";
-import { Dialog } from "@headlessui/react";
-import { setExpense } from "../../../app/reducers/feeSlice";
 import AddExpenseModal from "./AddExpenseModal";
 import ViewExpenseModal from "./ViewExpenseModal";
 
@@ -140,11 +140,11 @@ function ExpensesTab() {
             </Dialog>
 
             <Dialog open={showViewExpenseModal} onClose={handleClose} className="relative z-50">
-            <div className="fixed inset-0" />
+                <div className="fixed inset-0" />
                 <ViewExpenseModal onClose={handleClose} />
             </Dialog>
         </>
-        
+
     );
 }
 

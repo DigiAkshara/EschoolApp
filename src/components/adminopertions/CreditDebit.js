@@ -35,10 +35,6 @@ function CreditDebit() {
         getData(FEE_CATEGORY),
         getData(FEE_SUBCATEGORY) // Fetch all class details
       ]);
-  
-      console.log("[CATEGORY]:", categoryResponse.data.data);
-      console.log("[SUB CATEGORY]:", subCategoryResponse.data.data);
-  
       // Create a lookup map for class IDs to class names
       const categoryMap = {};
       categoryResponse.data.data.forEach(catg => {
@@ -46,16 +42,11 @@ function CreditDebit() {
           categoryMap[catg._id] = catg.name;
         }
       });
-      console.log("categoryMap", categoryMap);
-      
-  
       const catgData = subCategoryResponse.data.data.map((item, index) => {
         const categoryName = categoryMap[item.category]?.toString() || "Unknown Category";
-  
         return {
           _id: item._id,
           siNo: index + 1,
-          // type: item.type,
           categoryName:categoryName,
           subCategory: item.name,
           actions: [
@@ -64,8 +55,6 @@ function CreditDebit() {
           ],
         };
       });
-  
-      console.log("Processed Class Data:", catgData);
       setCategoryData(catgData);
       setFilteredData(catgData);
     } catch (error) {

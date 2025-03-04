@@ -1,13 +1,11 @@
+import { PlusIcon } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
-import TableComponent from "../../commonComponent/TableComponent";
-import ClassModal from "./ClassModal";
-import SectionModal from "./SectionModal";
-import SubjectModal from "./SubjectModal";
-import { SUBJECT } from "../../app/url";
 import { deleteData, getData } from "../../app/api";
-import ConfirmationModal from "../../commonComponent/ConfirmationModal";
+import { SUBJECT } from "../../app/url";
 import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
+import ConfirmationModal from "../../commonComponent/ConfirmationModal";
+import TableComponent from "../../commonComponent/TableComponent";
+import SubjectModal from "./SubjectModal";
 
 function Subjects() {
   const [subjectData, setSubjectData] = useState([]);
@@ -35,7 +33,7 @@ function Subjects() {
       const subResponse = response.data.data;
       const SubData = subResponse.map((item, index) => {
         return {
-          _id:item._id,
+          _id: item._id,
           siNo: index + 1,
           name: capitalizeWords(item.name),
           actions: [
@@ -61,15 +59,15 @@ function Subjects() {
   };
 
   const deleteRecord = async () => {
-     try {
-       let res = await deleteData(SUBJECT + '/' + deleteId)
-       handleApiResponse(res.data.message, 'success')
-       getSubjects()
-       setDeleteConfirm(false)
-       setDeleteId(null)
-     } catch (error) {
-       handleApiResponse(error)
-     }
+    try {
+      let res = await deleteData(SUBJECT + '/' + deleteId)
+      handleApiResponse(res.data.message, 'success')
+      getSubjects()
+      setDeleteConfirm(false)
+      setDeleteId(null)
+    } catch (error) {
+      handleApiResponse(error)
+    }
   };
 
   const handleOpen = () => setIsModalOpen(true);

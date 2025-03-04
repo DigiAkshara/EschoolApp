@@ -26,51 +26,43 @@ function RouteMap() {
     { title: "Actions", key: "actions" },
   ];
 
-  useEffect(()=>{
+  useEffect(() => {
     getRouteMap()
-  },[])
+  }, [])
 
-    const getRouteMap = async () => {
-      try {
-        const [routeMapResponse, routeResponse ] = await Promise.all([
-          getData(STOPS),
-          getData(ROUTE) 
-        ]);
-    
-        console.log("[ROUTE]:", routeResponse.data.data);
-        console.log("[Route Map]:", routeMapResponse.data.data);
-    
-        // Create a lookup map for class IDs to class names
-        const routeMap = {};
-        routeResponse.data.data.forEach(route => {
-          if (route._id && route.name) {
-            routeMap[route._id] = route.name;
-          }
-        });
-    
-        const routeData = routeMapResponse.data.data.map((item, index) => {
-          const routeName = routeMap[item.route]?.toString() || "Unknown Route";
-    
-          return {
-            _id: item._id,
-            siNo: index + 1,
-            name : routeName,
-            stop : item.name,
-            amount : item.amount,
-            actions: [
-              { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
-              { label: "Delete", actionHandler: () => onDelete(item._id) },
-            ],
-          };
-        });
-    
-        console.log("Processed Class Data:", routeData);
-        setClassData(routeData);
-        setFilteredData(routeData);
-      } catch (error) {
-        handleApiResponse(error);
-      }
-    };
+  const getRouteMap = async () => {
+    try {
+      const [routeMapResponse, routeResponse] = await Promise.all([
+        getData(STOPS),
+        getData(ROUTE)
+      ]);
+      // Create a lookup map for class IDs to class names
+      const routeMap = {};
+      routeResponse.data.data.forEach(route => {
+        if (route._id && route.name) {
+          routeMap[route._id] = route.name;
+        }
+      });
+      const routeData = routeMapResponse.data.data.map((item, index) => {
+        const routeName = routeMap[item.route]?.toString() || "Unknown Route";
+        return {
+          _id: item._id,
+          siNo: index + 1,
+          name: routeName,
+          stop: item.name,
+          amount: item.amount,
+          actions: [
+            { label: "Edit", actionHandler: () => onHandleEdit(item._id) },
+            { label: "Delete", actionHandler: () => onDelete(item._id) },
+          ],
+        };
+      });
+      setClassData(routeData);
+      setFilteredData(routeData);
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  };
 
   const onHandleEdit = async (Id) => {
     console.log("edited", Id);
@@ -138,9 +130,9 @@ function RouteMap() {
           </div>
         </div>
       </div>
-      {isModalOpen && <RouteCreation onClose={handleCloseModal}  />}
+      {isModalOpen && <RouteCreation onClose={handleCloseModal} />}
       {isSectionModal && (
-        <RouteMapCreation  onClose={handleCloseSectionModal} />
+        <RouteMapCreation onClose={handleCloseSectionModal} />
       )}
     </>
   );

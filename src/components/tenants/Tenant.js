@@ -139,7 +139,6 @@ export default function Tenant({ onClose, loadTenants }) {
         enableReinitialize
       >
         {({ values, setFieldValue, errors }) => (
-          console.log(errors),
           (
             <Form>
               <div className="fixed inset-0 overflow-hidden">
