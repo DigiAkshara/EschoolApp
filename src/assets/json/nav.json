@@ -3,14 +3,24 @@
     "name": "home",
     "title": "Dashboard",
     "path": "/",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "dashboard"
   },
   {
     "name": "staff",
     "title": "Staff",
     "path": "/staff",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "group",
     "submenu": [
       {
@@ -39,7 +49,12 @@
     "name": "students",
     "title": "Students",
     "path": "/students",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "badge",
     "submenu": [
       {
@@ -58,7 +73,12 @@
     "name": "attendance",
     "title": "Attendance",
     "path": "/attendance",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "person_check",
     "submenu": [
       {
@@ -82,7 +102,12 @@
     "name": "academics",
     "title": "Academics",
     "path": "/academics",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "menu_book",
     "submenu": [
       {
@@ -111,7 +136,12 @@
     "name": "finance",
     "title": "Finance",
     "path": "/finance",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "money",
     "submenu": [
       {
@@ -160,35 +190,67 @@
     "name": "tenant",
     "title": "Tenant",
     "path": "/tenant",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "group"
   },
   {
     "name": "reports_and_analytics",
     "title": "Reports and Analytics",
-    "path": "#",
-    "role": ["admin", "super_admin", "student", "staff"],
-    "icon": "lab_profile"
+    "path": "/reports_and_analytics",
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
+    "icon": "lab_profile",
+    "submenu": [
+      {
+        "title": "Finance Reports",
+        "name": "finance_reports",
+        "path": "/finance_reports"
+      }
+    ]
   },
   {
     "name": "transportation",
     "title": "Transportation",
     "path": "#",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "directions_bus"
   },
   {
     "name": "hostel_management",
     "title": "Hostel Management",
     "path": "#",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "apartment"
   },
   {
     "name": "admin_operations",
     "title": "Admin Operations",
     "path": "/admin_operations",
-    "role": ["admin", "super_admin", "student", "staff"],
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
     "icon": "manage_accounts",
     "submenu": [
       {
@@ -226,115 +288,76 @@
         "name": "finance",
         "path": "/finance"
       }
-
     ]
   },
-   
-    {
-        "name": "tenant",
-        "title": "Tenant",
-        "path": "/tenant",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "DocumentDuplicateIcon"
-    },
-    {
-        "name": "reports_and_analytics",
-        "title": "Reports and Analytics",
-        "path": "#",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "ChartPieIcon"
-    },
-    {
-        "name": "transportation",
-        "title": "Transportation",
-        "path": "#",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "ChartPieIcon"
-    },
-    {
-        "name": "hostel_management",
-        "title": "Hostel Management",
-        "path": "#",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "ChartPieIcon"
-    },
-    
-    {
-        "name": "eventsSms",
-        "title": "Events And SMS",
-        "path": "/eventsSms",
-        "role": [
-            "admin",
-            "super_admin",
-            "student",
-            "staff"
-        ],
-        "icon": "sms",
-        "submenu": [
-            {
-                "title": "Events",
-                "name": "events",
-                "path": "/events"
-            },
-            {
-                "title": "SMS",
-                "name": "sms",
-                "path": "/sms"
-            },
-            {
-                "title": "Templates",
-                "name": "templates",
-                "path": "/templates"
-            },
-            {
-                "title": "Whatsapp",
-                "name": "whatsapp",
-                "path": "/whatsapp"
-            }
-        ]
-    },
-  
+  {
+    "name": "eventsSms",
+    "title": "Events And SMS",
+    "path": "/eventsSms",
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
+    "icon": "sms",
+    "submenu": [
+      {
+        "title": "Events",
+        "name": "events",
+        "path": "/events"
+      },
+      {
+        "title": "SMS",
+        "name": "sms",
+        "path": "/sms"
+      },
+      {
+        "title": "Templates",
+        "name": "templates",
+        "path": "/templates"
+      },
+      {
+        "title": "Whatsapp",
+        "name": "whatsapp",
+        "path": "/whatsapp"
+      }
+    ]
+  },
   {
     "name": "notice_board",
     "title": "Notice Board",
     "path": "#",
-    "role": ["admin", "super_admin", "student", "staff"],
-    "icon": "sms" 
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ],
+    "icon": "sms"
   },
-
   {
     "name": "help_faq",
     "title": "Help & FAQ",
     "path": "#",
     "icon": "quiz",
-    "role": ["admin", "super_admin", "student", "staff"]
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ]
   },
   {
     "name": "contact_us",
     "title": "Contact Us",
     "path": "#",
     "icon": "contact_mail",
-    "role": ["admin", "super_admin", "student", "staff"]
+    "role": [
+      "admin",
+      "super_admin",
+      "student",
+      "staff"
+    ]
   }
 ]
-

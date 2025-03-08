@@ -1,11 +1,11 @@
-import {Menu, MenuButton, MenuItem, MenuItems} from '@headlessui/react'
-import {ListBulletIcon, MagnifyingGlassIcon} from '@heroicons/react/20/solid'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import { ListBulletIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import {
   ArrowDownTrayIcon,
   FunnelIcon,
   Squares2X2Icon,
 } from '@heroicons/react/24/outline'
-import {Form, Formik} from 'formik'
+import { Form, Formik } from 'formik'
 import CustomSelect from './CustomSelect'
 import { capitalizeWords } from './CommonFunctions'
 import DownloadDialog from './CommonDialogBox'
@@ -17,7 +17,7 @@ const FilterComponent = ({
   filterForm,
   handleFilter,
   handleReset,
-  isDownloadDialog, 
+  isDownloadDialog,
   downloadList,
   downloadListxlsv
 }) => {
@@ -28,8 +28,9 @@ const FilterComponent = ({
       return item.options.filter(
         (option) => option[item.dependencyKey] === value,
       )
-    } else{
-      return item.options}
+    } else {
+      return item.options
+    }
   }
 
 
@@ -71,19 +72,11 @@ const FilterComponent = ({
             </div>
           </div>
           <Formik initialValues={filterForm} onSubmit={handleFilter}>
-            {({values, setFieldValue}) => (
+            {({ values, setFieldValue }) => (
               <Form>
                 <div className="right-action-btns-blk space-x-4">
-                  {/* <button
-                    type="button"
-                    onClick={downloadList}
-                    className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                  >
-                    <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
-                  </button> */}
-
-  {/* Conditional Download Button */}
-  {isDownloadDialog ? (
+                  {/* Conditional Download Button */}
+                  {isDownloadDialog ? (
                     <button
                       type="button"
                       onClick={openDialog}
@@ -110,7 +103,7 @@ const FilterComponent = ({
                   )}
 
 
-
+                  {filters && (
                   <Menu as="div" className="relative inline-block text-left">
                     <div>
                       <MenuButton className="inline-flex items-center rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
@@ -131,30 +124,30 @@ const FilterComponent = ({
                           </div>
                         </MenuItem>
                         {Object.entries(values).map(([key]) => (
-                            <CustomSelect
-                              key={key}
-                              label={capitalizeWords(key)}
-                              name={key}
-                              options={getOptions(
-                                filters[key],
-                                values[filters[key].dependencyKey],
-                              )}
-                              disabled={
-                                filters[key].dependency &&
-                                !values[filters[key].dependencyKey]
+                          <CustomSelect
+                            key={key}
+                            label={capitalizeWords(key)}
+                            name={key}
+                            options={getOptions(
+                              filters[key],
+                              values[filters[key].dependencyKey],
+                            )}
+                            disabled={
+                              filters[key].dependency &&
+                              !values[filters[key].dependencyKey]
+                            }
+                            onChange={(e) => {
+                              setFieldValue(key, e.target.value)
+                              if (key == 'category') {
+                                setFieldValue('class', '')
+                                setFieldValue('section', '')
                               }
-                              onChange={(e)=>{
-                                setFieldValue(key, e.target.value)
-                                if(key == 'category'){
-                                  setFieldValue('class','')
-                                  setFieldValue('section','')
-                                }
-                                if(key == 'class'){
-                                  setFieldValue('section','')
-                                }
-                              }}
-                            />
-                          
+                              if (key == 'class') {
+                                setFieldValue('section', '')
+                              }
+                            }}
+                          />
+
                         ))}
 
                         <div className="flex">
@@ -176,9 +169,10 @@ const FilterComponent = ({
                         </div>
                       </div>
                     </MenuItems>
-                  </Menu>
+                  </Menu>)}
 
-                  <button
+                  {/* View Options  commented temporarily*/}
+                  {/* <button
                     type="button"
                     className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                   >
@@ -189,7 +183,7 @@ const FilterComponent = ({
                     className="rounded bg-purple-600 px-2 py-1 text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
                   >
                     <ListBulletIcon aria-hidden="true" className="size-5" />
-                  </button>
+                  </button> */}
                 </div>
               </Form>
             )}

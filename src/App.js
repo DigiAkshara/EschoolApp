@@ -27,6 +27,7 @@ import Students from './components/Students'
 import EventsAndSms from './components/EventsAndSms'
 import Tenants from './components/Tenants'
 import Loader from './commonComponent/Loader'
+import ReportsAnalytics from './components/ReportsAnalytics'
 
 function App() {
   const { user } = useSelector((state) => state.appConfig)
@@ -173,12 +174,20 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/reports_and_analytics"
+                  element={
+                    <ProtectedRoute>
+                      <ReportsAnalytics />
+                    </ProtectedRoute>
+                  }
+                />
               </Routes>
             </div>
           </main>
-          <div className='flex items-center justify-center px-2 py-2 bg-gray-200 fixed bottom-0 w-[calc(100%-18rem)]'>
+          {user && (<div className='flex items-center justify-center px-2 py-2 bg-gray-200 fixed bottom-0 w-[calc(100%-18rem)]'>
             <p className='text-sm'>© 2025 Svadhyaya Software Consultancy (OPC) Pvt Ltd. All rights reserved.</p>
-          </div>
+          </div>)}
         </div>
       </div>
     </BrowserRouter>

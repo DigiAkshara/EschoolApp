@@ -1067,7 +1067,7 @@ const AcademicDeatilsTab = ({ data }) => {
               <UserCircleIcon aria-hidden="true" className="size-5" />
             </div>
             <div className="text-lg pl-4 font-medium text-gray-900">
-              Previous Academic Details
+              Previous School Details
             </div>
           </div>
         </div>
