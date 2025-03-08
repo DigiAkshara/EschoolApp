@@ -90,17 +90,15 @@ function BranchCreation({ onClose, getBranches }) {
   };
 
   const handleSubmit = async (values) => {
-    console.log(values);
     try {
       const response = await postData(BRANCH, values);
-      console.log("[RESPONSE]:", response);
       if (response.status === 200 || response.status === 201) {
         onClose();
         getBranches();
         handleApiResponse(response.data.message, "success");
       }
     } catch (error) {
-      console.log(error);
+      handleApiResponse(error);
     }
   };
 

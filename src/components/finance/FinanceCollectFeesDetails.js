@@ -364,10 +364,8 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const handleSubmit = async (values) => {
     try {
       const res = await postData(STUDENT_FEE, values);
-      console.log("[RESPONSE]:", res.data.data);
       handleApiResponse(res.data.message, "success");
       await fetchData();
-
       const formattedFees = res.data.data.fees.map((feeItem) => {
         const matchingFee = allFees.find((f) => f._id === feeItem.fee);
         return {
@@ -390,18 +388,14 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         mothersName: capitalizeWords(studentData.student.motherDetails.name),
         pendingAmount: getTotalAmount(values, "pendingAmount"),
       };
-console.log("receiptWithTenant",receiptWithTenant)  ;
-
       setReceiptData(receiptWithTenant);
       setIsReceiptOpen(true);
-      // onClose();
     } catch (error) {
       handleApiResponse(error);
     }
   };
 
   useEffect(() => {
-
     if (selectedData) {
       const classId = selectedData?.academic.class._id;
       getFeesData(classId);

@@ -1,14 +1,14 @@
 'use client'
-import React, { useState } from 'react'
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
-import TableComponent from '../../../commonComponent/TableComponent';
 import { Dialog } from "@headlessui/react";
+import { PlusIcon } from "@heroicons/react/20/solid";
+import React, { useState } from 'react';
+import TableComponent from '../../../commonComponent/TableComponent';
 import SpecialCreditsCreation from './SpecialCreditsCreation';
 
 
 function SpecialDebitCreditTab() {
   const [open, setOpen] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
   const tableData = [
@@ -63,12 +63,10 @@ function SpecialDebitCreditTab() {
   const onHandleEdit = (row) => {
     console.log("Editing:", row);
   };
-  
+
   const onHandleDelete = (row) => {
     console.log("Deleting:", row);
   };
-  
-
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -79,16 +77,16 @@ function SpecialDebitCreditTab() {
     setCurrentPage(page);
   };
 
- 
+
   return (
     <>
-    <div className="mt-4 flex justify-between">
+      <div className="mt-4 flex justify-between">
         {/* active tab with count block */}
         <div className="sm:hidden"></div>
         <div className="hidden sm:block"></div>
 
         <div className="right-btns-blk space-x-4">
-       
+
 
           <button
             type="button"
@@ -104,7 +102,7 @@ function SpecialDebitCreditTab() {
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-                          
+
               <TableComponent
                 columns={columns}
                 data={paginatedData}
@@ -114,15 +112,15 @@ function SpecialDebitCreditTab() {
                   onPageChange: handlePageChange,
                 }}
               />
-            
+
             </div>
           </div>
         </div>
         {/* Student Onboarding Modal */}
-      <Dialog open={open} onClose={handleClose} className="relative z-50">
-        <div className="fixed inset-0" />
-        <SpecialCreditsCreation onClose={handleClose}  />
-      </Dialog>
+        <Dialog open={open} onClose={handleClose} className="relative z-50">
+          <div className="fixed inset-0" />
+          <SpecialCreditsCreation onClose={handleClose} />
+        </Dialog>
       </div>
 
     </>

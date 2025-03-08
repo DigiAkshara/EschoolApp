@@ -30,8 +30,6 @@ function ExamDetailsPage({ onClose }) {
   const [pdfBlob, setPdfBlob] = useState(null);
 
   useEffect(() => {
-    console.log("Branch logo:", branchData);
-    
     getStudent();
   }, []);
   const getStudent = async () => {
@@ -66,19 +64,13 @@ function ExamDetailsPage({ onClose }) {
 
   const generatePDFPreview = async () => {
     const doc = new jsPDF("p", "mm", "a4"); // Initialize a single PDF document
-    console.log("Student data inside downld function::::", students);
-
     const pdfPromises = students.map(async (student, index) => {
-      console.log("Student image inside downld function::::", student.pic);
-
       const container = document.createElement("div");
       container.style.width = "800px";
-
       container.style.position = "absolute"; // Keep it offscreen
       container.style.left = "-9999px"; // Prevent flickering
       container.style.top = "-9999px"; // Keep it out of view
       //container.style.visibility = "hidden"; // Hide it from the user
-
       container.innerHTML = `
       <div style="padding: 30px; font-family: Arial, sans-serif;">
          <!-- Header Section -->

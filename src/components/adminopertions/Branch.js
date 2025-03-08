@@ -40,8 +40,6 @@ function Branch() {
     try {
       const response = await getData(BRANCH);
       const branchResponse = response.data.data;
-      console.log("BRANCH DATA:", branchResponse);
-      
       const branchData = branchResponse.map((item, index) => {
         return {
           _id: item._id,
@@ -66,8 +64,6 @@ function Branch() {
 
   const onHandleEdit = async (Id) => {
     console.log("edited", Id);
-
-  
   };
 
   const onDelete = (Id) => {

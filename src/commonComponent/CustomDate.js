@@ -23,7 +23,6 @@ export default function CustomDate(props) {
       <div className="mt-2">
         <Field name={name}>
           {({ field, meta, form: { setFieldValue } }) => {
-            // console.log(field.value)
             const value = { startDate: field.value, endDate: field.value }
             return (
               <Datepicker
