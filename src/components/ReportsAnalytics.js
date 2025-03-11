@@ -1,9 +1,12 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Submenu from './Submenu'
 import FinanceReports from './reportsAnalytics/financeReports/FinanceReports'
+import { useDispatch } from 'react-redux'
+import { fetchInitialAcademicData } from '../app/reducers/academicSlice'
 
 export default function ReportsAnalytics() {
+  const dispatch = useDispatch()
   const [activeTab, setActiveTab] = useState(null)
 
   const renderTabContent = () => {
@@ -14,6 +17,10 @@ export default function ReportsAnalytics() {
         return <h2>No Content Available</h2>
     }
   }
+
+  useEffect(() => {
+    dispatch(fetchInitialAcademicData())
+  }, [])
 
   return (
     <div className="flow-root">
