@@ -182,22 +182,18 @@ function ManageExamSchedules() {
   );
 
   const downloadList = () => {
-
     handleDownloadPDF(filteredData, "Exam_Details", [
       { key: "examName", label: "Exam Name" },
       { key: "className", label: "Class" },
       { key: "sectionName", label: "Section" },
       { key: "examDates", label: "Exam Dates" },
       { key: "totalSubjects", label: "Subjects Included" },
-
-
     ], "Exam Details Report", branchData, undefined, "portrait");
   };
 
 
   return (
     <>
-
       <div className="right-btns-blk space-x-4 float-right">
         <button
           type="button"
@@ -247,7 +243,6 @@ function ManageExamSchedules() {
           </div>
         </div>
       </div>
-
       <ConfirmationModal
         showModal={deleteConfirm}
         onYes={deleteRecord}

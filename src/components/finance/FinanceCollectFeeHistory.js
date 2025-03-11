@@ -38,7 +38,7 @@ function FinanceCollectFeeHistory() {
         paidDate: moment(trans.date).format("DD-MM-YYYY"),
         paidMode: trans.transactionType.toUpperCase(),
         feeAmounts: trans.fees.map((fee, index) => (
-          <span>
+          <span key={index}>
             {capitalizeWords(fee.fee.name)} : {fee.amount}
             {index + 1 === trans.fees.length ? "." : ", "}
           </span>

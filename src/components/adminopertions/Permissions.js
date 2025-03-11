@@ -105,7 +105,7 @@ const Permissions = () => {
           };
         });
       if (user?.role.name === "admin") {
-        roleData = roleData.filter((item) => item.label !== "admin");
+        roleData = roleData.filter((item) => item.label === "staff");
       }
       setRoles(roleData);
     } catch (error) {
@@ -165,11 +165,11 @@ const Permissions = () => {
         if (isStaff(role)&&user?.role.name !== "superadmin") {
           if (designation) {
             res = await getData(
-              PERMISSIONS + "/" + role + "/" + designation + "/" + tenant
+              PERMISSIONS + "?role=" + role + "&tenant=" + tenant + "&designation=" + designation 
             );
           }
         } else {
-          res = await getData(PERMISSIONS + "/" + role + "/" + tenant);
+          res = await getData(PERMISSIONS + "?role=" + role + "&tenant=" + tenant);
         }
       }
       let dumpLIst = [];
@@ -225,7 +225,7 @@ const Permissions = () => {
   const getAdminPermissions = async (role, tenant) => {
     try {
       dispatch(setIsLoader(true));
-      let res = await getData(PERMISSIONS + "/" + role + "/" + tenant);
+      let res = await getData(PERMISSIONS + "?role=" + role + "&tenant=" + tenant);
       if (res.data.data) {
         let permissions = [];
         res.data.data.permissions.forEach((item) => {
