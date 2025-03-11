@@ -77,6 +77,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Academic year"
               options={academicYears}
               required={true}
+              disabled={values._id ? true : false}
             />
           </div>
 
@@ -86,6 +87,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Admission Date"
               required={true}
               maxDate={moment().format('YYYY-MM-DD')}
+              disabled={values._id ? true : false}
             />
           </div>
 
@@ -95,6 +97,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Admission Number"
               placeholder="Enter Admi.No."
               required={true}
+              disabled={values._id ? true : false}
             />
           </div>
 
@@ -108,6 +111,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
                 setFieldValue('academics.class', e.target.value)
                 setFieldValue('academics.section', '')
               }}
+              disabled={values._id ? true : false}
             />
           </div>
 
@@ -117,7 +121,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Section"
               required={true}
               options={sections.filter(item => item.class == values.academics.class)}
-              disabled={!values.academics.class}
+              disabled={!values.academics.class|| (values._id ? true : false)}
             />
           </div>
         </div>

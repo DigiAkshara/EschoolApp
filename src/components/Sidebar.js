@@ -47,10 +47,9 @@ export default function Sidebar({sidebarOpen, updateSideBar}) {
           <div className="flex h-16 shrink-0 items-center">
             <img
               alt="Your Company"
-              src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=white"
-              className="h-8 w-auto"
+              src="./logo_white.svg"
+              className="h-8 w-48"              
             />
-            <h5 className="px-4 text-white">DigiAkshara</h5>
           </div>
           <nav className="flex flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-7">

@@ -220,7 +220,7 @@
   {
     "name": "transportation",
     "title": "Transportation",
-    "path": "#",
+    "path": "/transportation",
     "role": [
       "admin",
       "super_admin",
@@ -272,11 +272,6 @@
         "title": "Academics",
         "name": "academics",
         "path": "/academics"
-      },
-      {
-        "title": "Route Map",
-        "name": "routeMap",
-        "path": "/routeMap"
       },
       {
         "title": "Branch",

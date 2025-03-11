@@ -28,6 +28,7 @@ import EventsAndSms from './components/EventsAndSms'
 import Tenants from './components/Tenants'
 import Loader from './commonComponent/Loader'
 import ReportsAnalytics from './components/ReportsAnalytics'
+import Transport from './components/Transport'
 
 function App() {
   const { user } = useSelector((state) => state.appConfig)
@@ -179,6 +180,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ReportsAnalytics />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/transportation"
+                  element={
+                    <ProtectedRoute>
+                      <Transport />
                     </ProtectedRoute>
                   }
                 />

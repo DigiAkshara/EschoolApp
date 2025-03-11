@@ -1,13 +1,11 @@
-import {useState} from 'react'
+import { useState } from 'react'
 import Submenu from './Submenu'
+import Academics from './adminopertions/Academics'
+import Branch from './adminopertions/Branch'
+import Designation from './adminopertions/Designation'
+import Finance from './adminopertions/Finance'
 import Permissions from './adminopertions/Permissions'
 import Profile from './adminopertions/Profile'
-import Designation from './adminopertions/Designation'
-import Academics from './adminopertions/Academics'
-import ClassAndSection from './adminopertions/ClassAndSection'
-import RouteMap from './adminopertions/RouteMap'
-import Finance from './adminopertions/Finance'
-import Branch from './adminopertions/Branch'
 
 const AdminOperations = () => {
   const [activeTab, setActiveTab] = useState(null)
@@ -15,19 +13,17 @@ const AdminOperations = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
-      return <Profile /> 
+        return <Profile />
       case 'permissions':
         return <Permissions />
-        case 'designations':
-          return <Designation />
-          case 'academics':
-            return <Academics />
-          case 'routeMap' :
-            return <RouteMap />
-            case 'branch' :
-              return <Branch />
-            case 'finance' :
-              return <Finance />
+      case 'designations':
+        return <Designation />
+      case 'academics':
+        return <Academics />
+      case 'branch':
+        return <Branch />
+      case 'finance':
+        return <Finance />
       default:
         return <h2>No Content Available</h2>
     }

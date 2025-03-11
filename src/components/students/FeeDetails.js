@@ -5,19 +5,40 @@ import { useSelector } from 'react-redux'
 import {
   capitalizeWords,
   feeduration,
+  handleApiResponse,
 } from '../../commonComponent/CommonFunctions'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import moment from 'moment'
+import { getData } from '../../app/api'
+import { STOPS } from '../../app/url'
+import { use } from 'react'
 
 function StudentFeeDetails({ values, setFieldValue, errors }) {
   const { selectedStudent, fees: allFees } = useSelector((state) => state.students);
   const { classes, sections } = useSelector((state) => state.students)
   const [checked, setChecked] = useState(false)
+  const [busRoutes, setBusRoutes] = useState([])
+  const [busRouteOpts, setBusRouteOpts] = useState([])
+
+  const getBusRoutes = async () => {
+    try {
+      let res = await getData(STOPS)
+      let routes = res.data.data.map((item) => ({
+        value: item._id,
+        label: `${item.name} - ${item.route.name}`,
+      }))
+      setBusRoutes(res.data.data)
+      setBusRouteOpts(routes)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
 
   useEffect(() => {
+    getBusRoutes()
     let dumpLIst = []
     allFees.forEach(item => {
       if (item.isGlobal || item.class?._id === values.academics.class) {
@@ -27,7 +48,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
           isChecked: false,
           feeName: item.name,
           feeType: '',
-          dueDate: '',
+          dueDate: null,
           discount: discount,
           installmentAmount: item.amount - discount, //installment fee
           totalFee: item.amount * 1, //total fee
@@ -37,19 +58,23 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     if (selectedStudent) {
       selectedStudent.fees?.feeList.forEach(item => {
         let index = dumpLIst.findIndex(obj => obj.id === item.fee._id);
-        const discount = item.discount||0
+        const discount = item.discount || 0
         if (index != -1) {
           dumpLIst[index].isChecked = true
           dumpLIst[index].feeType = item.duration
           dumpLIst[index].dueDate = item.dueDate
           dumpLIst[index].discount = discount * 1
-          dumpLIst[index].installmentAmount = item.fee.amount * 1 - discount * 1 //installment fee
-          dumpLIst[index].totalFee = item.fee.amount * 1 //total fee
+          if(item.fee.name === 'Bus Fee'){
+            dumpLIst[index].totalFee = item.paybalAmount * 1 + discount * 1 //installment fee
+            dumpLIst[index].installmentAmount = item.paybalAmount * 1
+          }else{
+            dumpLIst[index].totalFee = item.fee.amount * 1 //total fee
+            dumpLIst[index].installmentAmount = item.fee.amount * 1 - discount * 1 //installment fee
+          }
         }
       })
     }
     setFieldValue("fees", dumpLIst)
-
   }, [])
 
   const handleFeeChange = (e, index) => {
@@ -88,6 +113,9 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
   const handleFeeChecked = (e, index) => {
     let dumpList = values.fees
     dumpList[index].isChecked = e.target.checked
+    dumpList[index].feeType = ''
+    dumpList[index].discount = 0
+    dumpList[index].dueDate = null
     let isAllChecked = dumpList.every((item) => item.isChecked)
     setFieldValue('fees', dumpList)
     setChecked(isAllChecked)
@@ -102,6 +130,42 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     const sec = sections.filter(item => item.value === values.academics.section)
     return sec[0].label
   }
+
+  const isExistingFee = (id) => {
+    let isDisabled = false
+    const index = selectedStudent?.fees?.feeList.findIndex((item) => item.fee._id === id)
+    if (index !== -1) {
+      isDisabled = values._id ? true : false
+    }
+    return isDisabled
+  }
+
+  const isSelectedBusFee = () => {
+    let isBusFee = false
+    values.fees.forEach((item) => {
+      if (item.feeName === 'Bus Fee' && item.isChecked) {
+        isBusFee = true
+      }
+    })
+    return isBusFee
+  }
+
+
+
+  const handleRouteChange = (e) => {
+    let dumpList = values.fees
+    const index = dumpList.findIndex((item) => item.feeName === 'Bus Fee')
+    const selectedRoute = busRoutes.find((item) => item._id === e.target.value)
+    if (selectedRoute) {
+      dumpList[index].discount = 0
+      dumpList[index].totalFee = selectedRoute?.amount || 0
+      dumpList[index].installmentAmount = selectedRoute.amount*1||0 
+      setFieldValue('fees', dumpList)
+    }
+    setFieldValue('busRoute', e.target.value)
+  }
+
+
 
   return (
     <>
@@ -139,6 +203,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                     className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
                     name="selectAll"
                     onChange={selectAllFees}
+                    disabled={values._id ? true : false}
                   />
                 </th>
                 <th
@@ -202,6 +267,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                           name={item.feeName}
                           checked={item.isChecked}
                           onChange={(e) => handleFeeChecked(e, index)}
+                          disabled={isExistingFee(item.id)}
                         />
                       </td>
 
@@ -214,7 +280,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                           options={feeduration}
                           value={item.feeType}
                           onChange={(e) => handleFeeChange(e, index)}
-                          disabled={!item.isChecked}
+                          disabled={!item.isChecked || isExistingFee(item.id)}
                           label="Duration"
                           isLabelRequired={false}
                         />
@@ -225,14 +291,15 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                           type="number"
                           value={item.discount}
                           onChange={(e) => handleFeeChange(e, index)}
-                          disabled={!item.isChecked}
+                          disabled={!item.isChecked || isExistingFee(item.id)}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
                         <CustomDate
                           name={`fees.${index}.dueDate`}
                           value={item.dueDate}
-                          minDate = {moment().format('MM-DD-YYYY')}
+                          minDate={moment().format('MM-DD-YYYY')}
+                          disabled={isExistingFee(item.id)}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
@@ -248,7 +315,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                         <CustomInput
                           name={`fees.${index}.installmentAmount`}
                           type="number"
-                          value={item.isChecked?item.installmentAmount:''}
+                          value={item.isChecked ? item.installmentAmount : ''}
                           disabled
                         />
                       </td>
@@ -272,6 +339,27 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
               </tr>
             </tbody>
           </table>
+
+          {isSelectedBusFee() && (
+            <div className="border-b border-gray-900/10 pb-4 mb-4 mt-4">
+              <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
+                Bus Stop Details
+              </h2>
+              <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8">
+                <div className="sm:col-span-2">
+                  <CustomSelect
+                    name="busRoute"
+                    options={busRouteOpts}
+                    value={values.busRoute}
+                    label="Bus Route"
+                    required={true}
+                    onChange={handleRouteChange}
+                    disabled={values._id?true:false}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

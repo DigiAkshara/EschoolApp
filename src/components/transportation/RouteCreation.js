@@ -1,54 +1,27 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import * as Yup from "yup";
-import { getData, postData } from "../../app/api";
-import { ROUTE, STOPS } from "../../app/url";
+import { postData } from "../../app/api";
+import { ROUTE } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomInput from "../../commonComponent/CustomInput";
-import CustomSelect from "../../commonComponent/CustomSelect";
 
-const RouteMapCreation = ({ onClose, onSubmit }) => {
-  const [routeData, setRouteData] = useState([]);
+const RouteCreation = ({ onClose }) => {
 
   const [formData, setFormData] = useState({
-    route: "",
     name: "",
-    amount: ""
   });
 
   const getValidationSchema = () => {
     return Yup.object({
-      route: Yup.string().required(" Route is required"),
-      name: Yup.string().required(" Stop is required"),
-      amount: Yup.string().required(" Amount is required"),
-
+      name: Yup.string().required(" Route name is required"),
     });
   };
 
-  const getRouteName = async () => {
-    try {
-      const response = await getData(ROUTE);
-      const responseData = response.data.data;
-      const routeResponse = responseData.map((item) => {
-        return {
-          value: item._id,
-          label: item.name,
-        };
-      });
-      setRouteData(routeResponse);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
-
-  useEffect(() => {
-    getRouteName();
-  }, []);
-
   const handleSubmit = async (values) => {
     try {
-      const response = await postData(STOPS, values);
+      const response = await postData(ROUTE, values);
       if (response.status === 200 || response.status === 201) {
         onClose();
         handleApiResponse(response.data.message, "success");
@@ -71,7 +44,7 @@ const RouteMapCreation = ({ onClose, onSubmit }) => {
               <div className="bg-white w-96 rounded-lg shadow-lg">
                 {/* Modal Header */}
                 <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
-                  <h2 className="text-lg font-semibold">Add Route Map</h2>
+                  <h2 className="text-lg font-semibold">Add Route Name</h2>
                   <button
                     onClick={onClose}
                     className="text-white hover:text-gray-200"
@@ -82,24 +55,14 @@ const RouteMapCreation = ({ onClose, onSubmit }) => {
 
                 {/* Modal Body */}
                 <div className="p-6">
-                  <CustomSelect
-                    name="route"
-                    label="Route Name"
-                    options={routeData}
-                    required={true}
-                  />
                   <CustomInput
                     name="name"
-                    label="Stop"
-                    placeholder="Enter Stop"
+                    label="Route Name"
+                    placeholder="Enter Route"
                     required={true}
                   />
-                  <CustomInput
-                    name="amount"
-                    label="Amount"
-                    placeholder="Enter Amount"
-                    required={true}
-                  />
+
+
                 </div>
 
                 {/* Modal Footer */}
@@ -123,4 +86,4 @@ const RouteMapCreation = ({ onClose, onSubmit }) => {
   );
 };
 
-export default RouteMapCreation;
+export default RouteCreation;

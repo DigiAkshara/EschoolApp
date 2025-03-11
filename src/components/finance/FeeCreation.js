@@ -103,6 +103,16 @@ function FeeCreation({onClose, getFees}) {
     return <p>Loading classes...</p>
   }
 
+  const findTransportFee = (value)=>{
+    let transportFee = false
+    feeGroups.forEach((item)=>{
+      if(item.value === value){
+        transportFee = item.label.toLowerCase() === "transport fee"
+      }
+    })
+    return transportFee
+  }
+
   return (
     <>
       <Formik
@@ -165,6 +175,24 @@ function FeeCreation({onClose, getFees}) {
                                         label="Fee Group"
                                         required={true}
                                         options={feeGroups}
+                                        onChange={(e) => {
+                                          let dumpList = []
+                                          values.fees.forEach((item) => {
+                                            dumpList.push({
+                                              ...item,
+                                              checked: false,
+                                              amount: '',
+                                            })
+                                          })
+                                          setFieldValue('fees', dumpList)
+                                          setFieldValue('feeGroup', e.target.value)
+                                          setFieldValue('allClasses', '')
+                                          if(findTransportFee(e.target.value)){
+                                            setFieldValue('feeTitle', "Bus Fee")
+                                          }else{
+                                            setFieldValue('feeTitle', '')
+                                          }
+                                        }}
                                       />
                                     </div>
 
@@ -174,6 +202,7 @@ function FeeCreation({onClose, getFees}) {
                                         label="Fee Title"
                                         placeholder="Enter Fee Title"
                                         required={true}
+                                        disabled={findTransportFee(values.feeGroup)}
                                       />
                                     </div>
                                   </div>
@@ -203,6 +232,7 @@ function FeeCreation({onClose, getFees}) {
                                               !values.allClasses,
                                             )
                                           }}
+                                          disabled={findTransportFee(values.feeGroup)}
                                         />
                                       </th>
                                       <th
@@ -242,6 +272,7 @@ function FeeCreation({onClose, getFees}) {
                                                   checked={
                                                     values.fees[index].checked
                                                   }
+                                                  disabled={findTransportFee(values.feeGroup)}
                                                   onChange={(e) => {
                                                     let dumpList = values.fees
                                                     dumpList[index].checked =
