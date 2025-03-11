@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf"; // For PDF generation
 import autoTable from "jspdf-autotable";
 import moment from "moment";
 import React, { Fragment, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../../app/api";
 import { TRANSACTIONS } from "../../app/url";
 import {
@@ -11,15 +11,16 @@ import {
   handleApiResponse,
 } from "../../commonComponent/CommonFunctions";
 import TableComponent from "../../commonComponent/TableComponent";
+import { setIsLoader } from "../../app/reducers/appConfigSlice";
 
 function FinanceCollectFeeHistory() {
+  const dispatch = useDispatch()
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [receiptData, setReceiptData] = useState(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const rowsPerPage = 10;
   const selectedData = useSelector((state) => state.fees.selectedFee);
-  const studentData = selectedData?.academic;
   const { branchData } = useSelector((state) => state.appConfig);
 
   const columns = [
@@ -32,18 +33,19 @@ function FinanceCollectFeeHistory() {
   ];
   const getHistoryData = async (Id) => {
     try {
+      dispatch(setIsLoader(true));
       let res = await getData(TRANSACTIONS + "/" + Id);
       let list = res.data.map((trans) => ({
-        transactionId: trans.transactionId || "N/A",
-        paidDate: moment(trans.date).format("DD-MM-YYYY"),
-        paidMode: trans.transactionType.toUpperCase(),
-        feeAmounts: trans.fees.map((fee, index) => (
+        transactionId: trans.transaction.transactionId || "N/A",
+        paidDate: moment(trans.transaction.date).format("DD-MM-YYYY"),
+        paidMode: trans.transaction.transactionType.toUpperCase(),
+        feeAmounts: trans.transaction.fees.map((fee, index) => (
           <span key={index}>
             {capitalizeWords(fee.fee.name)} : {fee.amount}
-            {index + 1 === trans.fees.length ? "." : ", "}
+            {index + 1 === trans.transaction.fees.length ? "." : ", "}
           </span>
         )),
-        totalPaid: trans.amount,
+        totalPaid: trans.transaction.amount,
         invoice: (
           <button
             onClick={() => showInvoice(trans)}
@@ -56,31 +58,34 @@ function FinanceCollectFeeHistory() {
       setTransactions(list);
     } catch (error) {
       handleApiResponse(error);
+    } finally {
+      dispatch(setIsLoader(false));
     }
   };
 
   const showInvoice = (feeData) => {
     const formattedFees =
-      feeData.fees?.map((feeItem) => ({
+      feeData.transaction.fees?.map((feeItem) => ({
         feeName: capitalizeWords(feeItem.fee.name),
         amount: feeItem.amount,
       })) || [];
 
     const receiptData = {
-      ...feeData,
+      ...feeData.transaction,
+      ...feeData.academic,
       name: capitalizeWords(
-        studentData.student.firstName + " " + studentData.student.lastName
+        feeData.academic.student.firstName + " " + feeData.academic.student.lastName
       ),
-      academicYear: studentData.academicYear.year,
-      admissionNo: studentData.student?.admissionNumber || "N/A",
-      classSection: `${studentData.class?.name || "N/A"} / ${
-        studentData.section?.section || "N/A"
+      academicYear: feeData.academic.academicYear.year,
+      admissionNo: feeData.academic.student?.admissionNumber || "N/A",
+      classSection: `${feeData.academic.class?.name || "N/A"} / ${
+        feeData.academic.section?.section || "N/A"
       }`,
       fatersName: capitalizeWords(
-        studentData.student.fatherDetails?.name || "N/A"
+        feeData.academic.student.fatherDetails?.name || "N/A"
       ),
       mothersName: capitalizeWords(
-        studentData.student.motherDetails?.name || "N/A"
+        feeData.academic.student.motherDetails?.name || "N/A"
       ),
       branch: branchData,
       fees: formattedFees, // Store fees separately

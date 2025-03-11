@@ -557,8 +557,10 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                                   );
                                 }}
                               />
-                            ) : (
-                              fee.totalAmount
+                            ) : (<>
+                              {fee.feeName === 'Bus Fee' ? fee.paybalAmount*1+fee.discount*1 :
+                              fee.totalAmount}
+                              </>
                             )}
                           </td>
 
@@ -649,7 +651,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                     }
                   </FieldArray>
 
-                  <tr>
+                  {/* <tr>
                     <td
                       className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
                       colSpan={8}
@@ -695,7 +697,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                         <div className="text-red-500">{errors.fees}</div>
                       )}
                     </td>
-                  </tr>
+                  </tr> */}
                   <tr>
                     <td
                       className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"

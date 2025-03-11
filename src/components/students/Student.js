@@ -13,7 +13,7 @@ import BasicInfo from "./BasicInfo";
 import FeeDetailsTab from "./FeeDetails";
 
 function Student({ onClose, loadStudents }) {
-  const { selectedStudent } = useSelector((state) => state.students);
+  const selectedStudent = useSelector((state) => state.students.selectedStudent);
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     profilePic: null,
@@ -70,6 +70,7 @@ function Student({ onClose, loadStudents }) {
       studyProof: null,
     },
     //fees tab
+    busRoute:"",
     fees: [],
     ...(selectedStudent && selectedStudent),
     ...(selectedStudent && {
@@ -319,7 +320,7 @@ function Student({ onClose, loadStudents }) {
                 return true;
               }
             ),
-            dueDate: Yup.string().test(
+            dueDate: Yup.date().nullable().test(
               "is-required-if-checked",
               "Due date is required",
               function (value) {
@@ -336,6 +337,18 @@ function Student({ onClose, loadStudents }) {
           "at-least-one-checked",
           "At least one fee must be selected",
           (items) => items.some((item) => item.isChecked)
+        ),
+        busRoute: Yup.string().test(
+          "is-required-if-busfee-checked",
+          "Bus route is required",
+          function (value) {
+            const { fees } = this.parent;
+            const index = fees.findIndex((item) => item.feeName === "Bus Fee");
+            if (index !== -1 && !value) {
+              return false;
+            }
+            return true;
+          }
         ),
     }),
   ];
@@ -368,10 +381,6 @@ function Student({ onClose, loadStudents }) {
     { id: 2, name: "Academic Details", href: "#", status: "upcoming" },
     { id: 3, name: "Fee details", href: "#", status: "upcoming" },
   ];
-
-  function classNames(...classes) {
-    return classes.filter(Boolean).join(" ");
-  }
 
   return (
     <>

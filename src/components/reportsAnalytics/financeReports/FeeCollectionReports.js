@@ -32,7 +32,7 @@ const FeeCollectionReports = () => {
 	const columns = [
 		{ key: "studentName", title: "Student Name" },
 		{ key: "classSection", title: "Class &Section" },
-		{ key: "transactionId", title: "Transaction ID" },
+		{ key: "transactionNo", title: "Transaction ID" },
 		{ key: "paidDate", title: "Paid Date" },
 		{ key: "feeTypes", title: "Fee Types & Paid Amount" },
 		{ key: "totalPaidAmount", title: "Total Paid" }
@@ -85,7 +85,7 @@ const FeeCollectionReports = () => {
 		handleDownloadPDF(filteredData, "Fee_Details", [
 			{ key: "studentName", label: "Student Name" },
 			{ key: "classSection", label: "Class &Section" },
-			{ key: "transactionId", label: "Transaction ID" },
+			{ key: "transactionNo", label: "Transaction ID" },
 			{ key: "paidDate", label: "Paid Date" },
 			{ key: "feeTypes", label: "Fee Types & Paid Amount" },
 			{ key: "totalPaidAmount", label: "Total Paid" },
@@ -100,7 +100,7 @@ const FeeCollectionReports = () => {
 				return {
 					studentName: item.academic.student.firstName + " " + item.academic.student.lastName,
 					classSection: item.academic.class.name + " " + item.academic.section.section,
-					transactionId: item.transaction._id,
+					transactionNo: item.transaction.transactionNo||"N/A",
 					paidDate: moment(item.transaction.date).format("DD-MM-YYYY"),
 					feeTypes: item.transaction.fees.map((fee, index) => (
 						<span key={index}>

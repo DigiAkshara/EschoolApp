@@ -1,17 +1,13 @@
+import { PlusIcon } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
-import TableComponent from "../../commonComponent/TableComponent";
-import ClassModal from "./ClassModal";
-import SectionModal from "./SectionModal";
 import { getData } from "../../app/api";
-import { CLASSES, ROUTE, STOPS } from "../../app/url";
+import { STOPS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import TableComponent from "../../commonComponent/TableComponent";
 import RouteCreation from "./RouteCreation";
 import RouteMapCreation from "./RouteMapCreation";
-import { Route } from "react-router-dom";
 
-function RouteMap() {
-  const [classData, setClassData] = useState([]);
+function TransportView() {
   const [filteredData, setFilteredData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSectionModal, setIsSectionModal] = useState(false);
@@ -19,8 +15,7 @@ function RouteMap() {
   const rowsPerPage = 10;
 
   const columns = [
-    { title: "Si. No", key: "siNo" },
-    { title: "Route Name", key: "name" },
+    { title: "Route Name", key: "routeName" },
     { title: "Stops", key: "stop" },
     { title: "Amount", key: "amount" },
     { title: "Actions", key: "actions" },
@@ -32,23 +27,11 @@ function RouteMap() {
 
   const getRouteMap = async () => {
     try {
-      const [routeMapResponse, routeResponse] = await Promise.all([
-        getData(STOPS),
-        getData(ROUTE)
-      ]);
-      // Create a lookup map for class IDs to class names
-      const routeMap = {};
-      routeResponse.data.data.forEach(route => {
-        if (route._id && route.name) {
-          routeMap[route._id] = route.name;
-        }
-      });
-      const routeData = routeMapResponse.data.data.map((item, index) => {
-        const routeName = routeMap[item.route]?.toString() || "Unknown Route";
+      const res = await getData(STOPS)
+      const routeData = res.data.data.map((item, index) => {
         return {
           _id: item._id,
-          siNo: index + 1,
-          name: routeName,
+          routeName: item.route.name,
           stop: item.name,
           amount: item.amount,
           actions: [
@@ -57,7 +40,6 @@ function RouteMap() {
           ],
         };
       });
-      setClassData(routeData);
       setFilteredData(routeData);
     } catch (error) {
       handleApiResponse(error);
@@ -118,6 +100,7 @@ function RouteMap() {
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               <TableComponent
+                checkColumn={false}
                 columns={columns}
                 data={paginatedData}
                 pagination={{
@@ -138,4 +121,4 @@ function RouteMap() {
   );
 }
 
-export default RouteMap;
+export default TransportView;
