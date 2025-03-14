@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-function ManageClassSyllabus({ subjects, values, setFieldValue, touched, errors }) {
+function ManageClassSyllabus({values, setFieldValue, touched, errors }) {
   const { academicYear } = useSelector((state) => state.appConfig)
   const [academicYearOptions, setAcademicYearOptions] = useState([])
 
@@ -104,7 +104,7 @@ function ManageClassSyllabus({ subjects, values, setFieldValue, touched, errors 
                       isLabelRequired={false}
                       label="Subject"
                       name={`syllabus.${index}.syllabusSubject`}
-                      options={subjects}
+                      options={values.theorySubjects}
                     />
                   </td>
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 text-right">

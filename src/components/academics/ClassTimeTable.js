@@ -5,17 +5,17 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteData, getData } from '../../app/api'
 import { setSelectedClass } from '../../app/reducers/classSlice'
-import { NEW_CLASS, TENANT, TIMETABLE } from '../../app/url'
-import { boardOptions, capitalizeWords, handleApiResponse, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
+import { NEW_CLASS, TIMETABLE } from '../../app/url'
+import { capitalizeWords, handleApiResponse, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
 import ConfirmationModal from '../../commonComponent/ConfirmationModal'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
-import AddClass from './AddClass'
-import ManageViewClass from './ManageViewClass'
+import AddClassTimeTable from './AddClassTimeTable'
+import ViewClassTimetable from './ViewClassTimetable'
 
-export default function Class() {
+export default function ClassTimeTable() {
   const {
-    classCategories,
+    boards: boardOptions,
     classes: classOptions,
     sections: sectionOptions,
     teachers: teacherOptions,
@@ -30,7 +30,6 @@ export default function Class() {
   const dispatch = useDispatch() // Get the dispatch function
   const [currentPage, setCurrentPage] = useState(1)
   const rowsPerPage = 10
-  const tenant = useSelector((state) => state.tenantData);
   const { branchData } = useSelector((state) => state.appConfig)
 
 
@@ -46,13 +45,13 @@ export default function Class() {
     try {
       const response = await getData(NEW_CLASS)
       if (response && response.data) {
-        // Map through the fetched data to replace the category value with its label
+        // Map through the fetched data to replace the board value with its label
         const transformedData = response.data.data.map((item) => {
           return {
             ...item,
-            categoryObject: item.category,
-            category: item.category._id, // category Id, used for filters
-            categoryName: item.category.name, // Use label or fallback to original value
+            boardObject: item.board,
+            board: item.board._id, // board Id, used for filters
+            boardName: item.board.name, // Use label or fallback to original value
             time_table: 'View',
             classObject: item.class,
             class: item.class._id, //class Id
@@ -77,7 +76,6 @@ export default function Class() {
       }
     } catch (error) {
       handleApiResponse(error)
-      console.error('Error fetching class data:', error)
     }
   }
 
@@ -120,7 +118,7 @@ export default function Class() {
   }
 
   const columns = [
-    { key: 'board', title: 'Board' },
+    { key: 'boardName', title: 'Board' },
     { key: 'className', title: 'Class' },
     { key: 'sectionName', title: 'Section' },
     { key: 'totalStudents', title: 'Total Students' },
@@ -135,7 +133,6 @@ export default function Class() {
 
   const filterForm = {
     board: '',
-    category: '',
     class: '',
     section: '',
     classTeacher: '',
@@ -143,13 +140,7 @@ export default function Class() {
 
   const filters = {
     board: { options: boardOptions },
-    category: { options: classCategories },
-    class: {
-      options: classOptions,
-      dependency: true,
-      dependencyKey: 'category',
-      filterOptions: true,
-    },
+    class: {options: classOptions},
     section: {
       options: sectionOptions,
       dependency: true,
@@ -180,11 +171,10 @@ export default function Class() {
 
   const handleReset = (updatedValues) => {
     setFilteredData(classData)
-    updatedValues('category', '')
+    updatedValues('board', '')
     updatedValues('class', '')
     updatedValues('section', '')
     updatedValues('classTeacher', '')
-    updatedValues('board', '')
   }
 
   const paginatedData = filteredData.slice(
@@ -272,14 +262,14 @@ export default function Class() {
 
       <Dialog open={showAddClassModal} onClose={handleClose} className="relative z-50">
         <div className="fixed inset-0" />
-        <AddClass
+        <AddClassTimeTable
           onClose={handleClose}
           getClassData={getClassData}
         />
       </Dialog>
 
       <Dialog open={showViewClassModal} onClose={handleClose} className="relative z-50">
-        <ManageViewClass onClose={handleClose} />
+        <ViewClassTimetable onClose={handleClose} />
       </Dialog>
     </>
   )

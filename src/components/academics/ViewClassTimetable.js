@@ -10,7 +10,7 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { capitalizeWords } from '../../commonComponent/CommonFunctions'
 
-function ManageViewClass({ onClose }) {
+function ViewClassTimetable({ onClose }) {
   const selectedClass = useSelector((state) => state.class.selectedClass)
   const teachers = useSelector((state) => state.academics.teachers)
   const timetables = selectedClass?.timetables || []
@@ -93,15 +93,7 @@ function ManageViewClass({ onClose }) {
                                     Board
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    {selectedClass.board}
-                                  </dd>
-                                </div>
-                                <div className="content-item pb-2 border-b border-gray-300">
-                                  <dt className="text-sm/6 text-gray-500">
-                                    Class Category
-                                  </dt>
-                                  <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    {selectedClass.categoryName}
+                                    {selectedClass.boardName}
                                   </dd>
                                 </div>
                                 <div className="content-item pb-2 border-b border-gray-300">
@@ -201,7 +193,7 @@ function ManageViewClass({ onClose }) {
                                       {timetable.period}
                                     </td>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                      {timetable.time}
+                                      {timetable.startTime} - {timetable.endTime}
                                     </td>
                                     {[
                                       'Monday',
@@ -299,4 +291,4 @@ function ManageViewClass({ onClose }) {
   )
 }
 
-export default ManageViewClass
+export default ViewClassTimetable

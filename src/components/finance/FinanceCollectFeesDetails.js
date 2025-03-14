@@ -207,16 +207,14 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     });
     doc.setFontSize(10);
     doc.text(
-      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${
-        data.branch?.email || "N/A"
+      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${data.branch?.email || "N/A"
       }`,
       centerX,
       21,
       { align: "center" }
     );
     doc.text(
-      `Address: ${data.branch?.address?.area || "N/A"}, ${
-        data.branch?.address?.city || "N/A"
+      `Address: ${data.branch?.address?.area || "N/A"}, ${data.branch?.address?.city || "N/A"
       }, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"}`,
       centerX,
       27,
@@ -256,7 +254,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
       20,
       detailsStartY + 30
     );
-    doc.text(`Branch: ${data?.branch || "N/A"}`, 140, detailsStartY + 30);
+    doc.text(`Branch: ${data?.branch?.label || "N/A"}`, 140, detailsStartY + 30);
 
     doc.text(
       `Father's Name: ${data?.fatersName || "N/A"}`,
@@ -279,7 +277,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     const tableData = (data?.feesDatas || []).map((fee, index) => [
       index + 1,
       fee?.feeName || "N/A",
-      `${fee?.amount || "0"}`,
+      `${fee?.amount || 0}`,
     ]);
 
     autoTable(doc, {
@@ -293,16 +291,13 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
       styles: { fontSize: 10 },
     });
 
-    const totalPaidAmount = 5000; // Example static value
-    const pendingBalance = 2000; // Example static value
-
     // Function to convert amount to words (basic implementation)
     const numberToWords = (num) => {
       const words = require("number-to-words");
       return words.toWords(num).toUpperCase();
     };
 
-    const paidAmount = data?.amount || 0; // Ensure a default value of 0
+    const paidAmount = data?.paidAmount || 0; // Ensure a default value of 0
     const pending = data?.pendingAmount || 0; // Ensure a default value of 0
 
     // Convert amount to words safely
@@ -315,15 +310,15 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     const finalY = doc.lastAutoTable.finalY + 10; // Adding some spacing below table
 
     // Add Total Paid Amount, Amount in Words, and Pending Balance below the table
-
-    doc.text(`Total Paid Amount: ${paidAmount || "N/A"}`, 20, finalY);
-    doc.text(
-      `Total Paid Amount In Words: ${totalPaidAmountInWords || "N/A"}`,
-      20,
-      finalY + 10
-    );
-    doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
-
+    if (paidAmount > 0) {
+      doc.text(`Total Paid Amount: ${paidAmount || "N/A"}`, 20, finalY);
+      doc.text(
+        `Total Paid Amount In Words: ${totalPaidAmountInWords || "N/A"}`,
+        20,
+        finalY + 10
+      );
+      doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
+    }
     // **Footer Section**
     const footerY = doc.previousAutoTable.finalY + 40;
     doc.line(10, footerY, orientation === "landscape" ? 290 : 200, footerY);
@@ -362,15 +357,54 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   };
 
   const handleSubmit = async (values) => {
+    // const values = {"studentId":"67b75a64e3e32d96aa1aabc8","fees":[{"_id":"67af74d8435d678490f82c4c","feeName":"tution","duration":"onetime","totalAmount":15000,"discount":3000,"paybalAmount":12000,"paidAmount":12000,"pendingAmount":0,"dueDate":"2025-02-28","status":"Paid","paymentAmount":0},{"_id":"67d00944d770f9d034e3250f","feeName":"Bus Fee","duration":"installments","totalAmount":0,"discount":0,"paybalAmount":20000,"paidAmount":8998,"pendingAmount":11002,"dueDate":"2025-03-20","status":"Partially-paid","paymentAmount":1002},{"_id":"67d1b9df0f067f053dc9dc9c","feeName":"Activity Fee","duration":"onetime","totalAmount":500,"discount":0,"paybalAmount":500,"paidAmount":0,"pendingAmount":500,"dueDate":"2025-03-13","status":"Pending","paymentAmount":200}],"transactionDate":"2025-03-12","paymentMode":"cash","bank":"","transactionId":"","transactionProof":"","totalPaymentAmount":""}
     try {
       const res = await postData(STUDENT_FEE, values);
+      // const res = {
+      //   data: {
+      //     "message": "Fees collected successfully",
+      //     "data": {
+      //       "transactionNo": "txn-1741888105644",
+      //       "student": "67b75a64e3e32d96aa1aabc8",
+      //       "academicYear": "67765306650890710c6212b1",
+      //       "studentFee": "67b75a64e3e32d96aa1aabd1",
+      //       "fees": [
+      //         {
+      //           "amount": 1002,
+      //           "fee": "67d00944d770f9d034e3250f"
+      //         },
+      //         {
+      //           "amount": 200,
+      //           "fee": "67d1b9df0f067f053dc9dc9c"
+      //         }
+      //       ],
+      //       "transactionMode": "credit",
+      //       "transactionId": "",
+      //       "transactionType": "cash",
+      //       "transactionBank": "",
+      //       "date": "2025-03-12T00:00:00.000Z",
+      //       "amount": 1202,
+      //       "proof": "",
+      //       "transactionStatus": "success",
+      //       "status": "active",
+      //       "tenant": "668b7e7704a73f1c4cdf8fbf",
+      //       "_id": "67d31a6977b55618d6ac48ef",
+      //       "createdAt": "2025-03-13T17:48:25.647Z",
+      //       "updatedAt": "2025-03-13T17:48:25.647Z",
+      //       "__v": 0
+      //     }
+      //   }
+      // }
       handleApiResponse(res.data.message, "success");
       await fetchData();
+      let paidAmount = 0
       const formattedFees = res.data.data.fees.map((feeItem) => {
         const matchingFee = allFees.find((f) => f._id === feeItem.fee);
+        if (matchingFee?.feeGroup.name.toLowerCase() !== 'miscellaneous fees') paidAmount += feeItem.amount
         return {
           feeName: matchingFee ? matchingFee.name : "Unknown Fee",
-          amount: feeItem.amount,
+          amount: matchingFee?.feeGroup.name.toLowerCase() === 'miscellaneous fees' ? 'Paid' : feeItem.amount,
+          type: matchingFee?.feeGroup.name
         };
       });
 
@@ -386,7 +420,8 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         classSection: `${studentData.class.name} / ${studentData.section.section}`,
         fatersName: capitalizeWords(studentData.student.fatherDetails.name),
         mothersName: capitalizeWords(studentData.student.motherDetails.name),
-        pendingAmount: getTotalAmount(values, "pendingAmount"),
+        pendingAmount: getTotalAmount(values, "pendingAmount", true),
+        paidAmount: paidAmount
       };
       setReceiptData(receiptWithTenant);
       setIsReceiptOpen(true);
@@ -395,12 +430,14 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     }
   };
 
+
   useEffect(() => {
     if (selectedData) {
       const classId = selectedData?.academic.class._id;
       getFeesData(classId);
     }
   }, [selectedData]);
+
 
   const checkDisabled = (values) => {
     return (
@@ -410,8 +447,17 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     );
   };
 
-  const getTotalAmount = (values, key) => {
-    return values.fees.reduce((total, fee) => total + fee[key] * 1, 0);
+  const getTotalAmount = (values, key, miscellaneous = false) => {
+    let dummyList = [];
+    if (miscellaneous) {
+      values.fees.forEach((fee) => {
+        let feeObj = allFees.find((f) => f._id === fee._id);
+        if(feeObj?.feeGroup.name.toLowerCase() !== 'miscellaneous fees') dummyList.push(fee)
+      })
+    }else{
+      dummyList = [...values.fees];
+    }
+    return dummyList.reduce((total, fee) => total + fee[key] * 1, 0);
   };
 
   return (
@@ -558,9 +604,9 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                                 }}
                               />
                             ) : (<>
-                              {fee.feeName === 'Bus Fee' ? fee.paybalAmount*1+fee.discount*1 :
-                              fee.totalAmount}
-                              </>
+                              {fee.feeName === 'Bus Fee' ? fee.paybalAmount * 1 + fee.discount * 1 :
+                                fee.totalAmount}
+                            </>
                             )}
                           </td>
 

@@ -1,20 +1,20 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
-import {getData} from '../api'
-import {CLASS_CATEGORIES, CLASSES, SECTIONS, STAFF, SUBJECT} from '../url'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { getData } from '../api'
+import { BOARDS, CLASSES, SECTIONS, STAFF, SUBJECT } from '../url'
 
 export const fetchInitialAcademicData = createAsyncThunk(
   'data/fetchInitialAcademicData',
-  async (_, {rejectWithValue}) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const [classCategories, classes, sections, teachers, subjects] = await Promise.all([
-        getData(CLASS_CATEGORIES),
+      const [boards, classes, sections, teachers, subjects] = await Promise.all([
+        getData(BOARDS),
         getData(CLASSES),
         getData(SECTIONS),
         getData(STAFF),
         getData(SUBJECT)
       ]) // Replace with your API endpoint
       return {
-        classCategories: classCategories.data.data,
+        boards: boards.data.data,
         classes: classes.data.data,
         sections: sections.data.data,
         teachers: teachers.data.data,
@@ -29,7 +29,7 @@ export const fetchInitialAcademicData = createAsyncThunk(
 const academicSlice = createSlice({
   name: 'academics',
   initialState: {
-    classCategories: [],
+    boards: [],
     classes: [],
     sections: [],
     teachers: [],
@@ -43,8 +43,8 @@ const academicSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchInitialAcademicData.fulfilled, (state, action) => {
-      state.classCategories = action.payload.classCategories?.map(
-        (category) => ({label: category.name, value: category._id}),
+      state.boards = action.payload.boards?.map(
+        (item) => ({ label: item.name, value: item._id }),
       )
       state.classes = action.payload.classes?.map((item) => ({
         label: item.name,
@@ -68,5 +68,5 @@ const academicSlice = createSlice({
   },
 })
 
-export const {updateSelectedClass} = academicSlice.actions
+export const { updateSelectedClass } = academicSlice.actions
 export default academicSlice.reducer
