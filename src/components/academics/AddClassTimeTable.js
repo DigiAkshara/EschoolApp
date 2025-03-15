@@ -3,28 +3,29 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { Form, Formik } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 import { getData, postData, updateData } from '../../app/api'
 import { SUBJECT, TIMETABLE } from '../../app/url'
-import { boardOptions, capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
+import { capitalizeWords, handleApiResponse } from '../../commonComponent/CommonFunctions'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import ManageClassSyllabus from './ManageClassSyllabus'
 import ManageClassTimetable from './ManageClassTimetable'
 
-function AddClass({ onClose, getClassData }) {
+function AddClassTimeTable({ onClose, getClassData }) {
   const selectedClass = useSelector((state) => state.class.selectedClass)
   const {
-    classCategories,
+    boards: boardOptions,
     classes: classOptions,
     sections: sectionOptions,
     teachers: teacherOptions,
   } = useSelector((state) => state.academics)
   const [subjects, setSubjects] = useState([])
-  const [theorySubject, setTheorySubject] = useState([])
-  const [labSubject, setLabSubject] = useState([])
-  const [extraCurricular, setExtraCurricular] = useState([])
+  const [theorySubject, setTheorySubject] = useState('')
+  const [labSubject, setLabSubject] = useState('')
+  const [extraCurricular, setExtraCurricular] = useState('')
+
+
 
   useEffect(() => {
     getSubjects()
@@ -33,8 +34,7 @@ function AddClass({ onClose, getClassData }) {
   const getSubjects = async () => {
     try {
       const res = await getData(SUBJECT)
-      const fetchedSubjects = res.data.data
-      const subData = fetchedSubjects.map((item) => {
+      const subData = res.data.data.map((item) => {
         return {
           label: item.name,
           value: item._id,
@@ -43,41 +43,31 @@ function AddClass({ onClose, getClassData }) {
         }
       })
       setSubjects(subData)
-      const defaultSubjects = subData.filter((subject) => subject.isDefault)
-      const theorySubjects = defaultSubjects.filter(
-        (subject) => subject.category === 'theory',
-      )
-      const labSubjects = defaultSubjects.filter(
-        (subject) => subject.category === 'lab',
-      )
-      const extracurricularSubjects = defaultSubjects.filter(
-        (subject) => subject.category === 'extraCurricular',
-      )
-
-      // Set state for categorized subjects
-      setTheorySubject(theorySubjects)
-      setLabSubject(labSubjects)
-      setExtraCurricular(extracurricularSubjects)
     } catch (error) {
-      console.error('Error fetching subjects:', error)
+      handleApiResponse(error)
     }
   }
 
   const getInitialValues = () => {
     return {
       board: '',
-      category: '',
       class: '',
       section: '',
       classTeacher: '',
-      theorySubject: '',
-      labSubject: '',
-      extracurricular: '',
+      theorySubjects: subjects.filter(
+        (subject) => subject.isDefault && subject.category === 'theory',
+      ),
+      labSubjects: subjects.filter(
+        (subject) => subject.isDefault && subject.category === 'lab',
+      ),
+      extraCurricularSubjects: subjects.filter(
+        (subject) => subject.isDefault && subject.category === 'extraCurricular',
+      ),
       timetables: [],
       syllabus: [],
       ...(selectedClass && {
         ...selectedClass,
-        category: selectedClass.category._id,
+        board: selectedClass.board._id,
         class: selectedClass.class._id,
         section: selectedClass.section._id,
         classTeacher: selectedClass.classTeacher._id
@@ -88,17 +78,17 @@ function AddClass({ onClose, getClassData }) {
   const getValidationSchema = () => {
     return Yup.object({
       board: Yup.string().required('Board is required'),
-      category: Yup.string().required('Class category is required'),
       class: Yup.string().required('Class is required'),
       section: Yup.string().required('Section is required'),
       classTeacher: Yup.string(),
-      theorySubject: Yup.string(),
-      labSubject: Yup.string(),
-      extracurricular: Yup.string(),
+      theorySubjects: Yup.array(),
+      labSubjects: Yup.array(),
+      extraCurricularSubjects: Yup.array(),
       timetables: Yup.array().of(
         Yup.object({
           period: Yup.number(),
-          time: Yup.string(),
+          startTime: Yup.string().nullable(),
+          endTime: Yup.string().nullable(),
           days: Yup.object({
             monday: Yup.object({
               subject: Yup.string(),
@@ -138,14 +128,8 @@ function AddClass({ onClose, getClassData }) {
   }
 
   const handleSubmit = async (values) => {
-    const processedValues = {
-      ...values,
-      theorySubjects: theorySubject.length > 0 ? theorySubject : '',
-      extracurricular: extraCurricular.length > 0 ? extraCurricular : '',
-      labSubject: labSubject.length > 0 ? labSubject : '',
-    }
     try {
-      let response = values._id ? await updateData(TIMETABLE + '/' + values._id, processedValues) : await postData(TIMETABLE, processedValues)
+      let response = values._id ? await updateData(TIMETABLE + '/' + values._id, values) : await postData(TIMETABLE, values)
       handleApiResponse(response.data.message, 'success')
       getClassData()
       onClose()
@@ -154,32 +138,35 @@ function AddClass({ onClose, getClassData }) {
     }
   }
 
-  const handleRemoveTheorySubject = (subjectId) => {
-    setTheorySubject((prevSubjects) =>
-      prevSubjects.filter((subject) => subject.value !== subjectId),
-    )
+  const handleRemoveTheorySubject = (subjectId, values, setFieldValue) => {
+    let updateList = values.theorySubjects.filter((subject) => subject.value !== subjectId)
+    setFieldValue('theorySubjects', updateList)
   }
 
-  const handleRemoveLabSubject = (subjectId) => {
-    setLabSubject((prevSubjects) =>
-      prevSubjects.filter((subject) => subject.value !== subjectId),
-    )
+  const handleRemoveLabSubject = (subjectId, values, setFieldValue) => {
+    let updateList = values.labSubjects.filter((subject) => subject.value !== subjectId)
+    setFieldValue('labSubjects', updateList)
   }
 
-  const handleRemoveExtraSubject = (subjectId) => {
-    setExtraCurricular((prevSubjects) =>
-      prevSubjects.filter((subject) => subject.value !== subjectId),
-    )
+  const handleRemoveExtraSubject = (subjectId, values, setFieldValue) => {
+    let updateList = values.extraCurricularSubjects.filter((subject) => subject.value !== subjectId)
+    setFieldValue('extraCurricularSubjects', updateList)
   }
 
   const handleAddTheorySubject = async (e, values, setFieldValue) => {
     e.preventDefault()
-    const subjectName = values.theorySubject.trim()
-    const isSubjectPresent = subjects.some(
-      (subject) => subject.label === subjectName,
+    const subjectName = theorySubject.trim()
+    const isSubjectPresent = subjects.find(
+      (subject) => subject.label.toLowerCase() === subjectName.toLowerCase(),
     )
     if (isSubjectPresent) {
-      setTheorySubject((prev) => [...prev, { label: subjectName }])
+      const isAdded = values.theorySubjects.some((subject) => subject.value === isSubjectPresent.value)
+      if (isAdded) {
+        handleApiResponse({ message: 'Subject already added' })
+      } else {
+        setFieldValue('theorySubjects', [...values.theorySubjects, isSubjectPresent])
+      }
+      setTheorySubject('')
     } else {
       try {
         const response = await postData(SUBJECT, {
@@ -192,22 +179,29 @@ function AddClass({ onClose, getClassData }) {
           value: response.data.data._id,
           isDefault: response.data.data.isDefault,
         }
-        setTheorySubject((prev) => [...prev, newTheorySubject])
+        setFieldValue('theorySubjects', [...values.theorySubjects, newTheorySubject])
       } catch (error) {
         handleApiResponse(error)
+      } finally {
+        setTheorySubject('')
       }
     }
-    setFieldValue('theorySubject', '')
   }
 
   const handleAddLabSubject = async (e, values, setFieldValue) => {
     e.preventDefault()
-    const subjectName = values.labSubject.trim()
-    const isSubjectPresent = subjects.some(
-      (subject) => subject.label === subjectName,
+    const subjectName = labSubject.trim()
+    const isSubjectPresent = subjects.find(
+      (subject) => subject.label.toLowerCase() === subjectName.toLowerCase(),
     )
     if (isSubjectPresent) {
-      setLabSubject((prev) => [...prev, { label: subjectName }])
+      const isAdded = values.labSubjects.some((subject) => subject.value === isSubjectPresent.value)
+      if (isAdded) {
+        handleApiResponse({ message: 'Lab Subject already added' })
+      } else {
+        setFieldValue('labSubjects', [...values.labSubjects, isSubjectPresent])
+      }
+      setLabSubject('')
     } else {
       try {
         const response = await postData(SUBJECT, {
@@ -220,24 +214,27 @@ function AddClass({ onClose, getClassData }) {
           value: response.data.data._id,
           isDefault: response.data.data.isDefault,
         }
-        setLabSubject((prev) => [...prev, newLabSubject])
-
+        setFieldValue('labSubjects', [...values.labSubjects, newLabSubject])
       } catch (error) {
         handleApiResponse(error)
-        console.error('Error adding subject to backend:', error)
+      } finally {
+        setLabSubject('')
       }
     }
-    setFieldValue('labSubject', '')
   }
 
   const handleAddExtraSubject = async (e, values, setFieldValue) => {
     e.preventDefault()
-    const subjectName = values.extracurricular.trim()
-    const isSubjectPresent = subjects.some(
-      (subject) => subject.label === subjectName,
-    )
+    const subjectName = extraCurricular.trim()
+    const isSubjectPresent = subjects.find((subject) => subject.label === subjectName)
     if (isSubjectPresent) {
-      setExtraCurricular((prev) => [...prev, { label: subjectName }])
+      const isAdded = values.extraCurricularSubjects.some((subject) => subject.value === isSubjectPresent.value)
+      if (isAdded) {
+        handleApiResponse({ message: 'Subject already added' })
+      } else {
+        setFieldValue('extraCurricularSubjects', [...values.extraCurricularSubjects, isSubjectPresent])
+      }
+      setExtraCurricular('')
     } else {
       try {
         const response = await postData(SUBJECT, {
@@ -250,12 +247,13 @@ function AddClass({ onClose, getClassData }) {
           value: response.data.data._id,
           isDefault: response.data.data.isDefault,
         }
-        setExtraCurricular((prev) => [...prev, newLabSubject])
+        setFieldValue('extraCurricularSubjects', [...values.extraCurricularSubjects, newLabSubject])
       } catch (error) {
         handleApiResponse(error)
+      } finally {
+        setExtraCurricular('')
       }
     }
-    setFieldValue('extracurricular', '')
   }
 
   return (
@@ -294,6 +292,7 @@ function AddClass({ onClose, getClassData }) {
                       initialValues={getInitialValues()}
                       validationSchema={getValidationSchema()}
                       onSubmit={handleSubmit}
+                      enableReinitialize
                     >
                       {({ values, setFieldValue, errors, touched }) => (
                         <Form>
@@ -312,19 +311,10 @@ function AddClass({ onClose, getClassData }) {
                               </div>
                               <div className="sm:col-span-1">
                                 <CustomSelect
-                                  label="Class Category"
-                                  name="category"
-                                  options={classCategories}
-                                  required
-                                />
-                              </div>
-                              <div className="sm:col-span-1">
-                                <CustomSelect
                                   label="Class"
                                   name="class"
-                                  options={classOptions.filter((item) => item.category === values.category)}
+                                  options={classOptions}
                                   required
-                                  disabled={values.category ? false : true}
                                 />
                               </div>
 
@@ -359,8 +349,8 @@ function AddClass({ onClose, getClassData }) {
                             </p>
                             <div className="flex items-center mt-4 gap-4">
                               <div className="filter-badges-blk flex flex-wrap gap-4">
-                                {theorySubject.length > 0 ? (
-                                  theorySubject.map((subject) => (
+                                {values.theorySubjects.length > 0 ? (
+                                  values.theorySubjects.map((subject) => (
                                     <span
                                       key={subject.value}
                                       className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
@@ -371,6 +361,8 @@ function AddClass({ onClose, getClassData }) {
                                         onClick={() =>
                                           handleRemoveTheorySubject(
                                             subject.value,
+                                            values,
+                                            setFieldValue
                                           )
                                         }
                                         className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
@@ -395,8 +387,10 @@ function AddClass({ onClose, getClassData }) {
 
                               <div className="flex add-sub-input-blk">
                                 <CustomInput
+                                  value={theorySubject}
                                   name="theorySubject"
-                                  placeholder="Add New Subject" />
+                                  placeholder="Add New Subject"
+                                  onChange={(e)=>setTheorySubject(e.target.value)}/>
                                 <button
                                   className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                                   onClick={(e) =>
@@ -419,7 +413,7 @@ function AddClass({ onClose, getClassData }) {
                             </p>
                             <div className="flex items-center mt-4 gap-4">
                               <div className="filter-badges-blk flex flex-wrap gap-4">
-                                {labSubject.map((subject) => (
+                                {values.labSubjects.map((subject) => (
                                   <span
                                     key={subject.value}
                                     className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
@@ -428,7 +422,7 @@ function AddClass({ onClose, getClassData }) {
                                     <button
                                       type="button"
                                       onClick={() =>
-                                        handleRemoveLabSubject(subject.value)
+                                        handleRemoveLabSubject(subject.value, values, setFieldValue)
                                       }
                                       className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
                                     >
@@ -449,6 +443,8 @@ function AddClass({ onClose, getClassData }) {
                                 <CustomInput
                                   name="labSubject"
                                   placeholder="Add New Lab"
+                                  value={labSubject}
+                                  onChange={(e)=>setLabSubject(e.target.value)}
                                 />
 
                                 <button
@@ -474,7 +470,7 @@ function AddClass({ onClose, getClassData }) {
                             </p>
                             <div className="flex items-center mt-4 gap-4">
                               <div className="filter-badges-blk flex flex-wrap gap-4">
-                                {extraCurricular.map((subject) => (
+                                {values.extraCurricularSubjects.map((subject) => (
                                   <span
                                     key={subject.value}
                                     className="inline-flex items-center gap-x-0.5 rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
@@ -483,7 +479,7 @@ function AddClass({ onClose, getClassData }) {
                                     <button
                                       type="button"
                                       onClick={() =>
-                                        handleRemoveExtraSubject(subject.value)
+                                        handleRemoveExtraSubject(subject.value, values, setFieldValue)
                                       }
                                       className="group relative -mr-1 size-3.5 rounded-sm hover:bg-gray-500/20"
                                     >
@@ -504,6 +500,8 @@ function AddClass({ onClose, getClassData }) {
                                 <CustomInput
                                   name="extracurricular"
                                   placeholder="Add New "
+                                  value={extraCurricular}
+                                  onChange={(e)=>setExtraCurricular(e.target.value)}
                                 />
                                 <button
                                   type="submit"
@@ -520,7 +518,6 @@ function AddClass({ onClose, getClassData }) {
 
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
                             <ManageClassTimetable
-                              subjects={theorySubject}
                               teachers={teacherOptions}
                               values={values}
                               setFieldValue={setFieldValue}
@@ -528,7 +525,6 @@ function AddClass({ onClose, getClassData }) {
                           </div>
                           <div className="pb-4 mb-4">
                             <ManageClassSyllabus
-                              subjects={theorySubject}
                               values={values}
                               setFieldValue={setFieldValue}
                               errors={errors}
@@ -565,4 +561,4 @@ function AddClass({ onClose, getClassData }) {
   )
 }
 
-export default AddClass
+export default AddClassTimeTable

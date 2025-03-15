@@ -8,7 +8,7 @@ import * as Yup from 'yup'
 import { postData, updateData } from '../../../app/api'
 import { fetchExamData } from '../../../app/reducers/examSlice'
 import { EXAM } from '../../../app/url'
-import { boardOptions, handleApiResponse } from '../../../commonComponent/CommonFunctions'
+import { handleApiResponse } from '../../../commonComponent/CommonFunctions'
 import CustomDate from '../../../commonComponent/CustomDate'
 import CustomInput from '../../../commonComponent/CustomInput'
 import CustomSelect from '../../../commonComponent/CustomSelect'
@@ -16,7 +16,7 @@ import ExamTimeTable from './ExamTimeTable'
 
 function CreateExam({ onClose }) {
   const {
-    classCategories,
+    boards:boardOptions,
     classes: classOptions,
     sections: sectionOptions,
   } = useSelector((state) => state.academics)
@@ -26,7 +26,6 @@ function CreateExam({ onClose }) {
   const getInitialValues = () => {
     return {
       board: '',
-      classCategory: '',
       class: '',
       section: '',
       name: '',
@@ -35,8 +34,7 @@ function CreateExam({ onClose }) {
       timeTable: [],
       ...(selectedExam && {
         _id: selectedExam._id,
-        board: selectedExam.board,
-        classCategory: selectedExam.classCategory?._id,
+        board: selectedExam.board?._id,
         class: selectedExam.class?._id,
         section: selectedExam.section?._id,
         name: selectedExam.name,
@@ -50,7 +48,6 @@ function CreateExam({ onClose }) {
   const getValidationSchema = () => {
     return Yup.object({
       board: Yup.string().required('Board is required'),
-      classCategory: Yup.string().required('Class category is required'),
       class: Yup.string().required('Class is required'),
       section: Yup.string().required('Section is required'),
       name: Yup.string().required('Exam Name is required'),
@@ -151,26 +148,10 @@ function CreateExam({ onClose }) {
 
                                   <div className="sm:col-span-1">
                                     <CustomSelect
-                                      label="Class Category"
-                                      name="classCategory"
-                                      options={classCategories}
-                                      required
-                                    />
-                                  </div>
-
-                                  <div className="sm:col-span-1">
-                                    <CustomSelect
                                       label="Class"
                                       name="class"
-                                      options={classOptions.filter(
-                                        (item) =>
-                                          item.category ===
-                                          values.classCategory,
-                                      )}
+                                      options={classOptions}
                                       required
-                                      disabled={
-                                        values.classCategory ? false : true
-                                      }
                                     />
                                   </div>
 

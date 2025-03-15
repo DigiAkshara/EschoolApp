@@ -286,15 +286,7 @@ function ExamDetailsPage({ onClose }) {
                                   Board
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam?.board}
-                                </dd>
-                              </div>
-                              <div className="content-item pb-2 border-b border-gray-300">
-                                <dt className="text-sm/6 text-gray-500">
-                                  Class Category
-                                </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExam?.classCategory?.name}
+                                  {selectedExam?.boardName}
                                 </dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
@@ -559,42 +551,6 @@ function ExamDetailsPage({ onClose }) {
                         </li>
                       </ul>
                     </div>
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center justify-between px-4 py-4 bg-gray-100">
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      Showing <span className="font-medium">1</span> out of{" "}
-                      <span className="font-medium">122</span> results
-                    </p>
-                  </div>
-                  <div>
-                    <nav
-                      aria-label="Pagination"
-                      className="isolate inline-flex -space-x-px rounded-md shadow-sm"
-                    >
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                      >
-                        <span className="sr-only">Previous</span>
-                        <ChevronLeftIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </a>
-
-                      <a
-                        href="#"
-                        className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                      >
-                        <span className="sr-only">Next</span>
-                        <ChevronRightIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </a>
-                    </nav>
                   </div>
                 </div>
               </div>

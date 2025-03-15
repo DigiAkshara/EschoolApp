@@ -88,6 +88,9 @@ function ManageExamSchedules() {
         ...item,
         id: index + 1,
         examName: item.name,
+        board: item.board?._id,
+        boardName: item.board?.name,
+        boardObject: item.board,
         class: item.class?._id,
         className: item.class?.name,
         classObject: item.class,
@@ -97,8 +100,6 @@ function ManageExamSchedules() {
         examDates: `${formatter.format(
           new Date(item.startDate)
         )} - ${formatter.format(new Date(item.endDate))}`,
-        board: item.board,
-        classCategory: item.classCategory,
         timeTable: timeTableFormatted, // Add the formatted timeTable data
         totalSubjects: item.timeTable.length,
         timeTableSyllabus: "View",

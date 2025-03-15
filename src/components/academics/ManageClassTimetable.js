@@ -5,7 +5,7 @@ import React, { useEffect } from 'react'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
-function ManageClassTimetable({ values, setFieldValue, subjects, teachers }) {
+function ManageClassTimetable({ values, setFieldValue, teachers }) {
   const daysOfWeek = [
     'monday',
     'tuesday',
@@ -20,7 +20,8 @@ function ManageClassTimetable({ values, setFieldValue, subjects, teachers }) {
       setFieldValue('timetables', [
         {
           period: 1,
-          time: '',
+          startTime: null,
+          endTime: null,
           days: daysOfWeek.reduce(
             (acc, day) => ({ ...acc, [day]: { subject: '', teacher: '' } }),
             {},
@@ -37,7 +38,8 @@ function ManageClassTimetable({ values, setFieldValue, subjects, teachers }) {
       ...values.timetables,
       {
         period: values.timetables.length + 1,
-        time: '',
+        startTime: null,
+        endTime:null,
         days: daysOfWeek.reduce(
           (acc, day) => ({ ...acc, [day]: { subject: '', teacher: '' } }),
           {},
@@ -116,10 +118,20 @@ function ManageClassTimetable({ values, setFieldValue, subjects, teachers }) {
                   </td>
 
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    <CustomInput
+                    {/* <CustomInput
                       name={`timetables.${index}.time`}
                       placeholder="9:00-10:00 "
-                    />
+                    /> */}
+                     <CustomInput
+                        name={`timetables.${index}.startTime`}
+                        type="time"
+                        placeholder="9:00"
+                      /> To
+                      <CustomInput
+                        name={`timetables.${index}.endTime`}
+                        type="time"
+                        placeholder="10:00"
+                      />
                   </td>
                   {daysOfWeek.map((day) => (
                     <td
@@ -130,7 +142,7 @@ function ManageClassTimetable({ values, setFieldValue, subjects, teachers }) {
                         isLabelRequired={false}
                         label="Subject"
                         name={`timetables.${index}.days.${day}.subject`}
-                        options={subjects}
+                        options={values.theorySubjects}
                       />
 
                       <CustomSelect

@@ -64,10 +64,10 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
           dumpLIst[index].feeType = item.duration
           dumpLIst[index].dueDate = item.dueDate
           dumpLIst[index].discount = discount * 1
-          if(item.fee.name === 'Bus Fee'){
+          if (item.fee.name === 'Bus Fee') {
             dumpLIst[index].totalFee = item.paybalAmount * 1 + discount * 1 //installment fee
             dumpLIst[index].installmentAmount = item.paybalAmount * 1
-          }else{
+          } else {
             dumpLIst[index].totalFee = item.fee.amount * 1 //total fee
             dumpLIst[index].installmentAmount = item.fee.amount * 1 - discount * 1 //installment fee
           }
@@ -150,7 +150,14 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     return isBusFee
   }
 
-
+  const disableRouteField = () => {
+    let isDisabled = false
+    let index = selectedStudent?.fees?.feeList.findIndex((item) => item.fee.name === 'Bus Fee')
+    if (index !== -1 && isSelectedBusFee() && values._id) {
+      isDisabled = true
+    }
+    return isDisabled
+  }
 
   const handleRouteChange = (e) => {
     let dumpList = values.fees
@@ -159,7 +166,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     if (selectedRoute) {
       dumpList[index].discount = 0
       dumpList[index].totalFee = selectedRoute?.amount || 0
-      dumpList[index].installmentAmount = selectedRoute.amount*1||0 
+      dumpList[index].installmentAmount = selectedRoute.amount * 1 || 0
       setFieldValue('fees', dumpList)
     }
     setFieldValue('busRoute', e.target.value)
@@ -354,7 +361,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                     label="Bus Route"
                     required={true}
                     onChange={handleRouteChange}
-                    disabled={values._id?true:false}
+                    disabled={disableRouteField()}
                   />
                 </div>
               </div>
