@@ -1,32 +1,28 @@
-import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
+import React from "react";
 import * as Yup from "yup";
-import CustomInput from "../../commonComponent/CustomInput";
-import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import { postData } from "../../app/api";
-import { CLASS_CATEGORIES } from "../../app/url";
+import { BOARDS } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import CustomInput from "../../commonComponent/CustomInput";
 
-const ClassCategoryCreation = ({ onClose , getClasses }) => {
+const BoardCreation = ({ onClose, updateData }) => {
 
-  const [formData, setFormData] = useState({
-    name: "",
-  });
+  const formData = { name: "" }
 
   const getValidationSchema = () => {
     return Yup.object({
-      name: Yup.string().required(" Class Category is required"),
+      name: Yup.string().required("Board Name is required"),
     });
   };
 
   const handleSubmit = async (values) => {
     try {
-      const response = await postData(CLASS_CATEGORIES, values);
-      if (response.status === 200 || response.status === 201) {
-        onClose();
-        getClasses();
-        handleApiResponse(response.data.message, "success");
-      }
+      const response = await postData(BOARDS, values);
+      onClose();
+      updateData();
+      handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
     }
@@ -45,7 +41,7 @@ const ClassCategoryCreation = ({ onClose , getClasses }) => {
               <div className="bg-white w-96 rounded-lg shadow-lg">
                 {/* Modal Header */}
                 <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
-                  <h2 className="text-lg font-semibold">Add Class Category</h2>
+                  <h2 className="text-lg font-semibold">Add Board</h2>
                   <button
                     onClick={onClose}
                     className="text-white hover:text-gray-200"
@@ -58,8 +54,8 @@ const ClassCategoryCreation = ({ onClose , getClasses }) => {
                 <div className="p-6">
                   <CustomInput
                     name="name"
-                    label="Class Category Name"
-                    placeholder="Enter Categoty"
+                    label="Board Name"
+                    placeholder="Enter Board Name"
                     required={true}
                   />
                 </div>
@@ -85,4 +81,4 @@ const ClassCategoryCreation = ({ onClose , getClasses }) => {
   );
 };
 
-export default ClassCategoryCreation;
+export default BoardCreation;

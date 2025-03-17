@@ -1,20 +1,15 @@
-import { PlusIcon } from "@heroicons/react/20/solid";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { jsPDF } from "jspdf"; // For PDF generation
 import { Dialog, Transition } from "@headlessui/react"; // For modal transitions
-import { Fragment } from "react"; // Required for <Fragment>
-
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FieldArray, Form, Formik } from "formik";
+import { jsPDF } from "jspdf"; // For PDF generation
+import autoTable from "jspdf-autotable";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, postData } from "../../app/api";
 import { FEES, STUDENT_FEE } from "../../app/url";
-import autoTable from "jspdf-autotable";
-
 import {
-  banks,
   capitalizeWords,
   feeduration,
   handleApiResponse,
@@ -27,17 +22,17 @@ import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
 
 function FinancCollectFeesDetails({ onClose, fetchData }) {
+  const { branchData } = useSelector((state) => state.appConfig)
+  const { selectedFee: selectedData, bankAccounts, receiptNames } = useSelector((state) => state.fees);
   const [allFees, setAllFees] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
-  const selectedData = useSelector((state) => state.fees.selectedFee);
+  const [accountOptions, setAccountOptions] = useState([]);
+  const [receiptOptions, setReceiptOptions] = useState([]);
   const classId = selectedData?.academic.class._id;
   const selectedFee = selectedData?.fees;
   const studentData = selectedData?.academic;
-  const feesData = selectedFee?.feeList;
-  const { branchData } = useSelector((state) => state.appConfig)
-
 
   const getInitialValues = () => {
     return {
@@ -67,6 +62,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
       transactionId: "",
       transactionProof: "",
       totalPaymentAmount: "",
+      receiptLabel:"",
     };
   };
   const getValidationSchema = () => {
@@ -134,6 +130,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         }
       ),
       transactionProof: Yup.object().nullable(),
+      receiptLabel: Yup.string(),
     });
   };
   const getFeesData = async () => {
@@ -202,7 +199,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     // **Header Section**
     doc.addImage(logoUrl || defaultLogo, "PNG", 10, 5, 28, 28);
     doc.setFontSize(14);
-    doc.text((data.branch?.label || "School Name").toUpperCase(), centerX, 15, {
+    doc.text((data?.receiptLabel || "School Name").toUpperCase(), centerX, 15, {
       align: "center",
     });
     doc.setFontSize(10);
@@ -357,44 +354,8 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   };
 
   const handleSubmit = async (values) => {
-    // const values = {"studentId":"67b75a64e3e32d96aa1aabc8","fees":[{"_id":"67af74d8435d678490f82c4c","feeName":"tution","duration":"onetime","totalAmount":15000,"discount":3000,"paybalAmount":12000,"paidAmount":12000,"pendingAmount":0,"dueDate":"2025-02-28","status":"Paid","paymentAmount":0},{"_id":"67d00944d770f9d034e3250f","feeName":"Bus Fee","duration":"installments","totalAmount":0,"discount":0,"paybalAmount":20000,"paidAmount":8998,"pendingAmount":11002,"dueDate":"2025-03-20","status":"Partially-paid","paymentAmount":1002},{"_id":"67d1b9df0f067f053dc9dc9c","feeName":"Activity Fee","duration":"onetime","totalAmount":500,"discount":0,"paybalAmount":500,"paidAmount":0,"pendingAmount":500,"dueDate":"2025-03-13","status":"Pending","paymentAmount":200}],"transactionDate":"2025-03-12","paymentMode":"cash","bank":"","transactionId":"","transactionProof":"","totalPaymentAmount":""}
     try {
       const res = await postData(STUDENT_FEE, values);
-      // const res = {
-      //   data: {
-      //     "message": "Fees collected successfully",
-      //     "data": {
-      //       "transactionNo": "txn-1741888105644",
-      //       "student": "67b75a64e3e32d96aa1aabc8",
-      //       "academicYear": "67765306650890710c6212b1",
-      //       "studentFee": "67b75a64e3e32d96aa1aabd1",
-      //       "fees": [
-      //         {
-      //           "amount": 1002,
-      //           "fee": "67d00944d770f9d034e3250f"
-      //         },
-      //         {
-      //           "amount": 200,
-      //           "fee": "67d1b9df0f067f053dc9dc9c"
-      //         }
-      //       ],
-      //       "transactionMode": "credit",
-      //       "transactionId": "",
-      //       "transactionType": "cash",
-      //       "transactionBank": "",
-      //       "date": "2025-03-12T00:00:00.000Z",
-      //       "amount": 1202,
-      //       "proof": "",
-      //       "transactionStatus": "success",
-      //       "status": "active",
-      //       "tenant": "668b7e7704a73f1c4cdf8fbf",
-      //       "_id": "67d31a6977b55618d6ac48ef",
-      //       "createdAt": "2025-03-13T17:48:25.647Z",
-      //       "updatedAt": "2025-03-13T17:48:25.647Z",
-      //       "__v": 0
-      //     }
-      //   }
-      // }
       handleApiResponse(res.data.message, "success");
       await fetchData();
       let paidAmount = 0
@@ -407,7 +368,11 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
           type: matchingFee?.feeGroup.name
         };
       });
-
+      let receiptLabel = branchData.label
+      if(values.receiptLabel) {
+        const obj = receiptOptions.find((option) => option.value === res.data.data.receiptLabel);
+        if(obj) receiptLabel = obj.label
+      }
       const receiptWithTenant = {
         ...res.data.data,
         feesDatas: formattedFees,
@@ -421,7 +386,8 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         fatersName: capitalizeWords(studentData.student.fatherDetails.name),
         mothersName: capitalizeWords(studentData.student.motherDetails.name),
         pendingAmount: getTotalAmount(values, "pendingAmount", true),
-        paidAmount: paidAmount
+        paidAmount: paidAmount,
+        receiptLabel
       };
       setReceiptData(receiptWithTenant);
       setIsReceiptOpen(true);
@@ -438,6 +404,27 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     }
   }, [selectedData]);
 
+  useEffect(() => {
+    let accountOptions = bankAccounts.map((account) => {
+      return({
+        value: account._id,
+        label: `${account.name} - ${account.accountNumber}`
+      })
+    })
+    setAccountOptions(accountOptions)
+  },[bankAccounts])
+
+
+  useEffect(() => {
+    let receiptOptions = receiptNames.map((item) => {
+      return({
+        value: item._id,
+        label: item.name
+      })
+    })
+    setReceiptOptions(receiptOptions)
+  },[receiptNames])
+
 
   const checkDisabled = (values) => {
     return (
@@ -452,9 +439,9 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     if (miscellaneous) {
       values.fees.forEach((fee) => {
         let feeObj = allFees.find((f) => f._id === fee._id);
-        if(feeObj?.feeGroup.name.toLowerCase() !== 'miscellaneous fees') dummyList.push(fee)
+        if (feeObj?.feeGroup.name.toLowerCase() !== 'miscellaneous fees') dummyList.push(fee)
       })
-    }else{
+    } else {
       dummyList = [...values.fees];
     }
     return dummyList.reduce((total, fee) => total + fee[key] * 1, 0);
@@ -790,13 +777,22 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                     />
                   </div>
 
+                  <div className="sm:col-span-1">
+                    <CustomSelect
+                      label="Receipt Label"
+                      name="receiptLabel"
+                      options={receiptOptions}
+                    />
+                  </div>
+
+
                   {values.paymentMode !== "cash" && (
                     <>
                       <div className="sm:col-span-1">
                         <CustomSelect
                           label="School Credit Bank"
                           name="bank"
-                          options={banks}
+                          options={accountOptions}
                           required
                         />
                       </div>
@@ -808,8 +804,10 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                           required
                         />
                       </div>
+
                     </>
                   )}
+
                 </div>
               </div>
               <div className="grid grid-cols-4 gap-x-4 gap-y-4">

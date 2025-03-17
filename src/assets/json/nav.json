@@ -282,6 +282,11 @@
         "title": "Finance",
         "name": "finance",
         "path": "/finance"
+      },
+      {
+        "title": "Receipt Names",
+        "name": "receipt_names",
+        "path": "/receipt_names"
       }
     ]
   },

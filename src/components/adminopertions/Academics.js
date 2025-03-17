@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import ClassAndSection from './ClassAndSection'
 import Subjects from './Subjects'
 import BreakTime from './BreakTime'
+import BoardsView from './BoardsView'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -11,6 +12,11 @@ function Academics() {
     const [activeTab, setActiveTab] = useState(0)
     
     const tabs2 = [
+      {
+        name: 'Boards',
+        component: <BoardsView />,
+        current: true,
+      },
       {
         name: 'Class & Sections',
         component: <ClassAndSection />,

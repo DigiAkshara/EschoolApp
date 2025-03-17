@@ -1,64 +1,44 @@
+import { PlusIcon } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { deleteData, getData } from "../../app/api";
+import { SECTIONS } from "../../app/url";
+import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
+import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 import TableComponent from "../../commonComponent/TableComponent";
 import ClassModal from "./ClassModal";
 import SectionModal from "./SectionModal";
-import { deleteData, getData } from "../../app/api";
-import { CLASSES, SECTIONS } from "../../app/url";
-import { handleApiResponse } from "../../commonComponent/CommonFunctions";
-import ConfirmationModal from "../../commonComponent/ConfirmationModal";
-import ClassCategoryCreation from "./ClassCategoryCreation";
 
 function ClassAndSection() {
-  const [classData, setClassData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isClassOpen, setIsClassOpen] = useState(false);
   const [isSectionModal, setIsSectionModal] = useState(false);
-  const [isCategoryModal , setCategoryModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
   const columns = [
-    { title: "Si. No", key: "siNo" },
-    { title: "Class and Section", key: "classSection" },
+    { title: "Class", key: "class" },
+    { title: "Section", key: "section" },
     { title: "Actions", key: "actions" },
   ];
 
   useEffect(() => {
-    getClasses();
+    fecthInitialData();
   }, []);
 
-
-  const getClasses = async () => {
+  const fecthInitialData = async () => {
     try {
-      const [sectionsResponse, classesResponse] = await Promise.all([
-        getData(SECTIONS),
-        getData(CLASSES), // Fetch all class details
-      ]);
-      // Create a lookup map for class IDs to class names
-      const classesMap = {};
-      classesResponse.data.data.forEach((cls) => {
-        if (cls._id && cls.name) {
-          classesMap[cls._id] = cls.name;
-        }
-      });
-
-      const classData = sectionsResponse.data.data.map((item, index) => {
-        const className = classesMap[item.class]?.toString() || "Unknown Class";
-        const sectionName = item.section || "Unknown Section";
-        return {
-          _id: item._id,
-          siNo: index + 1,
-          classSection: `${className} - ${sectionName}`, // Combine class and section
-          actions: [
-            { label: "Delete", actionHandler: () => onDelete(item._id) },
-          ],
-        };
-      });
-      setClassData(classData);
-      setFilteredData(classData);
+      const res = await getData(SECTIONS)
+      const data = res.data.data.map((item) => ({
+        _id: item._id,
+        class: capitalizeWords(item.class.name),
+        section: capitalizeWords(item.section),
+        actions: [
+          { label: "Delete", actionHandler: onDelete },
+        ],
+      }))
+      setFilteredData(data);
     } catch (error) {
       handleApiResponse(error);
     }
@@ -73,7 +53,7 @@ function ClassAndSection() {
     try {
       let res = await deleteData(SECTIONS + "/" + deleteId);
       handleApiResponse(res.data.message, "success");
-      getClasses();
+      fecthInitialData();
       setDeleteConfirm(false);
       setDeleteId(null);
     } catch (error) {
@@ -81,13 +61,13 @@ function ClassAndSection() {
     }
   };
 
-  const handleOpen = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleOpen = () => setIsClassOpen(true);
+  const handleCloseModal = (openSection = false) => {
+    setIsClassOpen(false);
+    if (openSection) handleOpenSection();
+  };
   const handleOpenSection = () => setIsSectionModal(true);
   const handleCloseSectionModal = () => setIsSectionModal(false);
-  const handleOpenCategory = () => setCategoryModal(true)
-  const handleCloseCategory = () => setCategoryModal(false)
-
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -106,14 +86,7 @@ function ClassAndSection() {
         <div className="hidden sm:block"></div>
 
         <div className="right-btns-blk space-x-4">
-        <button
-            type="button"
-            onClick={handleOpenCategory}
-            className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-          >
-            <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Class Category
-          </button>
+
           <button
             type="button"
             onClick={handleOpen}
@@ -150,16 +123,14 @@ function ClassAndSection() {
           </div>
         </div>
       </div>
-      {isCategoryModal && (
-        <ClassCategoryCreation onClose={handleCloseCategory} getClasses={getClasses}  />
-      )}
-      {isModalOpen && (
-        <ClassModal onClose={handleCloseModal} getClasses={getClasses} />
+
+      {isClassOpen && (
+        <ClassModal onClose={handleCloseModal} updateData={fecthInitialData} />
       )}
       {isSectionModal && (
         <SectionModal
           onClose={handleCloseSectionModal}
-          getClasses={getClasses}
+          updateData={fecthInitialData}
         />
       )}
 
