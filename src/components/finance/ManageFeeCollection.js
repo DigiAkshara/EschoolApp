@@ -5,8 +5,8 @@ import {
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getData } from '../../app/api'
-import { setFee } from '../../app/reducers/feeSlice'
-import { STUDENT_FEE, TENANT } from '../../app/url'
+import { setBankAccounts, setFee, setReceiptNames } from '../../app/reducers/feeSlice'
+import { BANK_ACCOUNTS, RECEIPT_NAMES, STUDENT_FEE, TENANT } from '../../app/url'
 import { capitalizeWords, handleApiResponse, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
@@ -49,14 +49,31 @@ function ManageFeeCollection() {
   useEffect(() => {
     getStudentData()
     getTanent()
+    getBankAccounts()
+    getReceiptNames()
   }, [])
+
+  const getBankAccounts = async () => {
+    try {
+      const res = await getData(BANK_ACCOUNTS)
+      dispatch(setBankAccounts(res.data.data))
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+  const getReceiptNames = async () => {
+    try {
+      const res = await getData(RECEIPT_NAMES)
+      dispatch(setReceiptNames(res.data.data))
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
 
   const getTanent = async () => {
     try {
       const response = await getData(TENANT)
-      if (response.data.data) {
-        setTenant(response.data.data)
-      }
+      setTenant(response.data.data)
     } catch (error) {
       handleApiResponse(error)
 
@@ -71,14 +88,14 @@ function ManageFeeCollection() {
       feedata.forEach((fee) => {
         let paybalAmount = 0, paidAmount = 0
         fee.feeList.forEach((item) => {
-          paybalAmount = paybalAmount + (item.paybalAmount * 1||0)
-          paidAmount = paidAmount + (item.paidAmount * 1||0)
+          paybalAmount = paybalAmount + (item.paybalAmount * 1 || 0)
+          paidAmount = paidAmount + (item.paidAmount * 1 || 0)
         })
         stuFees.push({
           _id: fee.student._id,
           name: capitalizeWords(fee.student.firstName + ' ' + fee.student.lastName),
           admissionNo: fee.student.admissionNumber,
-          profilePic:fee.student.profilePic?.Location,
+          profilePic: fee.student.profilePic?.Location,
           phoneNo: fee.student.fatherDetails.mobileNumber,
           fatherName: fee.student.fatherDetails.name,
           gender: fee.student.gender,
@@ -92,7 +109,6 @@ function ManageFeeCollection() {
           reminder: "Reminder",
           collectfee: "Collect Fee"
         })
-
       })
       setStudentFee(stuFees)
       setFilteredData(stuFees)
@@ -108,12 +124,12 @@ function ManageFeeCollection() {
   const handlePageChange = (page) => {
     setCurrentPage(page)
   }
-  const showFeeCollectionModal = async(data) => {
-    try{
-      let res = await getData(STUDENT_FEE+'/'+data._id)
+  const showFeeCollectionModal = async (data) => {
+    try {
+      let res = await getData(STUDENT_FEE + '/' + data._id)
       dispatch(setFee(res.data.data))
       setShowFeeModal(true)
-    }catch(error){
+    } catch (error) {
       handleApiResponse(error)
     }
   }
@@ -151,14 +167,14 @@ function ManageFeeCollection() {
   )
 
   const downloadList = () => {
-       handleDownloadPDF (filteredData, "Fee_Collection_Details", [
+    handleDownloadPDF(filteredData, "Fee_Collection_Details", [
       { key: 'name', label: 'Student Name' },
       { key: 'class', label: 'Class' },
       { key: 'payableAmount', label: 'Total Amount' },
       { key: 'pendingAmount', label: 'Pending Amount' },
       { key: 'paymentStatus', label: 'Status' },
       { key: 'phoneNo', label: 'Parent Mobile' },
-          
+
     ], "Fee Collection Details Report", branchData, undefined, "landscape");
   };
 

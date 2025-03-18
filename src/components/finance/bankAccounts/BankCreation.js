@@ -7,39 +7,55 @@ import CustomInput from "../../../commonComponent/CustomInput";
 import CustomFileUploader from "../../../commonComponent/CustomFileUploader";
 import CustomDate from "../../../commonComponent/CustomDate";
 import CustomSelect from "../../../commonComponent/CustomSelect";
-import { staffType } from "../../../commonComponent/CommonFunctions";
+import { handleApiResponse, staffType } from "../../../commonComponent/CommonFunctions";
+import { BANK_ACCOUNTS } from "../../../app/url";
+import { postData } from "../../../app/api";
 
 function BankCreation({ onClose }) {
-  const [formData, setFormData] = useState({
+  const formData = {
     name: "",
-    accountNo: "",
-    confirmAccountNo: "",
+    accountNumber: "",
+    confirmAccountNumber: "",
     accountType: "",
     ifscCode: "",
     currentBalance: "",
-      });
+  };
 
   const getValidationSchema = () => {
     return Yup.object({
-        name: Yup.string().required(" Bank Name is required"),
-        accountNo: Yup.string().required(" Account No. is required"),
-        confirmAccountNo: Yup.string().required(" Confirm Account no. is required"),
-        accountType: Yup.string().required(" Account Type is required"),
-        ifscCode: Yup.string().required(" IFSC Code is required"),
-        currentBalance: Yup.date().required("Current Balance is required"),
-      
+      name: Yup.string().required("Bank Name is required"),
+      accountNumber: Yup.string()
+        .matches(/^\d{4}$/, "Account number must be 4 digits")
+        .required("Account Number Last 4 digits is Required"),
+      confirmAccountNumber: Yup.string()
+        .matches(/^\d{4}$/, "ConfirmAccount number must be digits")
+        .required("Confirm The Account Number Last 4 digits here")
+        .test(
+          "match-last-4",
+          "Account Number do not match",
+          function (value) {
+            const { accountNumber } = this.parent;
+            return (
+              value &&
+              accountNumber &&
+              value === accountNumber
+            );
+          }
+        ),
+      accountType: Yup.string(),
+      ifscCode: Yup.string(),
+      currentBalance: Yup.number()
     });
   };
 
   const handleSubmit = async (values) => {
-    // try {
-    //   const response = await postData(FEES, values)
-    //   getFees()
-    //   handleApiResponse(response.data.message, 'success')
-    //   onClose()
-    // } catch (error) {
-    //   handleApiResponse(error)
-    // }
+    try {
+      const response = await postData(BANK_ACCOUNTS, values)
+      handleApiResponse(response.data.message, 'success')
+      onClose()
+    } catch (error) {
+      handleApiResponse(error)
+    }
   };
 
   return (
@@ -87,7 +103,7 @@ function BankCreation({ onClose }) {
                               <div className="pb-4 mb-4">
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                                   <div className="sm:col-span-1">
-                                  <CustomInput
+                                    <CustomInput
                                       name="name"
                                       label="Bank Name "
                                       placeholder="Enter Bank Name"
@@ -95,12 +111,12 @@ function BankCreation({ onClose }) {
                                     />
                                   </div>
                                   <div className="sm:col-span-1">
-                                 
+
                                   </div>
 
                                   <div className="sm:col-span-1">
-                                  <CustomInput
-                                      name="accountNo"
+                                    <CustomInput
+                                      name="accountNumber"
                                       label="Account Number "
                                       placeholder="Enter Account Number "
                                       required={true}
@@ -108,19 +124,18 @@ function BankCreation({ onClose }) {
                                   </div>
 
                                   <div className="sm:col-span-1">
-                                  <CustomInput
-                                      name="confirmAccountNo"
+                                    <CustomInput
+                                      name="confirmAccountNumber"
                                       label="Confirm Account Number "
                                       placeholder="Confirm Account Number"
                                       required={true}
                                     />
                                   </div>
                                   <div className="sm:col-span-1">
-                                  <CustomInput
+                                    <CustomInput
                                       name="accountType"
                                       label="Account Type "
                                       placeholder="Enter Account Type"
-                                      required={true}
                                     />
                                   </div>
                                   <div className="sm:col-span-1">
@@ -128,20 +143,16 @@ function BankCreation({ onClose }) {
                                       name="ifscCode"
                                       label="IFSC Code "
                                       placeholder="Enter IFSC code"
-                                      required={true}
                                     />
                                   </div>
                                   <div className="sm:col-span-1">
-                                  <CustomInput
+                                    <CustomInput
                                       name="currentBalance"
                                       label="Current Balance "
                                       placeholder="Enter Current Balance"
-                                      required={true}
                                     />
                                   </div>
                                 </div>
-                                
-                                
                               </div>
                             </div>
                           </div>

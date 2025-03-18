@@ -8,20 +8,19 @@ import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
 
-const SectionModal = ({ onClose, getClasses }) => {
+const SectionModal = ({ onClose, updateData }) => {
   const [classDatas, setClassData] = useState([]);
 
-  const [formData, setFormData] = useState({
+  const formData ={
     section: "",
     class: "",
-  });
+  };
 
   const getValidationSchema = () => {
     return Yup.object({
       section: Yup.string()
         .matches(/^[A-Z]{1,2}$/, "Only 1 or 2 capital letters are allowed")
         .required("Section name is required"),
-
       class: Yup.string().required(" Class is required"),
     });
   };
@@ -49,11 +48,9 @@ const SectionModal = ({ onClose, getClasses }) => {
   const handleSubmit = async (values) => {
     try {
       const response = await postData(SECTIONS, values);
-      if (response.status === 200 || response.status === 201) {
-        onClose();
-        getClasses();
-        handleApiResponse(response.data.message, "success");
-      }
+      onClose();
+      updateData();
+      handleApiResponse(response.data.message, "success");
     } catch (error) {
       handleApiResponse(error);
     }

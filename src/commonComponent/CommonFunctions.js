@@ -460,7 +460,10 @@ export const handleApiResponse = (res, type = "error") => {
       message = res.message || 'An unexpected error occurred. Please try again.'
     }
     toast.error(message, options)
-  } else {
+  } if(type === 'info'){
+    message = res
+    toast.info(message, options)
+  }else {
     message = res
     toast.success(message, options)
   }

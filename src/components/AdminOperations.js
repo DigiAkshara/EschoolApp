@@ -6,6 +6,7 @@ import Designation from './adminopertions/Designation'
 import Finance from './adminopertions/Finance'
 import Permissions from './adminopertions/Permissions'
 import Profile from './adminopertions/Profile'
+import ReceiptNames from './adminopertions/ReceiptNames'
 
 const AdminOperations = () => {
   const [activeTab, setActiveTab] = useState(null)
@@ -14,6 +15,8 @@ const AdminOperations = () => {
     switch (activeTab) {
       case 'profile':
         return <Profile />
+      case 'receipt_names':
+          return <ReceiptNames />
       case 'permissions':
         return <Permissions />
       case 'designations':

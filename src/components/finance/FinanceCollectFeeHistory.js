@@ -36,7 +36,7 @@ function FinanceCollectFeeHistory() {
       dispatch(setIsLoader(true));
       let res = await getData(TRANSACTIONS + "/" + Id);
       let list = res.data.map((trans) => ({
-        transactionId: trans.transaction.transactionId || "N/A",
+        transactionId: trans.transaction.transactionNo || "N/A",
         paidDate: moment(trans.transaction.date).format("DD-MM-YYYY"),
         paidMode: trans.transaction.transactionType.toUpperCase(),
         feeAmounts: trans.transaction.fees.map((fee, index) => (
@@ -69,7 +69,10 @@ function FinanceCollectFeeHistory() {
         feeName: capitalizeWords(feeItem.fee.name),
         amount: feeItem.amount,
       })) || [];
-
+    let receiptLabel = branchData.label
+    if(feeData.transaction.receiptLabel) {
+      receiptLabel = feeData.transaction.receiptLabel.name
+    }
     const receiptData = {
       ...feeData.transaction,
       ...feeData.academic,
@@ -89,6 +92,7 @@ function FinanceCollectFeeHistory() {
       ),
       branch: branchData,
       fees: formattedFees, // Store fees separately
+      receiptLabel
     };
     setReceiptData(receiptData);
     setIsReceiptOpen(true);
@@ -122,7 +126,7 @@ function FinanceCollectFeeHistory() {
     // **Header Section**
     doc.addImage(logoUrl || defaultLogo, "PNG", 10, 5, 28, 28);
     doc.setFontSize(14);
-    doc.text((data.branch?.label || "School Name").toUpperCase(), centerX, 15, {
+    doc.text((data.receiptLabel || "School Name").toUpperCase(), centerX, 15, {
       align: "center",
     });
     doc.setFontSize(10);
