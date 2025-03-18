@@ -32,6 +32,8 @@ export const BRANCH = '/branch'
 export const FEE_CATEGORY = '/feeCategory'
 export const FEE_SUBCATEGORY = '/feeSubCategory'
 export const DASHBOARD = '/dashboard'
+export const CONTACTUS = '/contactus'
+export const HELP = '/help'
 export const BANK_ACCOUNTS = '/bankAccounts'
 export const RECEIPT_NAMES = '/templateNames'
 

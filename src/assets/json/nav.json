@@ -339,7 +339,7 @@
   {
     "name": "help_faq",
     "title": "Help & FAQ",
-    "path": "#",
+    "path": "/help",
     "icon": "quiz",
     "role": [
       "admin",
@@ -351,7 +351,7 @@
   {
     "name": "contact_us",
     "title": "Contact Us",
-    "path": "#",
+    "path": "/contactus",
     "icon": "contact_mail",
     "role": [
       "admin",

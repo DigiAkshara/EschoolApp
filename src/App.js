@@ -29,7 +29,8 @@ import Tenants from './components/Tenants'
 import Loader from './commonComponent/Loader'
 import ReportsAnalytics from './components/ReportsAnalytics'
 import Transport from './components/Transport'
-
+import Contactus from './components/ContactUs'
+import Help from './components/Help'
 function App() {
   const { user } = useSelector((state) => state.appConfig)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -188,6 +189,22 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Transport />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/help"
+                  element={
+                    <ProtectedRoute>
+                      <Help />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/contactus"
+                  element={
+                    <ProtectedRoute>
+                      <Contactus />
                     </ProtectedRoute>
                   }
                 />
