@@ -70,14 +70,10 @@ const FeeCollectionReports = () => {
 		const from = fromDate ? moment(fromDate, 'DD-MM-YYYY').startOf('day') : null;
 		const to = toDate ? moment(toDate, 'DD-MM-YYYY').endOf('day') : null;
 
-		const filtered = feesData.filter((item) => {
-			const paidDate = moment(item.paidDate, 'DD-MM-YYYY'); // Ensure consistent format
-			return (
-				(!from || paidDate.isSameOrAfter(from)) &&
-				(!to || paidDate.isSameOrBefore(to)) &&
-				(!classId || item.class === classId) &&
-				(!sectionId || item.section === sectionId))
-		});
+		const filtered = feesData.filter((txn) => {
+			const paidDate = moment(txn.paidDate, "YYYY-MM-DD");
+			return paidDate.isBetween(moment(fromDate, "YYYY-MM-DD"), moment(toDate, "YYYY-MM-DD"), null, "[]");
+		  });
 		setFilteredData(filtered);
 	}
 

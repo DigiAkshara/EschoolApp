@@ -29,7 +29,7 @@ import Tenants from './components/Tenants'
 import Loader from './commonComponent/Loader'
 import ReportsAnalytics from './components/ReportsAnalytics'
 import Transport from './components/Transport'
-import Contactus from './components/ContactUs'
+import Contactus from './components/ContactUs/Contactus'
 import Help from './components/Help'
 function App() {
   const { user } = useSelector((state) => state.appConfig)

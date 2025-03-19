@@ -68,21 +68,21 @@ function Contactus({ values, setFieldValue }) {
 
     <div className="p-6 max-w-5xl mx-auto">
       <div className="bg-purple-100 p-3 text-center rounded-md flex items-center gap-2">
-      <span class="material-symbols-outlined text-purple-600">
+      <span className="material-symbols-outlined text-purple-600">
         info
       </span> If you are facing any issues while using this support form, feel free to report them to us via email or phone And whatsapp.
       </div>
       <div className="flex justify-between my-4 grid grid-cols-3 gap-4">
         <div className="p-3 text-center border border-gray-300 rounded-md w-100">
           <a href="mailto:support@digiakshara.com" className="flex items-center text-purple-600 gap-2">
-          <span class="material-symbols-outlined">
+          <span className="material-symbols-outlined">
             mail
           </span> support@digiakshara.com
           </a>
         </div>
         <div className="p-3 text-center border border-gray-300 rounded-md">
           <a href="tel:+918861578747" className="flex items-center gap-2 text-purple-600">
-          <span class="material-symbols-outlined">
+          <span className="material-symbols-outlined">
             call
           </span> +91 8861578747
           </a>
@@ -108,7 +108,7 @@ function Contactus({ values, setFieldValue }) {
               <Form>
                 <div className="border-b border-gray-900/10 pb-4 mb-4 add-sub-input-blk">
                     <div className="flex items-center text-purple-600 gap-2 w-500 h-500">
-                    <span class="material-symbols-outlined text-[200px]">
+                    <span className="material-symbols-outlined text-[200px]">
                       contact_mail
                     </span>
                     </div>

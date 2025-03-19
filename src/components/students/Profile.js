@@ -4,15 +4,15 @@ import {
   ArrowLongUpIcon,
   ArrowUpRightIcon,
   ChatBubbleBottomCenterTextIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   ClipboardDocumentCheckIcon,
   PencilIcon,
   PhoneIcon,
   TrashIcon,
   UserCircleIcon,
-  XMarkIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import moment from "moment";
 import { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -30,13 +30,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
-import { use } from "react";
 import { getData } from "../../app/api";
-import { TRANSACTIONS } from "../../app/url";
+import { ACADEMIC_YEAR, TRANSACTIONS } from "../../app/url";
+import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import TableComponent from "../../commonComponent/TableComponent";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { setAcademicYear } from "../../app/reducers/appConfigSlice";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -896,6 +894,18 @@ const PersonalDetailsTab = ({ data }) => {
 };
 
 const AcademicDeatilsTab = ({ data }) => {
+  const [academicYearData, setAcademicYearData] = useState(null)
+  const getAcademicYearData = async () => {
+    try {
+      let res = await getData(ACADEMIC_YEAR + "?year=" + data?.previousSchool.yearOfStudy)
+      setAcademicYearData(res.data.data)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+  useEffect(() => {
+    if (data?.previousSchool.yearOfStudy) getAcademicYearData();
+  }, [data]);
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
       <li className="overflow-hidden rounded-xl border border-gray-300">
@@ -1077,7 +1087,7 @@ const AcademicDeatilsTab = ({ data }) => {
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Year of study</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {data?.previousSchool.yearOfStudy || "N/A"}
+                {academicYearData?.year || "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
@@ -1113,11 +1123,23 @@ const AcademicDeatilsTab = ({ data }) => {
 
 const FeeDeatailsTab = ({ data }) => {
   const [transactions, setTransactions] = useState([]);
+  const [feeList, setFeeList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [receiptData, setReceiptData] = useState(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const rowsPerPage = 10;
   const { branchData } = useSelector((state) => state.appConfig);
+
+  const feeColumns = [
+    { title: "Fee Name", key: "feeName" },
+    { title: "Duration", key: "duration" },
+    { title: "Total Amount", key: "totalAmount" },
+    { title: "Discount & Refund", key: "discount" },
+    { title: "Paid Amount", key: "paidAmount" },
+    { title: "Pending Balance", key: "pendingAmount" },
+    { title: "Due Date", key: "dueDate" },
+    { title: "status", key: "status" },
+  ];
 
   const columns = [
     { title: "Transaction Id", key: "transactionId" },
@@ -1134,7 +1156,10 @@ const FeeDeatailsTab = ({ data }) => {
         feeName: feeItem.fee.name,
         amount: feeItem.amount,
       })) || [];
-
+    let receiptLabel = branchData.label
+    if (feeData.transaction.receiptLabel) {
+      receiptLabel = feeData.transaction.receiptLabel.name
+    }
     const receiptData = {
       ...feeData,
       name: capitalizeWords(
@@ -1152,6 +1177,7 @@ const FeeDeatailsTab = ({ data }) => {
       ),
       branch: branchData,
       fees: formattedFees, // Store fees separately
+      receiptLabel
     };
     setReceiptData(receiptData);
     setIsReceiptOpen(true);
@@ -1185,7 +1211,7 @@ const FeeDeatailsTab = ({ data }) => {
     // **Header Section**
     doc.addImage(logoUrl || defaultLogo, "PNG", 10, 5, 28, 28);
     doc.setFontSize(14);
-    doc.text((data.branch?.label || "School Name").toUpperCase(), centerX, 15, {
+    doc.text((data?.receiptLabel || "School Name").toUpperCase(), centerX, 15, {
       align: "center",
     });
     doc.setFontSize(10);
@@ -1339,16 +1365,16 @@ const FeeDeatailsTab = ({ data }) => {
     try {
       let res = await getData(TRANSACTIONS + "/" + Id);
       let list = res.data.map((trans) => ({
-        transactionId: trans.transactionId || "N/A",
+        transactionId: trans.transaction.transactionNo || "N/A",
         paidDate: moment(trans.date).format("DD-MM-YYYY"),
-        paidMode: trans.transactionType.toUpperCase(),
-        feeAmounts: trans.fees.map((fee, index) => (
+        paidMode: trans.transaction.transactionType.toUpperCase(),
+        feeAmounts: trans.transaction.fees.map((fee, index) => (
           <span>
             {capitalizeWords(fee.fee.name)} : {fee.amount}
-            {index + 1 === trans.fees.length ? "." : ", "}
+            {index + 1 === trans.transaction.fees.length ? "." : ", "}
           </span>
         )),
-        totalPaid: trans.amount,
+        totalPaid: trans.transaction.amount,
         invoice: (
           <button
             onClick={() => showInvoice(trans)}
@@ -1364,8 +1390,36 @@ const FeeDeatailsTab = ({ data }) => {
     }
   };
 
+  const formatData = async (data) => {
+    try {
+      let dummyList = data?.fees?.feeList.map((item) => {
+        let cls =
+          item.paymentStatus.toLowerCase() === "paid"
+            ? "bg-green-100 text-green-700"
+            : "bg-yellow-100 text-yellow-800"
+        return ({
+          _id: item._id,
+          feeName: capitalizeWords(item.fee.name) || "N/A",
+          duration: capitalizeWords(item.duration) || "N/A",
+          totalAmount: item.fee.amount * 1 || item.paybalAmount * 1 || 0,
+          discount: item.discount * 1 || 0,
+          paidAmount: item.paidAmount,
+          pendingAmount: item.pendingAmount,
+          dueDate: moment(item.dueDate).format("DD-MM-YYYY") || "N/A",
+          status: (<span className={"inline-flex items-center rounded-full px-2 py-1 text-xs font-medium " + cls}>{capitalizeWords(item.paymentStatus)}</span>)
+        })
+      })
+      setFeeList(dummyList);
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
   useEffect(() => {
-    if (data) getHistoryData(data._id)
+    if (data) {
+      getHistoryData(data._id)
+      formatData(data)
+    }
   }, [data])
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
@@ -1382,121 +1436,15 @@ const FeeDeatailsTab = ({ data }) => {
         </div>
 
         <div className="px-4 py-4 text-sm/6">
-          <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
-            <thead className="bg-purple-100">
-              <tr>
-                <th
-                  scope="col"
-                  className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-                >
-                  <a href="#" className="group inline-flex">
-                    Fee Name
-                  </a>
-                </th>
-
-                <th
-                  scope="col"
-                  className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                >
-                  <a href="#" className="group inline-flex">
-                    Duration
-                  </a>
-                </th>
-                <th
-                  scope="col"
-                  className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900"
-                >
-                  <a href="#" className="group inline-flex">
-                    Total Amont
-                  </a>
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                >
-                  <a href="#" className="group inline-flex">
-                    Discount & Refund
-                  </a>
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                >
-                  <a href="#" className="group inline-flex">
-                    Paid Amount
-                  </a>
-                </th>
-
-                <th
-                  scope="col"
-                  className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                >
-                  <a href="#" className="group inline-flex">
-                    Pending Balance
-                  </a>
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                >
-                  <a href="#" className="group inline-flex">
-                    Due Date
-                  </a>
-                </th>
-                <th
-                  scope="col"
-                  className="px-2 py-2 text-left text-sm font-semibold text-gray-900"
-                >
-                  <a href="#" className="group inline-flex">
-                    Status
-                  </a>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {data?.fees?.feeList.map((item) => {
-                let cls =
-                  item.paymentStatus.toLowerCase() === "paid"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-800";
-                return (
-                  <tr key={item._id}>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {capitalizeWords(item.fee.name)}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {capitalizeWords(item.duration)}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {item.fee.amount}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {item.discount}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {item.paidAmount}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {item.pendingAmount}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      {moment(item.dueDate).format("DD-MM-YYYY")}
-                    </td>
-                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                      <span
-                        className={
-                          "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium " +
-                          cls
-                        }
-                      >
-                        {capitalizeWords(item.paymentStatus)}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <TableComponent
+            columns={feeColumns}
+            data={feeList}
+            pagination={{
+              currentPage,
+              totalCount: 0,
+            }}
+            checkColumn={false}
+          />
         </div>
       </li>
 
