@@ -18,8 +18,7 @@ function Subjects() {
   const rowsPerPage = 10;
 
   const columns = [
-    { title: "Si. No", key: "siNo" },
-    { title: "Subjects", key: "name" },
+    { title: "Subjects", key: "subjectName" },
     { title: "Actions", key: "actions" },
   ];
 
@@ -34,8 +33,7 @@ function Subjects() {
       const SubData = subResponse.map((item, index) => {
         return {
           _id: item._id,
-          siNo: index + 1,
-          name: capitalizeWords(item.name),
+          subjectName: capitalizeWords(item.name),
           actions: [
             // { label: "Edit", actionHandler: onHandleEdit },
             { label: "Delete", actionHandler: onDelete },
@@ -105,6 +103,7 @@ function Subjects() {
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               <TableComponent
+                checkColumn={false}
                 columns={columns}
                 data={paginatedData}
                 pagination={{

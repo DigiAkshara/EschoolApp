@@ -111,6 +111,7 @@ function ClassAndSection() {
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               <TableComponent
+                checkColumn={false}
                 columns={columns}
                 data={paginatedData}
                 pagination={{

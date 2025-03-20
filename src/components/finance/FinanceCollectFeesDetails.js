@@ -26,8 +26,6 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const { selectedFee: selectedData, bankAccounts, receiptNames } = useSelector((state) => state.fees);
   const [allFees, setAllFees] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [receiptData, setReceiptData] = useState(null);
-  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [accountOptions, setAccountOptions] = useState([]);
   const [receiptOptions, setReceiptOptions] = useState([]);
   const classId = selectedData?.academic.class._id;
@@ -314,7 +312,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         20,
         finalY + 10
       );
-      doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
+      // doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
     }
     // **Footer Section**
     const footerY = doc.previousAutoTable.finalY + 40;
@@ -344,13 +342,9 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     if (save) {
       doc.save(`Fee_Receipt_${data?.receiptNo || "N/A"}.pdf`);
     } else {
-      return URL.createObjectURL(doc.output("blob"));
+      window.open(URL.createObjectURL(doc.output("blob")), "_blank");
+      // return URL.createObjectURL(doc.output("blob"));
     }
-  };
-
-  const handleCloseReceipt = () => {
-    setIsReceiptOpen(false);
-    onClose(); // Now safely close the original form/modal
   };
 
   const handleSubmit = async (values) => {
@@ -389,8 +383,8 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         paidAmount: paidAmount,
         receiptLabel
       };
-      setReceiptData(receiptWithTenant);
-      setIsReceiptOpen(true);
+      generateReceiptPDF(receiptWithTenant, "./schoolLogo.jpg")
+      onClose();
     } catch (error) {
       handleApiResponse(error);
     }
@@ -839,63 +833,6 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         )}
       </Formik>
 
-      <Transition show={isReceiptOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={() => setIsReceiptOpen(false)}
-        >
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
-
-          <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
-            <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
-              {/* Header */}
-              <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
-                <h3 className="text-lg font-semibold">Fee Receipt Preview</h3>
-                <button
-                  onClick={handleCloseReceipt}
-                  className="text-white text-xl"
-                >
-                  ✖
-                </button>
-              </div>
-
-              {/* PDF Preview */}
-              <div className="flex-1 overflow-auto">
-                {receiptData && (
-                  <iframe
-                    src={generateReceiptPDF(receiptData, "./schoolLogo.jpg")}
-                    className="w-full h-full"
-                  ></iframe>
-                )}
-              </div>
-
-              {/* Footer Buttons */}
-              <div className="flex justify-between p-4 bg-gray-100">
-                <button
-                  onClick={() =>
-                    generateReceiptPDF(
-                      receiptData,
-                      "./schoolLogo.jpg",
-                      "portrait",
-                      true
-                    )
-                  }
-                  className="px-4 py-2 bg-purple-600 text-white rounded-md"
-                >
-                  Download PDF
-                </button>
-                <button
-                  onClick={handleCloseReceipt}
-                  className="px-4 py-2 bg-gray-400 text-white rounded-md"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
     </>
   );
 }

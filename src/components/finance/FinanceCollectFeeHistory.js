@@ -14,11 +14,9 @@ import TableComponent from "../../commonComponent/TableComponent";
 import { setIsLoader } from "../../app/reducers/appConfigSlice";
 
 function FinanceCollectFeeHistory() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [transactions, setTransactions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [receiptData, setReceiptData] = useState(null);
-  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const rowsPerPage = 10;
   const selectedData = useSelector((state) => state.fees.selectedFee);
   const { branchData } = useSelector((state) => state.appConfig);
@@ -64,20 +62,30 @@ function FinanceCollectFeeHistory() {
   };
 
   const showInvoice = (feeData) => {
+    let paidAmount = 0;
     const formattedFees =
-      feeData.transaction.fees?.map((feeItem) => ({
-        feeName: capitalizeWords(feeItem.fee.name),
-        amount: feeItem.amount,
-      })) || [];
-    let receiptLabel = branchData.label
-    if(feeData.transaction.receiptLabel) {
-      receiptLabel = feeData.transaction.receiptLabel.name
+      feeData.transaction.fees?.map((feeItem) => {
+        if (feeItem.fee.feeGroup.name.toLowerCase() !== "miscellaneous fees")
+          paidAmount += feeItem.amount;
+        return {
+          feeName: capitalizeWords(feeItem.fee.name),
+          amount:
+            feeItem.fee.feeGroup.name.toLowerCase() !== "miscellaneous fees"
+              ? feeItem.amount
+              : "Paid",
+        };
+      }) || [];
+    let receiptLabel = branchData.label;
+    if (feeData.transaction.receiptLabel) {
+      receiptLabel = feeData.transaction.receiptLabel.name;
     }
     const receiptData = {
       ...feeData.transaction,
       ...feeData.academic,
       name: capitalizeWords(
-        feeData.academic.student.firstName + " " + feeData.academic.student.lastName
+        feeData.academic.student.firstName +
+          " " +
+          feeData.academic.student.lastName
       ),
       academicYear: feeData.academic.academicYear.year,
       admissionNo: feeData.academic.student?.admissionNumber || "N/A",
@@ -92,14 +100,10 @@ function FinanceCollectFeeHistory() {
       ),
       branch: branchData,
       fees: formattedFees, // Store fees separately
-      receiptLabel
+      receiptLabel,
+      paidAmount,
     };
-    setReceiptData(receiptData);
-    setIsReceiptOpen(true);
-  };
-
-  const handleCloseReceipt = () => {
-    setIsReceiptOpen(false);
+    generateReceiptPDF(receiptData, "./schoolLogo.jpg")
   };
 
   const handlePageChange = (page) => {
@@ -225,7 +229,7 @@ function FinanceCollectFeeHistory() {
       return words.toWords(num).toUpperCase();
     };
 
-    const paidAmount = data?.amount || 0; // Ensure a default value of 0
+    const paidAmount = data?.paidAmount || 0; // Ensure a default value of 0
     const pending = data?.pendingAmount || 0; // Ensure a default value of 0
 
     // Convert amount to words safely
@@ -238,15 +242,15 @@ function FinanceCollectFeeHistory() {
     const finalY = doc.lastAutoTable.finalY + 10; // Adding some spacing below table
 
     // Add Total Paid Amount, Amount in Words, and Pending Balance below the table
-
-    doc.text(`Total Paid Amount: ${paidAmount || "N/A"}`, 20, finalY);
-    doc.text(
-      `Total Paid Amount In Words: ${totalPaidAmountInWords || "N/A"}`,
-      20,
-      finalY + 10
-    );
-    doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
-
+    if (paidAmount > 0) {
+      doc.text(`Total Paid Amount: ${paidAmount || "N/A"}`, 20, finalY);
+      doc.text(
+        `Total Paid Amount In Words: ${totalPaidAmountInWords || "N/A"}`,
+        20,
+        finalY + 10
+      );
+      // doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
+    }
     // **Footer Section**
     const footerY = doc.previousAutoTable.finalY + 40;
     doc.line(10, footerY, orientation === "landscape" ? 290 : 200, footerY);
@@ -275,7 +279,8 @@ function FinanceCollectFeeHistory() {
     if (save) {
       doc.save(`Fee_Receipt_${data?.receiptNo || "N/A"}.pdf`);
     } else {
-      return URL.createObjectURL(doc.output("blob"));
+      window.open(URL.createObjectURL(doc.output("blob")), "_blank");
+      // return URL.createObjectURL(doc.output("blob"));
     }
   };
 
@@ -299,63 +304,6 @@ function FinanceCollectFeeHistory() {
         />
       </div>
 
-      <Transition show={isReceiptOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-50"
-          onClose={() => setIsReceiptOpen(false)}
-        >
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
-
-          <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
-            <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
-              {/* Header */}
-              <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
-                <h3 className="text-lg font-semibold">Fee Receipt Preview</h3>
-                <button
-                  onClick={handleCloseReceipt}
-                  className="text-white text-xl"
-                >
-                  ✖
-                </button>
-              </div>
-
-              {/* PDF Preview */}
-              <div className="flex-1 overflow-auto">
-                {receiptData && (
-                  <iframe
-                    src={generateReceiptPDF(receiptData, "./schoolLogo.jpg")}
-                    className="w-full h-full"
-                  ></iframe>
-                )}
-              </div>
-
-              {/* Footer Buttons */}
-              <div className="flex justify-between p-4 bg-gray-100">
-                <button
-                  onClick={() =>
-                    generateReceiptPDF(
-                      receiptData,
-                      "./schoolLogo.jpg",
-                      "portrait",
-                      true
-                    )
-                  }
-                  className="px-4 py-2 bg-purple-600 text-white rounded-md"
-                >
-                  Download PDF
-                </button>
-                <button
-                  onClick={handleCloseReceipt}
-                  className="px-4 py-2 bg-gray-400 text-white rounded-md"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
     </>
   );
 }

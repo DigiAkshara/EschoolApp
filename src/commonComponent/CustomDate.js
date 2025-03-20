@@ -29,7 +29,7 @@ export default function CustomDate(props) {
                 {...props}
                 value={value || null}
                 onChange={(newValue) => {
-                  let value = moment(newValue.startDate).format('YYYY-MM-DD')
+                  let value = newValue.startDate?moment(newValue.startDate).format('YYYY-MM-DD'):null
                   if (props.onChange) {
                     props.onChange(value)
                   } else {
