@@ -109,7 +109,7 @@ function ManageStudentRegister() {
           "&year=" +
           year +
           "&userType=student" +
-          "&class=" +
+          "&className=" +
           cls +
           "&section=" +
           section

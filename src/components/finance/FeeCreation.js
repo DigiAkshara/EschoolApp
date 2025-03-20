@@ -1,16 +1,16 @@
-import {DialogPanel, DialogTitle} from '@headlessui/react'
-import {XMarkIcon} from '@heroicons/react/24/outline'
-import {FieldArray, Form, Formik} from 'formik'
-import React, {useEffect, useState} from 'react'
+import { DialogPanel, DialogTitle } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+import { FieldArray, Form, Formik } from 'formik'
+import React, { useEffect, useState } from 'react'
 import * as Yup from 'yup'
-import {getData, postData} from '../../app/api'
-import {ACADEMIC_YEAR, CLASSES, FEE_GROUP, FEES} from '../../app/url'
+import { getData, postData } from '../../app/api'
+import { ACADEMIC_YEAR, CLASSES, FEE_GROUP, FEES } from '../../app/url'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import { handleApiResponse } from '../../commonComponent/CommonFunctions'
 
-function FeeCreation({onClose, getFees}) {
+function FeeCreation({ onClose, getFees }) {
   const [feeDetails, setFeeDetails] = useState([])
   const [loading, setLoading] = useState(true)
   const [academicYears, setAcademicYears] = useState([])
@@ -42,7 +42,7 @@ function FeeCreation({onClose, getFees}) {
             'is-required-if-checked',
             'Amount is required',
             function (value) {
-              const {checked} = this.parent // Access sibling field 'checked'
+              const { checked } = this.parent // Access sibling field 'checked'
               if (checked && (!value || isNaN(value))) {
                 return false // Fail validation if checked but amount is invalid
               }
@@ -76,23 +76,23 @@ function FeeCreation({onClose, getFees}) {
         getData(FEE_GROUP),
         getData(ACADEMIC_YEAR),
       ])
-        setFeeDetails(classRes.data.data)
-        
-        let feeGroupData = feeGroupRes.data.data.map((item) => {
-          return {
-            label: item.name, // Displayed text in the dropdown
-            value: item._id,
-          }
-        })
-        setFeeGroups(feeGroupData)
-        let academicYearData = [
-          {
-            label: academicYearRes.data.data.year, // Displayed text in the dropdown
-            value: academicYearRes.data.data._id,
-          },
-        ]
-        setAcademicYears(academicYearData)
-        setLoading(false)
+      setFeeDetails(classRes.data.data)
+
+      let feeGroupData = feeGroupRes.data.data.map((item) => {
+        return {
+          label: item.name, // Displayed text in the dropdown
+          value: item._id,
+        }
+      })
+      setFeeGroups(feeGroupData)
+      let academicYearData = [
+        {
+          label: academicYearRes.data.data.year, // Displayed text in the dropdown
+          value: academicYearRes.data.data._id,
+        },
+      ]
+      setAcademicYears(academicYearData)
+      setLoading(false)
     } catch (error) {
       setLoading(false)
       handleApiResponse(error)
@@ -103,10 +103,10 @@ function FeeCreation({onClose, getFees}) {
     return <p>Loading classes...</p>
   }
 
-  const findTransportFee = (value)=>{
+  const findTransportFee = (value) => {
     let transportFee = false
-    feeGroups.forEach((item)=>{
-      if(item.value === value){
+    feeGroups.forEach((item) => {
+      if (item.value === value) {
         transportFee = item.label.toLowerCase() === "transport fee"
       }
     })
@@ -121,7 +121,7 @@ function FeeCreation({onClose, getFees}) {
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({values, setFieldValue, errors}) => {
+        {({ values, setFieldValue, errors }) => {
           return (
             <Form>
               <div className="fixed inset-0 overflow-hidden">
@@ -187,9 +187,9 @@ function FeeCreation({onClose, getFees}) {
                                           setFieldValue('fees', dumpList)
                                           setFieldValue('feeGroup', e.target.value)
                                           setFieldValue('allClasses', '')
-                                          if(findTransportFee(e.target.value)){
+                                          if (findTransportFee(e.target.value)) {
                                             setFieldValue('feeTitle', "Bus Fee")
-                                          }else{
+                                          } else {
                                             setFieldValue('feeTitle', '')
                                           }
                                         }}
@@ -204,6 +204,15 @@ function FeeCreation({onClose, getFees}) {
                                         required={true}
                                         disabled={findTransportFee(values.feeGroup)}
                                       />
+                                    </div>
+
+
+                                  </div>
+                                  <div className="grid">
+                                    <div className='mt-4 sm:col text-sm/6'>
+                                      <label htmlFor="sameAsPresent" className="font-regular text-yellow-500">
+                                        Note: To hide the fee amount on the receipt, add the fee type under 'Miscellaneous' in the fee group.
+                                      </label>
                                     </div>
                                   </div>
                                 </div>

@@ -3,6 +3,7 @@ import ClassAndSection from './ClassAndSection'
 import Subjects from './Subjects'
 import BreakTime from './BreakTime'
 import BoardsView from './BoardsView'
+import AcademicYearView from './AcademicYearView'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -30,6 +31,11 @@ function Academics() {
       {
         name: 'Break Time',
         component: <BreakTime />,
+        current: false,
+      },
+      {
+        name: 'Academic Year',
+        component: <AcademicYearView />,
         current: false,
       },
     ]
