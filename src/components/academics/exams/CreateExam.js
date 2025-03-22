@@ -160,7 +160,7 @@ function CreateExam({ onClose }) {
                                       label="Section"
                                       name="section"
                                       options={sectionOptions.filter(
-                                        (item) => item.class === values.class,
+                                        (item) => item.class._id === values.class,
                                       )}
                                       required
                                       disabled={values.class ? false : true}
