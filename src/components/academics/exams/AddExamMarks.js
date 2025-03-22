@@ -175,7 +175,7 @@ function AddExamMarks({ onClose }) {
                                     <CustomSelect
                                       label="Section"
                                       name="section"
-                                      options={sectionOptions}
+                                      options={sectionOptions.filter(section => section.class._id === values.class)}
                                       disabled
                                     />
                                   </div>

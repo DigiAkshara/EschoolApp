@@ -21,8 +21,8 @@ const AttendanceSidebar = ({
   handleRadioChange,
   handleClassChange,
   handleSectionChange,
-  classes,
-  sections,
+  classes=[],
+  sections=[],
   attendanceMarkedValue,
 }) => {
   const { staff,students, holidays } = useSelector((state) => state.attendance);
@@ -138,7 +138,6 @@ const AttendanceSidebar = ({
     },
     { present: 0, absent: 0, halfDay: 0, leave: 0 }
   );
-
   useEffect(() => {
     setAttendanceMarked(attendanceMarkedValue)
   }, [attendanceMarkedValue]);
@@ -192,7 +191,7 @@ const AttendanceSidebar = ({
                 placeholder="Section"
                 value={values.section}
                 options={sections.filter(
-                  (section) => section.class === values.class
+                  (section) => section.class._id === values.class
                 )}
                 onChange={(e) => {
                   handleSectionChange(e, values, setFieldValue);

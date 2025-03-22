@@ -322,7 +322,7 @@ function AddClassTimeTable({ onClose, getClassData }) {
                                 <CustomSelect
                                   name="section"
                                   label="Section"
-                                  options={sectionOptions.filter((item) => item.class === values.class)}
+                                  options={sectionOptions.filter((item) => item.class._id === values.class)}
                                   required
                                   disabled={values.class ? false : true}
                                 />

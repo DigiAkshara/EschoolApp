@@ -107,7 +107,7 @@ const DailyReports = () => {
                   <CustomSelect
                     label="Section"
                     name="section"
-                    options={sectionOptions.filter(sec => sec.class === values.class)}
+                    options={sectionOptions.filter(sec => sec.class._id === values.class)}
                     disabled={!values.class}
                   />
                 </div>
