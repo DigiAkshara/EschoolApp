@@ -1,4 +1,10 @@
-import { Dialog, DialogPanel, DialogTitle, Legend, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Legend,
+  Transition,
+} from "@headlessui/react";
 import {
   ArrowLeftStartOnRectangleIcon,
   ArrowLongUpIcon,
@@ -9,7 +15,7 @@ import {
   PhoneIcon,
   TrashIcon,
   UserCircleIcon,
-  XMarkIcon
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -32,7 +38,10 @@ import {
 } from "recharts";
 import { getData } from "../../app/api";
 import { ACADEMIC_YEAR, TRANSACTIONS } from "../../app/url";
-import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
+import {
+  capitalizeWords,
+  handleApiResponse,
+} from "../../commonComponent/CommonFunctions";
 import TableComponent from "../../commonComponent/TableComponent";
 import { setAcademicYear } from "../../app/reducers/appConfigSlice";
 
@@ -712,7 +721,13 @@ const PersonalDetailsTab = ({ data }) => {
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Aadhar Card</dt>
               <dd className="mt-1 text-base text-purple-500 sm:mt-2 font-medium">
-                {data?.aadharPic ? <a href={data?.aadharPic?.Location} target="_blank">View Aadhar</a> : "N/A"}
+                {data?.aadharPic ? (
+                  <a href={data?.aadharPic?.Location} target="_blank">
+                    View Aadhar
+                  </a>
+                ) : (
+                  "N/A"
+                )}
               </dd>
             </div>
           </dl>
@@ -842,7 +857,13 @@ const PersonalDetailsTab = ({ data }) => {
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">ID Proofs </dt>
               <dd className="mt-1 text-base text-purple-500 sm:mt-2 font-medium">
-                {data?.parentIdProof ? <a href={data?.parentIdProof.Location} target="_blank">View ID Proofs </a> : "N/A"}
+                {data?.parentIdProof ? (
+                  <a href={data?.parentIdProof.Location} target="_blank">
+                    View ID Proofs{" "}
+                  </a>
+                ) : (
+                  "N/A"
+                )}
               </dd>
             </div>
           </dl>
@@ -894,15 +915,17 @@ const PersonalDetailsTab = ({ data }) => {
 };
 
 const AcademicDeatilsTab = ({ data }) => {
-  const [academicYearData, setAcademicYearData] = useState(null)
+  const [academicYearData, setAcademicYearData] = useState(null);
   const getAcademicYearData = async () => {
     try {
-      let res = await getData(ACADEMIC_YEAR + "?year=" + data?.previousSchool.yearOfStudy)
-      setAcademicYearData(res.data.data)
+      let res = await getData(
+        ACADEMIC_YEAR + "?year=" + data?.previousSchool.yearOfStudy
+      );
+      setAcademicYearData(res.data.data);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
   useEffect(() => {
     if (data?.previousSchool.yearOfStudy) getAcademicYearData();
   }, [data]);
@@ -1111,7 +1134,16 @@ const AcademicDeatilsTab = ({ data }) => {
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">TC</dt>
               <dd className="mt-1 text-base text-purple-500 sm:mt-2 font-medium">
-                {data?.previousSchool.studyProof ? <a href={data?.previousSchool.studyProof.Location} target="_blank">View TC</a> : "N/A"}
+                {data?.previousSchool.studyProof ? (
+                  <a
+                    href={data?.previousSchool.studyProof.Location}
+                    target="_blank"
+                  >
+                    View TC
+                  </a>
+                ) : (
+                  "N/A"
+                )}
               </dd>
             </div>
           </dl>
@@ -1125,8 +1157,6 @@ const FeeDeatailsTab = ({ data }) => {
   const [transactions, setTransactions] = useState([]);
   const [feeList, setFeeList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [receiptData, setReceiptData] = useState(null);
-  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const rowsPerPage = 10;
   const { branchData } = useSelector((state) => state.appConfig);
 
@@ -1151,40 +1181,40 @@ const FeeDeatailsTab = ({ data }) => {
   ];
 
   const showInvoice = (feeData) => {
+    let paidAmount = 0;
     const formattedFees =
-      feeData.fees?.map((feeItem) => ({
-        feeName: feeItem.fee.name,
-        amount: feeItem.amount,
-      })) || [];
-    let receiptLabel = branchData.label
+      feeData.transaction.fees?.map((feeItem) => {
+        if (feeItem.fee.feeGroup.name.toLowerCase() !== "miscellaneous fees")
+          paidAmount += feeItem.amount;
+        return {
+          feeName: feeItem.fee.name,
+          amount:
+            feeItem.fee.feeGroup.name.toLowerCase() !== "miscellaneous fees"
+              ? feeItem.amount
+              : "Paid",
+        };
+      }) || [];
+    let receiptLabel = branchData.label;
     if (feeData.transaction.receiptLabel) {
-      receiptLabel = feeData.transaction.receiptLabel.name
+      receiptLabel = feeData.transaction.receiptLabel.name;
     }
     const receiptData = {
       ...feeData,
-      name: capitalizeWords(
-        data.firstName + " " + data.lastName
-      ),
+      ...feeData.transaction,
+      name: capitalizeWords(data.firstName + " " + data.lastName),
       academicYear: data.academics.academicYear.year,
       admissionNo: data.admissionNumber || "N/A",
-      classSection: `${data.academics.class?.name || "N/A"} / ${data.academics.section?.section || "N/A"
-        }`,
-      fatersName: capitalizeWords(
-        data.fatherDetails?.name || "N/A"
-      ),
-      mothersName: capitalizeWords(
-        data.motherDetails?.name || "N/A"
-      ),
+      classSection: `${data.academics.class?.name || "N/A"} / ${
+        data.academics.section?.section || "N/A"
+      }`,
+      fatersName: capitalizeWords(data.fatherDetails?.name || "N/A"),
+      mothersName: capitalizeWords(data.motherDetails?.name || "N/A"),
       branch: branchData,
       fees: formattedFees, // Store fees separately
-      receiptLabel
+      receiptLabel,
+      paidAmount,
     };
-    setReceiptData(receiptData);
-    setIsReceiptOpen(true);
-  };
-
-  const handleCloseReceipt = () => {
-    setIsReceiptOpen(false);
+    generateReceiptPDF(receiptData, "./schoolLogo.jpg")
   };
 
   const handlePageChange = (page) => {
@@ -1216,15 +1246,18 @@ const FeeDeatailsTab = ({ data }) => {
     });
     doc.setFontSize(10);
     doc.text(
-      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${data.branch?.email || "N/A"
+      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${
+        data.branch?.email || "N/A"
       }`,
       centerX,
       21,
       { align: "center" }
     );
     doc.text(
-      `Address: ${data.branch?.address?.area || "N/A"}, ${data.branch?.address?.city || "N/A"
-      }, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"
+      `Address: ${data.branch?.address?.area || "N/A"}, ${
+        data.branch?.address?.city || "N/A"
+      }, ${data.branch?.address?.state || "N/A"}, ${
+        data.branch?.address?.pincode || "N/A"
       }`,
       centerX,
       27,
@@ -1307,7 +1340,7 @@ const FeeDeatailsTab = ({ data }) => {
       return words.toWords(num).toUpperCase();
     };
 
-    const paidAmount = data?.amount || 0; // Ensure a default value of 0
+    const paidAmount = data?.paidAmount || 0; // Ensure a default value of 0
     const pending = data?.pendingAmount || 0; // Ensure a default value of 0
 
     // Convert amount to words safely
@@ -1320,15 +1353,15 @@ const FeeDeatailsTab = ({ data }) => {
     const finalY = doc.lastAutoTable.finalY + 10; // Adding some spacing below table
 
     // Add Total Paid Amount, Amount in Words, and Pending Balance below the table
-
-    doc.text(`Total Paid Amount: ${paidAmount || "N/A"}`, 20, finalY);
-    doc.text(
-      `Total Paid Amount In Words: ${totalPaidAmountInWords || "N/A"}`,
-      20,
-      finalY + 10
-    );
-    // doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
-
+    if (paidAmount > 0) {
+      doc.text(`Total Paid Amount: ${paidAmount || "N/A"}`, 20, finalY);
+      doc.text(
+        `Total Paid Amount In Words: ${totalPaidAmountInWords || "N/A"}`,
+        20,
+        finalY + 10
+      );
+      // doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
+    }
     // **Footer Section**
     const footerY = doc.previousAutoTable.finalY + 40;
     doc.line(10, footerY, orientation === "landscape" ? 290 : 200, footerY);
@@ -1357,7 +1390,8 @@ const FeeDeatailsTab = ({ data }) => {
     if (save) {
       doc.save(`Fee_Receipt_${data?.receiptNo || "N/A"}.pdf`);
     } else {
-      return URL.createObjectURL(doc.output("blob"));
+      window.open(URL.createObjectURL(doc.output("blob")), "_blank");
+      // return URL.createObjectURL(doc.output("blob"));
     }
   };
 
@@ -1396,8 +1430,8 @@ const FeeDeatailsTab = ({ data }) => {
         let cls =
           item.paymentStatus.toLowerCase() === "paid"
             ? "bg-green-100 text-green-700"
-            : "bg-yellow-100 text-yellow-800"
-        return ({
+            : "bg-yellow-100 text-yellow-800";
+        return {
           _id: item._id,
           feeName: capitalizeWords(item.fee.name) || "N/A",
           duration: capitalizeWords(item.duration) || "N/A",
@@ -1406,21 +1440,30 @@ const FeeDeatailsTab = ({ data }) => {
           paidAmount: item.paidAmount,
           pendingAmount: item.pendingAmount,
           dueDate: moment(item.dueDate).format("DD-MM-YYYY") || "N/A",
-          status: (<span className={"inline-flex items-center rounded-full px-2 py-1 text-xs font-medium " + cls}>{capitalizeWords(item.paymentStatus)}</span>)
-        })
-      })
+          status: (
+            <span
+              className={
+                "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium " +
+                cls
+              }
+            >
+              {capitalizeWords(item.paymentStatus)}
+            </span>
+          ),
+        };
+      });
       setFeeList(dummyList);
     } catch (error) {
-      handleApiResponse(error)
+      handleApiResponse(error);
     }
-  }
+  };
 
   useEffect(() => {
     if (data) {
-      getHistoryData(data._id)
-      formatData(data)
+      getHistoryData(data._id);
+      formatData(data);
     }
-  }, [data])
+  }, [data]);
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
       <li className="overflow-hidden rounded-xl border border-gray-300">
@@ -1473,63 +1516,6 @@ const FeeDeatailsTab = ({ data }) => {
           />
         </div>
 
-        <Transition show={isReceiptOpen} as={Fragment}>
-          <Dialog
-            as="div"
-            className="relative z-50"
-            onClose={() => setIsReceiptOpen(false)}
-          >
-            <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
-
-            <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
-              <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
-                {/* Header */}
-                <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
-                  <h3 className="text-lg font-semibold">Fee Receipt Preview</h3>
-                  <button
-                    onClick={handleCloseReceipt}
-                    className="text-white text-xl"
-                  >
-                    ✖
-                  </button>
-                </div>
-
-                {/* PDF Preview */}
-                <div className="flex-1 overflow-auto">
-                  {receiptData && (
-                    <iframe
-                      src={generateReceiptPDF(receiptData, "./schoolLogo.jpg")}
-                      className="w-full h-full"
-                    ></iframe>
-                  )}
-                </div>
-
-                {/* Footer Buttons */}
-                <div className="flex justify-between p-4 bg-gray-100">
-                  <button
-                    onClick={() =>
-                      generateReceiptPDF(
-                        receiptData,
-                        "./schoolLogo.jpg",
-                        "portrait",
-                        true
-                      )
-                    }
-                    className="px-4 py-2 bg-purple-600 text-white rounded-md"
-                  >
-                    Download PDF
-                  </button>
-                  <button
-                    onClick={handleCloseReceipt}
-                    className="px-4 py-2 bg-gray-400 text-white rounded-md"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Dialog>
-        </Transition>
       </li>
     </ul>
   );

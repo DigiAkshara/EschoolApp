@@ -17,7 +17,7 @@ function BoardsView() {
 
 	const columns = [
 		{ title: "Board Name", key: "board" },
-		{ title: "Actions", key: "actions" },
+		// { title: "Actions", key: "actions" },
 	];
 
 	useEffect(() => {
@@ -30,9 +30,9 @@ function BoardsView() {
 			const data = res.data.data.map((item) => ({
 				_id: item._id,
 				board: capitalizeWords(item.name),
-				actions: [
-					{ label: "Delete", actionHandler: onDelete },
-				],
+				// actions: [
+				// 	{ label: "Delete", actionHandler: onDelete },
+				// ],
 			}))
 			setFilteredData(data);
 		} catch (error) {
