@@ -19,8 +19,7 @@ function BreakTime() {
 
 
   const columns = [
-    { title: "Si. No", key: "siNo" },
-    { title: "Break Name", key: "name" },
+    { title: "Break Name", key: "breakName" },
     { title: "Break Time", key: "timeRange" },
     { title: 'Actions', key: 'actions' },
   ];
@@ -36,8 +35,7 @@ function BreakTime() {
         const BreakData = breakResponse.map((item, index) => {
           return {
             _id: item._id,
-            siNo: index + 1,
-            name: item.name,
+            breakName: item.name,
             timeRange: `${item.startTime} - ${item.endTime}`, 
             actions: [
               { label: "Edit", actionHandler: onHandleEdit },
@@ -112,6 +110,7 @@ function BreakTime() {
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
                           
               <TableComponent
+                checkColumn={false}
                 columns={columns}
                 data={paginatedData}
                 pagination={{

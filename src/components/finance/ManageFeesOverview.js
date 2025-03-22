@@ -112,10 +112,10 @@ const bargraphdata = [
 
 
 const stats = [
-  { id: 1, name: 'Fee Collection', stat: '71,897', icon: DocumentCurrencyRupeeIcon, change: '122', changeType: 'increase' },
-  { id: 2, name: 'Expenses', stat: '2400', icon: EnvelopeOpenIcon, change: '5.4%', changeType: 'increase' },
-  { id: 3, name: 'Staff Salaries', stat: '18000', icon: UsersIcon, change: '3.2%', changeType: 'decrease' },
-  { id: 3, name: 'Total Income', stat: '60000', icon: DocumentCurrencyRupeeIcon, change: '3.2%', changeType: 'decrease' },
+  { id: 1, name: 'Fee Collection', stat: '0', icon: DocumentCurrencyRupeeIcon, change: '0', changeType: 'increase' },
+  { id: 2, name: 'Expenses', stat: '0', icon: EnvelopeOpenIcon, change: '0%', changeType: 'increase' },
+  { id: 3, name: 'Staff Salaries', stat: '0', icon: UsersIcon, change: '0%', changeType: 'decrease' },
+  { id: 3, name: 'Total Income', stat: '0', icon: DocumentCurrencyRupeeIcon, change: '0%', changeType: 'decrease' },
 ]
 
 
