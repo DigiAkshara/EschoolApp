@@ -14,6 +14,8 @@ import {
   loadNavConfig,
   setAcademicYear,
   setActiveMenu,
+  setBranchData,
+  setBranchId,
   setBranchs,
   setIsLoader,
   setUser,
@@ -50,18 +52,30 @@ export default function Login() {
       dispatch(setIsLoader(true))
       let response = await postData(LOGIN, values)
       const user = jwtDecode(response.data.token)
-      if(user.permissions) {
+      if(response.data.branch) {
+        let branch = response.data.branch
+        localStorage.setItem('branchId', branch._id)
+        dispatch(setBranchId(branch._id))
+        dispatch(setBranchData({
+          value:branch._id,
+          label:branch.name,
+          address:branch.address,
+          logo:branch.logo,
+          email:branch.email,
+          mobileNumber:branch.mobileNumber,
+          isDefault:branch.isDefault
+        }))
+      }
+      if(user.permissions|| user.role.name === 'superadmin') {
         localStorage.setItem('studentManagement', response.data.token)
-        localStorage.setItem('academicYear', response.data.academicYear._id)
+        localStorage.setItem('academicYear', response.data.academicYear?._id)
         dispatch(setUser(user))
         dispatch(setAcademicYear(response.data.academicYear))
         dispatch(setActiveMenu("home"))
-        dispatch(loadNavConfig(user.permissions.permissions))
-        dispatch(fetchTenant(user.tenant))
+        dispatch(loadNavConfig({permissions:user.permissions?.permissions, role:user.role.name}))
         navigate('/')
         if(user.role.name !== 'superadmin') {
           const resp = await getData(BRANCH)
-         
           let branchs = resp.data.data.map(branch=>({
             value:branch._id,
             label:branch.name,
@@ -71,9 +85,9 @@ export default function Login() {
             mobileNumber:branch.mobileNumber,
             isDefault:branch.isDefault
           }))
+          dispatch(fetchTenant(user.tenant))
           dispatch(setBranchs(branchs))
         }
-
       } else {
         handleApiResponse({
           message: "You don't have permission to login"

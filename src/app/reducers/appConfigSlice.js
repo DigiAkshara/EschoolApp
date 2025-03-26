@@ -1,8 +1,20 @@
 import {createSlice} from '@reduxjs/toolkit'
 import navData from '../../assets/json/nav.json'
 
-const loadPermissions = (permissions) => {
+const loadPermissions = (data) => {
+    const permissions = data.permissions
+    const role = data.role
     let nav = []
+    if(role === 'superadmin') {
+      navData.forEach((menu) => {
+        if(menu.isSuperAdmin) {
+          nav.push({
+            ...menu,
+            submenu: menu.submenu?.filter((submenu) => submenu.isSuperAdmin)
+          })
+        }
+      })
+    }else {
     permissions.forEach((item) => {
       const menu = navData.find((menu) => menu.name === item.name)
       if (menu&&item.read) {
@@ -13,7 +25,7 @@ const loadPermissions = (permissions) => {
           submenu: item.submenu?.filter((submenu) => submenu.read),
         })
       }
-    })
+    })}
     return nav
   }
 

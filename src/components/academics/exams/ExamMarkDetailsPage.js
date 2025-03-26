@@ -156,7 +156,7 @@ function ExamMarkDetailsPage({ onClose }) {
 
           <!-- Right Section (5 details) -->
           <div style="flex: 1; padding-left: 10px;">
-            <p><strong>Roll No:</strong> ${student.rollNo || ""}</p>
+            <p><strong>Roll No:</strong> ${student.rollNumber || ""}</p>
             <p><strong>Admission Number:</strong> ${student.admissionNumber || ""}</p>
             <p><strong>Date of Birth:</strong> ${student.dob ? new Date(student.dob).toLocaleDateString() : ""}</p>
             <p><strong>Exam:</strong> ${selectedExamDetails.exam.name || ""}</p>

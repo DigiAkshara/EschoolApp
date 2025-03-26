@@ -179,7 +179,7 @@ function FinanceCollectFeeHistory() {
       20,
       detailsStartY + 20
     );
-    doc.text(`Roll No: ${data?.rollNo || "N/A"}`, 140, detailsStartY + 20);
+    doc.text(`Roll No: ${data?.rollNumber || "N/A"}`, 140, detailsStartY + 20);
 
     doc.text(
       `Academic Year: ${data?.academicYear || "N/A"}`,

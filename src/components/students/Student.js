@@ -338,12 +338,12 @@ function Student({ onClose, loadStudents }) {
           "At least one fee must be selected",
           (items) => items.some((item) => item.isChecked)
         ),
-        busRoute: Yup.string().test(
+        busRoute: Yup.string().nullable().test(
           "is-required-if-busfee-checked",
           "Bus route is required",
           function (value) {
             const { fees } = this.parent;
-            const index = fees.findIndex((item) => item.feeName === "Bus Fee");
+            const index = fees.findIndex((item) => item.feeName === "Bus Fee"&&item.isChecked);
             if (index !== -1 && !value) {
               return false;
             }

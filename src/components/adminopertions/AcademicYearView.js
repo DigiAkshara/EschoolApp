@@ -5,23 +5,21 @@ import { Form, Formik } from "formik";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { deleteData, getData, postData } from "../../app/api";
+import { getData, postData, updateData } from "../../app/api";
 import { ACADEMIC_YEAR } from "../../app/url";
 import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
-import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 import CustomDate from "../../commonComponent/CustomDate";
 import TableComponent from "../../commonComponent/TableComponent";
 function AcademicYearView() {
 	const [filteredData, setFilteredData] = useState([]);
 	const [openAcademicModal, setOpenAcademicModal] = useState(false);
-	const [deleteId, setDeleteId] = useState(null);
-	const [deleteConfirm, setDeleteConfirm] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const rowsPerPage = 10;
 
 	const columns = [
 		{ title: "Academic Year", key: "year" },
-		{title: "Status", key: "status"},
+		{ title: "Status", key: "status" },
+		{ title: "Action", key: "makeAction" },
 	];
 
 	useEffect(() => {
@@ -39,7 +37,10 @@ function AcademicYearView() {
 					data.push({
 						_id: item._id,
 						year: item.year,
-						status:capitalizeWords(item.status)
+						status: capitalizeWords(item.status),
+						makeAction: item.status === "active" ? "" : <div className="flex items-center space-x-2">
+							<button onClick={() => makeActive(item._id)} className="text-red-500 hover:text-red-600">Make Active</button>
+						</div>
 					})
 				}
 			})
@@ -49,18 +50,12 @@ function AcademicYearView() {
 		}
 	};
 
-	const onDelete = (Id) => {
-		setDeleteId(Id);
-		setDeleteConfirm(true);
-	};
 
-	const deleteRecord = async () => {
+	const makeActive = async (Id) => {
 		try {
-			let res = await deleteData(ACADEMIC_YEAR+"/"+deleteId);
+			let res = await updateData(ACADEMIC_YEAR + "/" + Id)
 			handleApiResponse(res.data.message, "success");
 			fecthInitialData();
-			setDeleteConfirm(false);
-			setDeleteId(null);
 		} catch (error) {
 			handleApiResponse(error);
 		}
@@ -113,13 +108,7 @@ function AcademicYearView() {
 				<div className="fixed inset-0" />
 				<AcademicYearModal onClose={() => setOpenAcademicModal(false)} updateData={fecthInitialData} />
 			</Dialog>
-			<ConfirmationModal
-				showModal={deleteConfirm}
-				onYes={deleteRecord}
-				onCancel={() => {
-					setDeleteConfirm(false);
-				}}
-			/>
+
 		</>
 	);
 }

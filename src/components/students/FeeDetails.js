@@ -1,7 +1,7 @@
 import { InformationCircleIcon } from '@heroicons/react/24/outline'
 import { FieldArray } from 'formik'
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   capitalizeWords,
   feeduration,
@@ -13,10 +13,11 @@ import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import moment from 'moment'
 import { getData } from '../../app/api'
-import { STOPS } from '../../app/url'
-import { use } from 'react'
+import { FEES, STOPS } from '../../app/url'
+import { updateFees } from '../../app/reducers/studentSlice'
 
 function StudentFeeDetails({ values, setFieldValue, errors }) {
+  const dispatch = useDispatch()
   const { selectedStudent, fees: allFees } = useSelector((state) => state.students);
   const { classes, sections } = useSelector((state) => state.students)
   const [checked, setChecked] = useState(false)
@@ -37,8 +38,21 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     }
   }
 
+  const getFees = async () => {
+    try {
+      let res = await getData(FEES)
+      dispatch(updateFees(res.data.data))
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
   useEffect(() => {
+    getFees(FEES)
     getBusRoutes()
+  }, [])
+
+  useEffect(() => {
     let dumpLIst = []
     allFees.forEach(item => {
       if (item.isGlobal || item.class?._id === values.academics.class) {
@@ -75,7 +89,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
       })
     }
     setFieldValue("fees", dumpLIst)
-  }, [])
+  }, [allFees])
 
   const handleFeeChange = (e, index) => {
     let dumpLIst = values.fees
