@@ -915,20 +915,7 @@ const PersonalDetailsTab = ({ data }) => {
 };
 
 const AcademicDeatilsTab = ({ data }) => {
-  const [academicYearData, setAcademicYearData] = useState(null);
-  const getAcademicYearData = async () => {
-    try {
-      let res = await getData(
-        ACADEMIC_YEAR + "?year=" + data?.previousSchool.yearOfStudy
-      );
-      setAcademicYearData(res.data.data);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
-  useEffect(() => {
-    if (data?.previousSchool.yearOfStudy) getAcademicYearData();
-  }, [data]);
+  
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
       <li className="overflow-hidden rounded-xl border border-gray-300">
@@ -1110,7 +1097,7 @@ const AcademicDeatilsTab = ({ data }) => {
             <div className="content-item pb-2 border-b border-gray-300">
               <dt className="text-sm/6 text-gray-500">Year of study</dt>
               <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                {academicYearData?.year || "N/A"}
+                {data?.previousSchool?.yearOfStudy || "N/A"}
               </dd>
             </div>
             <div className="content-item pb-2 border-b border-gray-300">
@@ -1290,7 +1277,7 @@ const FeeDeatailsTab = ({ data }) => {
       20,
       detailsStartY + 20
     );
-    doc.text(`Roll No: ${data?.rollNo || "N/A"}`, 140, detailsStartY + 20);
+    doc.text(`Roll No: ${data?.rollNumber || "N/A"}`, 140, detailsStartY + 20);
 
     doc.text(
       `Academic Year: ${data?.academicYear || "N/A"}`,

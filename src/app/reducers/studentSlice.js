@@ -38,6 +38,9 @@ const studentSlice = createSlice({
     setClasses: (state, action) => {
       state.classes = action.payload
     },
+    updateFees: (state, action) => {
+      state.fees = action.payload
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(fetchInitialStudentData.fulfilled, (state, action) => {
@@ -57,5 +60,5 @@ const studentSlice = createSlice({
   },
 })
 
-export const {setStudents, selectStudent, setClasses} = studentSlice.actions
+export const {setStudents, selectStudent, setClasses, updateFees} = studentSlice.actions
 export default studentSlice.reducer

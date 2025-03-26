@@ -44,7 +44,7 @@ function App() {
       if (token) {
         const user = jwtDecode(token)
         dispatch(setUser(user))
-        dispatch(loadNavConfig(user.permissions.permissions))
+        dispatch(loadNavConfig({permissions:user.permissions.permissions, role:user.role.name}))
         dispatch(setActiveMenu(window.location.pathname.split('/')[1]))
         getAcademicData()
         if (user.role.name !== 'superadmin') {
@@ -63,6 +63,7 @@ function App() {
         dispatch(setUser(null))
         localStorage.removeItem('studentManagement')
         localStorage.removeItem('academicYear')
+        localStorage.removeItem('branchId')
       } else {
         handleApiResponse(error)
       }

@@ -18,40 +18,33 @@ function Header({ updateSideBar }) {
   const { branchs, user } = useSelector((state) => state.appConfig);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [branch, setBranch] = useState(null);
+  let branchId = localStorage.getItem("branchId");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const logOut = () => {
     localStorage.removeItem("studentManagement");
+    localStorage.removeItem("branchId");
+    localStorage.removeItem("academicYear");
     dispatch(clearSession());
     navigate("/login");
   };
   useEffect(() => {
-    if (branchs.length > 0) {
-      branchs.forEach((branch) => {
-        if (user?.role.name == "admin") {
-          if (branch.isDefault) {
-            setSelectedBranch(branch.value);
-            setBranch(branch);
-            dispatch(setBranchId(branch.value));
-            handleBranch(branch.value);
-          }
-        } else {
-          if (user?.role.name !== "superadmin") {
-            setSelectedBranch(user.branch);
-            setBranch(branchs.find((branch) => branch.value === user.branch));
-            dispatch(setBranchId(user.branch));
-            handleBranch(user.branch);
-          }
-        }
-      });
+    if (branchs.length > 0&& branchId) {
+      let branch = branchs.find((branch) => branch.value === branchId);
+      setSelectedBranch(branchId);
+      setBranch(branch);
+      dispatch(setBranchId(branchId));
+      dispatch(setBranchData(branch));
     }
-  }, [branchs, user]);
+  }, [branchs,branchId]);
 
   const handleBranchChange = (e) => {
     const branchId = e.target.value;
     setSelectedBranch(branchId);
+    localStorage.setItem("branchId", branchId);
     dispatch(setBranchId(branchId));
     handleBranch(branchId);
+    window.location.reload();
   };
 
   const handleBranch = (branchId) => {

@@ -1,8 +1,8 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import {getData} from '../api'
 
-export const fetchTenant = createAsyncThunk('/api/tenant', async (tenantId) => {
-  const response = await getData(`/api/tenant/${tenantId}`)
+export const fetchTenant = createAsyncThunk('/tenant', async (tenantId) => {
+  const response = await getData(`/tenant/${tenantId}`)
   return response
 })
 const tenantSlice = createSlice({

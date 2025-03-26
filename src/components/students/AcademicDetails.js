@@ -7,7 +7,7 @@ import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 import moment from 'moment'
-import { handleApiResponse } from '../../commonComponent/CommonFunctions'
+import { generateYearRanges, handleApiResponse } from '../../commonComponent/CommonFunctions'
 
 function StudentAcademicDetails({ values, setFieldValue }) {
   const { classes, sections } = useSelector((state) => state.students)
@@ -23,7 +23,8 @@ function StudentAcademicDetails({ values, setFieldValue }) {
   }, [academicYear])
 
   useEffect(() => {
-    getPrevAcademicYears()
+    const years = generateYearRanges(3)
+    setPrevAcademicOpts(years)
   }, [])
 
   const handleFileChange = async (e) => {
@@ -45,24 +46,6 @@ function StudentAcademicDetails({ values, setFieldValue }) {
     }
   }
 
-  const getPrevAcademicYears = async () => {
-    try {
-      let res = await getData(ACADEMIC_YEAR + '/all')
-      const curYear = moment().year()
-      let list = []
-      res.data.data.forEach(year => {
-        let end = year.year.split("-")[1].trim()
-        if (end * 1 < curYear * 1) {
-          list.push({ label: year.year, value: year._id })
-        }
-      })
-      setPrevAcademicOpts(list)
-
-    } catch (error) {
-      handleApiResponse(error)
-    }
-
-  }
 
   return (
     <div className="">

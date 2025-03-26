@@ -241,12 +241,22 @@ export default function StudentsList() {
     handleDownload(
       filteredData,
       "StudentList",
-      ["_id", "pic", "class", "section", "actions"],
       schoolName,
       phoneNumber,
       email,
       schoolAddress,
-      ["Student List is below"]
+      [
+        { label: "Stu.Name", key: "name" },
+        { label: "Ad.No", key: "admissionNo" },
+        { label: "Class", key: "className" },
+        { label: "Section", key: "sectionName" },
+        { label: "Aadhar.No.", key: "aadharNumber" },
+        { label: "DOB", key: "dateOfBirth" },
+        { label: "Fathers Name", key: "fatherName" },
+        { label: "Phone No.", key: "fatherMobile" },
+        { label: "Mothers Name", key: "motherName" },
+        { label: "Present Address", key: "presentAddress" },
+      ]
     );
   };
 

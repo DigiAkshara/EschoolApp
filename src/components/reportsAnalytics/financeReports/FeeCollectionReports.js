@@ -9,7 +9,9 @@ import { TRANSACTIONS } from "../../../app/url";
 import {
   capitalizeWords,
   handleApiResponse,
+  handleDownload,
   handleDownloadPDF,
+  handleExecelDownload,
 } from "../../../commonComponent/CommonFunctions";
 import CustomDate from "../../../commonComponent/CustomDate";
 import CustomSelect from "../../../commonComponent/CustomSelect";
@@ -46,7 +48,6 @@ const FeeCollectionReports = () => {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-  console.log(paginatedData, "paginatedData");
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -119,7 +120,32 @@ const FeeCollectionReports = () => {
       undefined,
       "portrait"
     );
+    downloadListxlsx();
   };
+
+  const downloadListxlsx = () => {
+      const schoolName = branchData?.label || "Unknown School";
+      const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
+      const phoneNumber = branchData.mobileNumber || "N/A";
+      const email = branchData.email || "N/A";
+      
+      handleDownload(
+        filteredData,
+        "Fee Details Report",
+        schoolName,
+        phoneNumber,
+        email,
+        schoolAddress,
+        [
+          { key: "studentName", label: "Student Name" },
+          { key: "classSection", label: "Class &Section" },
+          { key: "transactionNo", label: "Transaction ID" },
+          { key: "paidDate", label: "Paid Date" },
+          { key: "feeNames", label: "Fee Types & Paid Amount" },
+          { key: "totalPaidAmount", label: "Total Paid" },
+        ],
+      );
+    };
 
   const getTransactionsData = async () => {
     try {

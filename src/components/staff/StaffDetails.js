@@ -233,7 +233,20 @@ export default function StaffDetails() {
     const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
     const phoneNumber = branchData?.mobileNumber || "N/A";
     const email = branchData?.email || "N/A";
-    handleDownload(filteredData, "StaffList", ["_id", "pic", "class", "section", "actions"], schoolName, phoneNumber, email, schoolAddress, ["Staff List is below"]);
+    handleDownload(filteredData, "StaffList", schoolName, phoneNumber, email, schoolAddress, [
+      { label: "Staff Name", key: "name" },
+      { label: "Phone Number", key: "phoneNumber" },
+      { label: "EmpId", key: "staffId" },
+      { label: "Designation", key: "designationName" },
+      { label: "Staff Type", key: "staffType" },
+      { label: "DOJ", key: "date" },
+      { label: "DOB", key: "dateOfBirth" },
+      { label: "Guardian Name", key: "guardian" },
+      { label: "Aadhar Number", key: "aadharNumber" },
+      { label: "Subjects", key: "subjectName" },
+      { label: "Present Address", key: "presentAddress" },
+      { label: "Gender", key: "gender" },
+    ]);
   };
 
   const downloadList = () => {

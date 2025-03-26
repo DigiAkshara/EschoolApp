@@ -3,24 +3,13 @@
     "name": "home",
     "title": "Dashboard",
     "path": "/",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
+    "isSuperAdmin": true,
     "icon": "dashboard"
   },
   {
     "name": "staff",
     "title": "Staff",
     "path": "/staff",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "group",
     "submenu": [
       {
@@ -49,12 +38,6 @@
     "name": "students",
     "title": "Students",
     "path": "/students",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "badge",
     "submenu": [
       {
@@ -73,12 +56,6 @@
     "name": "attendance",
     "title": "Attendance",
     "path": "/attendance",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "person_check",
     "submenu": [
       {
@@ -102,12 +79,6 @@
     "name": "academics",
     "title": "Academics",
     "path": "/academics",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "menu_book",
     "submenu": [
       {
@@ -136,12 +107,6 @@
     "name": "finance",
     "title": "Finance",
     "path": "/finance",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "money",
     "submenu": [
       {
@@ -188,26 +153,15 @@
   },
   {
     "name": "tenant",
+    "isSuperAdmin": true,
     "title": "Tenant",
     "path": "/tenant",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "group"
   },
   {
     "name": "reports_and_analytics",
     "title": "Reports and Analytics",
     "path": "/reports_and_analytics",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "lab_profile",
     "submenu": [
       {
@@ -221,37 +175,20 @@
     "name": "transportation",
     "title": "Transportation",
     "path": "/transportation",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "directions_bus"
   },
   {
     "name": "hostel_management",
     "title": "Hostel Management",
-    "path": "#",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
+    "path": "#",  
     "icon": "apartment"
   },
   {
     "name": "admin_operations",
     "title": "Admin Operations",
-    "path": "/admin_operations",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
+    "path": "/admin_operations", 
     "icon": "manage_accounts",
+    "isSuperAdmin": true,
     "submenu": [
       {
         "title": "Profile",
@@ -261,7 +198,8 @@
       {
         "title": "Permissions",
         "name": "permissions",
-        "path": "/permissions"
+        "path": "/permissions",
+        "isSuperAdmin": true
       },
       {
         "title": "Designations",
@@ -286,7 +224,8 @@
       {
         "title": "Receipt Names",
         "name": "receipt_names",
-        "path": "/receipt_names"
+        "path": "/receipt_names",
+        "isSuperAdmin": true
       }
     ]
   },
@@ -294,12 +233,6 @@
     "name": "eventsSms",
     "title": "Events And SMS",
     "path": "/eventsSms",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "sms",
     "submenu": [
       {
@@ -328,12 +261,6 @@
     "name": "notice_board",
     "title": "Notice Board",
     "path": "#",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ],
     "icon": "sms"
   },
   {
@@ -352,12 +279,6 @@
     "name": "contact_us",
     "title": "Contact Us",
     "path": "/contactus",
-    "icon": "contact_mail",
-    "role": [
-      "admin",
-      "super_admin",
-      "student",
-      "staff"
-    ]
+    "icon": "contact_mail"
   }
 ]

@@ -243,10 +243,12 @@ function Home() {
     if (!user) {
       navigate('/login')
     }
-    getDashboardData()
+    if (user && user.role.name !== 'superadmin') {
+      getDashboardData()
+    }
   }, [])
 
-  const getDashboardData= async()=>{
+  const getDashboardData = async () => {
     try {
       const response = await getData(DASHBOARD);
       if (response.data.data) {
@@ -283,13 +285,13 @@ function Home() {
                     'ml-2 flex items-baseline text-sm font-semibold',
                   )}
                 > */}
-                  {/* {item.changeType === 'increase' ? (
+                {/* {item.changeType === 'increase' ? (
                     <ArrowUpIcon aria-hidden="true" className="size-5 shrink-0 self-center text-green-500" />
                   ) : (
                     <ArrowDownIcon aria-hidden="true" className="size-5 shrink-0 self-center text-red-500" />
                   )} */}
 
-                  {/* <span className="sr-only"> {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by </span>
+                {/* <span className="sr-only"> {item.changeType === 'increase' ? 'Increased' : 'Decreased'} by </span>
                   {item.change}
                 </p> */}
 
@@ -591,11 +593,11 @@ function Home() {
           </div>
 
           <dl className="flex overflow-x-scroll gap-4">
-            {qucickactions.map((item) => (
+            {qucickactions.map((item, index) => (
               <div
-                key={item.id}
+                key={index}
                 className="relative cursor-pointer w-fit rounded-lg bg-white px-2 py-2 shadow ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                onClick={() => {dispatch(setActiveMenu(item.action));navigate(`/${item.action}`, {state: {openModel: true}})}}
+                onClick={() => { dispatch(setActiveMenu(item.action)); navigate(`/${item.action}`, { state: { openModel: true } }) }}
               >
                 <dt className='flex items-center'>
                   <div className="rounded-full bg-purple-100 p-2">
@@ -758,8 +760,8 @@ function Home() {
               </div>
               <div className="px-4 py-4 text-sm/6" style={{ width: "100%", height: 200 }}>
                 <ul role="list" className="divide-y divide-gray-200">
-                  {events.map((events) => (
-                    <li key={events.title} className="flex items-center justify-between gap-x-6 py-2">
+                  {events.map((events,index) => (
+                    <li key={index} className="flex items-center justify-between gap-x-6 py-2">
                       <div className="flex min-w-0 gap-x-4">
                         <img alt="" src={events.imageUrl} className="size-10 flex-none rounded-md bg-gray-50" />
                         <div className="min-w-0 flex-auto">

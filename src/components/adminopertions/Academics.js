@@ -33,11 +33,11 @@ function Academics() {
         component: <BreakTime />,
         current: false,
       },
-      // {
-      //   name: 'Academic Year',
-      //   component: <AcademicYearView />,
-      //   current: false,
-      // },
+      {
+        name: 'Academic Year',
+        component: <AcademicYearView />,
+        current: false,
+      },
     ]
     
     const handleTabChange = (index) => {

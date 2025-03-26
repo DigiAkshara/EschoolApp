@@ -9,24 +9,15 @@ import { CLASS_CATEGORIES, CLASSES, HOLIDAYS, SECTIONS, UPLOAD } from '../app/ur
 import { store } from '../app/store';
 import { clearSession } from "../app/reducers/appConfigSlice";
 
-export const getAcademicYears = () => {
-  const currentDate = new Date()
-  const currentYear = currentDate.getFullYear()
-  const currentMonth = currentDate.getMonth()
-
-  // Determine the current academic year
-  const startYear = currentMonth >= 6 ? currentYear : currentYear - 1
-  const academicYears = []
-
-  // Generate the academic years
-  for (let year = startYear; year <= startYear + 2; year++) {
-    academicYears.push({
-      value: `${year}-${year + 1}`,
-      label: `${year}-${year + 1}`,
-    })
-  }
-  return academicYears
-}
+export const generateYearRanges = (numYears) => {
+  const currentYear = moment().year();
+  return Array.from({ length: numYears }, (_, i) => {
+    const startYear = currentYear - i - 1;
+    const endYear = currentYear - i;
+    const label = `${startYear} - ${endYear}`;
+    return { label, value: `${startYear}-${endYear}` };
+  });
+};
 
 export const formatDate = (date) => {
   const formattedDate = moment(date).format('YYYY-MM-DD');
@@ -311,15 +302,17 @@ export const getSections = async () => {
   }
 }
 
-export const handleDownload = (filteredData, fileName, excludedFields = [], schoolName = "Your School Name",phoneNumber,email,schoolAddress) => {
+export const handleDownload = (filteredData, fileName, schoolName = "Your School Name",phoneNumber,email,schoolAddress, columns=[]) => {
   try {
-
-    // Filter data to exclude unnecessary fields
-    const exportData = filteredData.map((item) => {
-      const filteredItem = { ...item };
-      excludedFields.forEach((field) => delete filteredItem[field]);
-      return filteredItem;
-    });
+    const exportData = filteredData.map((row) =>
+      columns.map((col) => {
+        const value = row[col.key] || "-";
+        if (col.key === "date" || col.key === "dateOfBirth") {
+          return moment(value).format('DD-MM-YYYY'); // Format date
+        }
+        return value;
+      })
+    );
 
     // Create worksheet manually
     const worksheet = XLSX.utils.aoa_to_sheet([]);
@@ -330,11 +323,11 @@ export const handleDownload = (filteredData, fileName, excludedFields = [], scho
     XLSX.utils.sheet_add_aoa(worksheet, [[email]], { origin: "A3" });
     XLSX.utils.sheet_add_aoa(worksheet, [[schoolAddress]], { origin: "A4" });
     XLSX.utils.sheet_add_aoa(worksheet, [[""]], { origin: "A5" });        // Empty row in row 2
-    XLSX.utils.sheet_add_aoa(worksheet, [["Student list is below"]], { origin: "A6" }); // Message in row 3
+    XLSX.utils.sheet_add_aoa(worksheet, [[`${fileName} is below`]], { origin: "A6" }); // Message in row 3
 
     // Add headers (capitalized)
-    const headers = Object.keys(exportData[0] || {}).map(
-      (header) => header.charAt(0).toUpperCase() + header.slice(1)
+    const headers = columns.map(
+      (header) => header.label
     );
     XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: "A7" }); // Headers start from row 4
 
