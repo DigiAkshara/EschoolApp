@@ -1,5 +1,4 @@
 import Axios from 'axios'
-import { store } from './store';
 
 const API_URL = process.env.API_URL || 'https://api.digiakshara.com/api' //192.168.1.11 or localhost or https://eschoolapi.onrender.com
 

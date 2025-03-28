@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, updateData } from "../../app/api";
-import { ACADEMIC_YEAR, ATTENDANCE, HOLIDAYS } from "../../app/url";
+import { ATTENDANCE, HOLIDAYS } from "../../app/url";
 import {
   handleApiResponse,
   monthsName,
@@ -16,6 +16,7 @@ import CustomSelect from "../../commonComponent/CustomSelect";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
 
 function ManageStudentRegister() {
+  const { academicYear } = useSelector((state) => state.appConfig);
   const { classes, sections } = useSelector((state) => state.students);
   const [academicYears, setAcademicYears] = useState([]);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
@@ -23,7 +24,6 @@ function ManageStudentRegister() {
   const [studentList, setStudentList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [cls, setCls] = useState(classes[0]?.value);
   const [section, setSection] = useState(sections.filter(
     (section) => section.class._id === classes[0]?.value
@@ -33,7 +33,6 @@ function ManageStudentRegister() {
   const [days, setDays] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [noOfWorkingDays, setNoOfWorkingDays] = useState(0);
-
   const [currentPage, setCurrentPage] = useState(1);
 
   const getInitialValues = () => {
@@ -68,25 +67,18 @@ function ManageStudentRegister() {
     }
   };
 
-  const academicYear = async () => {
-    try {
-      const academicYearRes = await getData(ACADEMIC_YEAR);
-      let academicYearData = [
-        {
-          label: academicYearRes.data.data.year, // Displayed text in the dropdown
-          value: academicYearRes.data.data._id,
-        },
-      ];
-      setAcademicYears(academicYearData);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
-
   useEffect(() => {
-    academicYear();
     getHolidays();
   }, []);
+
+  useEffect(() => {
+    if (academicYear) {
+      setAcademicYears([{
+        label: academicYear.year,
+        value: academicYear._id
+      }])
+    }
+  }, [academicYear])
 
   const handleSearch = (event) => {
     const term = event.target.value;
@@ -105,14 +97,14 @@ function ManageStudentRegister() {
     try {
       const response = await getData(
         "/attendance?month=" +
-          month +
-          "&year=" +
-          year +
-          "&userType=student" +
-          "&className=" +
-          cls +
-          "&section=" +
-          section
+        month +
+        "&year=" +
+        year +
+        "&userType=student" +
+        "&className=" +
+        cls +
+        "&section=" +
+        section
       );
       let data = transformAttendanceData(response.data.data);
       setFilteredData(data)
@@ -135,14 +127,14 @@ function ManageStudentRegister() {
       record.attendance.forEach((att) => {
         if (!result[att.userId._id]) {
           result[att.userId._id] = {
-            _id:record._id,
+            _id: record._id,
             userId: att.userId._id,
             name: att.userId.firstName + " " + att.userId.lastName,
             profilePic: att.userId.profilePic,
             category: att.userId.staffType,
             rollNumber: att.userId.rollNumber, // You can replace this with actual user names if available
             attendance: {},
-            recordId:{},
+            recordId: {},
             noOfLeaves: 0,
           };
         }
@@ -156,8 +148,8 @@ function ManageStudentRegister() {
           (att.attendanceStatus === "absent"
             ? 1
             : att.attendanceStatus === "half-day"
-            ? 0.5
-            : 0);
+              ? 0.5
+              : 0);
       });
     });
 
@@ -255,7 +247,7 @@ function ManageStudentRegister() {
     }
   };
 
-  const handleSave = async (id,day, userId) => {
+  const handleSave = async (id, day, userId) => {
     const formattedDate = new Date(year, month - 1, day);
     const payload = {
       id,
@@ -439,9 +431,8 @@ function ManageStudentRegister() {
                           <th
                             key={dayObj.day}
                             scope="col"
-                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${
-                              isSunday ? "w-16 bg-red-100" : "w-40"
-                            }`}
+                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${isSunday ? "w-16 bg-red-100" : "w-40"
+                              }`}
                           >
                             <a href="#" className="flex flex-col items-center">
                               <div>{dayObj.dayName}</div>
@@ -514,14 +505,14 @@ function ManageStudentRegister() {
                             const attendanceClass = isSunday
                               ? "bg-red-100 text-gray-900" // Sundays
                               : attendanceValue === "P"
-                              ? "text-gray-500" // Present
-                              : attendanceValue === "A"
-                              ? "text-yellow-800 bg-yellow-100" // Absent
-                              : attendanceValue === "F"
-                              ? "text-gray-900 bg-blue-100" // Half Day
-                              : attendanceValue === "H"
-                              ? "text-red-500" // Sunday
-                              : "text-gray-500";
+                                ? "text-gray-500" // Present
+                                : attendanceValue === "A"
+                                  ? "text-yellow-800 bg-yellow-100" // Absent
+                                  : attendanceValue === "F"
+                                    ? "text-gray-900 bg-blue-100" // Half Day
+                                    : attendanceValue === "H"
+                                      ? "text-red-500" // Sunday
+                                      : "text-gray-500";
 
                             return (
                               <td

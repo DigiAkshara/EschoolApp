@@ -3,13 +3,13 @@ import {
   LockClosedIcon,
   UserIcon,
 } from '@heroicons/react/24/outline'
-import {Form, Formik} from 'formik'
-import {jwtDecode} from 'jwt-decode'
-import React, {useEffect} from 'react'
-import {useDispatch} from 'react-redux'
-import {useNavigate, useParams} from 'react-router-dom'
+import { Form, Formik } from 'formik'
+import { jwtDecode } from 'jwt-decode'
+import React, { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
-import {getData, postData} from '../app/api'
+import { getData, postData } from '../app/api'
 import {
   loadNavConfig,
   setAcademicYear,
@@ -20,16 +20,14 @@ import {
   setIsLoader,
   setUser,
 } from '../app/reducers/appConfigSlice'
-import {BRANCH, LOGIN, TENANT} from '../app/url'
-import {handleApiResponse, roles} from '../commonComponent/CommonFunctions'
+import { fetchTenant } from '../app/reducers/TenantConfigSlice'
+import { BRANCH, LOGIN } from '../app/url'
+import { handleApiResponse, roles } from '../commonComponent/CommonFunctions'
 import CustomButton from '../commonComponent/CustomButton'
 import CustomInput from '../commonComponent/CustomInput'
 import CustomSelect from '../commonComponent/CustomSelect'
-import { setTenant } from '../app/reducers/tenantSlice'
-import { fetchTenant } from '../app/reducers/TenantConfigSlice'
 
 export default function Login() {
-  const {id} = useParams()
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const initialValues = {
@@ -75,18 +73,7 @@ export default function Login() {
         dispatch(loadNavConfig({permissions:user.permissions?.permissions, role:user.role.name}))
         navigate('/')
         if(user.role.name !== 'superadmin') {
-          const resp = await getData(BRANCH)
-          let branchs = resp.data.data.map(branch=>({
-            value:branch._id,
-            label:branch.name,
-            address:branch.address,
-            logo:branch.logo,
-            email:branch.email,
-            mobileNumber:branch.mobileNumber,
-            isDefault:branch.isDefault
-          }))
           dispatch(fetchTenant(user.tenant))
-          dispatch(setBranchs(branchs))
         }
       } else {
         handleApiResponse({

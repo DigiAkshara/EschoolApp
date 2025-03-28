@@ -3,34 +3,30 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
-import { getData } from './app/api'
 import {
+  fetchInitialAppData,
   loadNavConfig,
-  setAcademicYear,
   setActiveMenu,
-  setBranchs,
-  setUser,
+  setUser
 } from './app/reducers/appConfigSlice'
-import { ACADEMIC_YEAR, BRANCH } from './app/url'
-import { handleApiResponse } from './commonComponent/CommonFunctions'
+import Loader from './commonComponent/Loader'
 import ProtectedRoute from './commonComponent/ProtectedRoutes'
 import Academics from './components/Academics'
 import AdminOperations from './components/AdminOperations'
 import Attendance from './components/Attendance'
+import Contactus from './components/ContactUs/Contactus'
+import EventsAndSms from './components/EventsAndSms'
 import Finance from './components/Finance'
 import Header from './components/Header'
+import Help from './components/Help'
 import Home from './components/Home'
 import Login from './components/Login'
+import ReportsAnalytics from './components/ReportsAnalytics'
 import Sidebar from './components/Sidebar'
 import Staff from './components/Staff'
 import Students from './components/Students'
-import EventsAndSms from './components/EventsAndSms'
 import Tenants from './components/Tenants'
-import Loader from './commonComponent/Loader'
-import ReportsAnalytics from './components/ReportsAnalytics'
 import Transport from './components/Transport'
-import Contactus from './components/ContactUs/Contactus'
-import Help from './components/Help'
 function App() {
   const { user } = useSelector((state) => state.appConfig)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -44,47 +40,13 @@ function App() {
       if (token) {
         const user = jwtDecode(token)
         dispatch(setUser(user))
-        dispatch(loadNavConfig({permissions:user.permissions.permissions, role:user.role.name}))
+        dispatch(loadNavConfig({ permissions: user.permissions.permissions, role: user.role.name }))
         dispatch(setActiveMenu(window.location.pathname.split('/')[1]))
-        getAcademicData()
-        if (user.role.name !== 'superadmin') {
-          getBranchs()
-        }
+        dispatch(fetchInitialAppData())
       }
     }
   }, [])
 
-  const getAcademicData = async () => {
-    try {
-      const academic = await getData(ACADEMIC_YEAR)
-      dispatch(setAcademicYear(academic.data.data))
-    } catch (error) {
-      if (error.status === 401 || error.status === 403) {
-        dispatch(setUser(null))
-        localStorage.removeItem('studentManagement')
-        localStorage.removeItem('academicYear')
-        localStorage.removeItem('branchId')
-      } else {
-        handleApiResponse(error)
-      }
-    }
-  }
-
-  const getBranchs = async () => {
-    try {
-      const resp = await getData(BRANCH)
-      let branchs = resp.data.data.map(branch => ({
-        value: branch._id,
-        label: branch.name,
-        address: branch.address,
-        logo: branch.logo,
-        isDefault: branch.isDefault
-      }))
-      dispatch(setBranchs(branchs))
-    } catch (error) {
-      handleApiResponse(error)
-    }
-  }
   return (
     <BrowserRouter>
       <div>

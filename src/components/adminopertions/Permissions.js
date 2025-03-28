@@ -28,13 +28,13 @@ const Permissions = () => {
         read: false,
         submenu: item.submenu
           ? item.submenu.map((menu) => ({
-              title: menu.title,
-              name: menu.name,
-              read: false,
-              write: false,
-              delete: false,
-              edit: false,
-            }))
+            title: menu.title,
+            name: menu.name,
+            read: false,
+            write: false,
+            delete: false,
+            edit: false,
+          }))
           : [],
       };
     }),
@@ -61,12 +61,12 @@ const Permissions = () => {
         })
       ),
       designation: Yup.string().test(
-          "designation validation",
-          "Designation is required",
-          function (value) {
-            return (isStaff(this.parent.role)&&user?.role.name !== "superadmin" ) ? !!value : true;
-          }
-        ),
+        "designation validation",
+        "Designation is required",
+        function (value) {
+          return (isStaff(this.parent.role) && user?.role.name !== "superadmin") ? !!value : true;
+        }
+      ),
     });
   };
   const handleSubmit = async (values) => {
@@ -146,7 +146,7 @@ const Permissions = () => {
     let { role, tenant, designation } = values;
     if (e.target.name === "role") {
       role = e.target.value;
-      setFieldValue("designation","");
+      setFieldValue("designation", "");
     } else if (e.target.name === "designation") {
       designation = e.target.value;
     } else {
@@ -162,10 +162,10 @@ const Permissions = () => {
       dispatch(setIsLoader(true));
       let res = { data: { data: null } };
       if (role) {
-        if (isStaff(role)&&user?.role.name !== "superadmin") {
+        if (isStaff(role) && user?.role.name !== "superadmin") {
           if (designation) {
             res = await getData(
-              PERMISSIONS + "?role=" + role + "&tenant=" + tenant + "&designation=" + designation 
+              PERMISSIONS + "?role=" + role + "&tenant=" + tenant + "&designation=" + designation
             );
           }
         } else {
@@ -180,13 +180,13 @@ const Permissions = () => {
           read: false,
           submenu: item.submenu
             ? item.submenu.map((menu) => ({
-                title: menu.title,
-                name: menu.name,
-                read: false,
-                write: false,
-                delete: false,
-                edit: false,
-              }))
+              title: menu.title,
+              name: menu.name,
+              read: false,
+              write: false,
+              delete: false,
+              edit: false,
+            }))
             : [],
         };
         if (res.data.data) {
@@ -194,7 +194,6 @@ const Permissions = () => {
             (i) => i.name === item.name
           );
           if (index != -1) {
-            obj.read = true;
             obj.submenu.forEach((submenu) => {
               let subIndex = res.data.data.permissions[index].submenu.findIndex(
                 (i) => i.name === submenu.name
@@ -210,6 +209,7 @@ const Permissions = () => {
                   res.data.data.permissions[index].submenu[subIndex].delete;
               }
             });
+            obj.read =  obj.submenu.length>0? obj.submenu.some((sub) => sub.read || sub.write || sub.edit || sub.delete):res.data.data.permissions[index].read
           }
         }
         dumpLIst.push(obj);
@@ -272,6 +272,16 @@ const Permissions = () => {
     }
   }, [user, adminRole]);
 
+  const handleCheckBoxChange = (e, menuIndex, submenuIndex, name, values, setFieldValue) => {
+    let dumpList = [...values.permissions];
+    dumpList[menuIndex].submenu[submenuIndex][name] = e.target.checked;
+    if (e.target.checked) {
+      dumpList[menuIndex].read = true
+    } else {
+      dumpList[menuIndex].read = dumpList[menuIndex].submenu.some((sub) => sub.read || sub.write || sub.edit || sub.delete)
+    }
+    setFieldValue("permissions", dumpList);
+  }
   return (
     <Formik
       initialValues={initialValues}
@@ -307,7 +317,7 @@ const Permissions = () => {
                   }}
                 />
               </div>
-              {(isStaff(values.role)&&user?.role.name !== "superadmin" )&& (
+              {(isStaff(values.role) && user?.role.name !== "superadmin") && (
                 <div className="sm:col-span-2">
                   <CustomSelect
                     required={true}
@@ -341,7 +351,18 @@ const Permissions = () => {
                             >
                               <div className="relative flex items-start mb-4">
                                 {user?.role.name !== "superadmin" ? (
-                                  item.title
+                                  item.submenu.length > 0?item.title:
+                                  <CustomCheckBox
+                                    name={`permissions[${ind}].read`}
+                                    checked={item.read}
+                                    label={item.title}
+                                    onChange={(e) =>{
+                                      let dumpLIst = [...values.permissions]
+                                      dumpLIst[ind].read = e.target.checked
+                                      setFieldValue("permissions", dumpLIst)
+                                    }
+                                    }
+                                  />
                                 ) : (
                                   <CustomCheckBox
                                     name={`permissions[${ind}].read`}
@@ -381,7 +402,7 @@ const Permissions = () => {
                                         name={`permissions[${ind}].submenu[${index}].read`}
                                         label={menu.title}
                                         checked={menu.read}
-                                        // disabled={!item.read}
+                                      // disabled={!item.read}
                                       />
                                     </div>
                                   )}
@@ -394,7 +415,8 @@ const Permissions = () => {
                                           name={`permissions[${ind}].submenu[${index}].read`}
                                           label="Read"
                                           checked={menu.read}
-                                          // disabled={!item.read}
+                                          onChange={(e) => { handleCheckBoxChange(e, ind, index, `read`, values, setFieldValue) }}
+                                        // disabled={!item.read}
                                         />
                                       </div>
                                     </td>
@@ -404,7 +426,8 @@ const Permissions = () => {
                                           name={`permissions[${ind}].submenu[${index}].write`}
                                           checked={menu.write}
                                           label="Write"
-                                          // disabled={!item.read}
+                                          onChange={(e) => { handleCheckBoxChange(e, ind, index, `write`, values, setFieldValue) }}
+                                        // disabled={!item.read}
                                         />
                                       </div>
                                     </td>
@@ -415,7 +438,8 @@ const Permissions = () => {
                                           name={`permissions[${ind}].submenu[${index}].edit`}
                                           checked={menu.edit}
                                           label="Edit"
-                                          // disabled={!item.read}
+                                          onChange={(e) => { handleCheckBoxChange(e, ind, index, `edit`, values, setFieldValue) }}
+                                        // disabled={!item.read}
                                         />
                                       </div>
                                     </td>
@@ -426,7 +450,8 @@ const Permissions = () => {
                                           name={`permissions[${ind}].submenu[${index}].delete`}
                                           checked={menu.delete}
                                           label="Delete"
-                                          // disabled={!item.read}
+                                          onChange={(e) => { handleCheckBoxChange(e, ind, index, `delete`, values, setFieldValue) }}
+                                        // disabled={!item.read}
                                         />
                                       </div>
                                     </td>

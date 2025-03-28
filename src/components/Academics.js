@@ -30,7 +30,7 @@ export default function Academics() {
 
   useEffect(() => {
     dispatch(fetchInitialAcademicData())
-  },[dispatch])
+  },[])
 
   return (
     <div className="flow-root">

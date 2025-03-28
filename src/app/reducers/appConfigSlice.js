@@ -1,23 +1,40 @@
-import {createSlice} from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import navData from '../../assets/json/nav.json'
+import { getData } from '../api'
+import { ACADEMIC_YEAR, BRANCH } from '../url'
 
+
+export const fetchInitialAppData = createAsyncThunk(
+  'data/fetchInitialAppData',
+  async (_, { rejectWithValue }) => {
+    try {
+      const [bracnRes, academicRes] = await Promise.all([
+        getData(BRANCH),
+        getData(ACADEMIC_YEAR + '/all'),
+      ]) // Replace with your API endpoint
+      return { bracnResp: bracnRes.data.data, academicResp: academicRes.data.data }
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to load data')
+    }
+  },
+)
 const loadPermissions = (data) => {
-    const permissions = data.permissions
-    const role = data.role
-    let nav = []
-    if(role === 'superadmin') {
-      navData.forEach((menu) => {
-        if(menu.isSuperAdmin) {
-          nav.push({
-            ...menu,
-            submenu: menu.submenu?.filter((submenu) => submenu.isSuperAdmin)
-          })
-        }
-      })
-    }else {
+  const permissions = data.permissions
+  const role = data.role
+  let nav = []
+  if (role === 'superadmin') {
+    navData.forEach((menu) => {
+      if (menu.isSuperAdmin) {
+        nav.push({
+          ...menu,
+          submenu: menu.submenu?.filter((submenu) => submenu.isSuperAdmin)
+        })
+      }
+    })
+  } else {
     permissions.forEach((item) => {
       const menu = navData.find((menu) => menu.name === item.name)
-      if (menu&&item.read) {
+      if (menu && item.read) {
         nav.push({
           ...item,
           icon: menu.icon,
@@ -25,27 +42,29 @@ const loadPermissions = (data) => {
           submenu: item.submenu?.filter((submenu) => submenu.read),
         })
       }
-    })}
-    return nav
+    })
   }
+  return nav
+}
 
 const AppConfigSlice = createSlice({
   name: 'AppConfig',
   initialState: {
     activeMenu: 'home',
     academicYear: null,
+    academicYears: [],
     branchs: [],
     user: null,
     navConfig: [],
     tenantId: null,
-    branchId:null,
+    branchId: null,
     branchData: null,
     formData: null,
     isLoading: false
   },
   reducers: {
     loadNavConfig: (state, action) => {
-      const nav  = loadPermissions(action.payload)
+      const nav = loadPermissions(action.payload)
       state.navConfig = nav
     },
     setActiveMenu: (state, action) => {
@@ -82,6 +101,36 @@ const AppConfigSlice = createSlice({
     clearFormData: (state) => {
       state.formData = null
     },
+    setAcademicYears: (state, action) => {
+      state.academicYears = action.payload
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchInitialAppData.fulfilled, (state, action) => {
+      let branchId = localStorage.getItem('branch')
+      let branchObj = null
+      state.branchId = branchId
+      state.branchs = action.payload.bracnResp.map((branch) => {
+        let obj = {
+          value: branch._id,
+          label: branch.name,
+          address: branch.address,
+          logo: branch.logo,
+          email: branch.email,
+          mobileNumber: branch.mobileNumber,
+          isDefault: branch.isDefault
+        }
+        if (branch._id === branchId) {
+          branchObj = obj
+        }
+        return (obj)
+      })
+      state.branchData = branchObj
+      state.academicYears = action.payload.academicResp
+      let academicYear = localStorage.getItem('academicYear')
+      let academic = action.payload.academicResp.find((year) => year._id === academicYear)
+      state.academicYear = academic
+    })
   },
 })
 
@@ -98,5 +147,6 @@ export const {
   setAcademicYear,
   setBranchs,
   setIsLoader,
+  setAcademicYears,
 } = AppConfigSlice.actions
 export default AppConfigSlice.reducer
