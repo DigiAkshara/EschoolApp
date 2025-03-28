@@ -5,9 +5,9 @@ import moment from 'moment';
 import { toast } from 'react-toastify';
 import * as XLSX from "xlsx";
 import { getData, postData } from '../app/api';
-import { CLASS_CATEGORIES, CLASSES, HOLIDAYS, SECTIONS, UPLOAD } from '../app/url';
-import { store } from '../app/store';
 import { clearSession } from "../app/reducers/appConfigSlice";
+import { store } from '../app/store';
+import { CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD } from '../app/url';
 
 export const generateYearRanges = (numYears) => {
   const currentYear = moment().year();
@@ -114,22 +114,22 @@ export const staffCategories = [
   { value: 'non-teaching', label: 'Non Teaching Staff' },
 ]
 
-export const financeType  = [
+export const financeType = [
   { value: 'credit', label: 'Credit' },
   { value: 'debit', label: 'Debit' },
 ]
 
-export const paymentType  = [
+export const paymentType = [
   { value: 'cash', label: 'Cash' },
   { value: 'online', label: 'Online' },
 ]
 
-export const financeCategoryDebit  = [
+export const financeCategoryDebit = [
   { value: 'loan', label: 'Loan' },
   { value: 'expenses', label: 'Expenses' },
 ]
 
-export const financeCategoryCredit  = [
+export const financeCategoryCredit = [
   { value: 'loan-advance', label: 'Loan/Advance Payment' },
   { value: 'other-income', label: 'Other Income' },
 ]
@@ -302,7 +302,7 @@ export const getSections = async () => {
   }
 }
 
-export const handleDownload = (filteredData, fileName, schoolName = "Your School Name",phoneNumber,email,schoolAddress, columns=[]) => {
+export const handleDownload = (filteredData, fileName, schoolName = "Your School Name", phoneNumber, email, schoolAddress, columns = []) => {
   try {
     const exportData = filteredData.map((row) =>
       columns.map((col) => {
@@ -351,7 +351,7 @@ export const handleDownload = (filteredData, fileName, schoolName = "Your School
 
 
 
-export const handleDownloadPDF = (data, fileName, columns, title, branch,  orientation = "portrait") => {
+export const handleDownloadPDF = (data, fileName, columns, title, branch, orientation = "portrait") => {
   const defaultLogo = "./schoolLogo.jpg";
 
   // Initialize jsPDF with dynamic orientation
@@ -436,7 +436,7 @@ export const handleApiResponse = (res, type = "error") => {
       if (typeof res.response.data.message === "object") {
         message = res.response.data.message.join(", ")
       } else {
-        if(res.response.data.statusCode === 403){
+        if (res.response.data.statusCode === 403) {
           store.dispatch(clearSession())
           localStorage.clear()
           window.location.href = "/login";
@@ -453,10 +453,10 @@ export const handleApiResponse = (res, type = "error") => {
       message = res.message || 'An unexpected error occurred. Please try again.'
     }
     toast.error(message, options)
-  } if(type === 'info'){
+  } if (type === 'info') {
     message = res
     toast.info(message, options)
-  }else {
+  } else {
     message = res
     toast.success(message, options)
   }

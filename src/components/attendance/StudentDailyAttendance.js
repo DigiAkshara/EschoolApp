@@ -240,11 +240,11 @@ const StudentDailyAttendance = () => {
                                     <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                       <div className="flex items-center">
                                         {/* Staff Image */}
-                                        {student.profilePic ? (
+                                        {student.pic ? (
                                           <div className="h-9 w-9 shrink-0">
                                             <img
                                               alt="Staff"
-                                              src={student.profilePic}
+                                              src={student.pic}
                                               className="h-9 w-9 rounded-full"
                                             />
                                           </div>

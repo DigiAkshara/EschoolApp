@@ -72,9 +72,9 @@ export default function Login() {
         dispatch(setActiveMenu("home"))
         dispatch(loadNavConfig({permissions:user.permissions?.permissions, role:user.role.name}))
         navigate('/')
-        if(user.role.name !== 'superadmin') {
-          dispatch(fetchTenant(user.tenant))
-        }
+        // if(user.role.name !== 'superadmin') {
+        //   dispatch(fetchTenant(user.tenant))
+        // }
       } else {
         handleApiResponse({
           message: "You don't have permission to login"

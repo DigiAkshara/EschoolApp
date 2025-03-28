@@ -107,7 +107,7 @@ const AppConfigSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(fetchInitialAppData.fulfilled, (state, action) => {
-      let branchId = localStorage.getItem('branch')
+      let branchId = localStorage.getItem('branchId')
       let branchObj = null
       state.branchId = branchId
       state.branchs = action.payload.bracnResp.map((branch) => {
