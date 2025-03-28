@@ -37,7 +37,6 @@ function Header({ updateSideBar }) {
     setBranch(branchData);
   }, [branchData]);
 
-  
   const handleAcademicChange = (e) => {
     const academicYear = e.target.value;
     setAcademic(academicYear);

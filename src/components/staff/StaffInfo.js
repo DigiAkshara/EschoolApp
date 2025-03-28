@@ -55,6 +55,7 @@ function StaffInfo({ values, setFieldValue }) {
               name="lastName"
               label="Last Name"
               placeholder="Enter last Name"
+              required={true}
             />
           </div>
 

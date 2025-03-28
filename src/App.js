@@ -40,9 +40,11 @@ function App() {
       if (token) {
         const user = jwtDecode(token)
         dispatch(setUser(user))
-        dispatch(loadNavConfig({ permissions: user.permissions.permissions, role: user.role.name }))
         dispatch(setActiveMenu(window.location.pathname.split('/')[1]))
         dispatch(fetchInitialAppData())
+        if(user.permissions|| user.role.name === 'superadmin') {
+          dispatch(loadNavConfig({ permissions: user.permissions?.permissions, role: user.role.name }))
+        }
       }
     }
   }, [])

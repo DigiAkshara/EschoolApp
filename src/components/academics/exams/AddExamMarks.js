@@ -6,13 +6,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import * as Yup from 'yup'
 import { getData, postData } from '../../../app/api'
 import { ACADEMICS, MARKS } from '../../../app/url'
-import { boardOptions, capitalizeWords, handleApiResponse } from '../../../commonComponent/CommonFunctions'
+import {  capitalizeWords, handleApiResponse } from '../../../commonComponent/CommonFunctions'
 import CustomInput from '../../../commonComponent/CustomInput'
 import CustomSelect from '../../../commonComponent/CustomSelect'
 import { fetchExamData } from '../../../app/reducers/examSlice'
 
 function AddExamMarks({ onClose }) {
-  const { classCategories: categoryOptions, classes: classOptions, sections: sectionOptions } = useSelector(
+  const { boards:boardOptions,classes: classOptions, sections: sectionOptions } = useSelector(
     (state) => state.academics
   );
   const selectedExam = useSelector((state) => state.exams.selectedExam)
@@ -21,8 +21,7 @@ function AddExamMarks({ onClose }) {
   const getInitialValues = () => {
     return {
       examId: selectedExam?._id || '',
-      board: selectedExam?.board || '',
-      classCategory: selectedExam?.category || '',
+      board: selectedExam?.board._id || '',
       class: selectedExam?.class || '',
       section: selectedExam?.section || '',
       name: selectedExam?.examName || '',
@@ -33,7 +32,6 @@ function AddExamMarks({ onClose }) {
   const getValidationSchema = () => {
     return Yup.object({
       board: Yup.string().required('Board is required'),
-      classCategory: Yup.string().required('Class category is required'),
       class: Yup.string().required('Class is required'),
       section: Yup.string().required('Section is required'),
       name: Yup.string().required('Exam name is required'),
@@ -57,6 +55,7 @@ function AddExamMarks({ onClose }) {
       let dummyList = []
       res.data.data.forEach(student => {
         dummyList.push({
+          rollNumber:student.student.rollNumber,
           studentId: student.student._id,
           admissionNumber: student.student.admissionNumber,
           studentName: capitalizeWords(student.student.firstName + ' ' + student.student.lastName),
@@ -101,7 +100,7 @@ function AddExamMarks({ onClose }) {
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({ values, setFieldValue }) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="fixed inset-0" />
             <div className="fixed inset-0 overflow-hidden">
@@ -153,14 +152,6 @@ function AddExamMarks({ onClose }) {
                                     />
                                   </div>
 
-                                  <div className="sm:col-span-1">
-                                    <CustomSelect
-                                      label="Class Category"
-                                      name="classCategory"
-                                      options={categoryOptions}
-                                      disabled
-                                    />
-                                  </div>
 
                                   <div className="sm:col-span-1">
                                     <CustomSelect
@@ -245,7 +236,7 @@ function AddExamMarks({ onClose }) {
                                           {values.studentsMarks.map((student, studentIndex) => (
                                             <tr key={studentIndex} className="bg-gray-50">
                                               <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                                                {studentIndex + 1}
+                                                {student.rollNumber||"N/A"}
                                               </td>
                                               <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                                 <div className="flex items-center">

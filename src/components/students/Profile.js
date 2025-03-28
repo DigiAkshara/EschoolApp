@@ -175,7 +175,7 @@ const StudentProfileModal = ({ show, close }) => {
                                   Roll No
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  NA
+                                  {data?.rollNumber||'N/A'}
                                 </dd>
                               </div>
                               <div className="sm:col-span-1">

@@ -130,7 +130,7 @@ function ManageStudentRegister() {
             _id: record._id,
             userId: att.userId._id,
             name: att.userId.firstName + " " + att.userId.lastName,
-            profilePic: att.userId.profilePic,
+            profilePic: att.userId.profilePic?.Location,
             category: att.userId.staffType,
             rollNumber: att.userId.rollNumber, // You can replace this with actual user names if available
             attendance: {},

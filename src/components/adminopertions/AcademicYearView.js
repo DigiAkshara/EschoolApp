@@ -6,14 +6,13 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
-import { postData, updateData } from "../../app/api";
+import { getData, postData, updateData } from "../../app/api";
 import { setAcademicYear } from "../../app/reducers/appConfigSlice";
 import { ACADEMIC_YEAR } from "../../app/url";
 import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomDate from "../../commonComponent/CustomDate";
 import TableComponent from "../../commonComponent/TableComponent";
 function AcademicYearView() {
-	const { academicYears } = useSelector((state) => state.appConfig);
 	const dispatch = useDispatch()
 	const [filteredData, setFilteredData] = useState([]);
 	const [openAcademicModal, setOpenAcademicModal] = useState(false);
@@ -27,16 +26,15 @@ function AcademicYearView() {
 	];
 
 	useEffect(() => {
-		if (academicYears.length > 0) {
-			fecthInitialData();
-		}
-	}, [academicYears]);
+		fecthInitialData();
+	}, []);
 
 	const fecthInitialData = async () => {
 		try {
+			let res = await getData(ACADEMIC_YEAR + "/all", {});
 			let data = []
 			const curYear = moment().year()
-			academicYears.forEach(item => {
+			res.data.data.forEach(item => {
 				let start = item.year.split("-")[0].trim()
 				if (start * 1 <= curYear * 1) {
 					data.push({
@@ -113,7 +111,7 @@ function AcademicYearView() {
 			</div>
 			<Dialog open={openAcademicModal} onClose={() => setOpenAcademicModal(false)} className="relative z-50">
 				<div className="fixed inset-0" />
-				<AcademicYearModal onClose={() => setOpenAcademicModal(false)} updateData={fecthInitialData} />
+				<AcademicYearModal onClose={() => setOpenAcademicModal(false)} refreshData={fecthInitialData} />
 			</Dialog>
 
 		</>
@@ -121,7 +119,7 @@ function AcademicYearView() {
 }
 
 
-const AcademicYearModal = ({ onClose, updateData }) => {
+const AcademicYearModal = ({ onClose, refreshData }) => {
 
 	const initialValues = {
 		startDate: null,
@@ -134,12 +132,12 @@ const AcademicYearModal = ({ onClose, updateData }) => {
 			endDate: Yup.date().nullable()
 				.min(Yup.ref("startDate"), "End date must be after start date")
 				.required("End date is required")
-				.test("is-within-valid-range", "Not Allowed to create academic year for next year", function (value) {
-					if (!value) return false;
-					const currentYear = moment().year();
-					const endYear = moment(value).year();
-					return endYear === currentYear + 1;
-				}),
+			// .test("is-within-valid-range", "Not Allowed to create academic year for next year", function (value) {
+			// 	if (!value) return false;
+			// 	const currentYear = moment().year();
+			// 	const endYear = moment(value).year();
+			// 	return endYear === currentYear + 1;
+			// }),
 		})
 	}
 
@@ -152,7 +150,7 @@ const AcademicYearModal = ({ onClose, updateData }) => {
 		try {
 			let res = await postData(ACADEMIC_YEAR, payload);
 			handleApiResponse(res.data.message, "success");
-			updateData();
+			refreshData();
 			onClose();
 		} catch (error) {
 			handleApiResponse(error);
@@ -206,8 +204,8 @@ const AcademicYearModal = ({ onClose, updateData }) => {
 											label="Academic Starting Date"
 											placeholder="Enter Academic Starting Date"
 											required={true}
-											minDate={moment().format("YYYY-MM-DD")}
-											maxDate={moment().endOf("year").format("YYYY-MM-DD")}
+											// minDate={moment().format("YYYY-MM-DD")}
+											// maxDate={moment().endOf("year").format("YYYY-MM-DD")}
 											onChange={(value) => { handleStartYearChange(value, setFieldValue) }}
 										/>
 										<div className="my-4"></div>
@@ -217,8 +215,8 @@ const AcademicYearModal = ({ onClose, updateData }) => {
 											placeholder="Enter Academic Ending Date"
 											required={true}
 											disabled={!values.startDate}
-											minDate={minDate}
-											maxDate={maxDate}
+										// minDate={minDate}
+										// maxDate={maxDate}
 										/>
 									</div>
 

@@ -25,8 +25,6 @@ function AddClassTimeTable({ onClose, getClassData }) {
   const [labSubject, setLabSubject] = useState('')
   const [extraCurricular, setExtraCurricular] = useState('')
 
-
-
   useEffect(() => {
     getSubjects()
   }, [])
@@ -332,7 +330,7 @@ function AddClassTimeTable({ onClose, getClassData }) {
                                 <CustomSelect
                                   label="Class Teacher"
                                   name="classTeacher"
-                                  options={teacherOptions}
+                                  options={teacherOptions.filter((item) => item.staffType === 'teaching')}
                                 />
                               </div>
                             </div>

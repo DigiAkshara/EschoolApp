@@ -136,7 +136,7 @@ function CollectFeeModal({ onClose, fetchData }) {
                                     Roll No
                                   </dt>
                                   <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                    N/A
+                                    {studentData.student?.rollNumber||' N/A'}
                                   </dd>
                                 </div>
                                 <div className="sm:col-span-1">

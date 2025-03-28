@@ -263,8 +263,6 @@ function ExamMarkDetailsPage({ onClose }) {
     }
   };
 
-
-
   return (
     <>
       <div className="fixed inset-0" />
@@ -326,15 +324,7 @@ function ExamMarkDetailsPage({ onClose }) {
                                   Board
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExamDetails?.exam.board}</dd>
-                              </div>
-                              <div className="content-item pb-2 border-b border-gray-300">
-                                <dt className="text-sm/6 text-gray-500">
-                                  Class Category
-                                </dt>
-                                <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {selectedExamDetails?.exam.classCategory?.name}
-                                </dd>
+                                  {selectedExamDetails?.exam.board.name}</dd>
                               </div>
                               <div className="content-item pb-2 border-b border-gray-300">
                                 <dt className="text-sm/6 text-gray-500">
@@ -517,7 +507,7 @@ function ExamMarkDetailsPage({ onClose }) {
                                 {studentMarks.map((student, index) => (
                                   <tr key={index}>
                                     <td className="px-2 py-2 text-sm">
-                                      {index + 1}
+                                      {student.rollNumber || 'N/A'}
                                     </td>
                                     <td className="whitespace-nowrap py-2 pl-2 pr-3 text-sm sm:pl-0">
                                       <a

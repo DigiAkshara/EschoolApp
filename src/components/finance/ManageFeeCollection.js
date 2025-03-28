@@ -27,7 +27,7 @@ function ManageFeeCollection() {
 
   const columns = [
     { key: 'name', title: 'Student Name' },
-    { key: 'class', title: 'Class' },
+    { key: 'className', title: 'Class' },
     { key: 'payableAmount', title: 'Total Amount' },
     { key: 'pendingAmount', title: 'Pending Amount' },
     { key: 'paymentStatus', title: 'Status' },
@@ -76,7 +76,6 @@ function ManageFeeCollection() {
       setTenant(response.data.data)
     } catch (error) {
       handleApiResponse(error)
-
     }
   }
 
@@ -85,7 +84,7 @@ function ManageFeeCollection() {
       const response = await getData(STUDENT_FEE)
       const feedata = response.data.data // Access the correct array property
       const stuFees = []
-      feedata.forEach((fee) => {
+      feedata.forEach((fee) => { 
         let paybalAmount = 0, paidAmount = 0
         fee.feeList.forEach((item) => {
           paybalAmount = paybalAmount + (item.paybalAmount * 1 || 0)
@@ -95,7 +94,7 @@ function ManageFeeCollection() {
           _id: fee.student._id,
           name: capitalizeWords(fee.student.firstName + ' ' + fee.student.lastName),
           admissionNo: fee.student.admissionNumber,
-          profilePic: fee.student.profilePic?.Location,
+          pic: fee.student.profilePic?.Location,
           phoneNo: fee.student.fatherDetails.mobileNumber,
           fatherName: fee.student.fatherDetails.name,
           gender: fee.student.gender,
@@ -104,8 +103,8 @@ function ManageFeeCollection() {
           pendingAmount: paybalAmount - paidAmount,
           paymentStatus: capitalizeWords(fee.paymentStatus),
           fees: fee.feeList,
-          class: fee.class,
-          className: fee.class?.name,
+          class: fee.academics?.class,
+          className: fee.academics?.class?.name,
           reminder: "Reminder",
           collectfee: "Collect Fee"
         })
