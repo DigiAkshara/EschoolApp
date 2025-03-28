@@ -145,10 +145,11 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     return sec[0].label
   }
 
+  console.log(selectedStudent);
   const isExistingFee = (id) => {
     let isDisabled = false
     const index = selectedStudent?.fees?.feeList.findIndex((item) => item.fee._id === id)
-    if (index !== -1) {
+    if (index&&index !== -1) {
       isDisabled = values._id ? true : false
     }
     return isDisabled
@@ -167,7 +168,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
   const disableRouteField = () => {
     let isDisabled = false
     let index = selectedStudent?.fees?.feeList.findIndex((item) => item.fee.name === 'Bus Fee')
-    if (index !== -1 && isSelectedBusFee() && values._id) {
+    if (index&&index !== -1 && isSelectedBusFee() && values._id) {
       isDisabled = true
     }
     return isDisabled
@@ -320,7 +321,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                           name={`fees.${index}.dueDate`}
                           value={item.dueDate}
                           minDate={moment().format('MM-DD-YYYY')}
-                          disabled={isExistingFee(item.id)}
+                          disabled={!item.isChecked ||isExistingFee(item.id)}
                         />
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">

@@ -71,6 +71,7 @@ function BasicInfo({ values, setFieldValue }) {
               label="Student last Name"
               placeholder="Enter Last Name"
               disabled={values._id ? true : false}
+              required={true}
             />
           </div>
           <div className="sm:col-span-2">

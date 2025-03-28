@@ -70,13 +70,13 @@ function Student({ onClose, loadStudents }) {
       studyProof: null,
     },
     //fees tab
-    busRoute:"",
+    busRoute: "",
     fees: [],
     ...(selectedStudent && selectedStudent),
     ...(selectedStudent && {
       academics: {
         ...selectedStudent.academics,
-        academicYear:selectedStudent.academics.academicYear?._id,
+        academicYear: selectedStudent.academics.academicYear?._id,
         class: selectedStudent.academics.class?._id,
         classObj: selectedStudent.academics.class,
         section: selectedStudent.academics.section?._id,
@@ -188,60 +188,60 @@ function Student({ onClose, loadStudents }) {
         .required("Aadhar Number is required"),
       DOB: Yup.date().nullable().required("Date of Birth is required"), // For invalid dates
       profilePic: Yup.mixed()
-              .nullable()
-              .test(
-                "fileFormat",
-                "Photo must be in JPG, JPEG, or PNG format",
-                (value) => {
-                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                  return supportedFormats.includes(value.type);
-                }
-              )
-              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-                if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                const maxSizeInBytes = 2 * 1024 * 1024;
-                return value.size <= maxSizeInBytes;
-              }),
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return supportedFormats.includes(value.type);
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+          const maxSizeInBytes = 2 * 1024 * 1024;
+          return value.size <= maxSizeInBytes;
+        }),
 
       aadharPic: Yup.mixed()
-              .nullable()
-              .test(
-                "fileFormat",
-                "Photo must be in JPG, JPEG, or PNG format",
-                (value) => {
-                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                  return supportedFormats.includes(value.type);
-                }
-              )
-              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-                if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                const maxSizeInBytes = 2 * 1024 * 1024;
-                return value.size <= maxSizeInBytes;
-              }),
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return supportedFormats.includes(value.type);
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+          const maxSizeInBytes = 2 * 1024 * 1024;
+          return value.size <= maxSizeInBytes;
+        }),
       parentIdProof: Yup.mixed()
-              .nullable()
-              .test(
-                "fileFormat",
-                "Photo must be in JPG, JPEG, or PNG format",
-                (value) => {
-                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                  return supportedFormats.includes(value.type);
-                }
-              )
-              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-                if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                const maxSizeInBytes = 2 * 1024 * 1024;
-                return value.size <= maxSizeInBytes;
-              }),
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return supportedFormats.includes(value.type);
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+          const maxSizeInBytes = 2 * 1024 * 1024;
+          return value.size <= maxSizeInBytes;
+        }),
     }),
     Yup.object({
       academics: Yup.object({
@@ -313,9 +313,9 @@ function Student({ onClose, loadStudents }) {
               "is-required-if-checked",
               "Duration is required",
               function (value) {
-                const { isChecked } = this.parent; 
+                const { isChecked } = this.parent;
                 if (isChecked && !value) {
-                  return false; 
+                  return false;
                 }
                 return true;
               }
@@ -338,18 +338,18 @@ function Student({ onClose, loadStudents }) {
           "At least one fee must be selected",
           (items) => items.some((item) => item.isChecked)
         ),
-        busRoute: Yup.string().nullable().test(
-          "is-required-if-busfee-checked",
-          "Bus route is required",
-          function (value) {
-            const { fees } = this.parent;
-            const index = fees.findIndex((item) => item.feeName === "Bus Fee"&&item.isChecked);
-            if (index !== -1 && !value) {
-              return false;
-            }
-            return true;
+      busRoute: Yup.string().nullable().test(
+        "is-required-if-busfee-checked",
+        "Bus route is required",
+        function (value) {
+          const { fees } = this.parent;
+          const index = fees.findIndex((item) => item.feeName === "Bus Fee" && item.isChecked);
+          if (index !== -1 && !value) {
+            return false;
           }
-        ),
+          return true;
+        }
+      ),
     }),
   ];
 
