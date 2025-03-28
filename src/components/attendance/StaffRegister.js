@@ -4,9 +4,10 @@ import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, updateData } from "../../app/api";
-import { ACADEMIC_YEAR, ATTENDANCE, HOLIDAYS } from "../../app/url";
+import { ATTENDANCE, HOLIDAYS } from "../../app/url";
 import {
   handleApiResponse,
   monthsName,
@@ -16,21 +17,19 @@ import CustomSelect from "../../commonComponent/CustomSelect";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
 
 function StaffRegister() {
+  const { academicYear } = useSelector((state) => state.appConfig);
   const [academicYears, setAcademicYears] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAttendance, setSelectedAttendance] = useState(null);
   const [openMenuDay, setOpenMenuDay] = useState(null); // Track the currently open menu
-
   const [staffs, setStaffs] = useState([]);
   const [staffList, setStaffList] = useState([]);
-
   const [staffCategory, setStaffCategory] = useState("teaching");
   const [month, setMonth] = useState(moment().month() + 1);
   const [year, setYear] = useState(moment().year());
   const [days, setDays] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [noOfWorkingDays, setNoOfWorkingDays] = useState(0);
-
   const [currentPage, setCurrentPage] = useState(1);
 
   const getInitialValues = () => {
@@ -82,20 +81,6 @@ function StaffRegister() {
     }
   };
 
-  const academicYear = async () => {
-    try {
-      const academicYearRes = await getData(ACADEMIC_YEAR);
-      let academicYearData = [
-        {
-          label: academicYearRes.data.data.year, // Displayed text in the dropdown
-          value: academicYearRes.data.data._id,
-        },
-      ];
-      setAcademicYears(academicYearData);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
 
   const getStaffData = async (monTh, yeAr) => {
     try {
@@ -132,7 +117,7 @@ function StaffRegister() {
             category: att.userId.staffType,
             empId: att.userId.empId, // You can replace this with actual user names if available
             attendance: {},
-            recordId:{},
+            recordId: {},
             noOfLeaves: 0,
           };
         }
@@ -145,8 +130,8 @@ function StaffRegister() {
           (att.attendanceStatus === "leave"
             ? 1
             : att.attendanceStatus === "half-day"
-            ? 0.5
-            : 0);
+              ? 0.5
+              : 0);
       });
     });
 
@@ -162,9 +147,17 @@ function StaffRegister() {
     }
   };
   useEffect(() => {
-    academicYear();
     getHolidays();
   }, []);
+
+  useEffect(() => {
+    if (academicYear) {
+      setAcademicYears([{
+        label: academicYear.year,
+        value: academicYear._id
+      }])
+    }
+  }, [academicYear])
 
   const handleStaffCategory = (e, setFieldValue) => {
     const category = e.target.value;
@@ -221,7 +214,7 @@ function StaffRegister() {
     // return workingDays;
   };
 
-  const handleSave = async (id,day, userId) => {
+  const handleSave = async (id, day, userId) => {
     const formattedDate = new Date(year, month - 1, day);
     const payload = {
       id,
@@ -402,9 +395,8 @@ function StaffRegister() {
                           <th
                             key={dayObj.day}
                             scope="col"
-                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${
-                              isSunday ? "w-16 bg-red-100" : "w-40"
-                            }`}
+                            className={`px-2 py-2 text-left text-sm font-semibold text-gray-900 ${isSunday ? "w-16 bg-red-100" : "w-40"
+                              }`}
                           >
                             <a href="#" className="flex flex-col items-center">
                               <div>{dayObj.dayName}</div>
@@ -476,12 +468,12 @@ function StaffRegister() {
                             const attendanceClass = isSunday
                               ? "bg-red-100 text-gray-900" // Sundays
                               : attendanceValue === "P"
-                              ? "text-gray-500" // Present
-                              : attendanceValue === "A"
-                              ? "text-yellow-800 bg-yellow-100" // Absent
-                              : attendanceValue === "F"
-                              ? "text-gray-900 bg-blue-100" // Half Day
-                              : "text-gray-500";
+                                ? "text-gray-500" // Present
+                                : attendanceValue === "A"
+                                  ? "text-yellow-800 bg-yellow-100" // Absent
+                                  : attendanceValue === "F"
+                                    ? "text-gray-900 bg-blue-100" // Half Day
+                                    : "text-gray-500";
 
                             return (
                               <td

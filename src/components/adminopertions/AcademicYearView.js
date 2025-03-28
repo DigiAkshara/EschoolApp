@@ -4,15 +4,16 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
-import { getData, postData, updateData } from "../../app/api";
+import { postData, updateData } from "../../app/api";
+import { setAcademicYear } from "../../app/reducers/appConfigSlice";
 import { ACADEMIC_YEAR } from "../../app/url";
 import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomDate from "../../commonComponent/CustomDate";
 import TableComponent from "../../commonComponent/TableComponent";
-import { setAcademicYear } from "../../app/reducers/appConfigSlice";
-import { useDispatch } from "react-redux";
 function AcademicYearView() {
+	const { academicYears } = useSelector((state) => state.appConfig);
 	const dispatch = useDispatch()
 	const [filteredData, setFilteredData] = useState([]);
 	const [openAcademicModal, setOpenAcademicModal] = useState(false);
@@ -26,15 +27,16 @@ function AcademicYearView() {
 	];
 
 	useEffect(() => {
-		fecthInitialData();
-	}, []);
+		if (academicYears.length > 0) {
+			fecthInitialData();
+		}
+	}, [academicYears]);
 
 	const fecthInitialData = async () => {
 		try {
-			const res = await getData(ACADEMIC_YEAR + '/all')
 			let data = []
 			const curYear = moment().year()
-			res.data.data.forEach(item => {
+			academicYears.forEach(item => {
 				let start = item.year.split("-")[0].trim()
 				if (start * 1 <= curYear * 1) {
 					data.push({
@@ -59,7 +61,7 @@ function AcademicYearView() {
 			let res = await updateData(ACADEMIC_YEAR + "/" + Id)
 			handleApiResponse(res.data.message, "success");
 			localStorage.setItem('academicYear', Id)
-			dispatch(setAcademicYear({...res.data.data, status: "active"}))
+			dispatch(setAcademicYear({ ...res.data.data, status: "active" }))
 			fecthInitialData();
 		} catch (error) {
 			handleApiResponse(error);

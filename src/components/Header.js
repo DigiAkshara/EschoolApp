@@ -1,7 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import {
-  ChevronDownIcon,
-  MagnifyingGlassIcon,
+  ChevronDownIcon
 } from "@heroicons/react/20/solid";
 import { Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
@@ -9,16 +8,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   clearSession,
+  setAcademicYear,
+  setAcademicYears,
   setBranchData,
   setBranchId,
 } from "../app/reducers/appConfigSlice";
-import { capitalizeWords } from "../commonComponent/CommonFunctions";
+import { capitalizeWords, handleApiResponse } from "../commonComponent/CommonFunctions";
+import { ACADEMIC_YEAR } from "../app/url";
+import { getData } from "../app/api";
 
 function Header({ updateSideBar }) {
-  const { branchs, user } = useSelector((state) => state.appConfig);
-  const [selectedBranch, setSelectedBranch] = useState(null);
-  const [branch, setBranch] = useState(null);
+  let academicId = localStorage.getItem("academicYear");
   let branchId = localStorage.getItem("branchId");
+  const { branchs, user, academicYears,academicYear, branchData } = useSelector((state) => state.appConfig);
+  const [selectedBranch, setSelectedBranch] = useState(branchId || null);
+  const [branch, setBranch] = useState(branchData || null);
+  const [academic, setAcademic] = useState(academicId || null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const logOut = () => {
@@ -29,39 +34,49 @@ function Header({ updateSideBar }) {
     navigate("/login");
   };
   useEffect(() => {
-    if (branchs.length > 0&& branchId) {
-      let branch = branchs.find((branch) => branch.value === branchId);
-      setSelectedBranch(branchId);
-      setBranch(branch);
-      dispatch(setBranchId(branchId));
-      dispatch(setBranchData(branch));
-    }
-  }, [branchs,branchId]);
+    setBranch(branchData);
+  }, [branchData]);
 
-  const handleBranchChange = (e) => {
-    const branchId = e.target.value;
-    setSelectedBranch(branchId);
-    localStorage.setItem("branchId", branchId);
-    dispatch(setBranchId(branchId));
-    handleBranch(branchId);
+  
+  const handleAcademicChange = (e) => {
+    const academicYear = e.target.value;
+    setAcademic(academicYear);
+    localStorage.setItem("academicYear", academicYear);
+    let academic = academicYears.find((year) => year._id === academicYear);
+    dispatch(setAcademicYear(academic));
     window.location.reload();
   };
 
-  const handleBranch = (branchId) => {
-    const selectedBranchData = branchs.find(
-      (branch) => branch.value === branchId
-    );
-
-    if (selectedBranchData) {
-      setBranch(selectedBranchData)
-      dispatch(
-        setBranchData({
-          ...selectedBranchData,
-          logo: selectedBranchData.logo || null, // Ensuring `logo` is always defined
-        })
-      );
-    }
+  const handleBranchChange = (e) => {
+    const branchId = e.target.value;
+    localStorage.setItem("branchId", branchId);
+    setSelectedBranch(branchId);
+    dispatch(setBranchId(branchId));
+    branchs.forEach(branch=>{
+      if(branch.value === branchId) {
+        setBranch(branch)
+        dispatch(
+          setBranchData({
+            ...branch,
+            logo: branch.logo || null, // Ensuring `logo` is always defined
+          })
+        );
+      }
+    })
+    updateAcademicYear()
   };
+
+  const updateAcademicYear = async() => {
+   try{
+    const res = await getData(ACADEMIC_YEAR + "/all");
+    dispatch(setAcademicYears(res.data.data));
+    let academic = res.data.data.find((year) => year.year === academicYear?.year);
+    localStorage.setItem('academicYear',academic._id)
+    window.location.reload();
+   }catch(error) {
+    handleApiResponse(error)
+   }
+  }
 
   return (
     <>
@@ -92,19 +107,34 @@ function Header({ updateSideBar }) {
 
           <div className="flex items-center gap-x-4 lg:gap-x-6">
             {user?.role.name !== "superadmin" && (
-              <select
-                name="branch"
-                disabled={user?.role.name !== "admin"}
-                className="mt-2 block w-40 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                onChange={handleBranchChange}
-                value={selectedBranch}
-              >
-                {branchs.map((branch) => (
-                  <option key={branch.value} value={branch.value}>
-                    {branch.label}
-                  </option>
-                ))}
-              </select>
+              <>
+                <select
+                  name="branch"
+                  disabled={user?.role.name !== "admin"}
+                  className="mt-2 block w-40 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                  onChange={handleBranchChange}
+                  value={selectedBranch}
+                >
+                  {branchs.map((branch) => (
+                    <option key={branch.value} value={branch.value}>
+                      {branch.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  name="academicYear"
+                  disabled={user?.role.name !== "admin"}
+                  className="mt-2 block w-40 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                  onChange={handleAcademicChange}
+                  value={academic}
+                >
+                  {academicYears.map((year) => (
+                    <option key={year._id} value={year._id}>
+                      {year.year}
+                    </option>
+                  ))}
+                </select>
+              </>
             )}
             <button
               type="button"

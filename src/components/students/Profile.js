@@ -2,8 +2,7 @@ import {
   Dialog,
   DialogPanel,
   DialogTitle,
-  Legend,
-  Transition,
+  Legend
 } from "@headlessui/react";
 import {
   ArrowLeftStartOnRectangleIcon,
@@ -20,7 +19,7 @@ import {
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import moment from "moment";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   Bar,
@@ -37,13 +36,12 @@ import {
   YAxis,
 } from "recharts";
 import { getData } from "../../app/api";
-import { ACADEMIC_YEAR, TRANSACTIONS } from "../../app/url";
+import { TRANSACTIONS } from "../../app/url";
 import {
   capitalizeWords,
   handleApiResponse,
 } from "../../commonComponent/CommonFunctions";
 import TableComponent from "../../commonComponent/TableComponent";
-import { setAcademicYear } from "../../app/reducers/appConfigSlice";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -915,7 +913,7 @@ const PersonalDetailsTab = ({ data }) => {
 };
 
 const AcademicDeatilsTab = ({ data }) => {
-  
+
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
       <li className="overflow-hidden rounded-xl border border-gray-300">
@@ -1191,9 +1189,8 @@ const FeeDeatailsTab = ({ data }) => {
       name: capitalizeWords(data.firstName + " " + data.lastName),
       academicYear: data.academics.academicYear.year,
       admissionNo: data.admissionNumber || "N/A",
-      classSection: `${data.academics.class?.name || "N/A"} / ${
-        data.academics.section?.section || "N/A"
-      }`,
+      classSection: `${data.academics.class?.name || "N/A"} / ${data.academics.section?.section || "N/A"
+        }`,
       fatersName: capitalizeWords(data.fatherDetails?.name || "N/A"),
       mothersName: capitalizeWords(data.motherDetails?.name || "N/A"),
       branch: branchData,
@@ -1233,18 +1230,15 @@ const FeeDeatailsTab = ({ data }) => {
     });
     doc.setFontSize(10);
     doc.text(
-      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${
-        data.branch?.email || "N/A"
+      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${data.branch?.email || "N/A"
       }`,
       centerX,
       21,
       { align: "center" }
     );
     doc.text(
-      `Address: ${data.branch?.address?.area || "N/A"}, ${
-        data.branch?.address?.city || "N/A"
-      }, ${data.branch?.address?.state || "N/A"}, ${
-        data.branch?.address?.pincode || "N/A"
+      `Address: ${data.branch?.address?.area || "N/A"}, ${data.branch?.address?.city || "N/A"
+      }, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"
       }`,
       centerX,
       27,

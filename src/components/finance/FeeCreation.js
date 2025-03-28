@@ -2,15 +2,17 @@ import { DialogPanel, DialogTitle } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { FieldArray, Form, Formik } from 'formik'
 import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import * as Yup from 'yup'
 import { getData, postData } from '../../app/api'
-import { ACADEMIC_YEAR, CLASSES, FEE_GROUP, FEES } from '../../app/url'
+import { CLASSES, FEE_GROUP, FEES } from '../../app/url'
+import { handleApiResponse } from '../../commonComponent/CommonFunctions'
 import CustomCheckBox from '../../commonComponent/CustomCheckBox'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
-import { handleApiResponse } from '../../commonComponent/CommonFunctions'
 
 function FeeCreation({ onClose, getFees }) {
+  const { academicYear } = useSelector((state) => state.appConfig);
   const [feeDetails, setFeeDetails] = useState([])
   const [loading, setLoading] = useState(true)
   const [academicYears, setAcademicYears] = useState([])
@@ -66,6 +68,15 @@ function FeeCreation({ onClose, getFees }) {
   }
 
   useEffect(() => {
+    if (academicYear) {
+      setAcademicYears([{
+        label: academicYear.year,
+        value: academicYear._id
+      }])
+    }
+  }, [academicYear])
+
+  useEffect(() => {
     getFeeDetails()
   }, [])
 
@@ -74,10 +85,8 @@ function FeeCreation({ onClose, getFees }) {
       const [classRes, feeGroupRes, academicYearRes] = await Promise.all([
         getData(CLASSES),
         getData(FEE_GROUP),
-        getData(ACADEMIC_YEAR),
       ])
       setFeeDetails(classRes.data.data)
-
       let feeGroupData = feeGroupRes.data.data.map((item) => {
         return {
           label: item.name, // Displayed text in the dropdown
@@ -85,13 +94,6 @@ function FeeCreation({ onClose, getFees }) {
         }
       })
       setFeeGroups(feeGroupData)
-      let academicYearData = [
-        {
-          label: academicYearRes.data.data.year, // Displayed text in the dropdown
-          value: academicYearRes.data.data._id,
-        },
-      ]
-      setAcademicYears(academicYearData)
       setLoading(false)
     } catch (error) {
       setLoading(false)

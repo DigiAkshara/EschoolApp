@@ -145,7 +145,6 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     return sec[0].label
   }
 
-  console.log(selectedStudent);
   const isExistingFee = (id) => {
     let isDisabled = false
     const index = selectedStudent?.fees?.feeList.findIndex((item) => item.fee._id === id)

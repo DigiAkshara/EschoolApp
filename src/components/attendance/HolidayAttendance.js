@@ -1,16 +1,17 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteData, getData } from "../../app/api";
+import { updateHolidays } from "../../app/reducers/attendanceSlice";
 import { setSelectedHoliday } from "../../app/reducers/holidaySlice";
-import { ACADEMIC_YEAR, HOLIDAYS } from "../../app/url";
+import { HOLIDAYS } from "../../app/url";
 import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 import TableComponent from "../../commonComponent/TableComponent";
 import HolidaySidebar from "./HolidaySidebar";
-import ConfirmationModal from "../../commonComponent/ConfirmationModal";
-import { updateHolidays } from "../../app/reducers/attendanceSlice";
 
 const HolidayAttendance = () => {
+  const { academicYear } = useSelector((state) => state.appConfig);
   const [academicYears, setAcademicYears] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
@@ -21,8 +22,15 @@ const HolidayAttendance = () => {
 
   useEffect(() => {
     getHolidayData();
-    academicyear();
   }, []);
+  useEffect(() => {
+    if (academicYear) {
+      setAcademicYears([{
+        label: academicYear.year,
+        value: academicYear._id
+      }])
+    }
+  }, [academicYear])
 
   const columns = [
     { title: "S.No.", key: "siNo" },
@@ -32,20 +40,6 @@ const HolidayAttendance = () => {
     { title: "Actions", key: "actions" },
   ];
 
-  const academicyear = async () => {
-    try {
-      const academicYearRes = await getData(ACADEMIC_YEAR);
-      let academicYearData = [
-        {
-          label: academicYearRes.data.data.year, // Displayed text in the dropdown
-          value: academicYearRes.data.data._id,
-        },
-      ];
-      setAcademicYears(academicYearData);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
   const getHolidayData = async () => {
     try {
       const res = await getData(HOLIDAYS);

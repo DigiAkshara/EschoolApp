@@ -1,13 +1,13 @@
+import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { getData, postData } from '../../app/api'
-import { ACADEMIC_YEAR, UPLOAD } from '../../app/url'
+import { postData } from '../../app/api'
+import { UPLOAD } from '../../app/url'
+import { generateYearRanges, handleApiResponse } from '../../commonComponent/CommonFunctions'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
-import moment from 'moment'
-import { generateYearRanges, handleApiResponse } from '../../commonComponent/CommonFunctions'
 
 function StudentAcademicDetails({ values, setFieldValue }) {
   const { classes, sections } = useSelector((state) => state.students)
@@ -104,7 +104,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Section"
               required={true}
               options={sections.filter(item => item.class._id == values.academics.class)}
-              disabled={!values.academics.class|| (values._id ? true : false)}
+              disabled={!values.academics.class || (values._id ? true : false)}
             />
           </div>
         </div>
