@@ -10,7 +10,10 @@ import { ACADEMIC_YEAR } from "../../app/url";
 import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomDate from "../../commonComponent/CustomDate";
 import TableComponent from "../../commonComponent/TableComponent";
+import { setAcademicYear } from "../../app/reducers/appConfigSlice";
+import { useDispatch } from "react-redux";
 function AcademicYearView() {
+	const dispatch = useDispatch()
 	const [filteredData, setFilteredData] = useState([]);
 	const [openAcademicModal, setOpenAcademicModal] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -55,6 +58,8 @@ function AcademicYearView() {
 		try {
 			let res = await updateData(ACADEMIC_YEAR + "/" + Id)
 			handleApiResponse(res.data.message, "success");
+			localStorage.setItem('academicYear', Id)
+			dispatch(setAcademicYear({...res.data.data, status: "active"}))
 			fecthInitialData();
 		} catch (error) {
 			handleApiResponse(error);
