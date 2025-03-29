@@ -1,8 +1,7 @@
 import Axios from 'axios'
-const API_URL = process.env.API_URL || 'http://192.168.1.11:8001/api' //192.168.1.11 or localhost or https://eschoolapi.onrender.com
+const API_URL = process.env.API_URL || 'https://api.digiakshara.com/api' //192.168.1.11 or localhost or https://eschoolapi.onrender.com
 
 const createInstance = (URL) => {
-
   const instance = Axios.create({
     baseURL: URL,
     headers: {

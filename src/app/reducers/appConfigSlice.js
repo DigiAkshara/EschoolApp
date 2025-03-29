@@ -46,22 +46,22 @@ const loadPermissions = (data) => {
   }
   return nav
 }
-
+let initialState={
+  activeMenu: 'home',
+  academicYear: null,
+  academicYears: [],
+  branchs: [],
+  user: null,
+  navConfig: [],
+  tenantId: null,
+  branchId: null,
+  branchData: null,
+  formData: null,
+  isLoading: false
+}
 const AppConfigSlice = createSlice({
   name: 'AppConfig',
-  initialState: {
-    activeMenu: 'home',
-    academicYear: null,
-    academicYears: [],
-    branchs: [],
-    user: null,
-    navConfig: [],
-    tenantId: null,
-    branchId: null,
-    branchData: null,
-    formData: null,
-    isLoading: false
-  },
+  initialState,
   reducers: {
     loadNavConfig: (state, action) => {
       const nav = loadPermissions(action.payload)
@@ -73,10 +73,7 @@ const AppConfigSlice = createSlice({
     setUser: (state, action) => {
       state.user = action.payload
     },
-    clearSession: (state) => {
-      state.user = null
-      state.academicYear = null
-    },
+    logout: () => initialState,
     setAcademicYear: (state, action) => {
       state.academicYear = action.payload
     },
@@ -138,7 +135,6 @@ export const {
   setActiveMenu,
   loadNavConfig,
   setUser,
-  clearSession,
   setTenantId,
   setBranchId,
   setBranchData,
@@ -148,5 +144,6 @@ export const {
   setBranchs,
   setIsLoader,
   setAcademicYears,
+  logout,
 } = AppConfigSlice.actions
 export default AppConfigSlice.reducer

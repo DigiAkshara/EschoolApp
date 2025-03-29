@@ -5,7 +5,7 @@ import moment from 'moment';
 import { toast } from 'react-toastify';
 import * as XLSX from "xlsx";
 import { getData, postData } from '../app/api';
-import { clearSession } from "../app/reducers/appConfigSlice";
+import { logout } from "../app/reducers/appConfigSlice";
 import { store } from '../app/store';
 import { CLASS_CATEGORIES, CLASSES, SECTIONS, UPLOAD } from '../app/url';
 
@@ -437,7 +437,7 @@ export const handleApiResponse = (res, type = "error") => {
         message = res.response.data.message.join(", ")
       } else {
         if (res.response.data.statusCode === 403) {
-          store.dispatch(clearSession())
+          store.dispatch(logout())
           localStorage.clear()
           window.location.href = "/login";
         }

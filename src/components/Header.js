@@ -6,21 +6,21 @@ import { Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { getData } from "../app/api";
 import {
-  clearSession,
+  logout,
   setAcademicYear,
   setAcademicYears,
   setBranchData,
-  setBranchId,
+  setBranchId
 } from "../app/reducers/appConfigSlice";
-import { capitalizeWords, handleApiResponse } from "../commonComponent/CommonFunctions";
 import { ACADEMIC_YEAR } from "../app/url";
-import { getData } from "../app/api";
+import { capitalizeWords, handleApiResponse } from "../commonComponent/CommonFunctions";
 
 function Header({ updateSideBar }) {
   let academicId = localStorage.getItem("academicYear");
   let branchId = localStorage.getItem("branchId");
-  const { branchs, user, academicYears,academicYear, branchData } = useSelector((state) => state.appConfig);
+  const { branchs, user, academicYears, academicYear, branchData } = useSelector((state) => state.appConfig);
   const [selectedBranch, setSelectedBranch] = useState(branchId || null);
   const [branch, setBranch] = useState(branchData || null);
   const [academic, setAcademic] = useState(academicId || null);
@@ -30,7 +30,7 @@ function Header({ updateSideBar }) {
     localStorage.removeItem("studentManagement");
     localStorage.removeItem("branchId");
     localStorage.removeItem("academicYear");
-    dispatch(clearSession());
+    dispatch(logout());
     navigate("/login");
   };
   useEffect(() => {
@@ -51,8 +51,8 @@ function Header({ updateSideBar }) {
     localStorage.setItem("branchId", branchId);
     setSelectedBranch(branchId);
     dispatch(setBranchId(branchId));
-    branchs.forEach(branch=>{
-      if(branch.value === branchId) {
+    branchs.forEach(branch => {
+      if (branch.value === branchId) {
         setBranch(branch)
         dispatch(
           setBranchData({
@@ -65,16 +65,16 @@ function Header({ updateSideBar }) {
     updateAcademicYear()
   };
 
-  const updateAcademicYear = async() => {
-   try{
-    const res = await getData(ACADEMIC_YEAR + "/all");
-    dispatch(setAcademicYears(res.data.data));
-    let academic = res.data.data.find((year) => year.year === academicYear?.year);
-    localStorage.setItem('academicYear',academic._id)
-    window.location.reload();
-   }catch(error) {
-    handleApiResponse(error)
-   }
+  const updateAcademicYear = async () => {
+    try {
+      const res = await getData(ACADEMIC_YEAR + "/all");
+      dispatch(setAcademicYears(res.data.data));
+      let academic = res.data.data.find((year) => year.year === academicYear?.year);
+      localStorage.setItem('academicYear', academic._id)
+      window.location.reload();
+    } catch (error) {
+      handleApiResponse(error)
+    }
   }
 
   return (

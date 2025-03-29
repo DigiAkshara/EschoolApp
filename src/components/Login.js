@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 import { getData, postData } from '../app/api'
 import {
+  fetchInitialAppData,
   loadNavConfig,
   setAcademicYear,
   setActiveMenu,
@@ -71,6 +72,7 @@ export default function Login() {
         dispatch(setAcademicYear(response.data.academicYear))
         dispatch(setActiveMenu("home"))
         dispatch(loadNavConfig({permissions:user.permissions?.permissions, role:user.role.name}))
+        dispatch(fetchInitialAppData())
         navigate('/')
         // if(user.role.name !== 'superadmin') {
         //   dispatch(fetchTenant(user.tenant))
