@@ -70,12 +70,14 @@ const StudentDailyAttendance = () => {
     setFieldValue("class", classValue);
     setFieldValue("section", "");
     setFieldValue("allAttendance", "");
+    setAttendanceMarked(false)
   };
 
   const handleSectionChange = (e, values, setFieldValue) => {
     const sectionValue = e.target.value;
     setFieldValue("section", sectionValue);
     setFieldValue("allAttendance", "");
+    setAttendanceMarked(false)
   };
 
   const handleSubmit = async (values) => {
@@ -84,7 +86,7 @@ const StudentDailyAttendance = () => {
       (student) => !student.attendanceStatus
     );
     if (incompleteAttendance) {
-      handleApiResponse("Please add attendance for all the students.");
+      handleApiResponse({message:"Please add attendance for all the students."});
       return; // Stop execution if validation fails
     }
     try {

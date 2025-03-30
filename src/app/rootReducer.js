@@ -1,17 +1,16 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import TenantConfigSlice from './reducers/TenantConfigSlice'
-import appConfigSlice,{logout} from './reducers/appConfigSlice'
-import tenantReducer from './reducers/tenantSlice'
-import classReducer from './reducers/classSlice'
-import examSlice from './reducers/examSlice'
-import stuFeesReducer from './reducers/stuFeesSlice'
-import studentSlice from './reducers/studentSlice'
-import academicSlice from './reducers/academicSlice'
-import holidayReducer from './reducers/holidaySlice'
-import staffSlice from './reducers/staffSlice'
+import TenantConfigSlice from './reducers/TenantConfigSlice';
+import academicSlice from './reducers/academicSlice';
+import appConfigSlice, { logout } from './reducers/appConfigSlice';
+import attendanceSlice from './reducers/attendanceSlice';
+import classReducer from './reducers/classSlice';
+import designationReducer from './reducers/designationSlice';
+import examSlice from './reducers/examSlice';
 import feeSlice from "./reducers/feeSlice";
-import designationReducer from './reducers/designationSlice'
-import attendanceSlice from './reducers/attendanceSlice'
+import holidayReducer from './reducers/holidaySlice';
+import staffSlice from './reducers/staffSlice';
+import stuFeesReducer from './reducers/stuFeesSlice';
+import studentSlice from './reducers/studentSlice';
 
 const appReducer = combineReducers({
   tenant: TenantConfigSlice,
@@ -24,7 +23,6 @@ const appReducer = combineReducers({
   holiday: holidayReducer,
   staff: staffSlice,
   fees: feeSlice,
-  tenantData: tenantReducer,
   designation: designationReducer,
   attendance: attendanceSlice,
 });

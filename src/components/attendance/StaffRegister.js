@@ -85,12 +85,12 @@ function StaffRegister() {
   const getStaffData = async (monTh, yeAr) => {
     try {
       const response = await getData(
-        "/attendance?month=" + monTh + "&year=" + yeAr + "&userType=staff"
+        ATTENDANCE + "?month=" + monTh + "&year=" + yeAr + "&userType=staff"
       );
       let data = transformAttendanceData(response.data.data);
       setStaffs(data);
       const staffData = data?.filter(
-        (staffMember) => staffMember.category === "teaching"
+        (staffMember) => staffMember.category === staffCategory
       );
       setStaffList(staffData);
     } catch (error) {

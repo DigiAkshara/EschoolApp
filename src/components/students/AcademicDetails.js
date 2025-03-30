@@ -10,7 +10,7 @@ import CustomInput from '../../commonComponent/CustomInput'
 import CustomSelect from '../../commonComponent/CustomSelect'
 
 function StudentAcademicDetails({ values, setFieldValue }) {
-  const { classes, sections } = useSelector((state) => state.students)
+  const { classes, sections, boards } = useSelector((state) => state.students)
   const academicYear = useSelector((state) => state.appConfig.academicYear)
   const [academicYears, setAcademicYears] = useState([])
   const [prevAcademicOpts, setPrevAcademicOpts] = useState([])
@@ -59,6 +59,15 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               name="academics.academicYear"
               label="Academic year"
               options={academicYears}
+              required={true}
+              disabled={values._id ? true : false}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <CustomSelect
+              name="academics.board"
+              label="Board"
+              options={boards}
               required={true}
               disabled={values._id ? true : false}
             />

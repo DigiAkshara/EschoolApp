@@ -227,16 +227,6 @@ const StudentProfileModal = ({ show, close }) => {
                               type="button"
                               className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                             >
-                              <PencilIcon
-                                aria-hidden="true"
-                                className="size-5"
-                              />
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                            >
                               <TrashIcon
                                 aria-hidden="true"
                                 className="size-5"

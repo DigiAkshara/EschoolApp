@@ -73,7 +73,7 @@ const StaffDailyAttendance = () => {
       (staff) => !staff.attendanceStatus
     );
     if (incompleteAttendance) {
-      handleApiResponse("Please mark attendance for all staff members.");
+      handleApiResponse({message:"Please mark attendance for all staff members."});
       return; // Stop submission if validation fails
     }
     try {

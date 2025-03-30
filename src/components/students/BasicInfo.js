@@ -78,6 +78,7 @@ function BasicInfo({ values, setFieldValue }) {
             <CustomDate name="DOB" label="Date of Birth" required={true} maxDate={minAgeDate} disabled={values._id ? true : false} />
           </div>
 
+          
           <div className="sm:col-span-2">
             <CustomRadio
               name="gender"
@@ -87,7 +88,16 @@ function BasicInfo({ values, setFieldValue }) {
             />
           </div>
 
-          <div className="sm:col-span-1">
+          <div className="sm:col-span-2">
+            <CustomInput
+              name="mobileNumber"
+              label="Mobile Number"
+              placeholder="Enter student mobile"
+            />
+          </div>
+
+
+          <div className="sm:col-span-2">
             <CustomSelect
               name="nationality"
               label="Nationality"
@@ -95,15 +105,15 @@ function BasicInfo({ values, setFieldValue }) {
             />
           </div>
 
-          <div className="sm:col-span-1">
+          <div className="sm:col-span-2">
             <CustomSelect name="religion" label="Religion" options={religion} />
           </div>
 
-          <div className="sm:col-span-1">
+          <div className="sm:col-span-2">
             <CustomSelect name="cast" label="Cast" options={caste} />
           </div>
 
-          <div className="sm:col-span-1">
+          <div className="sm:col-span-2">
             <CustomInput
               name="subCast"
               label="Sub Caste"
@@ -119,6 +129,7 @@ function BasicInfo({ values, setFieldValue }) {
               options={bloodGroup}
             />
           </div>
+
 
           <div className="sm:col-span-2">
             <CustomInput

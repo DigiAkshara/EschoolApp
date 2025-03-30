@@ -6,13 +6,18 @@ import { ACADEMIC_YEAR, BRANCH } from '../url'
 
 export const fetchInitialAppData = createAsyncThunk(
   'data/fetchInitialAppData',
-  async (_, { rejectWithValue }) => {
+  async (isSuperAdmin=false, { rejectWithValue }) => {
     try {
+      if(isSuperAdmin){
+        const bracnRes = await getData(BRANCH)
+        return { bracnResp: bracnRes.data.data }
+      }else{
       const [bracnRes, academicRes] = await Promise.all([
         getData(BRANCH),
         getData(ACADEMIC_YEAR + '/all'),
       ]) // Replace with your API endpoint
       return { bracnResp: bracnRes.data.data, academicResp: academicRes.data.data }
+    }
     } catch (error) {
       return rejectWithValue(error.response?.data || 'Failed to load data')
     }
@@ -51,6 +56,7 @@ let initialState={
   academicYear: null,
   academicYears: [],
   branchs: [],
+  allTenants: [],
   user: null,
   navConfig: [],
   tenantId: null,
@@ -107,6 +113,7 @@ const AppConfigSlice = createSlice({
       let branchId = localStorage.getItem('branchId')
       let branchObj = null
       state.branchId = branchId
+      state.allTenants = action.payload.bracnResp
       state.branchs = action.payload.bracnResp.map((branch) => {
         let obj = {
           value: branch._id,
@@ -123,9 +130,9 @@ const AppConfigSlice = createSlice({
         return (obj)
       })
       state.branchData = branchObj
-      state.academicYears = action.payload.academicResp
+      state.academicYears = action.payload?.academicResp
       let academicYear = localStorage.getItem('academicYear')
-      let academic = action.payload.academicResp.find((year) => year._id === academicYear)
+      let academic = action.payload?.academicResp?.find((year) => year._id === academicYear)
       state.academicYear = academic
     })
   },

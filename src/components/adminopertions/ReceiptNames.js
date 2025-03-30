@@ -2,12 +2,14 @@ import { Dialog } from '@headlessui/react';
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
+import { useSelector } from 'react-redux';
 import * as Yup from "yup";
 import { deleteData, getData, postData } from "../../app/api";
-import { BRANCH, RECEIPT_NAMES } from "../../app/url";
-import { handleApiResponse } from "../../commonComponent/CommonFunctions";
+import { RECEIPT_NAMES } from "../../app/url";
+import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 import CustomInput from "../../commonComponent/CustomInput";
+import CustomSelect from '../../commonComponent/CustomSelect';
 import TableComponent from "../../commonComponent/TableComponent";
 
 function ReceiptNames() {
@@ -20,6 +22,7 @@ function ReceiptNames() {
 
   const columns = [
     { title: "Receipt Name", key: "receiptName" },
+    { title: "Branch Name", key: "branchName" },
     { title: "Actions", key: "actions" },
   ];
 
@@ -33,7 +36,8 @@ function ReceiptNames() {
       const data = res.data.data.map((item, index) => {
         return {
           _id: item._id,
-          receiptName: item.name,
+          receiptName: capitalizeWords(item.name), //item.name,
+          branchName: capitalizeWords(item.branch.name),
           actions: [
             { label: "Delete", actionHandler: onDelete },
           ],
@@ -51,15 +55,15 @@ function ReceiptNames() {
   };
 
   const deleteRecord = async () => {
-     try {
-       let res = await deleteData(RECEIPT_NAMES + '/' + deleteId)
-       handleApiResponse(res.data.message, 'success')
-       setDeleteConfirm(false)
-       setDeleteId(null)
-       getReceiptNames()
-     } catch (error) {
-       handleApiResponse(error)
-     }
+    try {
+      let res = await deleteData(RECEIPT_NAMES + '/' + deleteId)
+      handleApiResponse(res.data.message, 'success')
+      setDeleteConfirm(false)
+      setDeleteId(null)
+      getReceiptNames()
+    } catch (error) {
+      handleApiResponse(error)
+    }
   };
 
   const paginatedData = filteredData.slice(
@@ -130,12 +134,36 @@ function ReceiptNames() {
 
 
 const NewReceiptNameModal = ({ onClose, updateData }) => {
+  const branchs = useSelector((state) => state.appConfig.allTenants);
+  const [branchOptions, setBranchOptions] = useState([])
+  const [tenantOptions, setTenantOptions] = useState([])
+  const formData = { name: "", tenantId: null, branchId: null }
 
-  const formData = { name: "" }
+  useEffect(() => {
+    if (branchs.length > 0) {
+      let branchRes = []
+      let tenantRes = []
+      branchs.forEach((item) => {
+        branchRes.push({
+          value: item._id,
+          label: item.name,
+          tenant: item.tenant._id
+        })
+        if (item.isDefault) tenantRes.push({
+          value: item.tenant._id,
+          label: item.name,
+        })
+      })
+      setBranchOptions(branchRes)
+      setTenantOptions(tenantRes)
+    }
+  }, [branchs]);
 
   const getValidationSchema = () => {
     return Yup.object({
       name: Yup.string().required("Receipt Name is required"),
+      branchId: Yup.string().required("Branch is required"),
+      tenantId: Yup.string().required("Tenant is required"),
     });
   };
 
@@ -174,6 +202,21 @@ const NewReceiptNameModal = ({ onClose, updateData }) => {
 
                 {/* Modal Body */}
                 <div className="p-6">
+                  <CustomSelect
+                    name="tenantId"
+                    label="Tenant"
+                    placeholder="Select Tenant"
+                    options={tenantOptions}
+                    required={true}
+                  />
+                  <CustomSelect
+                    name="branchId"
+                    label="Branch"
+                    placeholder="Select Branch"
+                    options={branchOptions.filter((item) => item.tenant === values.tenantId)}
+                    required={true}
+                    disabled={values.tenantId ? false : true}
+                  />
                   <CustomInput
                     name="name"
                     label="Receipt Name"

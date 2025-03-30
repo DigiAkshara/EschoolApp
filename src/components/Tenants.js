@@ -1,13 +1,15 @@
-import {Dialog} from '@headlessui/react'
-import {PlusIcon} from '@heroicons/react/20/solid'
-import {useEffect, useState} from 'react'
-import {getData} from '../app/api'
-import {TENANT, BRANCH} from '../app/url'
+import { Dialog } from '@headlessui/react'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchInitialAppData } from '../app/reducers/appConfigSlice'
+import { updateTenant } from '../app/reducers/TenantConfigSlice'
 import TableComponent from '../commonComponent/TableComponent'
 import Tenant from './tenants/Tenant'
-import { handleApiResponse } from '../commonComponent/CommonFunctions';
 
 export default function Tenants() {
+  const dispatch = useDispatch()
+  const tenants = useSelector((state) => state.appConfig.allTenants);
   const [tenantList, setTenantList] = useState([])
   const [open, setOpen] = useState(false)
   const [filteredData, setFilteredData] = useState([])
@@ -15,48 +17,42 @@ export default function Tenants() {
   const rowsPerPage = 10
 
   useEffect(() => {
-    getTenants()
-  }, [])
+    if (tenants.length > 0) {
+      let data = tenants.filter((tenant) => tenant.isDefault).map((item) => {
+        return {
+          _id: item._id,
+          tenantId: item.tenant._id,
+          name: item.name,
+          email: item.tenant.email,
+          adminName: item.contactPerson || 'N/A',
+          mobileNumber: item.tenant.mobileNumber,
+          actions: [
+            { label: "Edit", actionHandler: onHandleEdit },
+            { label: "Delete", actionHandler: onDelete },
+          ],
+        }
+      })
+      setFilteredData(data)
+      setTenantList(tenants.filter((item) => item.isDefault))
+    }
+  }, [tenants])
 
   const columns = [
-    {title: 'School Name', key: 'name'},
-    {title: 'Email', key: 'email'},
-    {title: 'Admin Name', key: 'adminName'},
-    {title: 'Mobile Number', key: 'mobileNumber'},
-    {title: 'Actions', key: 'actions'},
+    { title: 'School Name', key: 'name' },
+    { title: 'Email', key: 'email' },
+    { title: 'Admin Name', key: 'adminName' },
+    { title: 'Mobile Number', key: 'mobileNumber' },
+    { title: 'Actions', key: 'actions' },
   ]
 
   const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
+  const handleClose = () => { setOpen(false); dispatch(updateTenant(null)) }
 
-  const getTenants = async () => {
-    try {
-      const response = await getData(BRANCH+'?isDefault=true')
-      let data=[]
-      if (response.data.data) {
-        data = response.data.data.map((item) => {
-          return {
-            _id: item.tenant._id,
-            name: item.name,
-            email: item.tenant.email,
-            adminName: 'test',
-            mobileNumber: item.tenant.mobileNumber,
-            actions: [
-              { label: "Edit", actionHandler: onHandleEdit },
-              { label: "Delete", actionHandler: onDelete },
-            ],
-          }
-        })
-        setFilteredData(data)
-        setTenantList(data)
-      };
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  };
 
   const onHandleEdit = async (tenantId) => {
-    console.log("edited", tenantId);  
+    let tenant = tenantList.find((tenant) => tenant._id === tenantId)
+    dispatch(updateTenant(tenant))
+    setOpen(true)
   }
 
   const onDelete = async (tenantId) => {
@@ -68,8 +64,8 @@ export default function Tenants() {
       key: 'age',
       label: 'Age Filter',
       options: [
-        {value: '20-30', label: '20-30'},
-        {value: '30-40', label: '30-40'},
+        { value: '20-30', label: '20-30' },
+        { value: '30-40', label: '30-40' },
       ],
     },
   ]
@@ -104,11 +100,15 @@ export default function Tenants() {
     currentPage * rowsPerPage,
   )
 
+  const getTenants = () => {
+    dispatch(fetchInitialAppData(true))
+  }
+
   return (
     <div className="flow-root">
       {/* Secondary Tabs */}
       <div className="mt-4 flex justify-between">
-        {/* <div className="sm:hidden">
+        <div className="sm:hidden">{/*
           <label htmlFor="tabs2" className="sr-only">
             Select a tab
           </label>
@@ -153,8 +153,8 @@ export default function Tenants() {
                 ) : null}
               </a>
             ))}
-          </nav>
-        </div> */}
+          </nav> */}
+        </div>
         <div className="right-btns-blk space-x-4">
           <button
             type="button"
@@ -171,19 +171,19 @@ export default function Tenants() {
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-                {/* Table View */}
-                <TableComponent
-                  columns={columns}
-                  data={paginatedData}
-                  // filters={filters}
-                  // onSearch={handleSearch}
-                  // onFilter={handleFilter}
-                  pagination={{
-                    currentPage,
-                    totalCount: filteredData.length,
-                    onPageChange: handlePageChange,
-                  }}
-                />
+              {/* Table View */}
+              <TableComponent
+                columns={columns}
+                data={paginatedData}
+                // filters={filters}
+                // onSearch={handleSearch}
+                // onFilter={handleFilter}
+                pagination={{
+                  currentPage,
+                  totalCount: filteredData.length,
+                  onPageChange: handlePageChange,
+                }}
+              />
             </div>
           </div>
         </div>
@@ -193,7 +193,7 @@ export default function Tenants() {
 
       <Dialog open={open} onClose={setOpen} className="relative z-50">
         <div className="fixed inset-0" />
-        <Tenant onClose={handleClose} loadTenants={getTenants}/>
+        <Tenant onClose={handleClose} loadTenants={getTenants} />
       </Dialog>
     </div>
   )
