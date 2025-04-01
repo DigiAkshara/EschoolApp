@@ -1,21 +1,26 @@
 import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
+import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
+import { postData, updateData } from "../../app/api";
+import { BRANCH, TENANT } from "../../app/url";
 import {
   handleApiResponse,
   uploadFile,
 } from "../../commonComponent/CommonFunctions";
 import CustomFileUploader from "../../commonComponent/CustomFileUploader";
 import CustomInput from "../../commonComponent/CustomInput";
-import { postData } from "../../app/api";
-import { TENANT } from "../../app/url";
 import CustomRadio from "../../commonComponent/CustomRadio";
+import { updateTenant } from "../../app/reducers/TenantConfigSlice";
 
 export default function Tenant({ onClose, loadTenants }) {
+  const selectedTenant = useSelector((state) => state.tenant.selectedTenant);
+  const dispatch = useDispatch();
   const getInitialValues = () => {
     return {
       name: "",
+      contactPerson: "",
       email: "",
       mobileNumber: "",
       address: {
@@ -27,10 +32,28 @@ export default function Tenant({ onClose, loadTenants }) {
       logo: null,
       studentCount: 0,
       smsCount: 0,
-      whatsAppCount: 0,
-      portalEnabledStudents: "",
-      portalEnabledStaff: "",
-      contactPerson: "",
+      whatsappCount: 0,
+      portalEnabledStudents: "yes",
+      portalEnabledStaff: "yes",
+      whatsappUserId: "",
+      whatsappPassword: "",
+      ...(selectedTenant && {
+        name: selectedTenant.name,
+        contactPerson: selectedTenant.contactPerson,
+        email: selectedTenant.email,
+        mobileNumber: selectedTenant.mobileNumber,
+        address: selectedTenant.address,
+        logo: selectedTenant.logo,
+        studentCount: selectedTenant.studentCount,
+        smsCount: selectedTenant.smsCount,
+        whatsappCount: selectedTenant.whatsappCount,
+        portalEnabledStudents: selectedTenant.portalEnabledStudents ? "yes" : "no",
+        portalEnabledStaff: selectedTenant.portalEnabledStaff ? "yes" : "no",
+        tenantId: selectedTenant.tenant._id,
+        _id: selectedTenant._id,
+        whatsappUserId: selectedTenant.whatsappUserId,
+        whatsappPassword: selectedTenant.whatsappPassword,
+      }),
     };
   };
 
@@ -78,15 +101,17 @@ export default function Tenant({ onClose, loadTenants }) {
           .matches(/^\d{6}$/, "Pincode must be a 6-digit numeric code")
           .required("Pincode is required"),
       }),
-      studentCount: Yup.string().required("Students Count is required").max(5),
-      smsCount: Yup.string().required("SMS Count is required").max(5),
-      whatsAppCount: Yup.string().required("WhatsApp Count is required").max(5),
+      studentCount: Yup.string(),
+      smsCount: Yup.string(),
+      whatsappCount: Yup.string(),
       portalEnabledStudents: Yup.string().required(
         "Portal Enabled Students is required"
       ),
       portalEnabledStaff: Yup.string().required(
         "Portal Enabled Staff is required"
       ),
+      whatsappUserId: Yup.string(),
+      whatsappPassword: Yup.string(),
       logo: Yup.mixed()
         .nullable()
         .test(
@@ -121,10 +146,11 @@ export default function Tenant({ onClose, loadTenants }) {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await postData(TENANT, values);
+      const response = values._id ? await updateData(BRANCH + "/" + values._id, values) : await postData(TENANT, values);
       handleApiResponse(response.data.message, "success");
       loadTenants();
       onClose();
+      dispatch(updateTenant(null))
     } catch (error) {
       handleApiResponse(error);
     }
@@ -227,6 +253,7 @@ export default function Tenant({ onClose, loadTenants }) {
                                     label="Mobile Number"
                                     placeholder="Enter mobile"
                                     required={true}
+                                    disabled={values._id ? true : false}
                                   />
                                 </div>
 
@@ -236,6 +263,7 @@ export default function Tenant({ onClose, loadTenants }) {
                                     label="Email"
                                     placeholder="Enter email"
                                     required={true}
+                                    disabled={values._id ? true : false}
                                   />
                                 </div>
                               </div>
@@ -273,7 +301,6 @@ export default function Tenant({ onClose, loadTenants }) {
                                     name="studentCount"
                                     label="No. of Students"
                                     placeholder="Enter no. of students allowed"
-                                    required={true}
                                   />
                                 </div>
                                 <div className="sm:col-span-1">
@@ -282,7 +309,6 @@ export default function Tenant({ onClose, loadTenants }) {
                                     name="smsCount"
                                     label="Number of SMS"
                                     placeholder="Enter no. of SMS allowed"
-                                    required={true}
                                   />
                                 </div>
                                 <div className="sm:col-span-1">
@@ -291,7 +317,21 @@ export default function Tenant({ onClose, loadTenants }) {
                                     name="whatsappCount"
                                     label="No of Whatsapp"
                                     placeholder="Enter no. of Whatsapp messages allowed"
-                                    required={true}
+                                  />
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <CustomInput
+                                    name="whatsappUserId"
+                                    label="Whatsapp User ID"
+                                    placeholder="Enter Whatsapp User ID"
+                                  />
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <CustomInput
+                                    type="password"
+                                    name="whatsappPassword"
+                                    label="Whatsapp Password"
+                                    placeholder="Enter Whatsapp password"
                                   />
                                 </div>
                               </div>

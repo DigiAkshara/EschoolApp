@@ -33,7 +33,6 @@ function ManageExamResults() {
   const [examOptions, setExamOptions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-  const tenant = useSelector((state) => state.tenantData);
   const { branchData } = useSelector((state) => state.appConfig)
 
 

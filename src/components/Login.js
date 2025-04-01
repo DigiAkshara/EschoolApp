@@ -9,19 +9,18 @@ import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
-import { getData, postData } from '../app/api'
+import { postData } from '../app/api'
 import {
+  fetchInitialAppData,
   loadNavConfig,
   setAcademicYear,
   setActiveMenu,
   setBranchData,
   setBranchId,
-  setBranchs,
   setIsLoader,
-  setUser,
+  setUser
 } from '../app/reducers/appConfigSlice'
-import { fetchTenant } from '../app/reducers/TenantConfigSlice'
-import { BRANCH, LOGIN } from '../app/url'
+import { LOGIN } from '../app/url'
 import { handleApiResponse, roles } from '../commonComponent/CommonFunctions'
 import CustomButton from '../commonComponent/CustomButton'
 import CustomInput from '../commonComponent/CustomInput'
@@ -50,31 +49,30 @@ export default function Login() {
       dispatch(setIsLoader(true))
       let response = await postData(LOGIN, values)
       const user = jwtDecode(response.data.token)
-      if(response.data.branch) {
+      if (response.data.branch) {
         let branch = response.data.branch
         localStorage.setItem('branchId', branch._id)
         dispatch(setBranchId(branch._id))
         dispatch(setBranchData({
-          value:branch._id,
-          label:branch.name,
-          address:branch.address,
-          logo:branch.logo,
-          email:branch.email,
-          mobileNumber:branch.mobileNumber,
-          isDefault:branch.isDefault
+          value: branch._id,
+          label: branch.name,
+          address: branch.address,
+          logo: branch.logo,
+          email: branch.email,
+          mobileNumber: branch.mobileNumber,
+          isDefault: branch.isDefault
         }))
       }
-      if(user.permissions|| user.role.name === 'superadmin') {
+      const isSuperAdmin = user.role.name === 'superadmin'
+      if (user.permissions || isSuperAdmin) {
         localStorage.setItem('studentManagement', response.data.token)
         localStorage.setItem('academicYear', response.data.academicYear?._id)
         dispatch(setUser(user))
         dispatch(setAcademicYear(response.data.academicYear))
         dispatch(setActiveMenu("home"))
-        dispatch(loadNavConfig({permissions:user.permissions?.permissions, role:user.role.name}))
+        dispatch(loadNavConfig({ permissions: user.permissions?.permissions, role: user.role.name }))
+        dispatch(fetchInitialAppData(isSuperAdmin))
         navigate('/')
-        // if(user.role.name !== 'superadmin') {
-        //   dispatch(fetchTenant(user.tenant))
-        // }
       } else {
         handleApiResponse({
           message: "You don't have permission to login"
@@ -100,7 +98,7 @@ export default function Login() {
       validationSchema={validationSchemas}
       onSubmit={handleSubmit}
     >
-      {({values}) => (
+      {({ values }) => (
         <Form className="h-screen ">
           <div className="flex min-h-full flex-1">
             <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">

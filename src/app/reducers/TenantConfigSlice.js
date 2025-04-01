@@ -1,33 +1,48 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
-import {getData} from '../api'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { getData } from '../api'
+import { BRANCH } from '../url'
 
-export const fetchTenant = createAsyncThunk('/tenant', async (tenantId) => {
-  const response = await getData(`/tenant/${tenantId}`)
-  return response
-})
+
+export const fetchTenants = createAsyncThunk(
+  'data/fetchTenants',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getData(BRANCH+'?isDefault=true')
+      return response.data.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to load data')
+    }
+  },
+)
 const tenantSlice = createSlice({
   name: 'Tenant',
   initialState: {
-    data: null,
+    tenants:[],
+    selectedTenant: null,
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    updateTenant: (state, action) => {
+      state.selectedTenant = action.payload
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTenant.pending, (state) => {
+      .addCase(fetchTenants.pending, (state) => {
         state.loading = true
         state.error = null
       })
-      .addCase(fetchTenant.fulfilled, (state, action) => {
+      .addCase(fetchTenants.fulfilled, (state, action) => {
         state.loading = false
-        state.data = action.payload
+        state.tenants = action.payload
       })
-      .addCase(fetchTenant.rejected, (state, action) => {
+      .addCase(fetchTenants.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message
       })
   },
 })
 
+export const { updateTenant } = tenantSlice.actions
 export default tenantSlice.reducer

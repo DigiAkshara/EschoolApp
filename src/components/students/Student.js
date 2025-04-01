@@ -28,6 +28,7 @@ function Student({ onClose, loadStudents }) {
     bloodGroup: "",
     aadharNumber: "",
     aadharPic: null,
+    mobileNumber: "",
     fatherDetails: {
       name: "",
       mobileNumber: "",
@@ -57,6 +58,7 @@ function Student({ onClose, loadStudents }) {
     //academic tab
     academics: {
       academicYear: "",
+      board: "",
       class: "",
       section: "",
     },
@@ -81,6 +83,7 @@ function Student({ onClose, loadStudents }) {
         classObj: selectedStudent.academics.class,
         section: selectedStudent.academics.section?._id,
         sectionObj: selectedStudent.academics.section,
+        board: selectedStudent.academics.board
       },
       fees: selectedStudent.fees?.feeList || [],
     }),
@@ -115,6 +118,7 @@ function Student({ onClose, loadStudents }) {
       cast: Yup.string(),
       subCast: Yup.string(),
       bloodGroup: Yup.string(),
+      mobileNumber: Yup.string().matches(/^[0-9]{10}$/, "Mobile number must be 10 digits").nullable(),
       fatherDetails: Yup.object({
         name: Yup.string()
           .matches(
@@ -248,6 +252,7 @@ function Student({ onClose, loadStudents }) {
         academicYear: Yup.string().required("Academic year is required"),
         class: Yup.string().required("Class is required"),
         section: Yup.string().required("Section is required"),
+        board: Yup.string().required("Board is required"),
       }),
       admissionNumber: Yup.string()
         .matches(

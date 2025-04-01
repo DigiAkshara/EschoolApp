@@ -615,7 +615,7 @@ function Home() {
 
         <div className='f-overview-widgets mt-4 mb-4'>
           <ul role="list" className="grid grid-cols-3 gap-x-6 gap-y-8">
-            <li key='12' className="col-span-2 overflow-hidden rounded-xl border border-gray-300">
+            <li  className="col-span-2 overflow-hidden rounded-xl border border-gray-300">
               <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
                 <div className='flex items-center item-title-blk'>
                   <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
@@ -688,7 +688,7 @@ function Home() {
               </div>
             </li>
 
-            <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
+            <li  className="overflow-hidden rounded-xl border border-gray-300">
               <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
                 <div className='flex items-center item-title-blk'>
                   <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
@@ -744,7 +744,7 @@ function Home() {
               </div>
             </li>
 
-            <li key='12' className="col-span-1.5 overflow-hidden rounded-xl border border-gray-300">
+            <li  className="col-span-1.5 overflow-hidden rounded-xl border border-gray-300">
               <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
                 <div className='flex items-center item-title-blk'>
                   <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
@@ -781,7 +781,7 @@ function Home() {
 
 
 
-            <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
+            <li  className="overflow-hidden rounded-xl border border-gray-300">
               <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
                 <div className='flex items-center item-title-blk'>
                   <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>
@@ -860,7 +860,7 @@ function Home() {
               </div>
             </li>
 
-            <li key='12' className="overflow-hidden rounded-xl border border-gray-300">
+            <li  className="overflow-hidden rounded-xl border border-gray-300">
               <div className="flex items-center justify-between gap-x-4 px-4 pt-4">
                 <div className='flex items-center item-title-blk'>
                   <div className='inline-flex rounded-lg p-3 bg-teal-50 text-teal-700 ring-4 ring-white'>

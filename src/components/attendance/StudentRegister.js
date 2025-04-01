@@ -96,14 +96,14 @@ function ManageStudentRegister() {
   const getStudentData = async (month, year, cls, section) => {
     try {
       const response = await getData(
-        "/attendance?month=" +
+        ATTENDANCE + "?month=" +
         month +
         "&year=" +
         year +
         "&userType=student" +
-        "&className=" +
+        "&classId=" +
         cls +
-        "&section=" +
+        "&sectionId=" +
         section
       );
       let data = transformAttendanceData(response.data.data);

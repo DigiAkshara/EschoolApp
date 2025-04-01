@@ -2,7 +2,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getData } from "../../app/api";
-import { ACADEMICS } from "../../app/url";
+import { ACADEMICS, ATTENDANCE } from "../../app/url";
 import {
   attendanceOptions,
   handleApiResponse, 
@@ -46,6 +46,7 @@ const AttendanceSidebar = ({
       }});
       dispatch(updateStudents(stuData));
       setFieldValue("attendance", stuData);
+      setAttendanceMarked(false)
     } catch (error) {
       handleApiResponse(error);
     }
@@ -89,7 +90,7 @@ const AttendanceSidebar = ({
   const checkDayAttendance = async (date) => {
     setAttendanceMarked(false);
     try {
-      let URL = "/attendance?date=" + date + "&userType=" + user;
+      let URL = ATTENDANCE+"?date=" + date + "&userType=" + user;
       let data = [...staff]
       if (user === "student") {
         data = [...students]
