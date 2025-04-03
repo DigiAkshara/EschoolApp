@@ -201,6 +201,7 @@ function BasicInfo({ values, setFieldValue }) {
               name="motherDetails.name"
               label="Mother Full Name"
               placeholder="Enter Name"
+              required={true}
             />
           </div>
 

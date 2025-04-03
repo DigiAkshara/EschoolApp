@@ -2,7 +2,7 @@ import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { postData, updateData } from "../../app/api";
 import { STAFF } from "../../app/url";
@@ -113,23 +113,23 @@ function Staff({ onClose, getStaff }) {
     }),
     Yup.object({
       profilePic: Yup.mixed()
-              .nullable()
-              .test(
-                "fileFormat",
-                "Photo must be in JPG, JPEG, or PNG format",
-                (value) => {
-                  if (!value || !(value instanceof File)) return true; 
-      
-                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                  return supportedFormats.includes(value.type);
-                }
-              )
-              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-                if (!value || !(value instanceof File)) return true; 
-      
-                const maxSizeInBytes = 2 * 1024 * 1024;
-                return value.size <= maxSizeInBytes;
-              }),
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value || !(value instanceof File)) return true;
+
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return supportedFormats.includes(value.type);
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value || !(value instanceof File)) return true;
+
+          const maxSizeInBytes = 2 * 1024 * 1024;
+          return value.size <= maxSizeInBytes;
+        }),
 
       email: Yup.string().email("Enter a valid email address").nullable(),
       guardian: Yup.string()
@@ -182,48 +182,48 @@ function Staff({ onClose, getStaff }) {
       aadharNumber: Yup.string()
         .matches(/^\d{12}$/, "Aadhar number must be a 12-digit numeric code")
         .required("Aadhar Number is required"),
-        panNumber: Yup.string()
+      panNumber: Yup.string()
         .matches(
           /^[A-Z]{3}-P-[A-Z]{1}-\d{4}-[A-Z]{1}$/,
           "PAN card must follow the format: AAA-P-A-5555-A"
         )
         .length(10, "PAN card must be exactly 10 characters"),
-      aadharPic:  Yup.mixed()
-              .nullable()
-              .test(
-                "fileFormat",
-                "Photo must be in JPG, JPEG, or PNG format",
-                (value) => {
-                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                  return supportedFormats.includes(value.type);
-                }
-              )
-              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-                if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                const maxSizeInBytes = 2 * 1024 * 1024;
-                return value.size <= maxSizeInBytes;
-              }),
-      panCardPic:  Yup.mixed()
-              .nullable()
-              .test(
-                "fileFormat",
-                "Photo must be in JPG, JPEG, or PNG format",
-                (value) => {
-                  if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                  const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                  return supportedFormats.includes(value.type);
-                }
-              )
-              .test("fileSize", "Photo size must not exceed 2MB", (value) => {
-                if (!value || !(value instanceof File)) return true; // Allow empty/null value
-      
-                const maxSizeInBytes = 2 * 1024 * 1024;
-                return value.size <= maxSizeInBytes;
-              }),
+      aadharPic: Yup.mixed()
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return supportedFormats.includes(value.type);
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+          const maxSizeInBytes = 2 * 1024 * 1024;
+          return value.size <= maxSizeInBytes;
+        }),
+      panCardPic: Yup.mixed()
+        .nullable()
+        .test(
+          "fileFormat",
+          "Photo must be in JPG, JPEG, or PNG format",
+          (value) => {
+            if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+            const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
+            return supportedFormats.includes(value.type);
+          }
+        )
+        .test("fileSize", "Photo size must not exceed 2MB", (value) => {
+          if (!value || !(value instanceof File)) return true; // Allow empty/null value
+
+          const maxSizeInBytes = 2 * 1024 * 1024;
+          return value.size <= maxSizeInBytes;
+        }),
     }),
     Yup.object({
       amount: Yup.string()

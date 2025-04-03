@@ -141,7 +141,8 @@ function Student({ onClose, loadStudents }) {
             "Mother Name can only contain letters and spaces"
           )
           .min(3, "Mother Name must be at least 3 characters")
-          .max(50, "Mother Name must be at most 50 characters"),
+          .max(50, "Mother Name must be at most 50 characters")
+          .required("Mother's Name is required"),
         mobileNumber: Yup.string().matches(
           /^[0-9]{10}$/,
           "Mobile number must be 10 digits"
