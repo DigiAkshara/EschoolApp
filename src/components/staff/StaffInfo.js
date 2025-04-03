@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { handleApiResponse, staffType } from "../../commonComponent/CommonFunctions";
+import {
+  handleApiResponse,
+  staffType,
+} from "../../commonComponent/CommonFunctions";
 import CustomDate from "../../commonComponent/CustomDate";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
@@ -13,18 +16,20 @@ function StaffInfo({ values, setFieldValue }) {
   const getDesignations = async (e, setFieldValue) => {
     try {
       setFieldValue(e.target.name, e.target.value);
-      const response = await getData(DESIGNATION+'?staffType=' + e.target.value);
+      const response = await getData(
+        DESIGNATION + "?staffType=" + e.target.value
+      );
       let desigList = response.data.data.map((item) => {
         return {
           label: item.name,
           value: item._id,
         };
-      })
+      });
       setDesignations(desigList);
     } catch (error) {
       handleApiResponse(error);
     }
-  }
+  };
   return (
     <>
       <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -38,7 +43,9 @@ function StaffInfo({ values, setFieldValue }) {
               label="Staff Type"
               options={staffType}
               required={true}
-              onChange={(e) => { getDesignations(e, setFieldValue) }}
+              onChange={(e) => {
+                getDesignations(e, setFieldValue);
+              }}
             />
           </div>
           <div className="sm:col-span-2">
@@ -102,19 +109,20 @@ function StaffInfo({ values, setFieldValue }) {
               placeholder="Enter email"
             />
           </div>
-
-          <div className="sm:col-span-2">
-            <MutliSelect
-              name="subjects"
-              label="Dealing Subjects"
-              options={subjects}
-              required={values.staffType === "teaching"}
-              value={values.subjects}
-              onChange={(value) => {
-                setFieldValue("subjects", value ? value : []);
-              }}
-            />
-          </div>
+          {values.staffType === "teaching" && (
+            <div className="sm:col-span-2">
+              <MutliSelect
+                name="subjects"
+                label="Dealing Subjects"
+                options={subjects}
+                required={values.staffType === "teaching"}
+                value={values.subjects}
+                onChange={(value) => {
+                  setFieldValue("subjects", value ? value : []);
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>
