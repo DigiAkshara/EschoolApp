@@ -32,7 +32,7 @@ function ClassAndSection() {
       const res = await getData(SECTIONS)
       const data = res.data.data.map((item) => ({
         _id: item._id,
-        class: capitalizeWords(item.class.name),
+        class: capitalizeWords(item.class?.name),
         section: capitalizeWords(item.section),
         actions: [
           { label: "Delete", actionHandler: onDelete },

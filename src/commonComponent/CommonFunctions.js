@@ -291,25 +291,6 @@ export const getClassCategories = async () => {
   }
 };
 
-export const getSections = async () => {
-  try {
-    const res = await getData(SECTIONS);
-    if (res.status === 200 || res.status === 201) {
-      const sectionData = res.data.data.map((item) => {
-        return {
-          label: item.section, // Displayed text in the dropdown
-          value: item._id,
-        };
-      });
-      return sectionData;
-    } else {
-      throw new Error(res.message);
-    }
-  } catch (error) {
-    return [];
-  }
-};
-
 export const handleDownload = (
   filteredData,
   fileName,

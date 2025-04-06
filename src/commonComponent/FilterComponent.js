@@ -9,7 +9,7 @@ import { Form, Formik } from 'formik'
 import CustomSelect from './CustomSelect'
 import { capitalizeWords } from './CommonFunctions'
 import DownloadDialog from './CommonDialogBox'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const FilterComponent = ({
   onSearch,
@@ -33,7 +33,6 @@ const FilterComponent = ({
     }
   }
 
-
   const openDialog = () => {
     setIsDialogOpen(true);
   };
@@ -50,6 +49,11 @@ const FilterComponent = ({
     }
     closeDialog(); // Close the dialog after the choice is made
   };
+
+  useEffect(() => {
+    handleFilter(filterForm)
+  },[filterForm])
+
   return (
     <div className="relative table-tool-bar z-20">
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
@@ -71,7 +75,7 @@ const FilterComponent = ({
               />
             </div>
           </div>
-          <Formik initialValues={filterForm} onSubmit={handleFilter}>
+          <Formik initialValues={filterForm} onSubmit={handleFilter} enableReinitialize>
             {({ values, setFieldValue }) => (
               <Form>
                 <div className="right-action-btns-blk space-x-4">

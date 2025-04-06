@@ -6,9 +6,8 @@ import {
 import moment from 'moment'
 import React, { useState } from 'react'
 import PaginationComponent from './PaginationComponent'
-const TableComponent = ({ columns, data, pagination, showModal, modalColumn, checkColumn=true }) => {
+const TableComponent = ({checkAll=false, columns, data, pagination, showModal, modalColumn, checkColumn=true, onCheckbox=()=>{}, onCheckAll=()=>{} }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
-
   const handleSort = ({ key }) => {
     let direction = 'asc'
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -35,8 +34,10 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn, che
               {checkColumn&&
               <th scope="col" className="relative px-7 sm:w-12 sm:px-6">
                 <input
+                  checked={checkAll}
+                  onChange={onCheckAll}
                   type="checkbox"
-                  className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                  className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600 cursor-pointer"
                 />
               </th>}
               {columns.map((col, index) => (
@@ -66,10 +67,12 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn, che
               <tr key={indx} className="bg-gray-50">
                 {checkColumn&&
                 <td className="relative px-7 sm:w-12 sm:px-6">
-                  <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-600" />
+                  <div className="absolute inset-y-0 left-0 w-0.5 bg-purple-" />
                   <input
+                    checked={record.isChecked}
+                    onChange={() => onCheckbox(record._id)}
                     type="checkbox"
-                    className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                    className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600 cursor-pointer"
                   />
                 </td>}
                 {columns.map((col, ind) =>
@@ -119,7 +122,7 @@ const TableComponent = ({ columns, data, pagination, showModal, modalColumn, che
                             <span className="sr-only">Open options</span>
                             <EllipsisHorizontalIcon
                               aria-hidden="true"
-                              className="size-5"
+                              className="size-5 cursor-pointer"
                             />
                           </MenuButton>
                         </div>

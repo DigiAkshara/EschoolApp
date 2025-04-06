@@ -2,15 +2,41 @@ import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import * as XLSX from "xlsx";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { postData } from "../app/api";
 import { STAFF, STUDENT } from "../app/url";
-import { handleDownload, handleDownloadCSV } from "./CommonFunctions";
+import { handleApiResponse, handleDownload, handleDownloadCSV } from "./CommonFunctions";
+import { useSelector } from "react-redux";
+import moment from "moment";
 
-function CommonUpload({ onClose, user }) {
+function CommonUpload({ onClose, user, loadData = () => { } }) {
+  let fileInputRef = useRef();
+  const { classes, sections, boards } = useSelector((state) => state.students)
+  const { academicYears } = useSelector((state) => state.appConfig)
   const [bulkUploadList, setBulkUploadList] = useState([]);
   const [validationError, setValidationError] = useState("");
   const [duplicateHandlingOption, setDuplicateHandlingOption] = useState("skip");
+  const [classValue, setClassValue] = useState("");
+  const [sectionValue, setSectionValue] = useState("");
+  const [academicYearValue, setAcademicYearValue] = useState("");
+  const [boardValue, setBoardValue] = useState("");
+
+  useEffect(() => {
+    if (academicYears.length > 0) {
+      setAcademicYearValue(academicYears.filter((item) => item.status === 'upcoming')[0]._id);
+    }
+  }, [academicYears]);
+
+  useEffect(() => {
+    if (classes.length > 0 && sections.length > 0) {
+      const classId = classes[0].value;
+      setClassValue(classId)
+      setSectionValue(sections.filter((sec) => sec.class === classId)[0].value);
+    }
+    if (boards.length > 0) {
+      setBoardValue(boards[0].value);
+    }
+  }, [classes, sections, boards]);
 
   const csvHeadersStudent = [
     "FirstName",
@@ -33,9 +59,6 @@ function CommonUpload({ onClose, user }) {
     "MotherOccupation",
     "MotherEmail",
     "ParentIdProof",
-    "AcademicYear",
-    "Class",
-    "Section",
     "AdmissionDate",
     "PresentArea",
     "PresentCity",
@@ -96,16 +119,26 @@ function CommonUpload({ onClose, user }) {
 
   const downloadSampleXLS = () => {
     if (user === "student") {
-
       handleDownload(csvHeadersStudent, "sample-student-data");
     } else if (user === "staff") {
       handleDownload(csvHeadersStaff, "sample-staff-data");
     }
   };
 
-  const handleUpload = (event) => {
-    const file = event.target.files[0];
+  const excelDateToJSDate = (serial) => {
+    const utcDays = Math.floor(serial - 25569);
+    const jsDate = new Date(utcDays * 86400 * 1000);
+    return moment(jsDate).format('YYYY-MM-DD');
+  };
 
+  const clearFileInput = () => {
+    fileInputRef.current.value = null;
+  }
+
+  const handleUpload = (event) => {
+    setBulkUploadList([]);
+    setValidationError("");
+    const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -124,12 +157,14 @@ function CommonUpload({ onClose, user }) {
             firstName: item.FirstName || "",
             lastName: item.LastName || "",
             admissionNumber: item.AdmissionNo || "",
-            class: item.Class || "",
-            section: item.Section || "",
-            DOB: item.DateOfBirth || "",
+            DOB: excelDateToJSDate(item.DateOfBirth) || "",
             aadharNumber: item.AadharNumber || "",
-            gender: item.Gender || "",
-            admissionDate: item.AdmissionDate || "",
+            gender: item.Gender.toLowerCase() || "",
+            board: boardValue,
+            class: classValue,
+            section: sectionValue,
+            academicYear: academicYearValue,
+            admissionDate: excelDateToJSDate(item.AdmissionDate) || "",
             fatherDetails: {
               email: item.FatherEmail || "",
               mobileNumber: item.FatherMobile || "",
@@ -203,13 +238,11 @@ function CommonUpload({ onClose, user }) {
         // Parse and map the data
         const requiredFields =
           user === "student"
-            ? ["firstName", "lastName", "admissionNumber", "gender", "fatherDetails.name", "fatherDetails.mobileNumber", "presentAddress.area", "presentAddress.city", "presentAddress.state", "presentAddress.pincode", "permanentAddress.area", "permanentAddress.city", "permanentAddress.state", "permanentAddress.pincode", "aadharNumber", "DOB", "class", "section", "admissionDate",]
+            ? ["firstName", "lastName", "admissionNumber", "gender", "fatherDetails.name", "fatherDetails.mobileNumber", "presentAddress.area", "presentAddress.city", "presentAddress.state", "presentAddress.pincode", "permanentAddress.area", "permanentAddress.city", "permanentAddress.state", "permanentAddress.pincode", "aadharNumber", "DOB", "admissionDate", "class", "section", "academicYear", "board"]
             : ["firstName", "lastName", "empId", "DOJ", "DOB", "mobileNumber", "email", "workEmail", "designation", "subjects", "guardian", "gender", "presentAddress.area", "presentAddress.city", "presentAddress.state", "presentAddress.pincode", "permanentAddress.area", "permanentAddress.city", "permanentAddress.state", "permanentAddress.pincode", "aadharNumber", "panNumber", "bankDetails.accountNumber", "bankDetails.ifscCode", "bankDetails.bankName", "amount"];
 
         const invalidData = [];
         const updatedData = [...existingData];
-
-
 
         newData.forEach((item) => {
           const missingFields = requiredFields.filter((field) => {
@@ -217,7 +250,6 @@ function CommonUpload({ onClose, user }) {
             const value = keys.reduce((acc, key) => acc && acc[key], item);
             return !value;
           });
-
           if (missingFields.length > 0) {
             invalidData.push({
               ...item,
@@ -242,40 +274,42 @@ function CommonUpload({ onClose, user }) {
 
         if (invalidData.length > 0) {
           setValidationError("Failed uploading - Please add all required fields for all students.");
-          console.error(
+          if (user === "student") {
+            if (boardValue === "" || classValue === "" || sectionValue === "") {
+              setValidationError("Missing board, class or section. Please select them before uploading the file.");
+            }
+          }
+          console.log(
             `Invalid ${user === "student" ? "Student" : "Staff"} Data:`,
             invalidData
           );
-          //   alert(`Some records are invalid. Check the console for details.`);
         } else {
-          const uploadData = async () => {
-            try {
-              const response = await postData(
-                user === "student" ? STUDENT + "/bulk" : STAFF + "/bulk",
-                updatedData
-              );
-              if (response?.status === 200) {
-                alert("Data uploaded successfully!");
-              }
-            } catch (error) {
-              console.error("Error while sending data to backend:", error);
-              alert("An error occurred while uploading data.");
-            }
-          };
-          uploadData();
-          setValidationError(`${user === "student" ? "Student" : "Staff"} list added successfully!`);
+          setValidationError(`${user === "student" ? "Student" : "Staff"} list uploaded successfully!`);
         }
-
-        console.log(
-          `Valid ${user === "student" ? "Student" : "Staff"} Data:`,
-          updatedData
-        );
-
-        // setBulkUploadList([...existingData, ...validData]);
         setBulkUploadList(updatedData);
       };
 
       reader.readAsArrayBuffer(file);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (bulkUploadList.length > 0) {
+      try {
+        const res = await postData(
+          user === "student" ? STUDENT + "/bulk" : STAFF + "/bulk",
+          bulkUploadList
+        );
+        handleApiResponse(res.data.message, "success");
+        loadData()
+        onClose()
+      } catch (error) {
+        handleApiResponse(error);
+      }finally {
+        setBulkUploadList([]);
+      }
+    } else {
+      setValidationError("Please upload a file first.");
     }
   };
 
@@ -335,17 +369,112 @@ function CommonUpload({ onClose, user }) {
                     </p>
                   </div>
 
-                  {/* Upload Section */}
+                  {/* Class and Section */}
+                  {user === "student" && (
+                    <div className='mt-4 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-8'>
+                      <div className="sm:col-span-2">
+                        <label htmlFor="academicYear" className="block text-sm/6 font-regular text-gray-900">
+                          Academic Year <span className="pl-1 text-red-500">*</span>
+                        </label>
+                        <select
+                          disabled
+                          value={academicYearValue}
+                          id="academicYear"
+                          name="academicYear"
+                          className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                        >
+
+                          {academicYears.map((item) => (
+                            <option key={item._id} value={item._id}>
+                              {item.year}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label htmlFor="class" className="block text-sm/6 font-regular text-gray-900">
+                          Board <span className="pl-1 text-red-500">*</span>
+                        </label>
+                        <select
+                          value={boardValue}
+                          onChange={(e) => {
+                            setBoardValue(e.target.value);
+                            clearFileInput()
+                            setValidationError("")
+                          }}
+                          id="class"
+                          name="class"
+                          className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                        >
+                          <option value="">Select Board</option>
+                          {boards.map((item) => (
+                            <option key={item.value} value={item.value}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label htmlFor="class" className="block text-sm/6 font-regular text-gray-900">
+                          Class <span className="pl-1 text-red-500">*</span>
+                        </label>
+                        <select
+                          value={classValue}
+                          onChange={(e) => {
+                            setClassValue(e.target.value);
+                            setSectionValue("");
+                            setValidationError("")
+                            clearFileInput()
+                          }}
+                          id="class"
+                          name="class"
+                          className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                        >
+                          <option value="">Select Class</option>
+                          {classes.map((item) => (
+                            <option key={item.value} value={item.value}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label htmlFor="section" className="block text-sm/6 font-regular text-gray-900">
+                          Section <span className="pl-1 text-red-500">*</span>
+                        </label>
+                        <select
+                          value={sectionValue}
+                          onChange={(e) => {
+                            setSectionValue(e.target.value);
+                            setValidationError("")
+                            clearFileInput()
+                          }}
+                          id="section"
+                          name="section"
+                          disabled={!classValue}
+                          className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
+                        >
+                          <option value="">Select Section</option>
+                          {sections.filter((item) => item.class === classValue).map((item) => (
+                            <option key={item.value} value={item.value}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>)}
 
                   {/* Upload Section */}
                   <div className="mt-4 border border-dashed border-gray-300 rounded-md p-6 text-center">
                     <input
+                      ref={fileInputRef}
                       id="file-upload"
                       name="file-upload"
                       type="file"
                       accept=".xls,.xlsx,.csv"
                       className="sr-only"
                       onChange={handleUpload}
+                    // disabled={classValue && sectionValue ? false : true}
                     />
                     <label
                       htmlFor="file-upload"
@@ -371,7 +500,7 @@ function CommonUpload({ onClose, user }) {
 
                   <div className="mt-5 sm:col-span-4">
                     <label className="block text-sm  text-gray-700">
-                      How should duplicate entries be handled?{" "}
+                      How should duplicate entries to be handled?{" "}
                       <span className="text-red-600">*</span>
                     </label>
                     <fieldset className="mt-2">
@@ -427,10 +556,11 @@ function CommonUpload({ onClose, user }) {
                     Cancel
                   </button>
                   <button
+                    onClick={handleSubmit}
                     type="submit"
                     className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                   >
-                    Next
+                    Submit
                   </button>
                 </div>
               </div>

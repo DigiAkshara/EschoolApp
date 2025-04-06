@@ -224,7 +224,7 @@ export default function ClassTimeTable() {
                 </button>
               </div>
             )}
-            <div className=" shadow ring-1 ring-black/5 sm:rounded-lg">
+            <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               <FilterComponent
                 onSearch={handleSearch}
                 filters={filters}

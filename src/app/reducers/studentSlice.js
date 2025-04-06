@@ -54,7 +54,7 @@ const studentSlice = createSlice({
       state.sections = action.payload.sectionRes.map((item) => ({
         label: item.section,
         value: item._id,
-        class: item.class,
+        class: item.class?._id||item.class,
         id: item._id,
       }))
       state.boards = action.payload.boardRes.map((board) => ({

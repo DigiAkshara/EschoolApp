@@ -29,7 +29,7 @@ export const updateData = async (url, payload) => {
 
 export const deleteData = async (url, payload) => {
   try {
-    const response = await backendAPI.delete(url, payload)
+    const response = await backendAPI.delete(url, {data:payload})
     return response
   } catch (error) {
     throw error
