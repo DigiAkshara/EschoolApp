@@ -1,8 +1,13 @@
 import { Dialog } from "@headlessui/react";
-import { ArrowUpTrayIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { ArrowLongUpIcon, ArrowUpTrayIcon, PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteData, getData } from "../../app/api";
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { Form, Formik } from "formik";
+import * as Yup from "yup";
+import { useLocation } from "react-router-dom";
+import { deleteData, getData, postData } from "../../app/api";
+import { setIsLoader } from "../../app/reducers/appConfigSlice";
 import {
   fetchInitialStudentData,
   selectStudent,
@@ -12,21 +17,20 @@ import {
   gender,
   handleApiResponse,
   handleDownload,
-  handleDownloadPDF,
+  handleDownloadPDF
 } from "../../commonComponent/CommonFunctions";
 import CommonUpload from "../../commonComponent/CommonUpload";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
+import CustomSelect from "../../commonComponent/CustomSelect";
 import FilterComponent from "../../commonComponent/FilterComponent";
 import TableComponent from "../../commonComponent/TableComponent";
 import StudentProfileModal from "./Profile";
 import Student from "./Student";
-import { setIsLoader } from "../../app/reducers/appConfigSlice";
-import { useLocation } from "react-router-dom";
 
 export default function StudentsList() {
   const dispatch = useDispatch();
   const location = useLocation();
-  const {openModel} = location.state || {openModel: false}
+  const { openModel } = location.state || { openModel: false }
   const { classes: clsOptions, sections: sectionOptions } = useSelector(
     (state) => state.students
   );
@@ -34,14 +38,21 @@ export default function StudentsList() {
   const [showNewStudentModal, setshowNewStudentModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
+  const [filterForm, setFilterForm] = useState({
+    class: "",
+    section: "",
+    gender: "",
+  });
   const [deleteId, setDeleteId] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-  const { branchData } = useSelector((state) => state.appConfig)
-
+  const { branchData, academicYears } = useSelector((state) => state.appConfig)
+  const [showPromteModal, setShowPromteModal] = useState(false);
+  const [academicYearOptions, setAcademicYearOptons] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const genderOptions = [
     { label: "Male", value: "male" },
@@ -55,9 +66,24 @@ export default function StudentsList() {
     if (openModel) {
       setshowNewStudentModal(true)
     }
+  }, []);
 
-  }, [dispatch]);
 
+  useEffect(() => {
+    if (clsOptions.length > 0 && sectionOptions.length > 0) {
+      const classId = clsOptions[0].value;
+      setFilterForm({
+        class: classId,
+        section: sectionOptions.filter((sec) => sec.class === classId)[0].value,
+        gender: "",
+      });
+    }
+  }, [clsOptions, sectionOptions]);
+
+  useEffect(() => {
+    if (academicYears.length > 0) {
+      setAcademicYearOptons(academicYears.map((year) => ({ label: year.year, value: year._id })));
+    }},[academicYears])
   const columns = [
     { title: "Student Name", key: "name" },
     { title: "Admission Number", key: "admissionNo" },
@@ -70,13 +96,15 @@ export default function StudentsList() {
     { title: "Actions", key: "actions" },
   ];
 
+  
 
   const getStudents = async () => {
     try {
       dispatch(setIsLoader(true))
-      const student = await getData(ACADEMICS); 
+      const student = await getData(ACADEMICS);
       const studentData = student.data.data.map((item) => {
         return {
+          isChecked: false,
           _id: item.student._id,
           pic: item.student.profilePic?.Location,
           name: item.student.firstName + " " + item.student.lastName,
@@ -122,8 +150,8 @@ export default function StudentsList() {
           ],
         };
       });
-      setStudentList(studentData);
-      setFilteredData(studentData);
+      setStudentList([...studentData]);
+      setFilteredData([...studentData]);
     } catch (error) {
       handleApiResponse(error);
     } finally {
@@ -131,10 +159,26 @@ export default function StudentsList() {
     }
   };
 
- const getStudentData = async (studentId) =>{
-  const studentDetails = await getData(STUDENT + "/details/" + studentId);
-  return studentDetails.data.data;
- }
+  const handleCheckbox = (id, all = false) => {
+    let index = filteredData.findIndex((item) => item._id == id);
+    let updatedData = [...filteredData];
+    if (index != -1) {
+      updatedData[index].isChecked = !updatedData[index].isChecked
+      setFilteredData(updatedData);
+    }
+  }
+
+  const handleSelectAll = (e) => {
+    const updatedData = filteredData.map((item) => {
+      return { ...item, isChecked: e.target.checked };
+    });
+    setFilteredData(updatedData);
+  }
+
+  const getStudentData = async (studentId) => {
+    const studentDetails = await getData(STUDENT + "/details/" + studentId);
+    return studentDetails.data.data;
+  }
 
   const onHandleEdit = async (studentId) => {
     try {
@@ -158,7 +202,7 @@ export default function StudentsList() {
   const handleClose = () => {
     setshowNewStudentModal(false);
     dispatch(selectStudent(null));
-  }; 
+  };
 
   const deleteRecord = async () => {
     try {
@@ -171,12 +215,6 @@ export default function StudentsList() {
       handleApiResponse(error)
     }
   }
-
-  const filterForm = {
-    class: "",
-    section: "",
-    gender: "",
-  };
 
   const filters = {
     class: { options: clsOptions },
@@ -203,7 +241,8 @@ export default function StudentsList() {
     Object.entries(values).forEach(([key, value]) => {
       if (value) {
         filtered = filtered.filter((rec) => {
-          return rec[key].toLowerCase().includes(value.toLowerCase());
+          rec.isChecked = false;
+          return rec[key].toLowerCase()===value.toLowerCase();
         });
       }
     });
@@ -211,17 +250,23 @@ export default function StudentsList() {
   };
 
   const handleReset = (updatedValues) => {
-    setFilteredData(studentList);
+    const classId = clsOptions[0].value;
+    const sectionId = sectionOptions.filter((item) => item.class == classId)[0].value;
+    setFilterForm({
+      class: classId,
+      section: sectionId,
+      gender: "",
+    });
+    updatedValues("class", classId);
+    updatedValues("section", sectionId);
     updatedValues("gender", "");
-    updatedValues("class", "");
-    updatedValues("section", "");
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  const showStudentProfile = async(data) => {
+  const showStudentProfile = async (data) => {
     let studentData = await getStudentData(data._id);
     dispatch(selectStudent(studentData));
     setShowProfile(true);
@@ -237,7 +282,7 @@ export default function StudentsList() {
     const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
     const phoneNumber = branchData.mobileNumber || "N/A";
     const email = branchData.email || "N/A";
-    
+
     handleDownload(
       filteredData,
       "StudentList",
@@ -283,6 +328,65 @@ export default function StudentsList() {
     );
   };
 
+  const areCheckedAll = () => {
+    return filteredData.length > 0 && filteredData.every((item) => item.isChecked);
+  };
+
+  const handleDeleteSubmit = async (values) => {
+    try {
+      const selectedStudent = []
+      filteredData.forEach((item) => {if(item.isChecked) selectedStudent.push(item._id)});
+      const payload = {
+        status: values.status,
+        studentIds: selectedStudent,
+      }
+      const res = await deleteData(ACADEMICS, payload)
+      handleApiResponse(res.data.message, 'success')
+      getStudents()
+      setShowDeleteModal(false)
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  }
+  const initialValues = {
+    academicYear: academicYears.find((year) => year.status === "upcoming")?._id,
+    class: "",
+    section: "",
+  }
+
+  const getValidationSchema = () => {
+    return Yup.object({
+      academicYear: Yup.string().required("Academic Year is required"),
+      class: Yup.string().required("Class is required"),
+      section: Yup.string().required("Section is required")
+    })
+  }
+
+  const getDeleteValidationSchema  = () => {
+    return Yup.object({
+      status: Yup.string().required("Status is required"),
+    })
+  }
+
+  const handleSubmit = async (values) => {
+    try {
+      const selectedStudent = []
+      filteredData.forEach((item) => {if(item.isChecked) selectedStudent.push(item._id)});
+      const payload = {
+        academicYear: values.academicYear,
+        studentIds: selectedStudent,
+        classId: values.class,
+        sectionId: values.section,
+      };
+      const res = await postData(ACADEMICS, payload);
+      handleApiResponse(res.data.message, "success");
+      getStudents();
+      setShowPromteModal(false);
+    } catch (error) {
+      handleApiResponse(error);
+    }
+  }
+
   return (
     <>
       {/* Secondary Tabs */}
@@ -315,6 +419,32 @@ export default function StudentsList() {
       <div className="-mx-2 -my-2 mt-0 sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
+            {filteredData.some((item) => item.isChecked) &&
+              <div className="left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
+                <button
+                  type="button"
+                  onClick={()=>setShowPromteModal(true)}
+                  className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                >
+                  <ArrowLongUpIcon
+                    aria-hidden="true"
+                    className="size-5"
+                  />
+                  Promote
+                </button>
+
+                <button
+                  onClick={()=>setShowDeleteModal(true)}
+                  type="button"
+                  className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                >
+                  <TrashIcon
+                    aria-hidden="true"
+                    className="size-5"
+                  />
+                  Delete
+                </button>
+              </div>}
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               <FilterComponent
                 onSearch={handleSearch}
@@ -337,6 +467,9 @@ export default function StudentsList() {
                   onPageChange: handlePageChange,
                 }}
                 showModal={showStudentProfile}
+                onCheckbox={handleCheckbox}
+                onCheckAll={handleSelectAll}
+                checkAll={areCheckedAll()}
               />
               <StudentProfileModal
                 show={showProfile}
@@ -354,7 +487,7 @@ export default function StudentsList() {
       <ConfirmationModal
         showModal={deleteConfirm}
         onYes={deleteRecord}
-        onCancel={() => { setDeleteConfirm(false) }}
+        onCancel={() => {setDeleteConfirm(false) }}
       />
 
       <Dialog open={showNewStudentModal} onClose={handleClose} className="relative z-50">
@@ -362,8 +495,133 @@ export default function StudentsList() {
         <Student onClose={handleClose} loadStudents={getStudents} />
       </Dialog>
       <Dialog open={showUploadModal} onClose={setShowUploadModal} className="relative z-50">
-        <CommonUpload onClose={()=>setShowUploadModal(false)} user="student" />
+        <CommonUpload onClose={() => setShowUploadModal(false)} user="student" loadData={getStudents} />
+      </Dialog>
+      <Dialog open={showPromteModal} onClose={() => setShowPromteModal(false)} className="relative z-50">
+        <div className="fixed inset-0" />
+        <Formik
+        initialValues={initialValues}
+        validationSchema={getValidationSchema()}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
+        {({ values, setFieldValue, errors }) => {
+          return (
+            <Form>
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+                <div className="bg-white w-96 rounded-lg shadow-lg">
+                  {/* Modal Header */}
+                  <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
+                    <h2 className="text-lg font-semibold">Promote Students</h2>
+                    <button
+                      onClick={()=> setShowPromteModal(false) }
+                      className="text-white hover:text-gray-200"
+                    >
+                      <XMarkIcon className="h-6 w-6" />
+                    </button>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6">
+                    <CustomSelect
+                      name="academicYear"
+                      label="Academic Year"
+                      options={academicYearOptions}
+                      disabled={true}
+                    />
+                    <div className="my-4"></div>
+                    <CustomSelect
+                      name="class"
+                      label="Class to be promoted"
+                      options={clsOptions}
+                      required={true}
+                    />
+                    <div className="my-4"></div>
+                    <CustomSelect
+                      name="section"
+                      label="Section to be promoted"
+                      disabled={!values.class}
+                      options={sectionOptions.filter((item) => item.class === values.class)}
+                      required={true}
+                    />
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="p-3 flex justify-end space-x-2 border-t">
+                    <button
+                      onClick={()=>setShowPromteModal(false) }
+                      className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-500">
+                      Promote
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Form>
+          )
+        }}
+      </Formik>
+      </Dialog>
+
+      <Dialog open={showDeleteModal} onClose={() => setShowDeleteModal(false)} className="relative z-50">
+        <div className="fixed inset-0" />
+        <Formik
+        initialValues={{status:''}}
+        validationSchema={getDeleteValidationSchema()}
+        onSubmit={handleDeleteSubmit}
+      >
+        {({ values, setFieldValue, errors }) => {
+          return (
+            <Form>
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+                <div className="bg-white w-96 rounded-lg shadow-lg">
+                  {/* Modal Header */}
+                  <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
+                    <h2 className="text-lg font-semibold">Delete Students</h2>
+                    <button
+                      onClick={()=> setShowDeleteModal(false) }
+                      className="text-white hover:text-gray-200"
+                    >
+                      <XMarkIcon className="h-6 w-6" />
+                    </button>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6">
+                    <CustomSelect
+                      name="status"
+                      label="Status"
+                      options={[{label:'Remove',value:'remove'},{label:'Tranfer',value:'transfer'}]}
+                      required={true}
+                    />
+                    <div className="my-4"></div>
+                   
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="p-3 flex justify-end space-x-2 border-t">
+                    <button
+                      onClick={()=>setShowDeleteModal(false) }
+                      className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-500">
+                      Continue
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Form>
+          )
+        }}
+      </Formik>
       </Dialog>
     </>
   );
 }
+
+

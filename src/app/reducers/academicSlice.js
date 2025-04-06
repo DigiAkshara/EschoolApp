@@ -54,7 +54,7 @@ const academicSlice = createSlice({
       state.sections = action.payload.sections?.map((item) => ({
         label: item.section,
         value: item._id,
-        class: item.class,
+        class: item.class?._id || item.class,
       }))
       state.teachers = action.payload.teachers?.map((item) => ({
         label: item.firstName + ' ' + item.lastName,
