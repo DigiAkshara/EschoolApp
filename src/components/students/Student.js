@@ -462,7 +462,7 @@ function Student({ onClose, loadStudents }) {
                           >
                             Cancel
                           </button>
-                          {currentStep > 1 && (
+                          <div>                          {currentStep > 1 && (
                             <button
                               type="button"
                               onClick={handleBack}
@@ -471,12 +471,13 @@ function Student({ onClose, loadStudents }) {
                               Back
                             </button>
                           )}
-                          <button
-                            type="submit"
-                            className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm"
-                          >
-                            {currentStep === 3 ? "Submit" : "Next"}
-                          </button>
+                            <button
+                              type="submit"
+                              className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm"
+                            >
+                              {currentStep === 3 ? "Submit" : "Next"}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

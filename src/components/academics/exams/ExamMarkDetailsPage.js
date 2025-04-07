@@ -9,7 +9,7 @@ import {
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import html2canvas from "html2canvas";
 import moment from "moment";
-import React, { useEffect, useState , Fragment} from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { useSelector } from "react-redux";
 import { capitalizeWords } from "../../../commonComponent/CommonFunctions";
 import jsPDF from 'jspdf';
@@ -20,11 +20,9 @@ function ExamMarkDetailsPage({ onClose }) {
   const subjectOptions = useSelector((state) => state.academics.subjects)
   const [studentMarks, setStudents] = useState([])
   const { branchData } = useSelector((state) => state.appConfig)
-  
-
-    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [pdfUrl, setPdfUrl] = useState("");
-    const [pdfBlob, setPdfBlob] = useState(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [pdfBlob, setPdfBlob] = useState(null);
 
   const getSubjectName = (subjectId) => {
     return subjectOptions
@@ -132,7 +130,7 @@ function ExamMarkDetailsPage({ onClose }) {
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
             <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${branchData?.label?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${branchData?.mobileNumber || "NILL"} | Email: ${branchData?.email||"NILL"}</p>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${branchData?.mobileNumber || "NILL"} | Email: ${branchData?.email || "NILL"}</p>
             <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}</p>
           </div>
         </div>
@@ -147,11 +145,9 @@ function ExamMarkDetailsPage({ onClose }) {
             <p><strong>Name of Student:</strong> ${student.firstName || ""} ${student.lastName || ""}</p>
             <p><strong>Mother's Name:</strong> ${student.motherDetails.name || "Nill"}</p>
             <p><strong>Father's Name:</strong> ${student.fatherDetails.name || "Nill"}</p>
-            <p><strong>Address:</strong> ${
-              student?.presentAddress?.area
-            }, ${student?.presentAddress?.city}, ${student?.presentAddress?.state}, ${
-              student?.presentAddress?.pincode
-      }</p>
+            <p><strong>Address:</strong> ${student?.presentAddress?.area
+        }, ${student?.presentAddress?.city}, ${student?.presentAddress?.state}, ${student?.presentAddress?.pincode
+        }</p>
           </div>
 
           <!-- Right Section (5 details) -->
@@ -233,7 +229,7 @@ function ExamMarkDetailsPage({ onClose }) {
       // Add a page for the next student's report
       // doc.addPage();
 
-      if (index < studentMarks.length ) {
+      if (index < studentMarks.length) {
         doc.addPage();
       }
     });
@@ -244,7 +240,7 @@ function ExamMarkDetailsPage({ onClose }) {
     const pdfBlob = doc.output("blob");
     const pdfPreviewUrl = URL.createObjectURL(pdfBlob);
 
-    setPdfBlob(pdfBlob); 
+    setPdfBlob(pdfBlob);
     setPdfUrl(pdfPreviewUrl);
     setIsPreviewOpen(true);
 
@@ -273,7 +269,7 @@ function ExamMarkDetailsPage({ onClose }) {
             <DialogPanel
               transition
               className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
-              >
+            >
               <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                 <div className="flex min-h-0 flex-1 flex-col">
                   <div className="bg-purple-900 px-3 py-3 sm:px-6">
@@ -585,11 +581,11 @@ function ExamMarkDetailsPage({ onClose }) {
                             </div>
                           </div>
 
-                          <div className="px-4 py-4 text-sm/6" 
-                          // onClick={generatePDFs}
-                          onClick={generatePDFPreview}
-                          role="button"
-                          tabIndex={0}
+                          <div className="px-4 py-4 text-sm/6"
+                            // onClick={generatePDFs}
+                            onClick={generatePDFPreview}
+                            role="button"
+                            tabIndex={0}
                           >
                             <ul
                               role="list"
@@ -621,14 +617,14 @@ function ExamMarkDetailsPage({ onClose }) {
                             </ul>
                           </div>
 
-                                     {/* Modal for PDF Preview */}
-                                     <Transition show={isPreviewOpen} as={Fragment}>
+                          {/* Modal for PDF Preview */}
+                          <Transition show={isPreviewOpen} as={Fragment}>
                             <Dialog as="div" className="relative z-50" onClose={() => setIsPreviewOpen(false)}>
                               <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
-                          
+
                               <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
                                 <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
-                                  
+
                                   {/* Header with Close Button */}
                                   <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
                                     <h3 className="text-lg font-semibold">Hall Ticket Preview</h3>
@@ -636,14 +632,14 @@ function ExamMarkDetailsPage({ onClose }) {
                                       ✖
                                     </button>
                                   </div>
-                          
+
                                   {/* PDF Preview */}
                                   <div className="flex-1 overflow-auto">
                                     {pdfUrl && (
                                       <iframe src={pdfUrl} className="w-full h-full"></iframe>
                                     )}
                                   </div>
-                          
+
                                   {/* Footer Buttons */}
                                   <div className="flex justify-between p-4 bg-gray-100">
                                     <button onClick={handleDownload} className="px-4 py-2 bg-purple-600 text-white rounded-md">
@@ -653,7 +649,7 @@ function ExamMarkDetailsPage({ onClose }) {
                                       Close
                                     </button>
                                   </div>
-                          
+
                                 </div>
                               </div>
                             </Dialog>

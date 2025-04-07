@@ -50,9 +50,7 @@ const FilterComponent = ({
     closeDialog(); // Close the dialog after the choice is made
   };
 
-  useEffect(() => {
-    handleFilter(filterForm)
-  },[filterForm])
+
 
   return (
     <div className="relative table-tool-bar z-20">

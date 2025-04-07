@@ -244,7 +244,7 @@ const FeeCollectionReports = () => {
                     label="Section"
                     name="section"
                     options={sectionOptions.filter(
-                      (sec) => sec.class._id === values.class
+                      (sec) => sec.class === values.class
                     )}
                     disabled={!values.class}
                   />

@@ -133,13 +133,14 @@ const TableComponent = ({checkAll=false, columns, data, pagination, showModal, m
                         >
                           <div className="py-1">
                             {record.actions.map((action, index) => (
-                              <a
+                              <button
+                                disabled={action.disabled}
                                 key={index}
                                 onClick={() => action.actionHandler(record._id)}
                                 className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none cursor-pointer"
                               >
                                 {action.label}
-                              </a>
+                              </button>
                             ))}
                           </div>
                         </MenuItems>

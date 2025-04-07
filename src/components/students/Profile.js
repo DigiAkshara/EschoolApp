@@ -5,16 +5,14 @@ import {
   Legend
 } from "@headlessui/react";
 import {
-  ArrowLeftStartOnRectangleIcon,
   ArrowLongUpIcon,
   ArrowUpRightIcon,
   ChatBubbleBottomCenterTextIcon,
   ClipboardDocumentCheckIcon,
-  PencilIcon,
   PhoneIcon,
   TrashIcon,
   UserCircleIcon,
-  XMarkIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -36,9 +34,10 @@ import {
   YAxis,
 } from "recharts";
 import { getData } from "../../app/api";
-import { TRANSACTIONS } from "../../app/url";
+import { MARKS, TRANSACTIONS } from "../../app/url";
 import {
   capitalizeWords,
+  getGradeFromMarks,
   handleApiResponse,
 } from "../../commonComponent/CommonFunctions";
 import TableComponent from "../../commonComponent/TableComponent";
@@ -56,6 +55,7 @@ const StudentProfileModal = ({ show, close }) => {
     { name: "Academic Details", current: false },
     { name: "Fee details", current: false },
   ];
+
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -175,7 +175,7 @@ const StudentProfileModal = ({ show, close }) => {
                                   Roll No
                                 </dt>
                                 <dd className="mt-1 text-base text-gray-700 sm:mt-2 font-medium">
-                                  {data?.rollNumber||'N/A'}
+                                  {data?.rollNumber || 'N/A'}
                                 </dd>
                               </div>
                               <div className="sm:col-span-1">
@@ -212,16 +212,6 @@ const StudentProfileModal = ({ show, close }) => {
                                 className="size-5"
                               />
                               Promote
-                            </button>
-                            <button
-                              type="button"
-                              className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                            >
-                              <ArrowLeftStartOnRectangleIcon
-                                aria-hidden="true"
-                                className="size-5"
-                              />
-                              Exit
                             </button>
                             <button
                               type="button"
@@ -903,7 +893,34 @@ const PersonalDetailsTab = ({ data }) => {
 };
 
 const AcademicDeatilsTab = ({ data }) => {
+  const [exams, setExams] = useState([])
+  // console.log(data)
+  const getMarks = async () => {
+    try {
+      let res = await getData(MARKS + '/' + data._id)
+      let dumpList = []
+      res.data.data.forEach((exam) => {
+        const obtainedMarks = exam.marksDetails[0].marks.reduce((acc, item) => acc + item.marks, 0)
+        const totalMarks = exam?.exam.timeTable.reduce(
+          (acc, item) => acc + item.totalMark * 1,
+          0
+        )
+        dumpList.push({
+          examName: exam.exam.name,
+          examDate: `${moment(exam.exam.startDate).format("DD-MM-YYYY")} - ${moment(exam.exam.endDate).format("DD-MM-YYYY")}`,
+          percentage: Math.round((obtainedMarks / totalMarks) * 100),
+          grade: getGradeFromMarks(obtainedMarks, totalMarks),
+        })
+      })
+      setExams(dumpList)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
 
+  useEffect(() => {
+    getMarks()
+  }, [])
   return (
     <ul role="list" className="grid grid-cols-1 gap-x-4 gap-y-4">
       <li className="overflow-hidden rounded-xl border border-gray-300">
@@ -1010,59 +1027,25 @@ const AcademicDeatilsTab = ({ data }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              <tr>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  Unit I
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  22-10-2024 - 24-10-2024
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  88%
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  A
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
-                  <a href="#">View</a>
-                </td>
-              </tr>
-
-              <tr>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  Unit I
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  22-10-2024 - 24-10-2024
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  88%
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  A
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
-                  <a href="#">View</a>
-                </td>
-              </tr>
-
-              <tr>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  Unit I
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  22-10-2024 - 24-10-2024
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  88%
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                  A
-                </td>
-                <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
-                  <a href="#">View</a>
-                </td>
-              </tr>
+              {exams.map((item, index) => (
+                <tr key={index}>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                    {item.examName}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                    {item.examDate}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                    {item.percentage}%
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
+                    {item.grade}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
+                    <a href="#">View</a>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -1423,7 +1406,7 @@ const FeeDeatailsTab = ({ data }) => {
           ),
         };
       });
-      setFeeList(dummyList);
+      setFeeList(dummyList || []);
     } catch (error) {
       handleApiResponse(error);
     }

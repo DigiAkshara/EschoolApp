@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   handleApiResponse,
@@ -13,11 +13,10 @@ import { getData } from "../../app/api";
 function StaffInfo({ values, setFieldValue }) {
   const subjects = useSelector((state) => state.staff?.subjects);
   const [designations, setDesignations] = useState([]);
-  const getDesignations = async (e, setFieldValue) => {
+  const getDesignations = async (value) => {
     try {
-      setFieldValue(e.target.name, e.target.value);
       const response = await getData(
-        DESIGNATION + "?staffType=" + e.target.value
+        DESIGNATION + "?staffType=" +value
       );
       let desigList = response.data.data.map((item) => {
         return {
@@ -30,6 +29,13 @@ function StaffInfo({ values, setFieldValue }) {
       handleApiResponse(error);
     }
   };
+
+  useEffect(() => {
+    if (values._id&&values.staffType) {
+      getDesignations(values.staffType);
+    }
+  }, []);
+
   return (
     <>
       <div className="border-b border-gray-900/10 pb-4 mb-4">
@@ -44,7 +50,8 @@ function StaffInfo({ values, setFieldValue }) {
               options={staffType}
               required={true}
               onChange={(e) => {
-                getDesignations(e, setFieldValue);
+                setFieldValue("staffType", e.target.value);
+                getDesignations(e.target.value, setFieldValue);
               }}
             />
           </div>

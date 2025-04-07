@@ -41,7 +41,7 @@ function AcademicYearView() {
 						_id: item._id,
 						year: item.year,
 						status: capitalizeWords(item.status),
-						makeAction: item.status === "active" ? "" : <div className="flex items-center space-x-2">
+						makeAction: item.status !== "upcoming" ? "" : <div className="flex items-center space-x-2">
 							<button onClick={() => makeActive(item._id)} className="text-red-500 hover:text-red-600">Make Active</button>
 						</div>
 					})

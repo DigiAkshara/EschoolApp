@@ -107,6 +107,9 @@ const Permissions = () => {
       if (user?.role.name === "admin") {
         roleData = roleData.filter((item) => item.label === "staff");
       }
+      if (user?.role.name === "superadmin") {
+        roleData = roleData.filter((item) => item.label === "admin");
+      }
       setRoles(roleData);
     } catch (error) {
       handleApiResponse(error);

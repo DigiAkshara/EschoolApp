@@ -474,3 +474,42 @@ export const handleApiResponse = (res, type = "error") => {
     toast.success(message, options);
   }
 };
+
+export const checkAcademicYear = () => {
+  const state = store.getState();
+  const academicYear = state.appConfig.academicYear;
+  const currentYear = moment().year();
+  return academicYear.year.split("-")[0] === currentYear.toString();
+};
+
+export function hasPermission(menuName, permissionType, options = {}) {
+  const state = store.getState();
+  const {academicYear,navConfig:permissions} = state.appConfig
+  const currentYear = moment().year();
+  if(academicYear?.year.split("-")[0] !== currentYear.toString()) return true
+  const { isSubmenu = false } = options;
+
+  const menu = permissions.find(p => p.name === (isSubmenu ? options.parentMenu : menuName));
+  if (!menu) return false;
+
+  if (!isSubmenu) {
+    return menu[permissionType] ?? false;
+  }
+
+  const subItem = menu.submenu?.find(sub => sub.name === menuName);
+  return subItem?.[permissionType]?false:true;
+}
+
+export function getGradeFromMarks(obtainedMarks, totalMarks) {
+  if (totalMarks === 0) return 'Invalid'; // avoid divide-by-zero
+
+  const percentage = (obtainedMarks / totalMarks) * 100;
+
+  if (percentage >= 90) return 'A+';
+  if (percentage >= 80) return 'A';
+  if (percentage >= 70) return 'B+';
+  if (percentage >= 60) return 'B';
+  if (percentage >= 50) return 'C';
+  if (percentage >= 40) return 'D';
+  return 'F';
+}
