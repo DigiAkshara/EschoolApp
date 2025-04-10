@@ -60,8 +60,6 @@ function Staff({ onClose, getStaff }) {
     }),
   });
 
-  const panCardRegex = /^[A-Z]{3}P[A-Z]{1}[0-9]{4}[A-Z]{1}$/;
-
   // Validation schemas for each step
   const validationSchemas = [
     Yup.object({

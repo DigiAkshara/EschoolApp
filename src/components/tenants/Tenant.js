@@ -13,10 +13,20 @@ import CustomFileUploader from "../../commonComponent/CustomFileUploader";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import { updateTenant } from "../../app/reducers/TenantConfigSlice";
+import { useEffect, useState } from "react";
 
 export default function Tenant({ onClose, loadTenants }) {
   const selectedTenant = useSelector((state) => state.tenant.selectedTenant);
+  const tenants = useSelector((state) => state.appConfig.allTenants);
   const dispatch = useDispatch();
+  const [selectedTenantData, setSelectedTenantData] = useState(null);
+
+  useEffect(() => {
+    if(selectedTenant) {
+     const data = tenants.find((tenant) => tenant._id === selectedTenant);
+     setSelectedTenantData(data)
+    }
+  },[selectedTenant, tenants])
   const getInitialValues = () => {
     return {
       name: "",
@@ -37,22 +47,22 @@ export default function Tenant({ onClose, loadTenants }) {
       portalEnabledStaff: "yes",
       whatsappUserId: "",
       whatsappPassword: "",
-      ...(selectedTenant && {
-        name: selectedTenant.name,
-        contactPerson: selectedTenant.contactPerson,
-        email: selectedTenant.email,
-        mobileNumber: selectedTenant.mobileNumber,
-        address: selectedTenant.address,
-        logo: selectedTenant.logo,
-        studentCount: selectedTenant.studentCount,
-        smsCount: selectedTenant.smsCount,
-        whatsappCount: selectedTenant.whatsappCount,
-        portalEnabledStudents: selectedTenant.portalEnabledStudents ? "yes" : "no",
-        portalEnabledStaff: selectedTenant.portalEnabledStaff ? "yes" : "no",
-        tenantId: selectedTenant.tenant._id,
-        _id: selectedTenant._id,
-        whatsappUserId: selectedTenant.whatsappUserId,
-        whatsappPassword: selectedTenant.whatsappPassword,
+      ...(selectedTenantData && {
+        name: selectedTenantData.name,
+        contactPerson: selectedTenantData.contactPerson,
+        email: selectedTenantData.email,
+        mobileNumber: selectedTenantData.mobileNumber,
+        address: selectedTenantData.address,
+        logo: selectedTenantData.logo,
+        studentCount: selectedTenantData.studentCount,
+        smsCount: selectedTenantData.smsCount,
+        whatsappCount: selectedTenantData.whatsappCount,
+        portalEnabledStudents: selectedTenantData.portalEnabledStudents ? "yes" : "no",
+        portalEnabledStaff: selectedTenantData.portalEnabledStaff ? "yes" : "no",
+        tenantId: selectedTenantData.tenant._id,
+        _id: selectedTenantData._id,
+        whatsappUserId: selectedTenantData.whatsappUserId,
+        whatsappPassword: selectedTenantData.whatsappPassword,
       }),
     };
   };

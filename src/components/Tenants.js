@@ -50,9 +50,10 @@ export default function Tenants() {
 
 
   const onHandleEdit = async (tenantId) => {
-    let tenant = tenantList.find((tenant) => tenant._id === tenantId)
-    dispatch(updateTenant(tenant))
-    setOpen(true)
+    dispatch(updateTenant(tenantId))
+    setTimeout(() => {
+      setOpen(true)
+    }, 100)
   }
 
   const onDelete = async (tenantId) => {
@@ -108,52 +109,7 @@ export default function Tenants() {
     <div className="flow-root">
       {/* Secondary Tabs */}
       <div className="mt-4 flex justify-between">
-        <div className="sm:hidden">{/*
-          <label htmlFor="tabs2" className="sr-only">
-            Select a tab
-          </label>
-          {/* Use an "onChange" listener to redirect the user to the selected tab URL. 
-          <select
-            id="tabs2"
-            name="tabs2"
-            defaultValue={tabs2.find((tab) => tab.current).name}
-            className="block w-full rounded-full border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-          >
-            {tabs2.map((tab) => (
-              <option key={tab.name}>{tab.name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="hidden sm:block">
-          <nav aria-label="Tabs2" className="flex space-x-4">
-            {tabs2.map((tab) => (
-              <a
-                key={tab.name}
-                href={tab.href}
-                aria-current={tab.current ? "page" : undefined}
-                className={classNames(
-                  tab.current
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-gray-100 text-gray-500 hover:text-gray-700",
-                  "rounded-full px-3 py-2 text-sm font-medium"
-                )}
-              >
-                {tab.name}
-                {tab.count ? (
-                  <span
-                    className={classNames(
-                      tab.current
-                        ? "bg-white text-purple-600"
-                        : "bg-gray-300 text-gray-900",
-                      "ml-3 hidden rounded-full px-2.5 py-0.5 text-xs font-medium md:inline-block"
-                    )}
-                  >
-                    {tab.count}
-                  </span>
-                ) : null}
-              </a>
-            ))}
-          </nav> */}
+        <div className="sm:hidden">
         </div>
         <div className="right-btns-blk space-x-4">
           <button
@@ -175,9 +131,6 @@ export default function Tenants() {
               <TableComponent
                 columns={columns}
                 data={paginatedData}
-                // filters={filters}
-                // onSearch={handleSearch}
-                // onFilter={handleFilter}
                 pagination={{
                   currentPage,
                   totalCount: filteredData.length,

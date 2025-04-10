@@ -118,10 +118,6 @@ function ManageClassTimetable({ values, setFieldValue, teachers }) {
                   </td>
 
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                    {/* <CustomInput
-                      name={`timetables.${index}.time`}
-                      placeholder="9:00-10:00 "
-                    /> */}
                      <CustomInput
                         name={`timetables.${index}.startTime`}
                         type="time"

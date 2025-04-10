@@ -1,13 +1,16 @@
 'use client'
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import ManageFeeCollection from './finance/ManageFeeCollection'
 import ManageFeesOverview from './finance/ManageFeesOverview'
 import Submenu from './Submenu'
 import FeesList from './finance/FeesList'
 import Expenses from './finance/expenses/Expenses'
 import SchoolBankAccounts from './finance/bankAccounts/SchoolBankAccounts'
+import { useDispatch } from 'react-redux'
+import { fetchInitialFeeData } from '../app/reducers/feeSlice'
 
 export default function Finance() {
+  const dispatch= useDispatch()
   const [activeTab, setActiveTab] = useState(null)
 
   const renderTabContent = () => {
@@ -26,6 +29,9 @@ export default function Finance() {
         return <h2>No Content Available</h2>
     }
   }
+  useEffect(() => {
+    dispatch(fetchInitialFeeData())
+  }, [])
 
   return (
     <div className="flow-root">

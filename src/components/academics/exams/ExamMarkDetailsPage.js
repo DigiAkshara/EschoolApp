@@ -1,5 +1,4 @@
-import { DialogPanel, DialogTitle } from '@headlessui/react';
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, DialogPanel, DialogTitle, Transition } from '@headlessui/react';
 import {
   ArrowsUpDownIcon,
   DocumentArrowDownIcon,
@@ -8,11 +7,11 @@ import {
 } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import html2canvas from "html2canvas";
-import moment from "moment";
-import React, { useEffect, useState , Fragment} from "react";
-import { useSelector } from "react-redux";
-import { capitalizeWords } from "../../../commonComponent/CommonFunctions";
 import jsPDF from 'jspdf';
+import moment from "moment";
+import React, { Fragment, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { capitalizeWords, getGradeFromMarks } from "../../../commonComponent/CommonFunctions";
 
 
 function ExamMarkDetailsPage({ onClose }) {
@@ -20,50 +19,14 @@ function ExamMarkDetailsPage({ onClose }) {
   const subjectOptions = useSelector((state) => state.academics.subjects)
   const [studentMarks, setStudents] = useState([])
   const { branchData } = useSelector((state) => state.appConfig)
-  
-
-    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [pdfUrl, setPdfUrl] = useState("");
-    const [pdfBlob, setPdfBlob] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [pdfBlob, setPdfBlob] = useState(null);
 
   const getSubjectName = (subjectId) => {
     return subjectOptions
       .find((subject) => subject.value === subjectId)
       ?.label.toUpperCase();
   };
-
-
-  function getGrade(marks) {
-    if (marks >= 91) return "A+";
-    if (marks >= 81) return "A";
-    if (marks >= 71) return "B+";
-    if (marks >= 61) return "B";
-    if (marks >= 51) return "C+";
-    if (marks >= 41) return "C";
-    if (marks >= 32) return "D+";
-    return "D"; // Below 32 is "D"
-  }
-
-  function getTotalMarks(student) {
-    return selectedExamDetails.exam.timeTable.reduce(
-      (total, subject, i) => total + (student?.marks[i]?.marks || 0),
-      0
-    );
-  }
-
-  function getTotalPercentage(student) {
-    const totalMarksObtained = getTotalMarks(student);
-    const totalMaxMarks = selectedExamDetails.exam.timeTable.reduce(
-      (total, subject) => total + subject.totalMark,
-      0
-    );
-    return ((totalMarksObtained / totalMaxMarks) * 100).toFixed(2);
-  }
-
-  function getOverallGrade(student) {
-    const percentage = getTotalPercentage(student);
-    return getGrade(percentage); // Assuming getGrade() maps percentage to a grade
-  }
 
   const getResult = (marks, timeTable) => {
     let isPassed = true
@@ -132,7 +95,7 @@ function ExamMarkDetailsPage({ onClose }) {
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
             <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${branchData?.label?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${branchData?.mobileNumber || "NILL"} | Email: ${branchData?.email||"NILL"}</p>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${branchData?.mobileNumber || "NILL"} | Email: ${branchData?.email || "NILL"}</p>
             <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}</p>
           </div>
         </div>
@@ -147,11 +110,9 @@ function ExamMarkDetailsPage({ onClose }) {
             <p><strong>Name of Student:</strong> ${student.firstName || ""} ${student.lastName || ""}</p>
             <p><strong>Mother's Name:</strong> ${student.motherDetails.name || "Nill"}</p>
             <p><strong>Father's Name:</strong> ${student.fatherDetails.name || "Nill"}</p>
-            <p><strong>Address:</strong> ${
-              student?.presentAddress?.area
-            }, ${student?.presentAddress?.city}, ${student?.presentAddress?.state}, ${
-              student?.presentAddress?.pincode
-      }</p>
+            <p><strong>Address:</strong> ${student?.presentAddress?.area
+        }, ${student?.presentAddress?.city}, ${student?.presentAddress?.state}, ${student?.presentAddress?.pincode
+        }</p>
           </div>
 
           <!-- Right Section (5 details) -->
@@ -184,15 +145,13 @@ function ExamMarkDetailsPage({ onClose }) {
             ${selectedExamDetails.exam.timeTable
           .map((subject, i) => {
             const marksObtained = student.marks[i]?.marks || 0;
-            const grade = getGrade(marksObtained);
-
             return `
                   <tr style="background: ${i % 2 === 0 ? "#f9f9f9" : "#fff"}; text-align: center; border-bottom: 1px solid #ddd;">
                     <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getSubjectName(subject.subject)}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${marksObtained}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${subject.totalMark}</td>
                     <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${subject.passMark}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${grade}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getGradeFromMarks(marksObtained, subject.totalMark)}</td>
                   </tr>
                 `;
           })
@@ -200,7 +159,7 @@ function ExamMarkDetailsPage({ onClose }) {
             <tr style="background:rgb(232, 215, 250); font-weight: bold; text-align: center;">
               <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">Total Marks: ${student.marksObtained} / ${student.maxMarks}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">Total Percentage: ${student.percentage}%</td>
-              <td style="border: 1px solid #ddd; padding: 8px;">Overall Grade: ${getOverallGrade(student)}</td>
+              <td style="border: 1px solid #ddd; padding: 8px;">Overall Grade: ${getGradeFromMarks(student.marksObtained, student.maxMarks)}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">Result: ${student.result}</td>
             </tr>
           </tbody>
@@ -233,7 +192,7 @@ function ExamMarkDetailsPage({ onClose }) {
       // Add a page for the next student's report
       // doc.addPage();
 
-      if (index < studentMarks.length ) {
+      if (index < studentMarks.length) {
         doc.addPage();
       }
     });
@@ -241,12 +200,11 @@ function ExamMarkDetailsPage({ onClose }) {
     // Wait for all PDFs to be generated (in the same document)
     await Promise.all(pdfPromises);
 
-    const pdfBlob = doc.output("blob");
-    const pdfPreviewUrl = URL.createObjectURL(pdfBlob);
-
-    setPdfBlob(pdfBlob); 
-    setPdfUrl(pdfPreviewUrl);
-    setIsPreviewOpen(true);
+    // const pdfBlob = doc.output("blob");
+    // const pdfPreviewUrl = URL.createObjectURL(pdfBlob);
+    window.open(URL.createObjectURL(doc.output("blob")), "_blank");
+    // setPdfBlob(pdfBlob);
+    // setPdfUrl(pdfPreviewUrl);
 
     // Save the final PDF
     // doc.save(`PROGRESS_CARD_${selectedExamDetails.exam.name}.pdf`);
@@ -266,14 +224,13 @@ function ExamMarkDetailsPage({ onClose }) {
   return (
     <>
       <div className="fixed inset-0" />
-
       <div className="fixed inset-0 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
           <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
             <DialogPanel
               transition
               className="pointer-events-auto w-screen max-w-6xl transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
-              >
+            >
               <div className="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl">
                 <div className="flex min-h-0 flex-1 flex-col">
                   <div className="bg-purple-900 px-3 py-3 sm:px-6">
@@ -585,11 +542,10 @@ function ExamMarkDetailsPage({ onClose }) {
                             </div>
                           </div>
 
-                          <div className="px-4 py-4 text-sm/6" 
-                          // onClick={generatePDFs}
-                          onClick={generatePDFPreview}
-                          role="button"
-                          tabIndex={0}
+                          <div className="px-4 py-4 text-sm/6"
+                            onClick={generatePDFPreview}
+                            role="button"
+                            tabIndex={0}
                           >
                             <ul
                               role="list"
@@ -621,43 +577,6 @@ function ExamMarkDetailsPage({ onClose }) {
                             </ul>
                           </div>
 
-                                     {/* Modal for PDF Preview */}
-                                     <Transition show={isPreviewOpen} as={Fragment}>
-                            <Dialog as="div" className="relative z-50" onClose={() => setIsPreviewOpen(false)}>
-                              <div className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" />
-                          
-                              <div className="fixed inset-0 overflow-hidden flex items-center justify-center">
-                                <div className="w-screen h-screen flex flex-col bg-white shadow-xl">
-                                  
-                                  {/* Header with Close Button */}
-                                  <div className="flex justify-between items-center bg-purple-900 p-4 text-white">
-                                    <h3 className="text-lg font-semibold">Hall Ticket Preview</h3>
-                                    <button onClick={() => setIsPreviewOpen(false)} className="text-white text-xl">
-                                      ✖
-                                    </button>
-                                  </div>
-                          
-                                  {/* PDF Preview */}
-                                  <div className="flex-1 overflow-auto">
-                                    {pdfUrl && (
-                                      <iframe src={pdfUrl} className="w-full h-full"></iframe>
-                                    )}
-                                  </div>
-                          
-                                  {/* Footer Buttons */}
-                                  <div className="flex justify-between p-4 bg-gray-100">
-                                    <button onClick={handleDownload} className="px-4 py-2 bg-purple-600 text-white rounded-md">
-                                      Download PDF
-                                    </button>
-                                    <button onClick={() => setIsPreviewOpen(false)} className="px-4 py-2 bg-gray-400 text-white rounded-md">
-                                      Close
-                                    </button>
-                                  </div>
-                          
-                                </div>
-                              </div>
-                            </Dialog>
-                          </Transition>
 
 
                         </li>

@@ -89,7 +89,6 @@ const DailyReports = () => {
                   <CustomDate
                     name="date"
                     label="Date"
-
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -97,8 +96,8 @@ const DailyReports = () => {
                     label="Class"
                     name="class"
                     options={classOptions}
-                    onChange={(value) => {
-                      setFieldValue("class", value);
+                    onChange={(e) => {
+                      setFieldValue("class", e.target.value);
                       setFieldValue("section", "");
                     }}
                   />
@@ -107,7 +106,7 @@ const DailyReports = () => {
                   <CustomSelect
                     label="Section"
                     name="section"
-                    options={sectionOptions.filter(sec => sec.class._id === values.class)}
+                    options={sectionOptions.filter(sec => sec.class === values.class)}
                     disabled={!values.class}
                   />
                 </div>

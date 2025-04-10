@@ -112,7 +112,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               name="academics.section"
               label="Section"
               required={true}
-              options={sections.filter(item => item.class._id == values.academics.class)}
+              options={sections.filter(item => item.class == values.academics.class)}
               disabled={!values.academics.class || (values._id ? true : false)}
             />
           </div>

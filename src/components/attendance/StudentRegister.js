@@ -26,7 +26,7 @@ function ManageStudentRegister() {
   const [searchTerm, setSearchTerm] = useState("");
   const [cls, setCls] = useState(classes[0]?.value);
   const [section, setSection] = useState(sections.filter(
-    (section) => section.class._id === classes[0]?.value
+    (section) => section.class === classes[0]?.value
   )[0]?.value);
   const [month, setMonth] = useState(moment().month() + 1);
   const [year, setYear] = useState(moment().year());
@@ -39,7 +39,7 @@ function ManageStudentRegister() {
     return {
       class: classes[0]?.value,
       section: sections.filter(
-        (section) => section.class._id === classes[0]?.value
+        (section) => section.class === classes[0]?.value
       )[0]?.value,
       month: moment().month() + 1,
       year: moment().year(),
@@ -293,7 +293,7 @@ function ManageStudentRegister() {
                   name="section"
                   placeholder=" Section"
                   options={sections.filter(
-                    (section) => section.class._id === values.class
+                    (section) => section.class === values.class
                   )}
                   onChange={(e) => {
                     setFieldValue("section", e.target.value);

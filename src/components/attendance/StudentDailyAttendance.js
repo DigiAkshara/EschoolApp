@@ -28,7 +28,7 @@ const StudentDailyAttendance = () => {
       date: moment().format("YYYY-MM-DD"),
       class: classes[0]?.value,
       section: sections.filter(
-        (section) => section.class._id === classes[0]?.value
+        (section) => section.class === classes[0]?.value
       )[0]?.value,
       allAttendance: "",
       attendance: [],

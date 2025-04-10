@@ -1,43 +1,91 @@
 import { DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { FieldArray, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import * as Yup from "yup";
-import CustomInput from "../../../commonComponent/CustomInput";
-import CustomFileUploader from "../../../commonComponent/CustomFileUploader";
-import CustomDate from "../../../commonComponent/CustomDate";
-import CustomSelect from "../../../commonComponent/CustomSelect";
+import { getData, postData } from "../../../app/api";
+import { FEE_CATEGORY, STAFF, TRANSACTIONS } from "../../../app/url";
 import {
-  banks,
-  financeCategory,
-  financeCategoryCredit,
   financeType,
+  handleApiResponse,
   paymentType,
-  staffType,
+  uploadFile
 } from "../../../commonComponent/CommonFunctions";
+import CustomDate from "../../../commonComponent/CustomDate";
+import CustomFileUploader from "../../../commonComponent/CustomFileUploader";
+import CustomInput from "../../../commonComponent/CustomInput";
+import CustomSelect from "../../../commonComponent/CustomSelect";
 
 function SpecialCredits({ onClose }) {
-  const [selectedTransactionType, setSelectedTransactionType] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-
-  const [formData, setFormData] = useState({
-    type: "",
-    category: "",
+  const { bankAccounts } = useSelector((state) => state.fees);
+  const [bankAccountsOptions, setBankAccountsOptions] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [staffOptions, setStaffOptions] = useState([]);
+  const formData = {
     transactionType: "",
+    transactionMode: "",
+    category: "",
+    subCategory: "",
+    staff: '',
     account: "",
     amount: "",
     date: "",
     reason: "",
     proofPic: null,
-  });
+    transactionId: "",
+  };
 
   const getValidationSchema = () => {
     return Yup.object({
-      type: Yup.string().required(" Type is required"),
-      category: Yup.string().required(" Category is required"),
-      transactionType: Yup.string().required(" Transaction Type is required"),
-      account: Yup.string().required(" Account is required"),
-      amount: Yup.string().required(" Amount is required"),
+      transactionType: Yup.string().required("Transaction Type is required"),
+      transactionMode: Yup.string().required("Transaction Mode is required"),
+      category: Yup.string().required("Category is required"),
+      subCategory: Yup.string().test(
+        "is-category-is-other",
+        "Sub Category is required",
+        function (value) {
+          const { category } = this.parent; // Access sibling field 'paymentMode'
+          if (categoryOptions.find((item) => item.value === category)?.label.includes("Other") && !value) {
+            return false; // Fail validation if category is not 'other' but value is invalid
+          }
+          return true; // Pass validation otherwise
+        }
+      ),
+      staff: Yup.string().test(
+        "is-category-is-loan",
+        "Staff is required",
+        function (value) {
+          const { category } = this.parent; // Access sibling field 'paymentMode'
+          if (categoryOptions.find((item) => item.value === category)?.label.includes("Loan") && !value) {
+            return false; // Fail validation if category is not 'other' but value is invalid
+          }
+          return true; // Pass validation otherwise
+        }
+      ),
+      account: Yup.string().test(
+        "is-transactionmode-is-online",
+        "Bank Account is required",
+        function (value) {
+          const { transactionMode } = this.parent; // Access sibling field 'paymentMode'
+          if (transactionMode === 'online' && !value) {
+            return false; // Fail validation if transactionMode is not 'cash' but value is invalid
+          }
+          return true; // Pass validation otherwise
+        }
+      ),
+      transactionId: Yup.string().test(
+        "is-transactionmode-is-online",
+        "Transaction ID is required",
+        function (value) {
+          const { transactionMode } = this.parent; // Access sibling field 'paymentMode'
+          if (transactionMode === 'online' && !value) {
+            return false; // Fail validation if transactionMode is not 'cash' but value is invalid
+          }
+          return true; // Pass validation otherwise
+        }
+      ),
+      amount: Yup.string().required("Amount is required"),
       date: Yup.date().required("Date is required"),
       reason: Yup.string(),
       proofPic: Yup.mixed()
@@ -47,38 +95,80 @@ function SpecialCredits({ onClose }) {
           "Photo must be in JPG, JPEG, or PNG format",
           (value) => {
             if (!value || !(value instanceof File)) return true; // Allow empty/null value
-
             const supportedFormats = ["image/jpeg", "image/jpg", "image/png"];
             return supportedFormats.includes(value.type);
           }
         )
         .test("fileSize", "Photo size must not exceed 2MB", (value) => {
           if (!value || !(value instanceof File)) return true; // Allow empty/null value
-
           const maxSizeInBytes = 2 * 1024 * 1024;
           return value.size <= maxSizeInBytes;
         }),
     });
   };
 
-  const handleTransactionTypeChange = (e) => {
-    setSelectedTransactionType(e.target.value);
-  };
-
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
-  };
+  const handleFileChange = async (e, setFieldValue) => {
+    try {
+      const fileResponse = await uploadFile(e.target.files[0])
+      setFieldValue(e.target.name, fileResponse)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
 
   const handleSubmit = async (values) => {
-    // try {
-    //   const response = await postData(FEES, values)
-    //   getFees()
-    //   handleApiResponse(response.data.message, 'success')
-    //   onClose()
-    // } catch (error) {
-    //   handleApiResponse(error)
-    // }
+    console.log(values)
+    try {
+      const res = await postData(TRANSACTIONS, values)
+      handleApiResponse(res.data.message, 'success')
+      // onClose()
+    } catch (error) {
+      handleApiResponse(error)
+    }
   };
+
+  useEffect(() => {
+    let accountOptions = bankAccounts.map((account) => {
+      return ({
+        value: account._id,
+        label: `${account.name} - ${account.accountNumber}`
+      })
+    })
+    setBankAccountsOptions(accountOptions)
+  }, [bankAccounts])
+
+  const getCategories = async () => {
+    try {
+      let res = await getData(FEE_CATEGORY)
+      let categoryOptions = res.data.data.map((item) => {
+        return ({
+          value: item._id,
+          label: item.name,
+          transactionType: item.transactionType
+        })
+      })
+      setCategoryOptions(categoryOptions)
+    } catch (e) {
+      handleApiResponse(e)
+    }
+  }
+
+  const getStaffData = async () => {
+    try {
+      let res = await getData(STAFF)
+      let list = res.data.data.map((item) => ({
+        value: item._id,
+        label: `${item.firstName} ${item.lastName}`,
+      }))
+      setStaffOptions(list)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+  useEffect(() => {
+    getCategories()
+    getStaffData()
+  }, [])
 
   return (
     <>
@@ -88,6 +178,7 @@ function SpecialCredits({ onClose }) {
         onSubmit={handleSubmit}
       >
         {({ values, setFieldValue, errors }) => {
+          console.log(errors)
           return (
             <Form>
               <div className="fixed inset-0 overflow-hidden">
@@ -126,56 +217,78 @@ function SpecialCredits({ onClose }) {
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                                   <div className="sm:col-span-1">
                                     <CustomSelect
-                                      name="type"
+                                      name="transactionType"
                                       label=" Credit or Debit"
                                       options={financeType}
                                       required={true}
+                                      onChange={(e) => {
+                                        setFieldValue(
+                                          "transactionType",
+                                          e.target.value
+                                        )
+                                        setFieldValue("category", "");
+                                        setFieldValue("staff", "")
+                                        setFieldValue("subCategory", "")
+                                      }}
                                     />
                                   </div>
 
                                   <div className="sm:col-span-1">
                                     <CustomSelect
-                                      name="transactionType"
-                                      label="Transaction Type"
+                                      name="transactionMode"
+                                      label="Transaction Mode"
                                       options={paymentType}
                                       required={true}
-                                      onChange={handleTransactionTypeChange}
+                                      onChange={(e) => {
+                                        setFieldValue(
+                                          "transactionMode",
+                                          e.target.value
+                                        )
+                                        setFieldValue("account", "");
+                                      }}
                                     />
                                   </div>
-
-                                  {selectedTransactionType === "online" && (
-                                    <div className="sm:col-span-1">
-                                      <CustomSelect
-                                        name="account"
-                                        label="Bank Name"
-                                        options={banks}
-                                        required={true}
-                                      />
-                                    </div>
-                                  )}
 
                                   <div className="sm:col-span-1">
                                     <CustomSelect
                                       name="category"
                                       label="Category"
-                                      options={financeCategoryCredit}
+                                      options={categoryOptions.filter((item) => item.transactionType === values.transactionType)}
                                       required={true}
-                                      onChange={handleCategoryChange}
+                                      onChange={(e) => {
+                                        setFieldValue(
+                                          "category",
+                                          e.target.value
+                                        )
+                                        setFieldValue("staff", "")
+                                        setFieldValue("subCategory", "")
+                                      }}
                                     />
                                   </div>
 
-                                  {selectedCategory === "loan-advance" && (
+                                  {values.transactionMode === "online" && (
                                     <div className="sm:col-span-1">
                                       <CustomSelect
-                                        name="staff"
-                                        label="Staff"
-                                        // options={}
+                                        name="account"
+                                        label="Bank Name"
+                                        options={bankAccountsOptions}
                                         required={true}
                                       />
                                     </div>
                                   )}
 
-                                  {selectedCategory === "other-income" && (
+                                  {categoryOptions.find(item => item.value === values.category)?.label.includes("Loan") && (
+                                    <div className="sm:col-span-1">
+                                      <CustomSelect
+                                        name="staff"
+                                        label="Staff"
+                                        options={staffOptions}
+                                        required={true}
+                                      />
+                                    </div>
+                                  )}
+
+                                  {categoryOptions.find(item => item.value === values.category)?.label.includes("Other") && (
                                     <div className="sm:col-span-1">
                                       <CustomInput
                                         name="subCategory"
@@ -203,10 +316,10 @@ function SpecialCredits({ onClose }) {
                                     />
                                   </div>
 
-                                  {selectedTransactionType === "online" && (
+                                  {values.transactionMode === "online" && (
                                     <div className="sm:col-span-1">
                                       <CustomInput
-                                        name="transactionID"
+                                        name="transactionId"
                                         label="Transaction ID"
                                         required={true}
                                       />
@@ -232,7 +345,7 @@ function SpecialCredits({ onClose }) {
                                   <CustomFileUploader
                                     label="Upload Proof "
                                     name="proofPic"
-                                    //   onChange={handleFileChange}
+                                    onChange={(e) => handleFileChange(e, setFieldValue)}
                                   />
                                 </div>
                               </div>

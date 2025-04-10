@@ -15,8 +15,6 @@ export default function Academics() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'daily_time_tables':
-        return <ManageDailyTimeTable />
-      case 'classes':
         return <ClassTimeTable />
       case 'exams':
         return <ManageExams />

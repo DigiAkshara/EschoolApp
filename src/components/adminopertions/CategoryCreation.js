@@ -1,13 +1,13 @@
-import React, { useState } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { Form, Formik } from "formik";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import { postData } from "../../app/api";
+import { FEE_CATEGORY } from "../../app/url";
+import { financeType, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
-import { financeType, handleApiResponse, paymentType, staffType, transactionType } from "../../commonComponent/CommonFunctions";
-import { postData } from "../../app/api";
-import { DESIGNATION, FEE_CATEGORY } from "../../app/url";
-import { useNavigate } from "react-router-dom";
 
 const CategoryCreation = ({ onClose }) => {
   const navigate = useNavigate();

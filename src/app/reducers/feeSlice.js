@@ -1,4 +1,24 @@
-import {createSlice} from '@reduxjs/toolkit'
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
+import { BANK_ACCOUNTS, RECEIPT_NAMES } from '../url'
+import { getData } from '../api'
+
+export const fetchInitialFeeData = createAsyncThunk(
+  'data/fetchInitialFeeData',
+  async (_, { rejectWithValue }) => {
+    try {
+      const [bankAccounts, receiptNames] = await Promise.all([
+        getData(BANK_ACCOUNTS),
+        getData(RECEIPT_NAMES)
+      ]) // Replace with your API endpoint
+      return {
+        bankAccounts: bankAccounts.data.data,
+        receiptNames: receiptNames.data.data
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data || 'Failed to load data')
+    }
+  },
+)
 
 const feeSlice = createSlice({
   name: 'fees',
@@ -26,6 +46,12 @@ const feeSlice = createSlice({
       state.receiptNames = action.payload
     }
   },
+  extraReducers: (builder) => {
+      builder.addCase(fetchInitialFeeData.fulfilled, (state, action) => {
+        state.bankAccounts = action.payload.bankAccounts
+        state.receiptNames = action.payload.receiptNames
+      })
+    },
 })
 
 export const {setFee, setExpense, setLoan, setBankAccounts, setReceiptNames} = feeSlice.actions

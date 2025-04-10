@@ -192,7 +192,7 @@ const AttendanceSidebar = ({
                 placeholder="Section"
                 value={values.section}
                 options={sections.filter(
-                  (section) => section.class._id === values.class
+                  (section) => section.class === values.class
                 )}
                 onChange={(e) => {
                   handleSectionChange(e, values, setFieldValue);
