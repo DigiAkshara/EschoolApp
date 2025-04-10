@@ -33,7 +33,7 @@ function FinanceCollectFeeHistory() {
     try {
       dispatch(setIsLoader(true));
       let res = await getData(TRANSACTIONS + "/" + Id);
-      let list = res.data.map((trans) => ({
+      let list = res.data.data.map((trans) => ({
         transactionId: trans.transaction.transactionNo || "N/A",
         paidDate: moment(trans.transaction.date).format("DD-MM-YYYY"),
         paidMode: trans.transaction.transactionType.toUpperCase(),
@@ -62,7 +62,6 @@ function FinanceCollectFeeHistory() {
   };
 
   const showInvoice = (feeData) => {
-     console.log(feeData, "feeData");
     let paidAmount = 0;
     const formattedFees =
       feeData.transaction.fees?.map((feeItem) => {

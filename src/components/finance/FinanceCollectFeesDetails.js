@@ -28,7 +28,6 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const selectedFee = selectedData?.fees;
   const studentData = selectedData?.academic;
 
-  console.log(selectedData, "selectedData");
   const getInitialValues = () => {
     return {
       studentId: selectedData?.fees?.student,

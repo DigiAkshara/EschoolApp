@@ -75,7 +75,7 @@ const StudentProfileModal = ({ show, onClose }) => {
     }
   };
 
-  
+
 
   const handleClose = ({ refresh = false }) => {
     setShowPromteModal(false)
@@ -216,32 +216,33 @@ const StudentProfileModal = ({ show, onClose }) => {
                                 </div>
                               </dl>
                             </div>
-                            <div className="action-btns-blk mt-4 grid grid-flow-col auto-cols-min gap-4">
-                              <button
-                                onClick={()=> setShowPromteModal(true)}
-                                disabled={hasPermission('student_details', 'edit', { isSubmenu: true, parentMenu: 'students' })}
-                                type="button"
-                                className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                              >
-                                <ArrowLongUpIcon
-                                  aria-hidden="true"
-                                  className="size-5"
-                                />
-                                Promote
-                              </button>
-                              <button
-                                onClick={()=> setShowDeleteModal(true)}
-                                disabled={hasPermission('student_details', 'delete', { isSubmenu: true, parentMenu: 'students' })}
-                                type="button"
-                                className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                              >
-                                <TrashIcon
-                                  aria-hidden="true"
-                                  className="size-5"
-                                />
-                                Delete
-                              </button>
-                            </div>
+                            {data?.academics?.status === "active" && (
+                              <div className="action-btns-blk mt-4 grid grid-flow-col auto-cols-min gap-4">
+                                <button
+                                  onClick={() => setShowPromteModal(true)}
+                                  disabled={hasPermission('student_details', 'edit', { isSubmenu: true, parentMenu: 'students' })}
+                                  type="button"
+                                  className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                                >
+                                  <ArrowLongUpIcon
+                                    aria-hidden="true"
+                                    className="size-5"
+                                  />
+                                  Promote
+                                </button>
+                                <button
+                                  onClick={() => setShowDeleteModal(true)}
+                                  disabled={hasPermission('student_details', 'delete', { isSubmenu: true, parentMenu: 'students' })}
+                                  type="button"
+                                  className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                                >
+                                  <TrashIcon
+                                    aria-hidden="true"
+                                    className="size-5"
+                                  />
+                                  Delete
+                                </button>
+                              </div>)}
                           </div>
                         </div>
                       </div>
@@ -938,7 +939,6 @@ const AcademicDeatilsTab = ({ data }) => {
     })
     return isPassed ? 'Pass' : 'Fail'
   }
-  // console.log(data)
   const getMarks = async () => {
     try {
       let res = await getData(MARKS + '/' + data._id)
@@ -975,7 +975,6 @@ const AcademicDeatilsTab = ({ data }) => {
 
   const generatePDFPreview = async (index) => {
     const exam = exams[index]
-    console.log(exam, "examDetails", data)
     const doc = new jsPDF("p", "mm", "a4");
     // const pdfPromises = exams.map(async (student, index) => {
     const container = document.createElement("div");

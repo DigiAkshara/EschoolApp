@@ -23,7 +23,11 @@ function CommonUpload({ onClose, user, loadData = () => { } }) {
 
   useEffect(() => {
     if (academicYears.length > 0) {
-      setAcademicYearValue(academicYears.filter((item) => item.status === 'upcoming')[0]._id);
+      let currentYear = moment().year();
+      let activeYear = academicYears.filter((item) => item.year.split('-')[0] === currentYear.toString())
+      if(activeYear.length > 0) {
+        setAcademicYearValue(activeYear[0]._id)
+      }
     }
   }, [academicYears]);
 

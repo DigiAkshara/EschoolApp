@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import ExpensesTab from './ExpensesTab'
-import LoansTab from './LoansTab'
+import LoansTab from '../bankAccounts/LoansTab'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')

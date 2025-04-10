@@ -111,11 +111,12 @@ const TableComponent = ({checkAll=false, columns, data, pagination, showModal, m
                         </div>
                       </a>
                     </td>
-                  ) : col.key === 'actions' ? (
+                  ) :( col.key === 'actions') ? (
                     <td
                       className="whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-3"
                       key={ind}
                     >
+                      {record.actions?.length>0?
                       <Menu as="div" className="relative inline-block text-left">
                         <div>
                           <MenuButton className="flex items-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-100">
@@ -132,7 +133,7 @@ const TableComponent = ({checkAll=false, columns, data, pagination, showModal, m
                           className="absolute right-0 z-10 mt-2 w-52 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
                         >
                           <div className="py-1">
-                            {record.actions.map((action, index) => (
+                            {record.actions?.map((action, index) => (
                               <button
                                 disabled={action.disabled}
                                 key={index}
@@ -144,7 +145,7 @@ const TableComponent = ({checkAll=false, columns, data, pagination, showModal, m
                             ))}
                           </div>
                         </MenuItems>
-                      </Menu>
+                      </Menu>:"-"}
                     </td>
                   ) : (
                     <td
@@ -153,7 +154,7 @@ const TableComponent = ({checkAll=false, columns, data, pagination, showModal, m
                     >
                       {col.key === 'date'
                         ? moment(record[col.key]).format('DD-MM-YYYY')
-                        : modalColumn?.includes(col.key) ? <a className='cursor-pointer' onClick={() => showModal && showModal(record)}>{record[col.key]}</a> : record[col.key]}
+                        : modalColumn?.includes(col.key) ? <a className='text-purple-500 cursor-pointer' onClick={() => showModal && showModal(record)}>{record[col.key]}</a> : record[col.key]}
                     </td>
                   ),
                 )}
