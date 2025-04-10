@@ -1,33 +1,34 @@
 "use client";
 import { Dialog } from "@headlessui/react";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setLoan } from "../../../app/reducers/feeSlice";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import TableComponent from "../../../commonComponent/TableComponent";
-import AddLoanModal from "./AddLoanModal";
-import CollectLoanModal from "./CollectLoanModal";
+import ViewLoanModal from "./ViewLoanModal";
+import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
+import { getData } from "../../../app/api";
+import { LOANS } from "../../../app/url";
+import moment from "moment";
 
 function LoansTab() {
 	const dispatch = useDispatch();
 	const [selectedPeople, setSelectedPeople] = useState([])
 	const [filteredData, setFilteredData] = useState([])
 	const [expenseData, setExpenseData] = useState([])
-	const [showAddLoanModal, setShowAddLoanModal] = useState(false);
-	const [showCollectLoanModal, setShowCollectLoanModal] = useState(false)
+	const [selectedLoan, setSelectedLoan] = useState(null)
+	const [showLoanDetailsModal, setShowLoanDetailsModal] = useState(false)
 	const [currentPage, setCurrentPage] = useState(1);
 	const rowsPerPage = 10;
 	const columns = [
 		{ key: "type", title: "Type" },
-		{ key: "staff_name", title: "Staff Name" },
+		{ key: "staffName", title: "Staff Name" },
 		{ key: "date", title: "Date" },
-		{ key: "loan_amount", title: "Loan Amount" },
-		{ key: "paid_amount", title: "Paid Amount" },
+		{ key: "loanAmount", title: "Loan Amount" },
+		{ key: "paidAmount", title: "Paid Amount" },
 		{ key: "balance_amount", title: "Balance Amount" },
 		{ key: "status", title: "Status" },
-		{ key: "collect", title: "Collect" },
-		{ key: "actions", title: "Actions" },
+		{ key: "view", title: "More Details" },
 	];
 
 	const filterForm = {
@@ -36,13 +37,10 @@ function LoansTab() {
 	};
 
 	const filters = {
-		type: { options: [] },
-		status: { options: [] }
+		type: { options: [{label:"Offline", value:"offline"}, {label:"Online", value:"online"}] },
+		status: { options: [{label:"Paid", value:"paid"}, {label:"Unpaid", value:"active"}] }
 	};
 
-	const handleViewDetails = (item) => {
-		console.log(item)
-	};
 
 	const handlePageChange = (page) => {
 		setCurrentPage(page);
@@ -71,14 +69,12 @@ function LoansTab() {
 
 	const handleReset = (updatedValues) => {
 		setFilteredData(expenseData);
-		updatedValues("examName", "");
-		updatedValues("class", "");
-		updatedValues("section", "");
+		updatedValues("type", "");
+		updatedValues("status", "");
 	};
 
 	const handleClose = () => {
-		setShowAddLoanModal(false);
-		setShowCollectLoanModal(false)
+		setShowLoanDetailsModal(false)
 		dispatch(setLoan(null));
 	};
 
@@ -87,19 +83,36 @@ function LoansTab() {
 		currentPage * rowsPerPage
 	);
 
+	const getLoans = async () => {
+		try {
+			const res = await getData(LOANS)
+			let list = res.data.data.map((item) => ({
+				...item,
+				type: capitalizeWords(item.transactionMode),
+				staffName: capitalizeWords(item.staff?.firstName + " " + item.staff?.lastName),
+				date: moment(item.issuedDate).format("DD-MM-YYYY"),
+				balance_amount: (item.loanAmount * 1) - (item.paidAmount * 1),
+				status: capitalizeWords(item.status),
+				view: "View"
+			}))
+			setExpenseData(list)
+			setFilteredData(list)
+		} catch (e) {
+			handleApiResponse(e)
+		}
+	}
+
+	const handleViewDetails = (data) => {
+		setSelectedLoan({ ...data, actions: null });
+		setShowLoanDetailsModal(true);
+	};
+
+	useEffect(() => {
+		getLoans()
+	}, [])
+
 	return (
 		<>
-
-			<div className="right-btns-blk space-x-4 float-right">
-				<button
-					type="button"
-					onClick={() => setShowAddLoanModal(true)}
-					className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-				>
-					<PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-					Add New
-				</button>
-			</div>
 			<div className="-mx-2 -my-2 mt-0 sm:-mx-6">
 				{/* /Removed overflow-x-auto cloass */}
 				<div className="inline-block min-w-full py-4 align-middle sm:px-6">
@@ -115,7 +128,6 @@ function LoansTab() {
 							</div>
 						)}
 						<div className="relative shadow ring-1 ring-black/5 sm:rounded-lg">
-
 							<FilterComponent
 								onSearch={handleSearch}
 								filters={filters}
@@ -131,22 +143,16 @@ function LoansTab() {
 									totalCount: filteredData.length,
 									onPageChange: handlePageChange,
 								}}
+								modalColumn={["view"]}
 								showModal={(data) => handleViewDetails(data)}
 							/>
 						</div>
 					</div>
 				</div>
 			</div>
-
-			<Dialog open={showAddLoanModal} onClose={handleClose} className="relative z-50">
-				<AddLoanModal onClose={handleClose} />
+			<Dialog open={showLoanDetailsModal} onClose={handleClose} className="relative z-50">
+				<ViewLoanModal onClose={handleClose} data={selectedLoan} />
 			</Dialog>
-
-			<Dialog open={showCollectLoanModal} onClose={handleClose} className="relative z-50">
-				<CollectLoanModal onClose={handleClose} />
-			</Dialog>
-
-
 		</>
 	);
 }

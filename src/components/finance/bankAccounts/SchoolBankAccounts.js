@@ -2,8 +2,9 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import BankAccountsTab from './BankBookTab'
-import SpecialDebitCreditTab from './SpecialDebitCreditTab'
+import DebitCreditTab from './DebitCreditTab'
 import CashLedger from './CashLedgerTab'
+import LoansTab from './LoansTab'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -15,20 +16,25 @@ export default function SchoolBankAccounts() {
 
   const tabs2 = [
     {
-      name: 'Bank Book',
-      component: <BankAccountsTab/>,
-      current: true,
-    },
-    {
-      name: 'Special Credits/Debits',
-      component: <SpecialDebitCreditTab />,
+      name: 'Credits/Debits',
+      component: <DebitCreditTab />,
       current: false,
     },
     {
-        name: 'Cash Ledger',
-        component: <CashLedger />,
-        current: false,
-      },
+      name: 'Loans/Advances ',
+      component: <LoansTab />,
+      current: false,
+    },
+    {
+      name: 'Bank Book',
+      component: <BankAccountsTab />,
+      current: true,
+    },
+    {
+      name: 'Cash Ledger',
+      component: <CashLedger />,
+      current: false,
+    },
   ]
 
 

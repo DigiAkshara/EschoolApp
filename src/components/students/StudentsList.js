@@ -142,10 +142,12 @@ export default function StudentsList() {
           previousstudyProof: item.student.previousSchool?.studyProof,
           previousSchoolyearOfStudy: item.student.previousSchool?.yearOfStudy,
           presentAddress: `${item.student.presentAddress?.area}, ${item.student.presentAddress?.city}, ${item.student.presentAddress?.state} - ${item.student.presentAddress?.pincode}`,
-          actions: [
-            { label: "Edit", actionHandler: onHandleEdit, disabled: editPermission },
-            { label: "Delete", actionHandler: onDelete, disabled: deletePermission },
-          ],
+          ...item.student.status === 'promoted' && {
+            actions: [
+              { label: "Edit", actionHandler: onHandleEdit, disabled: editPermission },
+              { label: "Delete", actionHandler: onDelete, disabled: deletePermission },
+            ]
+          },
         };
       });
       setStudentList([...studentData]);

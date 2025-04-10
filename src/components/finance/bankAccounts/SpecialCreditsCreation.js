@@ -16,6 +16,7 @@ import CustomDate from "../../../commonComponent/CustomDate";
 import CustomFileUploader from "../../../commonComponent/CustomFileUploader";
 import CustomInput from "../../../commonComponent/CustomInput";
 import CustomSelect from "../../../commonComponent/CustomSelect";
+import CustomTextArea from "../../../commonComponent/CustomTextArea";
 
 function SpecialCredits({ onClose }) {
   const { bankAccounts } = useSelector((state) => state.fees);
@@ -32,7 +33,7 @@ function SpecialCredits({ onClose }) {
     amount: "",
     date: "",
     reason: "",
-    proofPic: null,
+    proof: null,
     transactionId: "",
   };
 
@@ -88,7 +89,7 @@ function SpecialCredits({ onClose }) {
       amount: Yup.string().required("Amount is required"),
       date: Yup.date().required("Date is required"),
       reason: Yup.string(),
-      proofPic: Yup.mixed()
+      proof: Yup.mixed()
         .nullable()
         .test(
           "fileFormat",
@@ -117,11 +118,10 @@ function SpecialCredits({ onClose }) {
   }
 
   const handleSubmit = async (values) => {
-    console.log(values)
     try {
       const res = await postData(TRANSACTIONS, values)
       handleApiResponse(res.data.message, 'success')
-      // onClose()
+      onClose()
     } catch (error) {
       handleApiResponse(error)
     }
@@ -178,7 +178,6 @@ function SpecialCredits({ onClose }) {
         onSubmit={handleSubmit}
       >
         {({ values, setFieldValue, errors }) => {
-          console.log(errors)
           return (
             <Form>
               <div className="fixed inset-0 overflow-hidden">
@@ -327,24 +326,17 @@ function SpecialCredits({ onClose }) {
                                   )}
                                 </div>
                                 <div className="sm:col-span-4 mt-2">
-                                  <label
-                                    htmlFor="notes"
-                                    className="block text-sm font-medium text-gray-700"
-                                  >
-                                    Reason
-                                  </label>
-                                  <textarea
-                                    id="reason"
+                                  <CustomTextArea
+                                    label="Reason"
                                     name="reason"
-                                    rows="3"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 sm:text-sm"
                                     placeholder="Enter Reason."
-                                  ></textarea>
+                                    onChange={(e) => setFieldValue('reason', e.target.value)}
+                                  />
                                 </div>
                                 <div className="sm:col-span-4 mt-2">
                                   <CustomFileUploader
                                     label="Upload Proof "
-                                    name="proofPic"
+                                    name="proof"
                                     onChange={(e) => handleFileChange(e, setFieldValue)}
                                   />
                                 </div>

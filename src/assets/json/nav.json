@@ -125,11 +125,6 @@
         "path": "/staff_salaries"
       },
       {
-        "title": "Expenses/ Loans",
-        "name": "expenses",
-        "path": "/expenses"
-      },
-      {
         "title": "Fee Structures",
         "name": "fee_structures",
         "path": "/fee_structures"

@@ -4,7 +4,6 @@ import ManageFeeCollection from './finance/ManageFeeCollection'
 import ManageFeesOverview from './finance/ManageFeesOverview'
 import Submenu from './Submenu'
 import FeesList from './finance/FeesList'
-import Expenses from './finance/expenses/Expenses'
 import SchoolBankAccounts from './finance/bankAccounts/SchoolBankAccounts'
 import { useDispatch } from 'react-redux'
 import { fetchInitialFeeData } from '../app/reducers/feeSlice'
@@ -21,8 +20,6 @@ export default function Finance() {
         return <ManageFeeCollection />
       case 'fee_structures':
         return <FeesList />
-      case 'expenses':
-        return <Expenses/>
       case 'bank_accounts':
           return <SchoolBankAccounts/>
       default:

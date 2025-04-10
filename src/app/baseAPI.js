@@ -6,8 +6,8 @@ const createInstance = (URL) => {
     baseURL: URL,
     headers: {
       Authorization: `Bearer ${localStorage.getItem('studentManagement') || ''}`,
-      ['X-Academic-Year']: localStorage.getItem('academicYear'),
-      ['X-Branch']: localStorage.getItem('branchId'),
+      'X-Academic-Year': localStorage.getItem('academicYear'),
+      'X-Branch': localStorage.getItem('branchId'),
     },
   })
 

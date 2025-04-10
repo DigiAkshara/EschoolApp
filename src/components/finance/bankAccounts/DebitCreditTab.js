@@ -6,7 +6,7 @@ import TableComponent from '../../../commonComponent/TableComponent';
 import SpecialCreditsCreation from './SpecialCreditsCreation';
 
 
-function SpecialDebitCreditTab() {
+function DebitCreditTab() {
   const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -127,7 +127,7 @@ function SpecialDebitCreditTab() {
   )
 }
 
-export default SpecialDebitCreditTab
+export default DebitCreditTab
 
 
 
