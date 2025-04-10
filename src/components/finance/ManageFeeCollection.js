@@ -5,8 +5,8 @@ import {
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getData } from '../../app/api'
-import { setBankAccounts, setFee, setReceiptNames } from '../../app/reducers/feeSlice'
-import { BANK_ACCOUNTS, RECEIPT_NAMES, STUDENT_FEE, TENANT } from '../../app/url'
+import { setFee } from '../../app/reducers/feeSlice'
+import { STUDENT_FEE } from '../../app/url'
 import { capitalizeWords, handleApiResponse, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
 import FilterComponent from '../../commonComponent/FilterComponent'
 import TableComponent from '../../commonComponent/TableComponent'
@@ -14,12 +14,10 @@ import CollectFeeModal from './CollectFeeModal'
 
 
 function ManageFeeCollection() {
-  const [selectedPeople, setSelectedPeople] = useState([])
   const [studentFees, setStudentFee] = useState([])
   const [filteredData, setFilteredData] = useState([])
   const [showFeeModal, setShowFeeModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [tenant, setTenant] = useState(null)
   const rowsPerPage = 10
   const { branchData } = useSelector((state) => state.appConfig)
 
@@ -48,43 +46,16 @@ function ManageFeeCollection() {
 
   useEffect(() => {
     getStudentData()
-    getTanent()
-    getBankAccounts()
-    getReceiptNames()
   }, [])
 
-  const getBankAccounts = async () => {
-    try {
-      const res = await getData(BANK_ACCOUNTS)
-      dispatch(setBankAccounts(res.data.data))
-    } catch (error) {
-      handleApiResponse(error)
-    }
-  }
-  const getReceiptNames = async () => {
-    try {
-      const res = await getData(RECEIPT_NAMES)
-      dispatch(setReceiptNames(res.data.data))
-    } catch (error) {
-      handleApiResponse(error)
-    }
-  }
 
-  const getTanent = async () => {
-    try {
-      const response = await getData(TENANT)
-      setTenant(response.data.data)
-    } catch (error) {
-      handleApiResponse(error)
-    }
-  }
 
   const getStudentData = async () => {
     try {
       const response = await getData(STUDENT_FEE)
       const feedata = response.data.data // Access the correct array property
       const stuFees = []
-      feedata.forEach((fee) => { 
+      feedata.forEach((fee) => {
         let paybalAmount = 0, paidAmount = 0
         fee.feeList.forEach((item) => {
           paybalAmount = paybalAmount + (item.paybalAmount * 1 || 0)
@@ -173,7 +144,6 @@ function ManageFeeCollection() {
       { key: 'pendingAmount', label: 'Pending Amount' },
       { key: 'paymentStatus', label: 'Status' },
       { key: 'phoneNo', label: 'Parent Mobile' },
-
     ], "Fee Collection Details Report", branchData, undefined, "landscape");
   };
 
@@ -196,28 +166,26 @@ function ManageFeeCollection() {
       <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
-            {selectedPeople.length > 0 && (
-              <div className="absolute left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Promote
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Exit
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
+            <div className="absolute left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
+              <button
+                type="button"
+                className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+              >
+                Promote
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+              >
+                Exit
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+              >
+                Delete
+              </button>
+            </div>
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               {/*  filter component */}
               <FilterComponent
@@ -239,7 +207,6 @@ function ManageFeeCollection() {
                 showModal={showFeeCollectionModal}
                 modalColumn={["collectfee"]}
               />
-
             </div>
           </div>
         </div>

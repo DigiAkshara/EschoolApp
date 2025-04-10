@@ -1,12 +1,9 @@
 import { Dialog } from "@headlessui/react";
 import { ArrowLongUpIcon, ArrowUpTrayIcon, PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import * as Yup from "yup";
-import { deleteData, getData, postData } from "../../app/api";
+import { deleteData, getData } from "../../app/api";
 import { setIsLoader } from "../../app/reducers/appConfigSlice";
 import {
   fetchInitialStudentData,
@@ -18,14 +15,16 @@ import {
   handleApiResponse,
   handleDownload,
   handleDownloadPDF,
-  hasPermission
+  hasPermission,
+  testAcademic
 } from "../../commonComponent/CommonFunctions";
 import CommonUpload from "../../commonComponent/CommonUpload";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
-import CustomSelect from "../../commonComponent/CustomSelect";
 import FilterComponent from "../../commonComponent/FilterComponent";
 import TableComponent from "../../commonComponent/TableComponent";
+import DeleteModal from "./DeleteModal";
 import StudentProfileModal from "./Profile";
+import PromoteModal from "./PromoteModal";
 import Student from "./Student";
 
 export default function StudentsList() {
@@ -49,12 +48,10 @@ export default function StudentsList() {
   const [showProfile, setShowProfile] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
-  const { branchData, academicYears } = useSelector((state) => state.appConfig)
+  const { branchData } = useSelector((state) => state.appConfig)
   const [showPromteModal, setShowPromteModal] = useState(false);
-  const [academicYearOptions, setAcademicYearOptons] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [granuts, setGranuts] = useState({ create: false, edit: false, delete: false })
-
 
   const genderOptions = [
     { label: "Male", value: "male" },
@@ -83,13 +80,6 @@ export default function StudentsList() {
   }, [clsOptions, sectionOptions, studentList]);
 
 
-
-  useEffect(() => {
-    if (academicYears.length > 0) {
-      setAcademicYearOptons(academicYears.map((year) => ({ label: year.year, value: year._id })));
-    }
-  }, [academicYears])
-
   const columns = [
     { title: "Student Name", key: "name" },
     { title: "Admission Number", key: "admissionNo" },
@@ -109,7 +99,7 @@ export default function StudentsList() {
       const createPermission = hasPermission('student_details', 'write', { isSubmenu: true, parentMenu: 'students' })
       const editPermission = hasPermission('student_details', 'edit', { isSubmenu: true, parentMenu: 'students' })
       const deletePermission = hasPermission('student_details', 'delete', { isSubmenu: true, parentMenu: 'students' })
-      setGranuts({ create:createPermission, edit:editPermission, delete: deletePermission })
+      setGranuts({ create: createPermission, edit: editPermission, delete: deletePermission })
       const studentData = student.data.data.map((item) => {
         return {
           isChecked: false,
@@ -347,62 +337,13 @@ export default function StudentsList() {
     return filteredData.length > 0 && filteredData.every((item) => item.isChecked);
   };
 
-  const handleDeleteSubmit = async (values) => {
-    try {
-      const selectedStudent = []
-      filteredData.forEach((item) => { if (item.isChecked) selectedStudent.push(item._id) });
-      const payload = {
-        status: values.status,
-        studentIds: selectedStudent,
-      }
-      const res = await deleteData(ACADEMICS, payload)
-      handleApiResponse(res.data.message, 'success')
+  const handleBulkClose = ({ refresh = false }) => {
+    setShowPromteModal(false)
+    setShowDeleteModal(false)
+    if (refresh) {
       getStudents()
-      setShowDeleteModal(false)
-    } catch (error) {
-      handleApiResponse(error);
     }
   }
-  const initialValues = {
-    academicYear: academicYears.find((year) => year.status === "upcoming")?._id,
-    class: "",
-    section: "",
-  }
-
-  const getValidationSchema = () => {
-    return Yup.object({
-      academicYear: Yup.string().required("Academic Year is required"),
-      class: Yup.string().required("Class is required"),
-      section: Yup.string().required("Section is required")
-    })
-  }
-
-  const getDeleteValidationSchema = () => {
-    return Yup.object({
-      status: Yup.string().required("Status is required"),
-    })
-  }
-
-  const handleSubmit = async (values) => {
-    try {
-      const selectedStudent = []
-      filteredData.forEach((item) => { if (item.isChecked) selectedStudent.push(item._id) });
-      const payload = {
-        academicYear: values.academicYear,
-        studentIds: selectedStudent,
-        classId: values.class,
-        sectionId: values.section,
-      };
-      const res = await postData(ACADEMICS, payload);
-      handleApiResponse(res.data.message, "success");
-      getStudents();
-      setShowPromteModal(false);
-    } catch (error) {
-      handleApiResponse(error);
-    }
-  }
-
-
 
   return (
     <>
@@ -442,7 +383,7 @@ export default function StudentsList() {
               <div className="left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
                 <button
                   type="button"
-                  onClick={() => setShowPromteModal(true)}
+                  onClick={() => { setShowPromteModal(true) }}
                   className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                 >
                   <ArrowLongUpIcon
@@ -492,9 +433,12 @@ export default function StudentsList() {
               />
               <StudentProfileModal
                 show={showProfile}
-                close={() => {
+                onClose={({ refresh = false }) => {
                   setShowProfile(false);
                   dispatch(selectStudent(null));
+                  if (refresh) {
+                    getStudents()
+                  }
                 }}
               />
             </div>
@@ -516,128 +460,14 @@ export default function StudentsList() {
       <Dialog open={showUploadModal} onClose={setShowUploadModal} className="relative z-50">
         <CommonUpload onClose={() => setShowUploadModal(false)} user="student" loadData={getStudents} />
       </Dialog>
-      <Dialog open={showPromteModal} onClose={() => setShowPromteModal(false)} className="relative z-50">
+      <Dialog open={showPromteModal} onClose={handleBulkClose} className="relative z-50">
         <div className="fixed inset-0" />
-        <Formik
-          initialValues={initialValues}
-          validationSchema={getValidationSchema()}
-          onSubmit={handleSubmit}
-          enableReinitialize
-        >
-          {({ values, setFieldValue, errors }) => {
-            return (
-              <Form>
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-                  <div className="bg-white w-96 rounded-lg shadow-lg">
-                    {/* Modal Header */}
-                    <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
-                      <h2 className="text-lg font-semibold">Promote Students</h2>
-                      <button
-                        onClick={() => setShowPromteModal(false)}
-                        className="text-white hover:text-gray-200"
-                      >
-                        <XMarkIcon className="h-6 w-6" />
-                      </button>
-                    </div>
-
-                    {/* Modal Body */}
-                    <div className="p-6">
-                      <CustomSelect
-                        name="academicYear"
-                        label="Academic Year"
-                        options={academicYearOptions}
-                        disabled={true}
-                      />
-                      <div className="my-4"></div>
-                      <CustomSelect
-                        name="class"
-                        label="Class to be promoted"
-                        options={clsOptions}
-                        required={true}
-                      />
-                      <div className="my-4"></div>
-                      <CustomSelect
-                        name="section"
-                        label="Section to be promoted"
-                        disabled={!values.class}
-                        options={sectionOptions.filter((item) => item.class === values.class)}
-                        required={true}
-                      />
-                    </div>
-
-                    {/* Modal Footer */}
-                    <div className="p-3 flex justify-end space-x-2 border-t">
-                      <button
-                        onClick={() => setShowPromteModal(false)}
-                        className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-                      >
-                        Cancel
-                      </button>
-                      <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-500">
-                        Promote
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Form>
-            )
-          }}
-        </Formik>
+        <PromoteModal students={filteredData.filter((item) => item.isChecked).map((item) => item._id)} onClose={handleBulkClose} />
       </Dialog>
 
-      <Dialog open={showDeleteModal} onClose={() => setShowDeleteModal(false)} className="relative z-50">
+      <Dialog open={showDeleteModal} onClose={handleBulkClose} className="relative z-50">
         <div className="fixed inset-0" />
-        <Formik
-          initialValues={{ status: '' }}
-          validationSchema={getDeleteValidationSchema()}
-          onSubmit={handleDeleteSubmit}
-        >
-          {({ values, setFieldValue, errors }) => {
-            return (
-              <Form>
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-                  <div className="bg-white w-96 rounded-lg shadow-lg">
-                    {/* Modal Header */}
-                    <div className="flex justify-between items-center bg-purple-600 text-white p-3 rounded-t-lg">
-                      <h2 className="text-lg font-semibold">Delete Students</h2>
-                      <button
-                        onClick={() => setShowDeleteModal(false)}
-                        className="text-white hover:text-gray-200"
-                      >
-                        <XMarkIcon className="h-6 w-6" />
-                      </button>
-                    </div>
-
-                    {/* Modal Body */}
-                    <div className="p-6">
-                      <CustomSelect
-                        name="status"
-                        label="Status"
-                        options={[{ label: 'Remove', value: 'remove' }, { label: 'Tranfer', value: 'transfer' }]}
-                        required={true}
-                      />
-                      <div className="my-4"></div>
-
-                    </div>
-
-                    {/* Modal Footer */}
-                    <div className="p-3 flex justify-end space-x-2 border-t">
-                      <button
-                        onClick={() => setShowDeleteModal(false)}
-                        className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
-                      >
-                        Cancel
-                      </button>
-                      <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-500">
-                        Continue
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Form>
-            )
-          }}
-        </Formik>
+        <DeleteModal students={filteredData.filter((item) => item.isChecked).map((item) => item._id)} onClose={handleBulkClose} />
       </Dialog>
     </>
   );

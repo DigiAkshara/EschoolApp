@@ -135,7 +135,7 @@
         "path": "/fee_structures"
       },
       {
-        "title": "School Bank Accounts",
+        "title": "Campus Funds Tracker",
         "name": "bank_accounts",
         "path": "/bank_accounts"
       },

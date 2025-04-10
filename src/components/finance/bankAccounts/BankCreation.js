@@ -11,7 +11,7 @@ import { handleApiResponse, staffType } from "../../../commonComponent/CommonFun
 import { BANK_ACCOUNTS } from "../../../app/url";
 import { postData } from "../../../app/api";
 
-function BankCreation({ onClose }) {
+function BankCreation({ onClose, refreshData }) {
   const formData = {
     name: "",
     accountNumber: "",
@@ -52,6 +52,7 @@ function BankCreation({ onClose }) {
     try {
       const response = await postData(BANK_ACCOUNTS, values)
       handleApiResponse(response.data.message, 'success')
+      refreshData()
       onClose()
     } catch (error) {
       handleApiResponse(error)

@@ -197,7 +197,7 @@ export default function ClassTimeTable() {
   return (
     <>
       <div className="mt-4 flex justify-between">
-        <div className="text-lg text-gray-900 font-medium">Classes</div>
+        <div className="text-lg text-gray-900 font-medium">Daily Class Time Tables</div>
 
         <div className="right-btns-blk space-x-4">
           <button
@@ -206,7 +206,7 @@ export default function ClassTimeTable() {
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
-            Add Class
+            Add Time Table
           </button>
         </div>
       </div>
@@ -232,7 +232,6 @@ export default function ClassTimeTable() {
                 handleFilter={handleFilter}
                 handleReset={handleReset}
                 downloadList={downloadList}
-
               />
 
               {/* Table View */}

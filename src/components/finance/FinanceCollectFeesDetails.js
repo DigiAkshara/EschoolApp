@@ -1,20 +1,17 @@
-import { Dialog, Transition } from "@headlessui/react"; // For modal transitions
-import { XMarkIcon } from "@heroicons/react/24/outline";
 import { FieldArray, Form, Formik } from "formik";
 import { jsPDF } from "jspdf"; // For PDF generation
 import autoTable from "jspdf-autotable";
 import moment from "moment";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, postData } from "../../app/api";
 import { FEES, STUDENT_FEE } from "../../app/url";
 import {
   capitalizeWords,
-  feeduration,
   handleApiResponse,
-  payments,
-  uploadFile,
+  paymentType,
+  uploadFile
 } from "../../commonComponent/CommonFunctions";
 import CustomDate from "../../commonComponent/CustomDate";
 import CustomFileUploader from "../../commonComponent/CustomFileUploader";
@@ -25,16 +22,16 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const { branchData } = useSelector((state) => state.appConfig)
   const { selectedFee: selectedData, bankAccounts, receiptNames } = useSelector((state) => state.fees);
   const [allFees, setAllFees] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [accountOptions, setAccountOptions] = useState([]);
   const [receiptOptions, setReceiptOptions] = useState([]);
   const classId = selectedData?.academic.class._id;
   const selectedFee = selectedData?.fees;
   const studentData = selectedData?.academic;
 
+  console.log(selectedData, "selectedData");
   const getInitialValues = () => {
     return {
-      studentId: selectedData?.fees.student,
+      studentId: selectedData?.fees?.student,
       fees: selectedFee?.feeList.map((item) => {
         const pendingAmount =
           (item.paybalAmount * 1 || 0) - (item.paidAmount * 1 || 0);
@@ -53,14 +50,14 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
             : "Pending",
           paymentAmount: 0,
         };
-      }),
+      }) || [],
       transactionDate: "",
       paymentMode: "",
       bank: "",
       transactionId: "",
       transactionProof: "",
       totalPaymentAmount: "",
-      receiptLabel:"",
+      receiptLabel: "",
     };
   };
   const getValidationSchema = () => {
@@ -110,7 +107,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         "School Credit Bank is required",
         function (value) {
           const { paymentMode } = this.parent; // Access sibling field 'paymentMode'
-          if (paymentMode !== "cash" && !value) {
+          if (paymentMode === "online" && !value) {
             return false; // Fail validation if paymentMode is not 'cash' but value is invalid
           }
           return true; // Pass validation otherwise
@@ -121,7 +118,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         "Transaction Id is required",
         function (value) {
           const { paymentMode } = this.parent; // Access sibling field 'paymentMode'
-          if (paymentMode !== "cash" && !value) {
+          if (paymentMode === "online" && !value) {
             return false; // Fail validation if paymentMode is not 'cash' but value is invalid
           }
           return true; // Pass validation otherwise
@@ -142,32 +139,6 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     } catch (error) {
       handleApiResponse(error);
     }
-  };
-
-  const handleAddFee = (item, fees, setFieldValue) => {
-    const newFee = {
-      _id: item._id,
-      feeName: item.name,
-      duration: item.duration,
-      totalAmount: item.amount * 1,
-      discount: 0,
-      paybalAmount: item.amount * 1,
-      paidAmount: 0,
-      pendingAmount: item.amount * 1,
-      dueDate: item.dueDate || null,
-      status: "Pending",
-      paymentAmount: 0,
-      isAdded: true,
-    };
-
-    let dummyList = [...fees, newFee];
-    setFieldValue("fees", dummyList);
-    setShowDropdown(false);
-  };
-
-  const handleRemove = (feeId, fees, setFieldValue) => {
-    const updatedFees = fees.filter((fee) => fee._id !== feeId);
-    setFieldValue("fees", updatedFees); // Update Formik state
   };
 
   const handleFileChange = async (e, setFieldValue) => {
@@ -363,9 +334,9 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         };
       });
       let receiptLabel = branchData.label
-      if(values.receiptLabel) {
+      if (values.receiptLabel) {
         const obj = receiptOptions.find((option) => option.value === res.data.data.receiptLabel);
-        if(obj) receiptLabel = obj.label
+        if (obj) receiptLabel = obj.label
       }
       const receiptWithTenant = {
         ...res.data.data,
@@ -400,33 +371,25 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
 
   useEffect(() => {
     let accountOptions = bankAccounts.map((account) => {
-      return({
+      return ({
         value: account._id,
         label: `${account.name} - ${account.accountNumber}`
       })
     })
     setAccountOptions(accountOptions)
-  },[bankAccounts])
+  }, [bankAccounts])
 
 
   useEffect(() => {
     let receiptOptions = receiptNames.map((item) => {
-      return({
+      return ({
         value: item._id,
         label: item.name
       })
     })
     setReceiptOptions(receiptOptions)
-  },[receiptNames])
+  }, [receiptNames])
 
-
-  const checkDisabled = (values) => {
-    return (
-      allFees.filter(
-        (fee) => !values.fees.some((selectedFee) => selectedFee._id === fee._id)
-      ).length === 0
-    );
-  };
 
   const getTotalAmount = (values, key, miscellaneous = false) => {
     let dummyList = [];
@@ -552,68 +515,18 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                           </td>
 
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                            {fee.isAdded ? (
-                              <CustomSelect
-                                name={`fees.${index}.duration`} // Dynamically bind the name
-                                placeholder="Duration"
-                                options={feeduration}
-                              />
-                            ) : (
-                              capitalizeWords(fee.duration)
-                            )}
+                            {capitalizeWords(fee.duration)}
                           </td>
 
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                            {fee.isAdded ? (
-                              <CustomInput
-                                name={`fees.${index}.totalAmount`} // Dynamically bind the name
-                                placeholder="Fee Amount"
-                                onChange={(e) => {
-                                  setFieldValue(
-                                    `fees.${index}.totalAmount`,
-                                    e.target.value
-                                  );
-                                  setFieldValue(`fees.${index}.discount`, 0);
-                                  setFieldValue(
-                                    `fees.${index}.paybalAmount`,
-                                    e.target.value
-                                  );
-                                  setFieldValue(
-                                    `fees.${index}.pendingAmount`,
-                                    e.target.value
-                                  );
-                                }}
-                              />
-                            ) : (<>
+                            {<>
                               {fee.feeName === 'Bus Fee' ? fee.paybalAmount * 1 + fee.discount * 1 :
                                 fee.totalAmount}
-                            </>
-                            )}
+                            </>}
                           </td>
 
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                            {fee.isAdded ? (
-                              <CustomInput
-                                name={`fees.${index}.discount`} // Dynamically bind the name
-                                placeholder="Discount Amount"
-                                onChange={(e) => {
-                                  setFieldValue(
-                                    `fees.${index}.discount`,
-                                    e.target.value
-                                  );
-                                  setFieldValue(
-                                    `fees.${index}.paybalAmount`,
-                                    fee.totalAmount - e.target.value
-                                  );
-                                  setFieldValue(
-                                    `fees.${index}.pendingAmount`,
-                                    fee.totalAmount - e.target.value
-                                  );
-                                }}
-                              />
-                            ) : (
-                              fee.discount
-                            )}
+                            {fee.discount}
                           </td>
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                             {fee.paybalAmount}
@@ -629,6 +542,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                               "-"
                             ) : (
                               <CustomDate
+                                disabled={selectedData?.academic?.status !== 'active'}
                                 name={`fees.${index}.dueDate`}
                                 minDate={moment().format("YYYY-MM-DD")}
                               />
@@ -650,81 +564,16 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                               <CustomInput
                                 type="number"
                                 name={`fees[${index}].paymentAmount`}
-                                disabled={fee.status.toLowerCase() === "paid"}
+                                disabled={fee.status.toLowerCase() === "paid" || selectedData?.academic?.status !== "active"}
                                 className="block w-20 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm"
                               />
                             </div>
                           </td>
-                          {fee.isAdded && (
-                            <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                              <button
-                                onClick={() =>
-                                  handleRemove(
-                                    fee._id,
-                                    values.fees,
-                                    setFieldValue
-                                  )
-                                }
-                              >
-                                <XMarkIcon
-                                  aria-hidden="true"
-                                  className="text-red-500 size-5"
-                                />
-                              </button>
-                            </td>
-                          )}
                         </tr>
                       ))
                     }
                   </FieldArray>
 
-                  {/* <tr>
-                    <td
-                      className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                      colSpan={8}
-                    >
-                      <button
-                        type="button"
-                        className="inline-flex items-center  px-3 py-2 text-sm font-semibold text-purple-500  "
-                        onClick={() => setShowDropdown(!showDropdown)}
-                        disabled={checkDisabled(values)}
-                      >
-                        <PlusIcon
-                          aria-hidden="true"
-                          className="-ml-0.5 size-5"
-                        />
-                        Add New
-                      </button>
-
-                      {showDropdown && (
-                        <ul className="border rounded shadow-md mt-2 bg-white">
-                          {allFees
-                            .filter(
-                              (fee) =>
-                                !values.fees.some(
-                                  (selectedFee) => selectedFee._id === fee._id
-                                )
-                            )
-                            .map((fee, index) => (
-                              <li
-                                key={index}
-                                className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                                onClick={() =>
-                                  handleAddFee(fee, values.fees, setFieldValue)
-                                }
-                              >
-                                {fee.name}
-                              </li>
-                            ))}
-                        </ul>
-                      )}
-                    </td>
-                    <td>
-                      {errors.fees && typeof errors.fees === "string" && (
-                        <div className="text-red-500">{errors.fees}</div>
-                      )}
-                    </td>
-                  </tr> */}
                   <tr>
                     <td
                       className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
@@ -746,73 +595,74 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                   </tr>
                 </tbody>
               </table>
+              {selectedData?.academic?.status === "active" && (<>
+                <div className=" pb-4 mb-4 mt-4">
+                  <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
+                    Transaction Details
+                  </h2>
 
-              <div className=" pb-4 mb-4 mt-4">
-                <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
-                  Transaction Details
-                </h2>
+                  <div className=" grid grid-cols-4 gap-x-4 gap-y-4">
+                    <div className="sm:col-span-1">
+                      <CustomDate
+                        name="transactionDate"
+                        label="Paid Date"
+                        required={true}
+                        maxDate={moment().format("YYYY-MM-DD")}
+                      />
+                    </div>
 
-                <div className=" grid grid-cols-4 gap-x-4 gap-y-4">
-                  <div className="sm:col-span-1">
-                    <CustomDate
-                      name="transactionDate"
-                      label="Paid Date"
-                      required={true}
-                      maxDate={moment().format("YYYY-MM-DD")}
-                    />
+                    <div className="sm:col-span-1">
+                      <CustomSelect
+                        label="Payment Mode"
+                        name="paymentMode"
+                        options={paymentType}
+                        required
+                      />
+                    </div>
+
+                    <div className="sm:col-span-1">
+                      <CustomSelect
+                        label="Receipt Label"
+                        name="receiptLabel"
+                        options={receiptOptions}
+                      />
+                    </div>
+
+
+                    {values.paymentMode === "online" && (
+                      <>
+                        <div className="sm:col-span-1">
+                          <CustomSelect
+                            label="School Credit Bank"
+                            name="bank"
+                            options={accountOptions}
+                            required
+                          />
+                        </div>
+                        <div className="sm:col-span-1">
+                          <CustomInput
+                            label="Transaction ID"
+                            placeholder="Enter Transaction ID"
+                            name="transactionId"
+                            required
+                          />
+                        </div>
+
+                      </>
+                    )}
+
                   </div>
-
-                  <div className="sm:col-span-1">
-                    <CustomSelect
-                      label="Payment Mode"
-                      name="paymentMode"
-                      options={payments}
-                      required
-                    />
-                  </div>
-
-                  <div className="sm:col-span-1">
-                    <CustomSelect
-                      label="Receipt Label"
-                      name="receiptLabel"
-                      options={receiptOptions}
-                    />
-                  </div>
-
-
-                  {values.paymentMode !== "cash" && (
-                    <>
-                      <div className="sm:col-span-1">
-                        <CustomSelect
-                          label="School Credit Bank"
-                          name="bank"
-                          options={accountOptions}
-                          required
-                        />
-                      </div>
-                      <div className="sm:col-span-1">
-                        <CustomInput
-                          label="Transaction ID"
-                          placeholder="Enter Transaction ID"
-                          name="transactionId"
-                          required
-                        />
-                      </div>
-
-                    </>
-                  )}
-
                 </div>
-              </div>
-              <div className="grid grid-cols-4 gap-x-4 gap-y-4">
-                <div className="sm:col-span-1">
-                  <CustomFileUploader
-                    label="Upload Transaction Proof"
-                    name="transactionProof"
-                    onChange={(e) => handleFileChange(e, setFieldValue)}
-                  />
+                <div className="grid grid-cols-4 gap-x-4 gap-y-4">
+                  <div className="sm:col-span-1">
+                    <CustomFileUploader
+                      label="Upload Transaction Proof"
+                      name="transactionProof"
+                      onChange={(e) => handleFileChange(e, setFieldValue)}
+                    />
+                  </div>
                 </div>
-              </div>
+              </>)}
             </div>
             <div className="flex shrink-0 px-4 py-4 bg-gray-100 w-full justify-end">
               <button
@@ -822,12 +672,13 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-              >
-                Submit
-              </button>
+              {selectedData?.academic?.status === "active" &&
+                <button
+                  type="submit"
+                  className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
+                >
+                  Submit
+                </button>}
             </div>
           </Form>
         )}

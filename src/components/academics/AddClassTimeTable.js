@@ -270,7 +270,7 @@ function AddClassTimeTable({ onClose, getClassData }) {
                   <div className="bg-purple-900 px-3 py-3 sm:px-6">
                     <div className="flex items-start justify-between">
                       <DialogTitle className=" text-base font-semibold text-white">
-                        Add Class
+                        Add Time Table
                       </DialogTitle>
                       <div className="ml-3 flex h-7 items-center">
                         <button
@@ -296,7 +296,7 @@ function AddClassTimeTable({ onClose, getClassData }) {
                         <Form>
                           <div className="border-b border-gray-900/10 pb-4 mb-4">
                             <h2 className="text-base/7 font-semibold text-gray-900 mb-2">
-                              Add New Class
+                              Add New Time Table
                             </h2>
                             <div className="grid grid-cols-5 gap-x-4 gap-y-4">
                               <div className="sm:col-span-1">

@@ -130,7 +130,7 @@ export const financeType = [
 ];
 
 export const paymentType = [
-  { value: "cash", label: "Cash" },
+  { value: "offline", label: "Offline/Cash" },
   { value: "online", label: "Online" },
 ];
 
@@ -484,9 +484,9 @@ export const checkAcademicYear = () => {
 
 export function hasPermission(menuName, permissionType, options = {}) {
   const state = store.getState();
-  const {academicYear,navConfig:permissions} = state.appConfig
+  const { academicYear,navConfig:permissions} = state.appConfig
   const currentYear = moment().year();
-  if(academicYear?.year.split("-")[0] !== currentYear.toString()) return true
+  if(academicYear?.year.split("-")[0] !== currentYear.toString()&&academicYear?.status!=='active') return true
   const { isSubmenu = false } = options;
 
   const menu = permissions.find(p => p.name === (isSubmenu ? options.parentMenu : menuName));
@@ -499,6 +499,7 @@ export function hasPermission(menuName, permissionType, options = {}) {
   const subItem = menu.submenu?.find(sub => sub.name === menuName);
   return subItem?.[permissionType]?false:true;
 }
+
 
 export function getGradeFromMarks(obtainedMarks, totalMarks) {
   if (totalMarks === 0) return 'Invalid'; // avoid divide-by-zero
@@ -513,3 +514,4 @@ export function getGradeFromMarks(obtainedMarks, totalMarks) {
   if (percentage >= 40) return 'D';
   return 'F';
 }
+

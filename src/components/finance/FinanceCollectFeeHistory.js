@@ -62,6 +62,7 @@ function FinanceCollectFeeHistory() {
   };
 
   const showInvoice = (feeData) => {
+     console.log(feeData, "feeData");
     let paidAmount = 0;
     const formattedFees =
       feeData.transaction.fees?.map((feeItem) => {
@@ -83,20 +84,20 @@ function FinanceCollectFeeHistory() {
       ...feeData.transaction,
       ...feeData.academic,
       name: capitalizeWords(
-        feeData.academic.student.firstName +
+        feeData.academic?.student?.firstName +
           " " +
-          feeData.academic.student.lastName
+          feeData.academic?.student?.lastName
       ),
-      academicYear: feeData.academic.academicYear.year,
-      admissionNo: feeData.academic.student?.admissionNumber || "N/A",
-      classSection: `${feeData.academic.class?.name || "N/A"} / ${
-        feeData.academic.section?.section || "N/A"
+      academicYear: feeData.academic?.academicYear.year,
+      admissionNo: feeData.academic?.student?.admissionNumber || "N/A",
+      classSection: `${feeData.academic?.class?.name || "N/A"} / ${
+        feeData.academic?.section?.section || "N/A"
       }`,
       fatersName: capitalizeWords(
-        feeData.academic.student.fatherDetails?.name || "N/A"
+        feeData.academic?.student?.fatherDetails?.name || "N/A"
       ),
       mothersName: capitalizeWords(
-        feeData.academic.student.motherDetails?.name || "N/A"
+        feeData.academic?.student?.motherDetails?.name || "N/A"
       ),
       branch: branchData,
       fees: formattedFees, // Store fees separately
@@ -286,7 +287,7 @@ function FinanceCollectFeeHistory() {
 
   useEffect(() => {
     if (selectedData) {
-      getHistoryData(selectedData.fees.student);
+      getHistoryData(selectedData?.fees?.student);
     }
   }, [selectedData]);
   return (
