@@ -10,8 +10,7 @@ import {
   capitalizeWords,
   handleApiResponse,
   handleDownload,
-  handleDownloadPDF,
-  handleExecelDownload,
+  handleDownloadPDF
 } from "../../../commonComponent/CommonFunctions";
 import CustomDate from "../../../commonComponent/CustomDate";
 import CustomSelect from "../../../commonComponent/CustomSelect";
@@ -124,45 +123,45 @@ const FeeCollectionReports = () => {
   };
 
   const downloadListxlsx = () => {
-      const schoolName = branchData?.label || "Unknown School";
-      const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
-      const phoneNumber = branchData.mobileNumber || "N/A";
-      const email = branchData.email || "N/A";
-      
-      handleDownload(
-        filteredData,
-        "Fee Details Report",
-        schoolName,
-        phoneNumber,
-        email,
-        schoolAddress,
-        [
-          { key: "studentName", label: "Student Name" },
-          { key: "classSection", label: "Class &Section" },
-          { key: "transactionNo", label: "Transaction ID" },
-          { key: "paidDate", label: "Paid Date" },
-          { key: "feeNames", label: "Fee Types & Paid Amount" },
-          { key: "totalPaidAmount", label: "Total Paid" },
-        ],
-      );
-    };
+    const schoolName = branchData?.label || "Unknown School";
+    const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
+    const phoneNumber = branchData.mobileNumber || "N/A";
+    const email = branchData.email || "N/A";
+
+    handleDownload(
+      filteredData,
+      "Fee Details Report",
+      schoolName,
+      phoneNumber,
+      email,
+      schoolAddress,
+      [
+        { key: "studentName", label: "Student Name" },
+        { key: "classSection", label: "Class &Section" },
+        { key: "transactionNo", label: "Transaction ID" },
+        { key: "paidDate", label: "Paid Date" },
+        { key: "feeNames", label: "Fee Types & Paid Amount" },
+        { key: "totalPaidAmount", label: "Total Paid" },
+      ],
+    );
+  };
 
   const getTransactionsData = async () => {
     try {
       dispatch(setIsLoader(true));
       const res = await getData(TRANSACTIONS);
-      let data = res.data.map((item) => {
+      let data = res.data.data.map((item) => {
         let feeNames = "";
         item.transaction.fees.forEach((fee) => {
           feeNames += `${fee.fee.name}: ${fee.amount}, `;
         });
         return {
-          studentName:
+          studentName: capitalizeWords(
             item.academic?.student?.firstName +
             " " +
-            item.academic?.student?.lastName,
-          classSection:
-            item.academic?.class.name + " " + item.academic?.section.section,
+            item.academic?.student?.lastName),
+          classSection: capitalizeWords(
+            item.academic?.class.name + " " + item.academic?.section.section),
           transactionNo: item.transaction.transactionNo || "N/A",
           paidDate: moment(item.transaction.date).format("DD-MM-YYYY"),
           paymentDate: item.transaction.date,

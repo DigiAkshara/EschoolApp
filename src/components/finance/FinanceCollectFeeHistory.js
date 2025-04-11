@@ -23,7 +23,7 @@ function FinanceCollectFeeHistory() {
 
   const columns = [
     { title: "Transaction Id", key: "transactionId" },
-    { title: "Paid Date", key: "paidDate" },
+    { title: "Paid Date", key: "date" },
     { title: "Paid Mode", key: "paidMode" },
     { title: "Fee Types & Paid Amount", key: "feeAmounts" },
     { title: "Total Paid", key: "totalPaid" },
@@ -35,7 +35,7 @@ function FinanceCollectFeeHistory() {
       let res = await getData(TRANSACTIONS + "/" + Id);
       let list = res.data.data.map((trans) => ({
         transactionId: trans.transaction.transactionNo || "N/A",
-        paidDate: moment(trans.transaction.date).format("DD-MM-YYYY"),
+        date: trans.transaction.date,
         paidMode: trans.transaction.transactionType.toUpperCase(),
         feeAmounts: trans.transaction.fees.map((fee, index) => (
           <span key={index}>
