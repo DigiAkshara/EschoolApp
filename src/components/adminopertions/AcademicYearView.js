@@ -132,12 +132,14 @@ const AcademicYearModal = ({ onClose, refreshData }) => {
 			endDate: Yup.date().nullable()
 				.min(Yup.ref("startDate"), "End date must be after start date")
 				.required("End date is required")
-			// .test("is-within-valid-range", "Not Allowed to create academic year for next year", function (value) {
-			// 	if (!value) return false;
-			// 	const currentYear = moment().year();
-			// 	const endYear = moment(value).year();
-			// 	return endYear === currentYear + 1;
-			// }),
+				.test("is-within-valid-range", "Not Allowed to create academic year for next year", function (value) {
+					if (!value) return false;
+					const { startDate } = this.parent; // Access sibling field 'startDate'
+					const startYear = moment(startDate).year();
+					const endYear = moment(value).year();
+					return endYear === startYear + 1;
+					
+				}),
 		})
 	}
 
@@ -204,8 +206,8 @@ const AcademicYearModal = ({ onClose, refreshData }) => {
 											label="Academic Starting Date"
 											placeholder="Enter Academic Starting Date"
 											required={true}
-											// minDate={moment().format("YYYY-MM-DD")}
-											// maxDate={moment().endOf("year").format("YYYY-MM-DD")}
+											minDate={moment().subtract(1, "year").format("YYYY-MM-DD")}
+											maxDate={moment().endOf("year").format("YYYY-MM-DD")}
 											onChange={(value) => { handleStartYearChange(value, setFieldValue) }}
 										/>
 										<div className="my-4"></div>
@@ -215,8 +217,8 @@ const AcademicYearModal = ({ onClose, refreshData }) => {
 											placeholder="Enter Academic Ending Date"
 											required={true}
 											disabled={!values.startDate}
-										// minDate={minDate}
-										// maxDate={maxDate}
+										minDate={minDate}
+										maxDate={maxDate}
 										/>
 									</div>
 

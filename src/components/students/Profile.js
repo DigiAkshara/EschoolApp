@@ -1305,7 +1305,7 @@ const FeeDeatailsTab = ({ data }) => {
 
   const columns = [
     { title: "Transaction Id", key: "transactionId" },
-    { title: "Paid Date", key: "paidDate" },
+    { title: "Paid Date", key: "date" },
     { title: "Paid Mode", key: "paidMode" },
     { title: "Fee Types & Paid Amount", key: "feeAmounts" },
     { title: "Total Paid", key: "totalPaid" },
@@ -1526,9 +1526,9 @@ const FeeDeatailsTab = ({ data }) => {
   const getHistoryData = async (Id) => {
     try {
       let res = await getData(TRANSACTIONS + "/" + Id);
-      let list = res.data.map((trans) => ({
+      let list = res.data.data.map((trans) => ({
         transactionId: trans.transaction.transactionNo || "N/A",
-        paidDate: moment(trans.date).format("DD-MM-YYYY"),
+        date: trans.date,
         paidMode: trans.transaction.transactionType.toUpperCase(),
         feeAmounts: trans.transaction.fees.map((fee, index) => (
           <span>

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, postData } from "../../../app/api";
-import { FEE_CATEGORY, STAFF, TRANSACTIONS } from "../../../app/url";
+import { FEE_CATEGORY, LOANS, STAFF, TRANSACTIONS } from "../../../app/url";
 import {
   financeType,
   handleApiResponse,
@@ -17,12 +17,14 @@ import CustomFileUploader from "../../../commonComponent/CustomFileUploader";
 import CustomInput from "../../../commonComponent/CustomInput";
 import CustomSelect from "../../../commonComponent/CustomSelect";
 import CustomTextArea from "../../../commonComponent/CustomTextArea";
+import moment from "moment";
 
-function SpecialCredits({ onClose }) {
+function SpecialCredits({ onClose, refreshData }) {
   const { bankAccounts } = useSelector((state) => state.fees);
   const [bankAccountsOptions, setBankAccountsOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [staffOptions, setStaffOptions] = useState([]);
+  const [staffLoans, setStaffLoans] = useState([]);
   const formData = {
     transactionType: "",
     transactionMode: "",
@@ -35,6 +37,8 @@ function SpecialCredits({ onClose }) {
     reason: "",
     proof: null,
     transactionId: "",
+    loanId: '',
+    title: ''
   };
 
   const getValidationSchema = () => {
@@ -53,6 +57,17 @@ function SpecialCredits({ onClose }) {
           return true; // Pass validation otherwise
         }
       ),
+      title: Yup.string().test(
+        "is-debit-and-loan",
+        "Title is required",
+        function (value) {
+          const { category, transactionType } = this.parent; // Access sibling field
+          if (transactionType === "debit" && categoryOptions.find((item) => item.value === category)?.label.includes("Loan") && !value) {
+            return false;
+          }
+          return true; // Pass validation otherwise
+        }
+      ),
       staff: Yup.string().test(
         "is-category-is-loan",
         "Staff is required",
@@ -60,6 +75,17 @@ function SpecialCredits({ onClose }) {
           const { category } = this.parent; // Access sibling field 'paymentMode'
           if (categoryOptions.find((item) => item.value === category)?.label.includes("Loan") && !value) {
             return false; // Fail validation if category is not 'other' but value is invalid
+          }
+          return true; // Pass validation otherwise
+        }
+      ),
+      loanId: Yup.string().test(
+        "is-credit-and-loan",
+        "Loan is required",
+        function (value) {
+          const { transactionType, category } = this.parent; // Access sibling field 'paymentMode'
+          if (transactionType === 'credit' && categoryOptions.find((item) => item.value === category)?.label.includes("Loan") && !value) {
+            return false; // Fail validation if transactionMode is not 'cash' but value is invalid
           }
           return true; // Pass validation otherwise
         }
@@ -121,6 +147,7 @@ function SpecialCredits({ onClose }) {
     try {
       const res = await postData(TRANSACTIONS, values)
       handleApiResponse(res.data.message, 'success')
+      refreshData()
       onClose()
     } catch (error) {
       handleApiResponse(error)
@@ -161,6 +188,25 @@ function SpecialCredits({ onClose }) {
         label: `${item.firstName} ${item.lastName}`,
       }))
       setStaffOptions(list)
+    } catch (error) {
+      handleApiResponse(error)
+    }
+  }
+
+  const getStaffLoans = async (e, setFieldValue) => {
+    setStaffLoans([])
+    setFieldValue('loanId', '')
+    setFieldValue(e.target.name, e.target.value)
+    try {
+      let res = await getData(LOANS + '/' + e.target.value)
+      let list = res.data.data.map((item) => ({
+        value: item._id,
+        label: item.title,
+      }))
+      if(list.length === 1) {
+        setFieldValue('loanId', list[0].value)
+      }
+      setStaffLoans(list)
     } catch (error) {
       handleApiResponse(error)
     }
@@ -265,6 +311,17 @@ function SpecialCredits({ onClose }) {
                                     />
                                   </div>
 
+                                  {values.transactionType === "debit" && categoryOptions.find(item => item.value === values.category)?.label.includes("Loan") && (
+                                    <div className="sm:col-span-1">
+                                      <CustomInput
+                                        name="title"
+                                        label="Loan Title"
+                                        placeholder="Enter Loan Title"
+                                        required={true}
+                                      />
+                                    </div>
+                                  )}
+
                                   {values.transactionMode === "online" && (
                                     <div className="sm:col-span-1">
                                       <CustomSelect
@@ -276,12 +333,26 @@ function SpecialCredits({ onClose }) {
                                     </div>
                                   )}
 
-                                  {categoryOptions.find(item => item.value === values.category)?.label.includes("Loan") && (
+                                  { categoryOptions.find(item => item.value === values.category)?.label.includes("Loan") && (
                                     <div className="sm:col-span-1">
                                       <CustomSelect
                                         name="staff"
                                         label="Staff"
                                         options={staffOptions}
+                                        required={true}
+                                        onChange={(e) => {
+                                          getStaffLoans(e, setFieldValue)
+                                        }}
+                                      />
+                                    </div>
+                                  )}
+
+                                  {(values.transactionType === "credit" && categoryOptions.find(item => item.value === values.category)?.label.includes("Loan") )&& (
+                                    <div className="sm:col-span-1">
+                                      <CustomSelect
+                                        name="loanId"
+                                        label="Loan"
+                                        options={staffLoans}
                                         required={true}
                                       />
                                     </div>
@@ -303,6 +374,7 @@ function SpecialCredits({ onClose }) {
                                       name="date"
                                       label="Date of Transaction"
                                       required={true}
+                                      max={moment().format("YYYY-MM-DD")}
                                     />
                                   </div>
 

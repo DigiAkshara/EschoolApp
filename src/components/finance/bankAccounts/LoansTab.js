@@ -90,7 +90,7 @@ function LoansTab() {
 				...item,
 				type: capitalizeWords(item.transactionMode),
 				staffName: capitalizeWords(item.staff?.firstName + " " + item.staff?.lastName),
-				date: moment(item.issuedDate).format("DD-MM-YYYY"),
+				date:item.issuedDate,
 				balance_amount: (item.loanAmount * 1) - (item.paidAmount * 1),
 				status: capitalizeWords(item.status),
 				view: "View"

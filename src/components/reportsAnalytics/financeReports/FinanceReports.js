@@ -9,7 +9,6 @@ function classNames(...classes) {
 }
 
 export default function FinanceReports() {
-	const dispatch = useDispatch()
 	const [activeTab, setActiveTab] = useState(0)
 
 	const tabs2 = [

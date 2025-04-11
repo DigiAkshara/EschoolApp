@@ -142,7 +142,7 @@ export default function StudentsList() {
           previousstudyProof: item.student.previousSchool?.studyProof,
           previousSchoolyearOfStudy: item.student.previousSchool?.yearOfStudy,
           presentAddress: `${item.student.presentAddress?.area}, ${item.student.presentAddress?.city}, ${item.student.presentAddress?.state} - ${item.student.presentAddress?.pincode}`,
-          ...item.student.status === 'promoted' && {
+          ...item.status === 'active' && {
             actions: [
               { label: "Edit", actionHandler: onHandleEdit, disabled: editPermission },
               { label: "Delete", actionHandler: onDelete, disabled: deletePermission },
