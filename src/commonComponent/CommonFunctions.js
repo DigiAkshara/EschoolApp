@@ -145,9 +145,9 @@ export const financeCategoryCredit = [
 ];
 
 export const states = [
-  { value: "andhrapradesh", label: "Andhra Pradesh" },
+  { value: "andhrapradesh", label: "AndhraPradesh" },
   { value: "telangana", label: "Telangana" },
-  { value: "tamilnadu", label: "Tamil Nadu" },
+  { value: "tamilnadu", label: "TamilNadu" },
 ];
 
 export const monthsName = [

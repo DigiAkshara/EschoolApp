@@ -48,7 +48,7 @@ const feeSlice = createSlice({
   },
   extraReducers: (builder) => {
       builder.addCase(fetchInitialFeeData.fulfilled, (state, action) => {
-        state.bankAccounts = action.payload.bankAccounts
+        state.bankAccounts = action.payload.bankAccounts.filter((item) => item.mode ==='online')
         state.receiptNames = action.payload.receiptNames
       })
     },

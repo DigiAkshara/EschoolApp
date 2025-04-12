@@ -1,18 +1,19 @@
 "use client";
 import { Dialog } from "@headlessui/react";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setLoan } from "../../../app/reducers/feeSlice";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import TableComponent from "../../../commonComponent/TableComponent";
 import ViewLoanModal from "./ViewLoanModal";
-import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
+import { capitalizeWords, handleApiResponse, handleDownloadPDF } from "../../../commonComponent/CommonFunctions";
 import { getData } from "../../../app/api";
 import { LOANS } from "../../../app/url";
 import moment from "moment";
 
 function LoansTab() {
 	const dispatch = useDispatch();
+	const { branchData } = useSelector((state) => state.appConfig)
 	const [selectedPeople, setSelectedPeople] = useState([])
 	const [filteredData, setFilteredData] = useState([])
 	const [expenseData, setExpenseData] = useState([])
@@ -26,7 +27,7 @@ function LoansTab() {
 		{ key: "date", title: "Date" },
 		{ key: "loanAmount", title: "Loan Amount" },
 		{ key: "paidAmount", title: "Paid Amount" },
-		{ key: "balance_amount", title: "Balance Amount" },
+		{ key: "balanceAmount", title: "Balance Amount" },
 		{ key: "status", title: "Status" },
 		{ key: "view", title: "More Details" },
 	];
@@ -37,8 +38,8 @@ function LoansTab() {
 	};
 
 	const filters = {
-		type: { options: [{label:"Offline", value:"offline"}, {label:"Online", value:"online"}] },
-		status: { options: [{label:"Paid", value:"paid"}, {label:"Unpaid", value:"active"}] }
+		type: { options: [{ label: "Offline", value: "offline" }, { label: "Online", value: "online" }] },
+		status: { options: [{ label: "Paid", value: "paid" }, { label: "Unpaid", value: "active" }] }
 	};
 
 
@@ -90,8 +91,8 @@ function LoansTab() {
 				...item,
 				type: capitalizeWords(item.transactionMode),
 				staffName: capitalizeWords(item.staff?.firstName + " " + item.staff?.lastName),
-				date:item.issuedDate,
-				balance_amount: (item.loanAmount * 1) - (item.paidAmount * 1),
+				date: item.issuedDate,
+				balanceAmount: (item.loanAmount * 1) - (item.paidAmount * 1),
 				status: capitalizeWords(item.status),
 				view: "View"
 			}))
@@ -101,6 +102,18 @@ function LoansTab() {
 			handleApiResponse(e)
 		}
 	}
+
+	const downloadList = () => {
+		handleDownloadPDF(filteredData, "loan_details", [
+			{ key: 'type', label: 'Type' },
+			{ key: 'staffName', label: 'Staff Name' },
+			{ key: 'date', label: 'Date' },
+			{ key: 'loanAmount', label: 'Loan Amount' },
+			{ key: 'paidAmount', label: 'Paid Amount' },
+			{ key: 'balanceAmount', label: 'Balance Amount' },
+			{ key: 'status', label: 'Status' },
+		], "Loan Details", branchData, undefined, "landscape");
+	};
 
 	const handleViewDetails = (data) => {
 		setSelectedLoan({ ...data, actions: null });
@@ -134,8 +147,10 @@ function LoansTab() {
 								filterForm={filterForm}
 								handleFilter={handleFilter}
 								handleReset={handleReset}
+								downloadList={downloadList}
 							/>
 							<TableComponent
+								checkColumn={false}
 								columns={columns}
 								data={paginatedData}
 								pagination={{
