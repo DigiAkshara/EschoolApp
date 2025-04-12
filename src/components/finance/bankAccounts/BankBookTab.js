@@ -12,18 +12,21 @@ import {
 } from "@heroicons/react/20/solid";
 import {
   ArrowDownTrayIcon,
-  ArrowsUpDownIcon,
   EllipsisVerticalIcon,
   FunnelIcon
 } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import BankCreation from "./BankCreation";
-import ConfirmationModal from "../../../commonComponent/ConfirmationModal";
-import { handleApiResponse } from "../../../commonComponent/CommonFunctions";
 import { deleteData, getData } from "../../../app/api";
 import { setBankAccounts } from "../../../app/reducers/feeSlice";
-import { BANK_ACCOUNTS } from "../../../app/url";
+import { BANK_ACCOUNTS, TRANSACTIONS } from "../../../app/url";
+import { handleApiResponse, handleDownloadPDF } from "../../../commonComponent/CommonFunctions";
+import ConfirmationModal from "../../../commonComponent/ConfirmationModal";
+import BankCreation from "./BankCreation";
+import CustomDate from "../../../commonComponent/CustomDate";
+import Datepicker from "react-tailwindcss-datepicker";
+import FilterComponent from "../../../commonComponent/FilterComponent";
 
 const people = [
   {
@@ -38,34 +41,154 @@ const people = [
 
 export default function BankBookTab() {
   const dispatch = useDispatch();
+
+  const { branchData } = useSelector((state) => state.appConfig)
   const { bankAccounts } = useSelector((state) => state.fees);
   const [selectedPeople, setSelectedPeople] = useState([]);
   const [showAddBank, setShowAddBank] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [filteredData, setFilteredData] = useState([]);
+  const [transactionList, setTransactionList] = useState([]);
+  const [chargeSheet, setChargeSheet] = useState({ openingBalance: 0, closingBalance: 0, totalDebit: 0, totalCredit: 0 });
+
+  const [selectedDate, setSelectedData] = useState(moment().format("YYYY-MM-DD"));
 
   const handleClose = () => setShowAddBank(false);
 
-  const deleteBank = async()=>{
-    try{
+  const deleteBank = async () => {
+    try {
       let res = await deleteData(BANK_ACCOUNTS + '/' + deleteId)
       handleApiResponse(res.data.message, 'success')
       getBanks()
       setDeleteConfirm(false)
       setDeleteId(null)
-    }catch(e){
+    } catch (e) {
       handleApiResponse(e)
     }
   }
 
-  const getBanks = () =>{
-    try{
-      let res = getData(BANK_ACCOUNTS)
-      dispatch(setBankAccounts(res.data.data))
-    }catch(e){
+  const getBanks = async () => {
+    try {
+      let res = await getData(BANK_ACCOUNTS)
+      dispatch(setBankAccounts(res.data.data.filter((item) => item.mode === 'online')))
+    } catch (e) {
       handleApiResponse(e)
     }
   }
+
+  const getDayTransactions = async (date) => {
+    try {
+      let res = await getData(TRANSACTIONS + "/list?date=" + date + '&transactionMode=online')
+      // let dummyList = res.data.data.map((item) => ({
+      //   ...item,
+      //   transactionType: capitalizeWords(item.transactionType),
+      //   date: item.date,
+      //   reason: item.reason || "-",
+      //   title: item.title,
+      // }))
+      setFilteredData(res.data.data)
+      setTransactionList(res.data.data)
+    } catch (e) {
+      handleApiResponse(e)
+    }
+  }
+
+  const getOpeningBalance = (records) => {
+    const latestMap = new Map();
+    let totalCredit = 0;
+    let totalDebit = 0;
+    for (const record of records) {
+      if (record.transactionType === 'credit') {
+        totalCredit += record.amount * 1;
+      } else {
+        totalDebit += record.amount * 1;
+      }
+      const existing = latestMap.get(record.transactionBank._id);
+      if (!existing || new Date(record.updatedAt) < new Date(existing.updatedAt)) {
+        latestMap.set(record.transactionBank._id, record);
+      }
+    }
+
+    let items = Array.from(latestMap.values())
+    let openBalance = 0;
+    for (let i = 0; i < items.length; i++) {
+      openBalance += items[i].balance * 1;
+      if (items[i].transactionType === 'credit') {
+        openBalance -= items[i].amount * 1;
+      } else {
+        openBalance += items[i].amount * 1;
+      }
+    }
+    const closeBalance = openBalance + (totalCredit - totalDebit)
+    setChargeSheet({ openingBalance: openBalance, closingBalance: closeBalance, totalDebit: totalDebit, totalCredit: totalCredit })
+  };
+
+
+  useEffect(() => {
+    getDayTransactions(selectedDate)
+    getBanks()
+  }, [])
+
+  useEffect(() => {
+    getOpeningBalance(filteredData)
+  }, [filteredData])
+
+  const columns = [
+    { title: "Date", key: "date" },
+    { title: "Category", key: "category" },
+    { title: 'Particulars', key: 'particulars' },
+    { title: 'Bank', key: 'bank' },
+    { title: 'Credit', key: 'credit' },
+    { title: 'Debit', key: 'debit' },
+  ];
+
+  const filterForm = {
+    date: '',
+    category:'',
+    bank:'',
+  }
+
+  const filters = {
+    transactionType: { options: [{ value: "debit", label: "Debit" }, { value: "credit", label: "Credit" }] }
+  }
+
+
+  const handleSearch = (term) => {
+    const filtered = transactionList.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
+
+  const handleFilter = (values) => {
+    let filtered = transactionList
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        filtered = filtered.filter((rec) => {
+          return rec[key].toLowerCase().includes(value.toLowerCase())
+        }
+        )
+      }
+    })
+    setFilteredData(filtered)
+  }
+  const handleReset = (updatedValues) => {
+    setFilteredData(transactionList)
+    updatedValues('transactionType', '')
+  }
+
+  const downloadList = () => {
+    handleDownloadPDF(filteredData, "Transaction_details", [
+      { key: 'date', label: 'Date' },
+      { key: 'transactionType', label: 'Type' },
+      { key: 'title', label: 'Title' },
+      { key: 'reason', label: 'Reason' },
+      { key: 'amount', label: 'Amount' },
+    ], "Transaction Details", branchData, undefined, "landscape");
+  };
   return (
     <>
       <div className="mt-4 flex justify-between">
@@ -90,7 +213,7 @@ export default function BankBookTab() {
           {bankAccounts.map((item) => (
             <div
               key={item.id}
-              className="relative rounded-lg bg-white px-4 pb-4 pt-4 shadow ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              className="z-20 relative rounded-lg bg-white px-4 pb-4 pt-4 shadow ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
             >
               <div className="absolute right-4 top-4">
                 <Menu as="div" className="relative inline-block text-left">
@@ -115,7 +238,8 @@ export default function BankBookTab() {
                             onClick={() => {
                               setDeleteId(item._id)
                               setDeleteConfirm(true)
-                              close()}}
+                              close()
+                            }}
                             className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                           >
                             Delete
@@ -149,435 +273,126 @@ export default function BankBookTab() {
       <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
-            <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-              {/* /Removed overflow-hidden cloass */}
-              <div className="relative table-tool-bar z-30">
-                <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <div className="relative rounded-md">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                          <MagnifyingGlassIcon
-                            aria-hidden="true"
-                            className="size-4 text-gray-400"
-                          />
-                        </div>
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="Search"
-                          className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div className="right-action-btns-blk space-x-4">
-                      <button
-                        type="button"
-                        className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                      >
-                        <ArrowDownTrayIcon
-                          aria-hidden="true"
-                          className="size-5"
-                        />
-                      </button>
-                      <Menu
-                        as="div"
-                        className="relative inline-block text-left"
-                      >
-                        <div>
-                          <MenuButton className="relative inline-flex items-center rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                            <FunnelIcon aria-hidden="true" className="size-5" />
-                            Filters
-                            <span className="flex items-center justify-center text-center absolute w-5 h-5 rounded-full bg-red-500 text-white font-medium text-xs -right-2 -top-2">
-                              3
-                            </span>
-                          </MenuButton>
-                        </div>
+            <div className="shadow ring-1 ring-black/5 sm:rounded-lg">{/* /Removed overflow-hidden cloass */}
+              {/* <FilterComponent
+                onSearch={handleSearch}
+                filters={filters}
+                filterForm={filterForm}
+                handleFilter={handleFilter}
+                handleReset={handleReset}
+                downloadList={downloadList}
+              /> */}
 
-                        <MenuItems
-                          transition
-                          className="max-h-[430px] overflow-y-auto absolute right-0 z-10 mt-2 px-4 py-4 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                        >
-                          <div className="grid gap-3 ">
-                            <MenuItem className="group mb-2">
-                              <div className="flex">
-                                <FunnelIcon
-                                  aria-hidden="true"
-                                  className="size-5"
-                                />
-                                <span className="pl-2">Select Filters</span>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Class Category
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="2024-2025"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Class
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Section
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Class Teacher
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Male</option>
-                                    <option>Female</option>
-                                    <option>Other</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="">
-                                <label
-                                  htmlFor="street-address"
-                                  className="block text-sm/6 font-regular text-gray-900"
-                                >
-                                  Board
-                                </label>
-                                <div className="mt-2">
-                                  <select
-                                    id="location"
-                                    name="location"
-                                    defaultValue="All"
-                                    className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-                                  >
-                                    <option>Fee Name Title</option>
-                                    <option>Canada</option>
-                                    <option>Mexico</option>
-                                  </select>
-                                </div>
-                              </div>
-                            </MenuItem>
-                            <MenuItem>
-                              <div className="flex">
-                                <button
-                                  type="button"
-                                  // onClick={() => setOpen(false)}
-                                  className="w-1/2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  type="submit"
-                                  className=" w-1/2 ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
-                                >
-                                  Apply
-                                </button>
-                              </div>
-                            </MenuItem>
-                          </div>
-                        </MenuItems>
-                      </Menu>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="table-container-main max-h-[56vh]">
+              <div className='table-container-main max-h-[56vh]'>
                 {/* Table View */}
                 <table className="table-auto min-w-full divide-y divide-gray-300">
                   <thead className="sticky top-0 bg-purple-100 z-20">
                     <tr>
-                      <th
-                        scope="col"
-                        className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2"
-                      >
+                      <th scope="col" className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2">
                         <a href="#" className="group inline-flex">
                           Date
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                          </span>
+                        </a>
+                      </th>
+                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <a href="#" className="group inline-flex">
+                          Category
                         </a>
                       </th>
 
-                      <th
-                        scope="col"
-                        className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
-                        <a href="#" className="group inline-flex">
-                          Bank Account
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                          </span>
-                        </a>
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
+                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
                           Particulars
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                          </span>
                         </a>
                       </th>
-                      <th
-                        scope="col"
-                        className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
+                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
-                          Category
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                          </span>
+                          Bank
                         </a>
                       </th>
-                      <th
-                        scope="col"
-                        className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
+
+
+                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
                           Debit
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                          </span>
                         </a>
                       </th>
-                      <th
-                        scope="col"
-                        className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
+                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
                           Credit
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                          </span>
                         </a>
                       </th>
-                      <th
-                        scope="col"
-                        className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
+                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
                           Closing Balance
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon
-                              aria-hidden="true"
-                              className="size-4"
-                            />
-                          </span>
                         </a>
                       </th>
+
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white z-1">
                     <tr className="border-t border-gray-200">
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                        {" "}
-                        KINDERGARTEN
-                      </th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                        {" "}
-                        KINDERGARTEN
-                      </th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                        {" "}
-                        KINDERGARTEN
-                      </th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                        {" "}
-                        KINDERGARTEN
-                      </th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                        {" "}
-                        KINDERGARTEN
-                      </th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                        {" "}
-                        KINDERGARTEN
-                      </th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">
-                        {" "}
-                        KINDERGARTEN
-                      </th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {moment(selectedDate).format('DD-MM-YYYY')}</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> To Opening Cash Balance</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.openingBalance}</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.openingBalance}</th>
                     </tr>
 
-                    {people.map((person) => (
-                      <tr
-                        key={person.email}
-                        className={
-                          selectedPeople.includes(person)
-                            ? "bg-gray-50"
-                            : undefined
+                    {filteredData.map((item) => {
+                      let categoryStr = item.category?.name || 'Student Fees'
+                      let particularStr = ""
+                      if (item.fees.length > 0) {
+                        item.fees.forEach((fee) => (
+                          particularStr += `${fee.fee.name}, `
+                        ))
+                        particularStr = particularStr.slice(0, -2);
+                      } else {
+                        if (item.category?.name.includes('Other')) {
+                          particularStr = item.subCategory
+                        } else {
+                          if (item.transactionType === 'debit') {
+                            particularStr = item.title
+                          } else {
+                            particularStr = item.loanId?.title
+                          }
                         }
-                      >
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          CBSE
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          CBSE
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          Nursery
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          A
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          30
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          Janet Baker
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
-                          <a href="#">View</a>
-                        </td>
-                      </tr>
-                    ))}
-                    {people.map((person) => (
-                      <tr
-                        key={person.email}
-                        className={
-                          selectedPeople.includes(person)
-                            ? "bg-gray-50"
-                            : undefined
-                        }
-                      >
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          CBSE
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          CBSE
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          LKG
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          A
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          30
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          Janet Baker
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
-                          <a href="#">View</a>
-                        </td>
-                      </tr>
-                    ))}
-                    {people.map((person) => (
-                      <tr
-                        key={person.email}
-                        className={
-                          selectedPeople.includes(person)
-                            ? "bg-gray-50"
-                            : undefined
-                        }
-                      >
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          CBSE
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          CBSE
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          UKG
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          A
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          30
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                          Janet Baker
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-purple-500">
-                          <a href="#">View</a>
-                        </td>
-                      </tr>
-                    ))}
+                      }
+                      return (
+                        <tr key={item._id}>
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{moment(item.date).format('DD-MM-YYYY')}</td>
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{categoryStr}</td>
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{particularStr}</td>
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{item.transactionBank?.name}</td>
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{item.transactionType === 'debit' ? item.amount : '0'}</td>
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{item.transactionType === 'credit' ? item.amount : '0'}</td>
+                          <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{item.balance}</td>
+                        </tr>
+                      )
+                    })}
+
+
+                    <tr className="border-t border-gray-200">
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> Total</th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">{chargeSheet.totalDebit} </th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.totalCredit}</th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.totalCredit - chargeSheet.totalDebit}</th>
+                    </tr>
+
+                    <tr className="border-t border-gray-200">
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {moment(selectedDate).format('DD-MM-YYYY')}</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> By Closing Balance</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.closingBalance}</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.closingBalance}</th>
+                    </tr>
                   </tbody>
                 </table>
               </div>

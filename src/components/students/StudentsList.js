@@ -16,7 +16,6 @@ import {
   handleDownload,
   handleDownloadPDF,
   hasPermission,
-  testAcademic
 } from "../../commonComponent/CommonFunctions";
 import CommonUpload from "../../commonComponent/CommonUpload";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";

@@ -5,12 +5,15 @@ import moment from "moment";
 import React, { useEffect, useState } from 'react';
 import { getData } from "../../../app/api";
 import { TRANSACTIONS } from "../../../app/url";
-import { capitalizeWords, handleApiResponse } from "../../../commonComponent/CommonFunctions";
+import { capitalizeWords, handleApiResponse, handleDownloadPDF } from "../../../commonComponent/CommonFunctions";
 import TableComponent from '../../../commonComponent/TableComponent';
 import SpecialCreditsCreation from './SpecialCreditsCreation';
+import FilterComponent from "../../../commonComponent/FilterComponent";
+import { useSelector } from "react-redux";
 
 
 function DebitCreditTab() {
+  const { branchData } = useSelector((state) => state.appConfig)
   const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -26,8 +29,15 @@ function DebitCreditTab() {
     { title: 'Reason', key: 'reason' },
     { title: 'Amount', key: 'amount' },
     { title: 'Proof', key: 'proof' },
-    // { title: 'Actions', key: 'actions' },
   ];
+
+  const filterForm = {
+    transactionType: ''
+  }
+
+  const filters = {
+    transactionType: { options: [{ value: "debit", label: "Debit" }, { value: "credit", label: "Credit" }] }
+  }
 
   const handleClose = () => setOpen(false);
 
@@ -35,20 +45,60 @@ function DebitCreditTab() {
     setCurrentPage(page);
   };
 
+
+  const handleSearch = (term) => {
+    const filtered = transactionList.filter((item) =>
+      columns.some((col) =>
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
+      ),
+    )
+    setFilteredData(filtered)
+  }
+
+  const handleFilter = (values) => {
+    let filtered = transactionList
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) {
+        filtered = filtered.filter((rec) => {
+          return rec[key].toLowerCase().includes(value.toLowerCase())
+        }
+        )
+      }
+    })
+    setFilteredData(filtered)
+  }
+  const handleReset = (updatedValues) => {
+    setFilteredData(transactionList)
+    updatedValues('transactionType', '')
+  }
+
+    const downloadList = () => {
+      handleDownloadPDF(filteredData, "Transaction_details", [
+        { key: 'date', label: 'Date' },
+        { key: 'transactionType', label: 'Type' },
+        { key: 'title', label: 'Title' },
+        { key: 'reason', label: 'Reason' },
+        { key: 'amount', label: 'Amount' },
+      ], "Transaction Details", branchData, undefined, "landscape");
+    };
+
   const getAllTransactions = async () => {
     try {
       let res = await getData(TRANSACTIONS + '/list')
       let dummyList = res.data.data.map((item) => {
+        let titleStr = item.category?.name||''
+        if(item.fees.length>0){ 
+          item.fees.forEach((fee) => (
+            titleStr += `${fee.fee.name}: ${fee.amount}, `
+          ))
+          titleStr = titleStr.slice(0, -2);
+        }
         return ({
           ...item,
-          transactionType:capitalizeWords(item.transactionType),
-          date:item.date,
-          title: item.category ? item.category.name : item.fees.map((fee, index) => (
-            <span key={index}>
-              {capitalizeWords(fee.fee.name)} : {fee.amount}
-              {index + 1 === item.fees.length ? "." : ", "}
-            </span>
-          )),
+          transactionType: capitalizeWords(item.transactionType),
+          date: item.date,
+          reason: item.reason||"-",
+          title: titleStr,
           proof: item.proof ? (
             <a href={item.proof.Location} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a>) : '-'
         })
@@ -92,8 +142,16 @@ function DebitCreditTab() {
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
-
+              <FilterComponent
+                onSearch={handleSearch}
+                filters={filters}
+                filterForm={filterForm}
+                handleFilter={handleFilter}
+                handleReset={handleReset}
+                downloadList={downloadList}
+              />
               <TableComponent
+                checkColumn={false}
                 columns={columns}
                 data={paginatedData}
                 pagination={{
