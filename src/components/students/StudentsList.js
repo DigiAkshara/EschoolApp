@@ -25,10 +25,12 @@ import DeleteModal from "./DeleteModal";
 import StudentProfileModal from "./Profile";
 import PromoteModal from "./PromoteModal";
 import Student from "./Student";
+import BulkFeeModal from "./BulkFeeModal";
 
 export default function StudentsList() {
   const dispatch = useDispatch();
   const location = useLocation();
+   const academicYear = useSelector((state) => state.appConfig.academicYear)
   const { openModel } = location.state || { openModel: false }
   const { classes: clsOptions, sections: sectionOptions } = useSelector(
     (state) => state.students
@@ -50,6 +52,7 @@ export default function StudentsList() {
   const { branchData } = useSelector((state) => state.appConfig)
   const [showPromteModal, setShowPromteModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showBulkFeeModal, setShowBulkFeeModal] = useState(false);
   const [granuts, setGranuts] = useState({ create: false, edit: false, delete: false })
 
   const genderOptions = [
@@ -141,7 +144,7 @@ export default function StudentsList() {
           previousstudyProof: item.student.previousSchool?.studyProof,
           previousSchoolyearOfStudy: item.student.previousSchool?.yearOfStudy,
           presentAddress: `${item.student.presentAddress?.area}, ${item.student.presentAddress?.city}, ${item.student.presentAddress?.state} - ${item.student.presentAddress?.pincode}`,
-          ...item.status === 'active' && {
+          ...(item.status === 'active'&&academicYear?.status === 'active') && {
             actions: [
               { label: "Edit", actionHandler: onHandleEdit, disabled: editPermission },
               { label: "Delete", actionHandler: onDelete, disabled: deletePermission },
@@ -234,12 +237,14 @@ export default function StudentsList() {
       )
     );
     setFilteredData(filtered);
+    setCurrentPage(1)
   };
 
   const handleFilter = (values) => {
     setFilterForm(values);
     let filtered = filterRecords(values)
     setFilteredData(filtered);
+    setCurrentPage(1)
   };
 
   const filterRecords = (values) => {
@@ -266,6 +271,7 @@ export default function StudentsList() {
     updatedValues("class", classId);
     updatedValues("section", sectionId);
     updatedValues("gender", "");
+    setCurrentPage(1)
   };
 
   const handlePageChange = (page) => {
@@ -284,54 +290,62 @@ export default function StudentsList() {
   );
 
   const downloadListxlsx = () => {
-    const schoolName = branchData?.label || "Unknown School";
-    const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
-    const phoneNumber = branchData.mobileNumber || "N/A";
-    const email = branchData.email || "N/A";
+    if (granuts.create) {
+      handleApiResponse({ message: "You don't have permission to download." });
+    } else {
+      const schoolName = branchData?.label || "Unknown School";
+      const schoolAddress = `${branchData?.address?.area || ""}, ${branchData?.address?.city || ""}, ${branchData?.address?.state || ""}, ${branchData?.address?.pincode || ""}`.trim();
+      const phoneNumber = branchData.mobileNumber || "N/A";
+      const email = branchData.email || "N/A";
 
-    handleDownload(
-      filteredData,
-      "StudentList",
-      schoolName,
-      phoneNumber,
-      email,
-      schoolAddress,
-      [
-        { label: "Stu.Name", key: "name" },
-        { label: "Ad.No", key: "admissionNo" },
-        { label: "Class", key: "className" },
-        { label: "Section", key: "sectionName" },
-        { label: "Aadhar.No.", key: "aadharNumber" },
-        { label: "DOB", key: "dateOfBirth" },
-        { label: "Fathers Name", key: "fatherName" },
-        { label: "Phone No.", key: "fatherMobile" },
-        { label: "Mothers Name", key: "motherName" },
-        { label: "Present Address", key: "presentAddress" },
-      ]
-    );
+      handleDownload(
+        filteredData,
+        "StudentList",
+        schoolName,
+        phoneNumber,
+        email,
+        schoolAddress,
+        [
+          { label: "Stu.Name", key: "name" },
+          { label: "Ad.No", key: "admissionNo" },
+          { label: "Class", key: "className" },
+          { label: "Section", key: "sectionName" },
+          { label: "Aadhar.No.", key: "aadharNumber" },
+          { label: "DOB", key: "dateOfBirth" },
+          { label: "Fathers Name", key: "fatherName" },
+          { label: "Phone No.", key: "fatherMobile" },
+          { label: "Mothers Name", key: "motherName" },
+          { label: "Present Address", key: "presentAddress" },
+        ]
+      );
+    }
   };
 
   const downloadList = () => {
-    handleDownloadPDF(
-      filteredData,
-      "Student_Details",
-      [
-        { label: "Stu.Name", key: "name" },
-        { label: "Ad.No", key: "admissionNo" },
-        { label: "Class", key: "className" },
-        { label: "Section", key: "sectionName" },
-        { label: "Aadhar.No.", key: "aadharNumber" },
-        { label: "DOB", key: "dateOfBirth" },
-        { label: "Fathers Name", key: "fatherName" },
-        { label: "Phone No.", key: "fatherMobile" },
-        { label: "Mothers Name", key: "motherName" },
-        { label: "Present Address", key: "presentAddress" },
-      ],
-      "Student Details Report",
-      branchData,
-      undefined,
-      "landscape"
-    );
+    if (granuts.create) {
+      handleApiResponse({ message: "You don't have permission to download." });
+    } else {
+      handleDownloadPDF(
+        filteredData,
+        "Student_Details",
+        [
+          { label: "Stu.Name", key: "name" },
+          { label: "Ad.No", key: "admissionNo" },
+          { label: "Class", key: "className" },
+          { label: "Section", key: "sectionName" },
+          { label: "Aadhar.No.", key: "aadharNumber" },
+          { label: "DOB", key: "dateOfBirth" },
+          { label: "Fathers Name", key: "fatherName" },
+          { label: "Phone No.", key: "fatherMobile" },
+          { label: "Mothers Name", key: "motherName" },
+          { label: "Present Address", key: "presentAddress" },
+        ],
+        "Student Details Report",
+        branchData,
+        undefined,
+        "landscape"
+      );
+    }
   };
 
   const areCheckedAll = () => {
@@ -341,6 +355,7 @@ export default function StudentsList() {
   const handleBulkClose = ({ refresh = false }) => {
     setShowPromteModal(false)
     setShowDeleteModal(false)
+    setShowBulkFeeModal(false)
     if (refresh) {
       getStudents()
     }
@@ -383,6 +398,7 @@ export default function StudentsList() {
             {filteredData.some((item) => item.isChecked) &&
               <div className="left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
                 <button
+                  // disabled={granuts.create}
                   type="button"
                   onClick={() => { setShowPromteModal(true) }}
                   className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
@@ -395,6 +411,20 @@ export default function StudentsList() {
                 </button>
 
                 <button
+                  disabled={granuts.create}
+                  onClick={() => setShowBulkFeeModal(true)}
+                  type="button"
+                  className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                >
+                  <ArrowLongUpIcon
+                    aria-hidden="true"
+                    className="size-5"
+                  />
+                  Add Bulk Fees
+                </button>
+
+                <button
+                  // disabled={granuts.delete}
                   onClick={() => setShowDeleteModal(true)}
                   type="button"
                   className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
@@ -416,6 +446,8 @@ export default function StudentsList() {
                 downloadList={downloadList}
                 downloadListxlsv={downloadListxlsx}
                 isDownloadDialog={true}
+                downloadDisabled={granuts.create}
+
               />
               {/* Table View */}
 
@@ -464,6 +496,11 @@ export default function StudentsList() {
       <Dialog open={showPromteModal} onClose={handleBulkClose} className="relative z-50">
         <div className="fixed inset-0" />
         <PromoteModal students={filteredData.filter((item) => item.isChecked).map((item) => item._id)} onClose={handleBulkClose} />
+      </Dialog>
+
+      <Dialog open={showBulkFeeModal} onClose={handleBulkClose} className="relative z-50">
+        <div className="fixed inset-0" />
+        <BulkFeeModal data={filterForm} students={filteredData.filter((item) => item.isChecked).map((item) => item._id)} onClose={handleBulkClose} />
       </Dialog>
 
       <Dialog open={showDeleteModal} onClose={handleBulkClose} className="relative z-50">

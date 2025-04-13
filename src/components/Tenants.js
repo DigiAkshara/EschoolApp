@@ -77,6 +77,7 @@ export default function Tenants() {
         String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
       ),
     )
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
 
@@ -88,6 +89,7 @@ export default function Tenants() {
         (item) => item.age >= parseInt(min) && item.age <= parseInt(max),
       )
     }
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
 

@@ -81,6 +81,7 @@ export default function FeesList() {
         String(item[col.key]).toLowerCase().includes(term.toLowerCase())
       )
     );
+    setCurrentPage(1)
     setFilteredData(filtered);
   };
 
@@ -110,6 +111,7 @@ export default function FeesList() {
         });
       }
     });
+    setCurrentPage(1)
     setFilteredData(filtered);
   };
 
@@ -118,6 +120,7 @@ export default function FeesList() {
     updatedValues("gender", "");
     updatedValues("class", "");
     updatedValues("section", "");
+    setCurrentPage(1)
   };
 
   const paginatedData = filteredData.slice(

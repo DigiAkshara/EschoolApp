@@ -154,6 +154,7 @@ export default function ClassTimeTable() {
     const filtered = classData.filter((item) =>
       columns.some((col) => String(item[col.key]).toLowerCase().includes(term.toLowerCase())),
     )
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
 
@@ -166,10 +167,12 @@ export default function ClassTimeTable() {
         })
       }
     })
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
 
   const handleReset = (updatedValues) => {
+    setCurrentPage(1)
     setFilteredData(classData)
     updatedValues('board', '')
     updatedValues('class', '')

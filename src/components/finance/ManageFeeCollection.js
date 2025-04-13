@@ -110,6 +110,7 @@ function ManageFeeCollection() {
         String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
       ),
     )
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
 
@@ -123,12 +124,14 @@ function ManageFeeCollection() {
         )
       }
     })
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
   const handleReset = (updatedValues) => {
     setFilteredData(studentFees)
     updatedValues('class', '')
     updatedValues('paymentStatus', '')
+    setCurrentPage(1)
   }
 
   const paginatedData = filteredData.slice(
@@ -139,7 +142,7 @@ function ManageFeeCollection() {
   const downloadList = () => {
     handleDownloadPDF(filteredData, "Fee_Collection_Details", [
       { key: 'name', label: 'Student Name' },
-      { key: 'class', label: 'Class' },
+      { key: 'className', label: 'Class' },
       { key: 'payableAmount', label: 'Total Amount' },
       { key: 'pendingAmount', label: 'Pending Amount' },
       { key: 'paymentStatus', label: 'Status' },

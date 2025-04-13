@@ -149,6 +149,7 @@ function ManageExamSchedules() {
         String(item[col.key]).toLowerCase().includes(term.toLowerCase())
       )
     );
+    setCurrentPage(1)
     setFilteredData(filtered);
   };
 
@@ -161,6 +162,7 @@ function ManageExamSchedules() {
         );
       }
     });
+    setCurrentPage(1)
     setFilteredData(filtered);
   };
 
@@ -169,6 +171,7 @@ function ManageExamSchedules() {
     updatedValues("examName", "");
     updatedValues("class", "");
     updatedValues("section", "");
+    setCurrentPage(1)
   };
 
   const handleModalClose = () => {

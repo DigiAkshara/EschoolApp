@@ -195,6 +195,7 @@ export default function StaffDetails() {
         String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
       ),
     )
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
 
@@ -209,6 +210,7 @@ export default function StaffDetails() {
         )
       }
     })
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
 
@@ -216,6 +218,7 @@ export default function StaffDetails() {
     setFilteredData(staffList)
     updatedValues('subjects', '')
     updatedValues('designation', '')
+    setCurrentPage(1)
   }
 
 

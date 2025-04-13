@@ -147,7 +147,8 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
 
   const isExistingFee = (id) => {
     let isDisabled = false
-    const index = selectedStudent?.fees?.feeList.findIndex((item) => item.fee._id === id)
+    const index = selectedStudent?.fees?.feeList.findIndex((item) =>{
+      return( item.fee._id == id)})
     if (index&&index !== -1) {
       isDisabled = values._id ? true : false
     }
@@ -185,8 +186,6 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     }
     setFieldValue('busRoute', e.target.value)
   }
-
-
 
   return (
     <>

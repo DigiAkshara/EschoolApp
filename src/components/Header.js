@@ -1,4 +1,4 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { Dialog, Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import {
   ChevronDownIcon
 } from "@heroicons/react/20/solid";
@@ -16,10 +16,12 @@ import {
 } from "../app/reducers/appConfigSlice";
 import { ACADEMIC_YEAR } from "../app/url";
 import { capitalizeWords, handleApiResponse } from "../commonComponent/CommonFunctions";
+import UpdatePassword from "./UpdatePassword";
 
 function Header({ updateSideBar }) {
   let academicId = localStorage.getItem("academicYear");
   let branchId = localStorage.getItem("branchId");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const { branchs, user, academicYears, academicYear, branchData } = useSelector((state) => state.appConfig);
   const [selectedBranch, setSelectedBranch] = useState(branchId || null);
   const [branch, setBranch] = useState(branchData || null);
@@ -186,6 +188,11 @@ function Header({ updateSideBar }) {
                       Your Profile
                     </span>
                   </MenuItem>
+                  <MenuItem onClick={()=>{setShowPasswordModal(true)}}>
+                    <span className="block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none cursor-pointer">
+                      Update Password
+                    </span>
+                  </MenuItem>
                   <MenuItem onClick={logOut}>
                     <span className="block px-3 py-1 text-sm/6 text-gray-900 data-[focus]:bg-gray-50 data-[focus]:outline-none cursor-pointer">
                       Sign out
@@ -197,6 +204,10 @@ function Header({ updateSideBar }) {
           </div>
         </div>
       </div>
+      <Dialog open={showPasswordModal} onClose={()=>{setShowPasswordModal(false);}} className="relative z-50">
+        <div className="fixed inset-0" />
+        <UpdatePassword onClose={()=>{setShowPasswordModal(false);}} />
+      </Dialog>
     </>
   );
 }
