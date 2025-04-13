@@ -20,7 +20,8 @@ const FilterComponent = ({
   handleReset,
   isDownloadDialog,
   downloadList,
-  downloadListxlsv
+  downloadListxlsv,
+  downloadDisabled=false
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -81,6 +82,7 @@ const FilterComponent = ({
                   {/* Conditional Download Button */}
                   {isDownloadDialog ? (
                     <button
+                      disabled={downloadDisabled}
                       type="button"
                       onClick={openDialog}
                       className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
@@ -89,6 +91,7 @@ const FilterComponent = ({
                     </button>
                   ) : (
                     <button
+                      disabled={downloadDisabled}
                       type="button"
                       onClick={downloadList}
                       className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
@@ -133,13 +136,9 @@ const FilterComponent = ({
                                   key={key}
                                   label={capitalizeWords(key)}
                                   name={key}
-                                  onChange={(e) => {
-                                    setFieldValue(key, e.target.value)
-                                  }}
                                 />
                               )
-                            }
-                            else {
+                            }else {
                               return (
                                 <CustomSelect
                                   key={key}

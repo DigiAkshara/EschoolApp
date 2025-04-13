@@ -173,6 +173,7 @@ function ManageExamResults() {
         String(item[col.key]).toLowerCase().includes(term.toLowerCase())
       )
     );
+    setCurrentPage(1)
     setFilteredData(filtered);
   };
 
@@ -186,6 +187,7 @@ function ManageExamResults() {
         );
       }
     });
+    setCurrentPage(1)
     setFilteredData(filtered);
   };
 
@@ -194,6 +196,7 @@ function ManageExamResults() {
     updatedValues("examName", "");
     updatedValues("class", "");
     updatedValues("section", "");
+    setCurrentPage(1)
   };
 
   const paginatedData = filteredData.slice(

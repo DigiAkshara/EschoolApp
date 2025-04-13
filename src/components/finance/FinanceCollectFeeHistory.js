@@ -36,7 +36,7 @@ function FinanceCollectFeeHistory() {
       let list = res.data.data.map((trans) => ({
         transactionId: trans.transaction.transactionNo || "N/A",
         date: trans.transaction.date,
-        paidMode: trans.transaction.transactionType.toUpperCase(),
+        paidMode: capitalizeWords(trans.transaction.transactionMode),
         feeAmounts: trans.transaction.fees.map((fee, index) => (
           <span key={index}>
             {capitalizeWords(fee.fee.name)} : {fee.amount}

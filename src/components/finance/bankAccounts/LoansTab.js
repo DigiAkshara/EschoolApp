@@ -33,6 +33,7 @@ function LoansTab() {
 	];
 
 	const filterForm = {
+		date: "",
 		type: "",
 		status: "",
 	};
@@ -53,6 +54,7 @@ function LoansTab() {
 				String(item[col.key]).toLowerCase().includes(term.toLowerCase())
 			)
 		);
+		setCurrentPage(1)
 		setFilteredData(filtered);
 	};
 
@@ -65,6 +67,7 @@ function LoansTab() {
 				);
 			}
 		});
+		setCurrentPage(1)
 		setFilteredData(filtered);
 	};
 
@@ -72,6 +75,7 @@ function LoansTab() {
 		setFilteredData(expenseData);
 		updatedValues("type", "");
 		updatedValues("status", "");
+		setCurrentPage(1)
 	};
 
 	const handleClose = () => {

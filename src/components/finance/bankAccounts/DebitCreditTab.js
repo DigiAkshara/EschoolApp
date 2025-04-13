@@ -25,6 +25,7 @@ function DebitCreditTab() {
   const columns = [
     { title: "Date", key: "date" },
     { title: "Type", key: "transactionType" },
+    { title: "Mode", key: "transactionMode" },
     { title: 'Title', key: 'title' },
     { title: 'Reason', key: 'reason' },
     { title: 'Amount', key: 'amount' },
@@ -32,11 +33,14 @@ function DebitCreditTab() {
   ];
 
   const filterForm = {
-    transactionType: ''
+    date: "",
+    transactionType: '',
+    transactionMode: ''
   }
 
   const filters = {
-    transactionType: { options: [{ value: "debit", label: "Debit" }, { value: "credit", label: "Credit" }] }
+    transactionType: { options: [{ value: "debit", label: "Debit" }, { value: "credit", label: "Credit" }] },
+    transactionMode: { options: [{ value: "offline", label: "Offline" }, { value: "online", label: "Online" }] }
   }
 
   const handleClose = () => setOpen(false);
@@ -52,6 +56,7 @@ function DebitCreditTab() {
         String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
       ),
     )
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
 
@@ -65,17 +70,21 @@ function DebitCreditTab() {
         )
       }
     })
+    setCurrentPage(1)
     setFilteredData(filtered)
   }
   const handleReset = (updatedValues) => {
     setFilteredData(transactionList)
     updatedValues('transactionType', '')
+    updatedValues('transactionMode', '')
+    updatedValues('date', null)
   }
 
     const downloadList = () => {
       handleDownloadPDF(filteredData, "Transaction_details", [
         { key: 'date', label: 'Date' },
         { key: 'transactionType', label: 'Type' },
+        { key: 'transactionMode', label: 'Mode' },
         { key: 'title', label: 'Title' },
         { key: 'reason', label: 'Reason' },
         { key: 'amount', label: 'Amount' },
@@ -96,6 +105,7 @@ function DebitCreditTab() {
         return ({
           ...item,
           transactionType: capitalizeWords(item.transactionType),
+          transactionMode: capitalizeWords(item.transactionMode),
           date: item.date,
           reason: item.reason||"-",
           title: titleStr,

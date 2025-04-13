@@ -1529,7 +1529,7 @@ const FeeDeatailsTab = ({ data }) => {
       let list = res.data.data.map((trans) => ({
         transactionId: trans.transaction.transactionNo || "N/A",
         date: trans.date,
-        paidMode: trans.transaction.transactionType.toUpperCase(),
+        paidMode: capitalizeWords(trans.transaction.transactionMode),
         feeAmounts: trans.transaction.fees.map((fee, index) => (
           <span>
             {capitalizeWords(fee.fee.name)} : {fee.amount}
