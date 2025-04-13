@@ -398,7 +398,7 @@ export default function StudentsList() {
             {filteredData.some((item) => item.isChecked) &&
               <div className="left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
                 <button
-                  // disabled={granuts.create}
+                  disabled={granuts.create}
                   type="button"
                   onClick={() => { setShowPromteModal(true) }}
                   className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
@@ -424,7 +424,7 @@ export default function StudentsList() {
                 </button>
 
                 <button
-                  // disabled={granuts.delete}
+                  disabled={granuts.delete}
                   onClick={() => setShowDeleteModal(true)}
                   type="button"
                   className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
