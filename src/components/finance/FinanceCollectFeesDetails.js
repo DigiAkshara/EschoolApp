@@ -349,6 +349,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         classSection: `${studentData.class.name} / ${studentData.section.section}`,
         fatersName: capitalizeWords(studentData.student.fatherDetails.name),
         mothersName: capitalizeWords(studentData.student.motherDetails.name),
+        rollNumber: studentData?.student?.rollNumber,
         pendingAmount: getTotalAmount(values, "pendingAmount", true),
         paidAmount: paidAmount,
         receiptLabel

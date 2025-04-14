@@ -84,14 +84,11 @@ function ExamDetailsPage({ onClose }) {
           <!-- School Information Div (centered) -->
           <div style="text-align: center;  padding-bottom: 20px; width: 100%; max-width: 600px;">
             <h1 style="text-align: center; margin: 0; font-weight: bold; font-size: 20px; color: rgb(116, 38, 199);">${branchData?.label?.toUpperCase()}</h1>
-            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${
-              branchData?.mobileNumber || "NILL"
-            }  | Email: ${branchData?.email || "NILL"}</p>
-            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${
-              branchData?.address?.area
-            }, ${branchData?.address?.city}, ${branchData?.address?.state}, ${
-        branchData?.address?.pincode
-      }</p>
+            <p style="margin: 0; font-weight: bold; font-size: 13px; color: rgb(116, 38, 199);">Ph: ${branchData?.mobileNumber || "NILL"
+        }  | Email: ${branchData?.email || "NILL"}</p>
+            <p style="margin: 0; font-weight: bold;font-size: 13px; color: rgb(116, 38, 199); ">Address: ${branchData?.address?.area
+        }, ${branchData?.address?.city}, ${branchData?.address?.state}, ${branchData?.address?.pincode
+        }</p>
           </div>
         </div>
         <div style="border-bottom: 1px solid black; width: 100%; margin-top: 10px;"></div>
@@ -135,26 +132,23 @@ function ExamDetailsPage({ onClose }) {
           </thead>
           <tbody>
               ${selectedExam?.timeTable
-                .map(
-                  (exam, index) => `
+          .map(
+            (exam, index) => `
                 <tr>
-                <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${
-                  index + 1
-                }</td>
+                <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${index + 1
+              }</td>
                   <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${getSubjectName(
-                    exam.subject
-                  )}</td>
-                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${
-                    exam.examDate
-                  }</td>
-                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${
-                    exam.startTime
-                  } - ${exam.endTime}</td>
+                exam.subject
+              )}</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${exam.examDate
+              }</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; font-size: 14px; color: #555;">${exam.startTime
+              } - ${exam.endTime}</td>
                  
                 </tr>
               `
-                )
-                .join("")}
+          )
+          .join("")}
             </tbody>
         </table>
         

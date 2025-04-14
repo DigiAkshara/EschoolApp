@@ -7,6 +7,7 @@ import {
   MenuItems,
 } from "@headlessui/react";
 import {
+  EllipsisHorizontalIcon,
   MagnifyingGlassIcon,
   PlusIcon
 } from "@heroicons/react/20/solid";
@@ -28,6 +29,7 @@ import CustomDate from "../../../commonComponent/CustomDate";
 import Datepicker from "react-tailwindcss-datepicker";
 import FilterComponent from "../../../commonComponent/FilterComponent";
 import CustomSelect from "../../../commonComponent/CustomSelect";
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 
 const people = [
   {
@@ -154,7 +156,7 @@ export default function BankBookTab() {
       setChargeSheet({ openingBalance: openBalance, closingBalance: closeBalance, totalDebit: totalDebit, totalCredit: totalCredit })
     } else {
       let bankAccounts = banks
-      if(selectedAccount){
+      if (selectedAccount) {
         bankAccounts = banks.filter((item) => item._id === selectedAccount)
       }
       let openBalance = bankAccounts.reduce((acc, bank) => acc + bank.currentBalance, 0);
@@ -280,8 +282,8 @@ export default function BankBookTab() {
               <div className='relative table-tool-bar z-30'>
                 <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
                   <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    
-                      {/* <div className="relative rounded-md">
+
+                    {/* <div className="relative rounded-md">
                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                           <MagnifyingGlassIcon aria-hidden="true" className="size-4 text-gray-400" />
                         </div>
@@ -293,9 +295,9 @@ export default function BankBookTab() {
                           className="block w-full rounded-md border-0 py-1 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm"
                         />
                       </div> */}
-                    
-                    <div 
-                    className="relative rounded-md"
+
+                    <div
+                      className="relative rounded-md"
                     // className='right-action-btns-blk space-x-4'
                     >
                       <div className='flex items-center space-x-2'>

@@ -98,6 +98,7 @@ function FinanceCollectFeeHistory() {
       mothersName: capitalizeWords(
         feeData.academic?.student?.motherDetails?.name || "N/A"
       ),
+      rollNumber: feeData.academic?.student?.rollNumber,
       branch: branchData,
       fees: formattedFees, // Store fees separately
       receiptLabel,

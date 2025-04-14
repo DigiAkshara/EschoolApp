@@ -55,7 +55,7 @@ const DeleteModal = ({ students, onClose }) => {
 								<CustomSelect
 									name="status"
 									label="Status"
-									options={[{ label: 'Remove', value: 'remove' }, { label: 'Tranfer', value: 'transfer' }]}
+									options={[{ label: 'Removed', value: 'deleted' }, { label: 'Tranferred', value: 'transferred' },{ label: 'Graduated', value: 'graduated' }]}
 									required={true}
 								/>
 								<div className="my-4"></div>

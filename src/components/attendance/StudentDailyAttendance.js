@@ -11,6 +11,7 @@ import { postData } from "../../app/api";
 import { ATTENDANCE } from "../../app/url";
 import {
   attendanceOptions,
+  capitalizeWords,
   handleApiResponse,
 } from "../../commonComponent/CommonFunctions";
 import CustomRadio from "../../commonComponent/CustomRadio";
@@ -253,14 +254,14 @@ const StudentDailyAttendance = () => {
                                         ) : (
                                           <div className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
                                             <span className="font-medium text-gray-600 dark:text-gray-300">
-                                              {student.name.charAt(0)}
+                                              {student.name.toUpperCase().charAt(0)}
                                             </span>
                                           </div>
                                         )}
                                         {/* Staff Details */}
                                         <div className="ml-4">
                                           <div className="font-medium text-gray-900 text-purple-600">
-                                            {student.name}{" "}
+                                            {capitalizeWords(student.name)}{" "}
                                           </div>
                                         </div>
                                       </div>
