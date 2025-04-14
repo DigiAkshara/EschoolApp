@@ -1340,6 +1340,7 @@ const FeeDeatailsTab = ({ data }) => {
         }`,
       fatersName: capitalizeWords(data.fatherDetails?.name || "N/A"),
       mothersName: capitalizeWords(data.motherDetails?.name || "N/A"),
+      rollNumber: data?.rollNumber,
       branch: branchData,
       fees: formattedFees, // Store fees separately
       receiptLabel,

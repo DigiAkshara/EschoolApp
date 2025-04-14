@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 import React, { useEffect, useRef, useState } from "react";
 import { postData } from "../app/api";
 import { STAFF, STUDENT } from "../app/url";
-import { handleApiResponse, handleDownload, handleDownloadCSV } from "./CommonFunctions";
+import { capitalizeWords, handleApiResponse, handleDownload, handleDownloadCSV } from "./CommonFunctions";
 import { useSelector } from "react-redux";
 import moment from "moment";
 
@@ -23,10 +23,9 @@ function CommonUpload({ onClose, user, loadData = () => { } }) {
 
   useEffect(() => {
     if (academicYears.length > 0) {
-      let currentYear = moment().year();
-      let activeYear = academicYears.filter((item) => item.year.split('-')[0] === currentYear.toString())
-      if(activeYear.length > 0) {
-        setAcademicYearValue(activeYear[0]._id)
+      let activeYear = academicYears.find((item) => item.status === 'active')
+      if(activeYear) {
+        setAcademicYearValue(activeYear._id)
       }
     }
   }, [academicYears]);
@@ -381,7 +380,12 @@ function CommonUpload({ onClose, user, loadData = () => { } }) {
                           Academic Year <span className="pl-1 text-red-500">*</span>
                         </label>
                         <select
-                          disabled
+                          // disabled
+                          onChange={(e) => {
+                            setAcademicYearValue(e.target.value);
+                            clearFileInput()
+                            setValidationError("")
+                          }}
                           value={academicYearValue}
                           id="academicYear"
                           name="academicYear"
@@ -413,7 +417,7 @@ function CommonUpload({ onClose, user, loadData = () => { } }) {
                           <option value="">Select Board</option>
                           {boards.map((item) => (
                             <option key={item.value} value={item.value}>
-                              {item.label}
+                              {capitalizeWords(item.label)}
                             </option>
                           ))}
                         </select>
@@ -437,7 +441,7 @@ function CommonUpload({ onClose, user, loadData = () => { } }) {
                           <option value="">Select Class</option>
                           {classes.map((item) => (
                             <option key={item.value} value={item.value}>
-                              {item.label}
+                              {capitalizeWords(item.label)}
                             </option>
                           ))}
                         </select>

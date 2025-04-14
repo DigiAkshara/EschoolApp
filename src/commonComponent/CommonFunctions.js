@@ -167,6 +167,7 @@ export const monthsName = [
 
 export const capitalizeWords = (str) => {
   if (!str) return;
+  if(typeof str !== "string") return str
   return str
     .split(" ") // Split the string into words
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter

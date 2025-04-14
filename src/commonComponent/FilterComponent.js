@@ -1,16 +1,13 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { ListBulletIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import {
   ArrowDownTrayIcon,
-  FunnelIcon,
-  Squares2X2Icon,
+  FunnelIcon
 } from '@heroicons/react/24/outline'
 import { Form, Formik } from 'formik'
-import CustomSelect from './CustomSelect'
 import { capitalizeWords } from './CommonFunctions'
-import DownloadDialog from './CommonDialogBox'
-import { useEffect, useState } from 'react'
 import CustomDate from './CustomDate'
+import CustomSelect from './CustomSelect'
 
 const FilterComponent = ({
   onSearch,
@@ -21,9 +18,8 @@ const FilterComponent = ({
   isDownloadDialog,
   downloadList,
   downloadListxlsv,
-  downloadDisabled=false
+  downloadDisabled = false
 }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const getOptions = (item, value) => {
     if (item.dependency && item.filterOptions) {
@@ -34,24 +30,6 @@ const FilterComponent = ({
       return item.options
     }
   }
-
-  const openDialog = () => {
-    setIsDialogOpen(true);
-  };
-
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-  };
-
-  const handleDownloadChoice = (choice) => {
-    if (choice === "pdf") {
-      downloadList(); // Direct PDF download
-    } else {
-      downloadListxlsv(); // Excel download
-    }
-    closeDialog(); // Close the dialog after the choice is made
-  };
-
 
 
   return (
@@ -80,7 +58,7 @@ const FilterComponent = ({
               <Form>
                 <div className="right-action-btns-blk space-x-4">
                   {/* Conditional Download Button */}
-                  {isDownloadDialog ? (
+                  {/* {isDownloadDialog ? (
                     <button
                       disabled={downloadDisabled}
                       type="button"
@@ -98,15 +76,43 @@ const FilterComponent = ({
                     >
                       <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
                     </button>
-                  )}
+                  )} */}
+                  <Menu as="div" className="relative inline-block text-left">
+                    <div>
+                      <MenuButton
+                        className="inline-flex items-center rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                        <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
+                      </MenuButton>
+                    </div>
+                    <MenuItems transition
+                      className="max-h-[430px] overflow-y-auto absolute right-0 z-10 mt-2 px-4 py-4 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in">
+                      <div className="grid gap-3 ">
+                        <MenuItem className="group mb-2">
+                          <div className="flex">
+                            <FunnelIcon aria-hidden="true" className="size-5" />
+                            <span className="pl-2">Select File Format</span>
+                          </div>
+                        </MenuItem>
+                        <div className="mt-4 space-y-3">
+                          <button onClick={downloadList} disabled={downloadDisabled}
+                            className="w-full px-4 py-2 text-white bg-blue-500 rounded-md shadow hover:bg-blue-600 transition"
+                          >
+                            Download as PDF
+                          </button>
+                          {isDownloadDialog &&
+                            <button onClick={downloadListxlsv} disabled={downloadDisabled}
+                              className="w-full px-4 py-2 text-white bg-green-500 rounded-md shadow hover:bg-green-600 transition"
+                            >
+                              Download as Excel
+                            </button>}
+                        </div>
 
-                  {/* Include the DownloadDialog modal if needed */}
-                  {isDialogOpen && isDownloadDialog && (
-                    <DownloadDialog
-                      onClose={closeDialog}
-                      handleDownloadChoice={handleDownloadChoice}
-                    />
-                  )}
+
+                      </div>
+                    </MenuItems>
+                  </Menu>
+
+
 
 
                   {filters && (
@@ -138,7 +144,7 @@ const FilterComponent = ({
                                   name={key}
                                 />
                               )
-                            }else {
+                            } else {
                               return (
                                 <CustomSelect
                                   key={key}
