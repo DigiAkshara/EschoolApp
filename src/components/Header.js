@@ -40,10 +40,10 @@ function Header({ updateSideBar }) {
   }, [branchData]);
 
   const handleAcademicChange = (e) => {
-    const academicYear = e.target.value;
-    setAcademic(academicYear);
-    localStorage.setItem("academicYear", academicYear);
-    let academic = academicYears.find((year) => year._id === academicYear);
+    const value = e.target.value;
+    setAcademic(value);
+    localStorage.setItem("academicYear", value);
+    let academic = academicYears.find((year) => year._id === value);
     dispatch(setAcademicYear(academic));
     window.location.reload();
   };
@@ -72,7 +72,11 @@ function Header({ updateSideBar }) {
       const res = await getData(ACADEMIC_YEAR + "/all");
       dispatch(setAcademicYears(res.data.data));
       let academic = res.data.data.find((year) => year.year === academicYear?.year);
-      localStorage.setItem('academicYear', academic._id)
+      if(academic) {
+        localStorage.setItem('academicYear', academic._id)
+      }else{
+        localStorage.setItem('academicYear', res.data.data[0]._id)
+      }
       window.location.reload();
     } catch (error) {
       handleApiResponse(error)

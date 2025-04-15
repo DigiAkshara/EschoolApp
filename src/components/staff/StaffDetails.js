@@ -7,9 +7,9 @@ import { Dialog } from '@headlessui/react'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteData, getData } from '../../app/api'
-import { selectStaff, setSubjects } from '../../app/reducers/staffSlice'
-import { STAFF, SUBJECT, TENANT } from '../../app/url'
-import { capitalizeWords, designations, handleApiResponse, handleDownload, handleDownloadPDF } from '../../commonComponent/CommonFunctions'
+import { selectStaff, setDesignations, setSubjects } from '../../app/reducers/staffSlice'
+import { DESIGNATION, STAFF, SUBJECT, TENANT } from '../../app/url'
+import { capitalizeWords, designations, handleApiResponse, handleDownload, handleDownloadPDF, hasPermission } from '../../commonComponent/CommonFunctions'
 import CommonUpload from '../../commonComponent/CommonUpload'
 import ConfirmModal from '../../commonComponent/ConfirmationModal'
 import FilterComponent from '../../commonComponent/FilterComponent'
@@ -28,7 +28,7 @@ const tabs2 = [
 ]
 
 export default function StaffDetails() {
-  const subjects = useSelector((state) => state.staff?.subjects)
+  const {subjects, designations} = useSelector((state) => state.staff)
   const location = useLocation()
   const openModel = location.state?.openModel || false
   const [open2, setOpen2] = useState(false)
@@ -40,13 +40,16 @@ export default function StaffDetails() {
   const [filteredData, setFilteredData] = useState([])
   const [deleteId, setDeleteId] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [granuts, setGranuts] = useState({ create: false, edit: false, delete: false })
   const [currentPage, setCurrentPage] = useState(1)
+  const [filterForm, setFilterForm] = useState({
+    subjects: '',
+    designation: ''
+  })
   const rowsPerPage = 5
   const dispatch = useDispatch()
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { branchData } = useSelector((state) => state.appConfig)
-
 
   const handleOpen = () => setShowAddStaffModal(true)
   const handleClose = () => { setShowAddStaffModal(false); dispatch(selectStaff(null)) }
@@ -68,9 +71,24 @@ export default function StaffDetails() {
     }
   }
 
+    const getDesignations = async () => {
+      try {
+        const res = await getData(DESIGNATION);
+        let list = res.data.data.map((item) => ({
+          label: item.name,
+          value: item._id,
+          staffType: item.staffType
+        }));
+        dispatch(setDesignations(list));
+      } catch (error) {
+        handleApiResponse(error);
+      }
+    };
+
   useEffect(() => {
     getSubjects()
     getStaff()
+    getDesignations()
     if (openModel) {
       setShowAddStaffModal(true)
     }
@@ -87,6 +105,10 @@ export default function StaffDetails() {
   ]
 
   const getStaff = async () => {
+    const createPermission = hasPermission('staff', 'write', { isSubmenu: true, parentMenu: 'staff' })
+    const editPermission = hasPermission('staff', 'edit', { isSubmenu: true, parentMenu: 'staff' })
+    const deletePermission = hasPermission('staff', 'delete', { isSubmenu: true, parentMenu: 'staff' })
+    setGranuts({ create: createPermission, edit: editPermission, delete: deletePermission })
     try {
       dispatch(setIsLoader(true))
       const response = await getData(STAFF)
@@ -100,6 +122,7 @@ export default function StaffDetails() {
           nonTeachingCount = nonTeachingCount + 1
         }
         staffData.push({
+          isChecked: false,
           _id: item._id,
           pic: item.profilePic?.Location,
           name: capitalizeWords(item.firstName + ' ' + item.lastName),
@@ -136,8 +159,8 @@ export default function StaffDetails() {
           presentAddress: `${item.presentAddress?.area}, ${item.presentAddress?.city}, ${item.presentAddress?.state} - ${item.presentAddress?.pincode}`,
           salary: item.amount,
           actions: [
-            { label: 'Edit', actionHandler: onHandleEdit },
-            { label: 'Delete', actionHandler: onDelete },
+            { label: 'Edit', actionHandler: onHandleEdit, disabled: editPermission },
+            { label: 'Delete', actionHandler: onDelete, disabled: deletePermission },
           ],
         })
       })
@@ -150,6 +173,22 @@ export default function StaffDetails() {
       dispatch(setIsLoader(false))
     }
 
+  }
+
+  const handleCheckbox = (id, all = false) => {
+    let index = filteredData.findIndex((item) => item._id == id);
+    let updatedData = [...filteredData];
+    if (index != -1) {
+      updatedData[index].isChecked = !updatedData[index].isChecked
+      setFilteredData(updatedData);
+    }
+  }
+
+  const handleSelectAll = (e) => {
+    const updatedData = filteredData.map((item) => {
+      return { ...item, isChecked: e.target.checked };
+    });
+    setFilteredData(updatedData);
   }
 
   const onHandleEdit = async (Id) => {
@@ -179,39 +218,49 @@ export default function StaffDetails() {
     }
   }
 
-  const filterForm = {
-    subjects: '',
-    designation: ''
-  }
-
   const filters = {
     subjects: { options: subjects },
-    designation: { options: designations }
+    designation: { options: designations.filter((item) => item.staffType === staffType) },
   }
 
+/**
+ * Filters the current records based on the search term and updates the filtered data.
+ * 
+ * @param {string} term - The search term to filter the records by.
+ * The search is performed case-insensitively across all specified columns.
+ * Resets the current page to 1 after filtering.
+ */
+
   const handleSearch = (term) => {
-    const filtered = staffList.filter((item) =>
+    const curRecords = filterRecords(filterForm)
+    const filtered = curRecords.filter((item) =>
       columns.some((col) =>
-        String(item[col.key]).toLowerCase().includes(term.toLowerCase()),
-      ),
-    )
+        String(item[col.key]).toLowerCase().includes(term.toLowerCase())
+      )
+    );
+    setFilteredData(filtered);
     setCurrentPage(1)
-    setFilteredData(filtered)
   }
 
 
   const handleFilter = (values) => {
-    let filtered = staffList
+    setFilterForm(values);
+    let filtered = filterRecords(values)
+    setFilteredData(filtered);
+    setCurrentPage(1)
+  }
+
+  const filterRecords = (values) => {
+    let filtered = staffList;
     Object.entries(values).forEach(([key, value]) => {
       if (value) {
         filtered = filtered.filter((rec) => {
-          return rec[key].toLowerCase().includes(value.toLowerCase())
-        }
-        )
+          rec.isChecked = false;
+          return rec[key].toLowerCase().includes(value.toLowerCase()) || rec[key].toLowerCase() === value.toLowerCase();
+        });
       }
-    })
-    setCurrentPage(1)
-    setFilteredData(filtered)
+    });
+    return filtered
   }
 
   const handleReset = (updatedValues) => {
@@ -253,7 +302,7 @@ export default function StaffDetails() {
   };
 
   const downloadList = () => {
-    handleDownloadPDF (filteredData, "Staff_Details", [
+    handleDownloadPDF(filteredData, "Staff_Details", [
       { label: "Staff Name", key: "name" },
       { label: "Phone Number", key: "phoneNumber" },
       { label: "EmpId", key: "staffId" },
@@ -266,9 +315,9 @@ export default function StaffDetails() {
       { label: "Subjects", key: "subjectName" },
       { label: "Present Address", key: "presentAddress" },
       { label: "Gender", key: "gender" },
-    ], "Staff Details Report", branchData,  "landscape");
+    ], "Staff Details Report", branchData, "landscape");
   };
- 
+
 
   return (
     <>
@@ -324,6 +373,7 @@ export default function StaffDetails() {
 
         <div className="right-btns-blk space-x-4">
           <button
+            disabled={granuts.create}
             type="button"
             onClick={handleOpen}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
@@ -333,6 +383,7 @@ export default function StaffDetails() {
           </button>
 
           <button
+            disabled={granuts.create}
             type="button"
             onClick={() => setOpen2(true)}
             className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
@@ -347,28 +398,23 @@ export default function StaffDetails() {
       <div className="-mx-2 -my-2 mt-0 overflow-x-auto sm:-mx-6">
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
-            {selectedPeople.length > 0 && (
-              <div className="absolute left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Promote
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Exit
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
+            {/* <div className=" left-20 top-0 flex h-12 items-center space-x-3 bg-white sm:left-72">
+              <button
+                disabled={granuts.delete}
+                type="button"
+                className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+              >
+                Resigned
+              </button>
+
+              <button
+                disabled={granuts.delete}
+                type="button"
+                className="inline-flex items-center rounded bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+              >
+                Delete
+              </button>
+            </div> */}
             <div className="shadow ring-1 ring-black/5 sm:rounded-lg">
               <FilterComponent
                 onSearch={handleSearch}
@@ -379,6 +425,7 @@ export default function StaffDetails() {
                 downloadList={downloadList}
                 downloadListxlsv={downloadListxlsx}
                 isDownloadDialog={true}
+                downloadDisabled={granuts.create || granuts.edit || granuts.delete}
               />
 
               {/* Table View */}

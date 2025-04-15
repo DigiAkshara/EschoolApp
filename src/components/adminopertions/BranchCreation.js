@@ -175,6 +175,7 @@ function BranchCreation({ onClose, getBranches }) {
                                       name="email"
                                       label="Email"
                                       placeholder="Enter email"
+                                      required={true}
                                     />
                                   </div>
 

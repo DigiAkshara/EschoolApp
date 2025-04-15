@@ -1,15 +1,13 @@
+import { Dialog } from '@headlessui/react';
+import { PlusIcon } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
-import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import TableComponent from "../../commonComponent/TableComponent";
-import DesignationModal from "./DesignationModal";
-import { deleteData, getData } from "../../app/api";
-import { BRANCH, DESIGNATION } from "../../app/url";
-import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import { useDispatch } from "react-redux";
-import { setSelectedDesignation } from "../../app/reducers/designationSlice";
+import { deleteData, getData } from "../../app/api";
+import { BRANCH } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
+import TableComponent from "../../commonComponent/TableComponent";
 import BranchCreation from "./BranchCreation";
-import { Dialog } from '@headlessui/react'
 
 
 function Branch() {
@@ -45,9 +43,9 @@ function Branch() {
           _id: item._id,
           siNo: index + 1,
           name: item.name,
-          city : item.address.city,
-          state : item.address.state,
-          pincode : item.address.pincode,
+          city: item.address.city,
+          state: item.address.state,
+          pincode: item.address.pincode,
           actions: [
             { label: "Edit", actionHandler: onHandleEdit },
             { label: "Delete", actionHandler: onDelete },
@@ -72,15 +70,15 @@ function Branch() {
   };
 
   const deleteRecord = async () => {
-     try {
-       let res = await deleteData(BRANCH + '/' + deleteId)
-       handleApiResponse(res.data.message, 'success')
-       getBranches()
-       setDeleteConfirm(false)
-       setDeleteId(null)
-     } catch (error) {
-       handleApiResponse(error)
-     }
+    try {
+      let res = await deleteData(BRANCH + '/' + deleteId)
+      handleApiResponse(res.data.message, 'success')
+      getBranches()
+      setDeleteConfirm(false)
+      setDeleteId(null)
+    } catch (error) {
+      handleApiResponse(error)
+    }
   };
 
   const paginatedData = filteredData.slice(
@@ -135,7 +133,7 @@ function Branch() {
 
       <Dialog open={isModalOpen} onClose={handleCloseModal} className="relative z-50">
         <div className="fixed inset-0" />
-        <BranchCreation onClose={handleCloseModal} getBranches={getBranches}  />
+        <BranchCreation onClose={handleCloseModal} getBranches={getBranches} />
       </Dialog>
 
       <ConfirmationModal

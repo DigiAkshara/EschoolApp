@@ -446,7 +446,7 @@ export default function StudentsList() {
                 downloadList={downloadList}
                 downloadListxlsv={downloadListxlsx}
                 isDownloadDialog={true}
-                downloadDisabled={granuts.create}
+                downloadDisabled={granuts.create||granuts.edit||granuts.delete}
 
               />
               {/* Table View */}

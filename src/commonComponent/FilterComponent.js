@@ -57,26 +57,6 @@ const FilterComponent = ({
             {({ values, setFieldValue }) => (
               <Form>
                 <div className="right-action-btns-blk space-x-4">
-                  {/* Conditional Download Button */}
-                  {/* {isDownloadDialog ? (
-                    <button
-                      disabled={downloadDisabled}
-                      type="button"
-                      onClick={openDialog}
-                      className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                    >
-                      <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
-                    </button>
-                  ) : (
-                    <button
-                      disabled={downloadDisabled}
-                      type="button"
-                      onClick={downloadList}
-                      className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                    >
-                      <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
-                    </button>
-                  )} */}
                   <Menu as="div" className="relative inline-block text-left">
                     <div>
                       <MenuButton
