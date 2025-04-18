@@ -74,12 +74,13 @@ const FilterComponent = ({
                           </div>
                         </MenuItem>
                         <div className="mt-4 space-y-3">
+                          {downloadList&&
                           <button onClick={downloadList} disabled={downloadDisabled}
                             className="w-full px-4 py-2 text-white bg-blue-500 rounded-md shadow hover:bg-blue-600 transition"
                           >
                             Download as PDF
-                          </button>
-                          {isDownloadDialog &&
+                          </button>}
+                          {downloadListxlsv &&
                             <button onClick={downloadListxlsv} disabled={downloadDisabled}
                               className="w-full px-4 py-2 text-white bg-green-500 rounded-md shadow hover:bg-green-600 transition"
                             >
