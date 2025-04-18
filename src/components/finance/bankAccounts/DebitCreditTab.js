@@ -26,7 +26,8 @@ function DebitCreditTab() {
     { title: "Date", key: "date" },
     { title: "Type", key: "transactionType" },
     { title: "Mode", key: "transactionMode" },
-    { title: 'Title', key: 'title' },
+    { title: "Category", key: "type" },
+    { title: 'Sub Category', key: 'subCategory' },
     { title: 'Reason', key: 'reason' },
     { title: 'Amount', key: 'amount' },
     { title: 'Proof', key: 'proof' },
@@ -80,35 +81,61 @@ function DebitCreditTab() {
     updatedValues('date', null)
   }
 
-    const downloadList = () => {
-      handleDownloadPDF(filteredData, "Transaction_details", [
-        { key: 'date', label: 'Date' },
-        { key: 'transactionType', label: 'Type' },
-        { key: 'transactionMode', label: 'Mode' },
-        { key: 'title', label: 'Title' },
-        { key: 'reason', label: 'Reason' },
-        { key: 'amount', label: 'Amount' },
-      ], "Transaction Details", branchData, undefined, "landscape");
-    };
+  const downloadList = () => {
+    handleDownloadPDF(filteredData, "Transaction_details", [
+      { label: "Date", key: "date" },
+      { label: "Type", key: "transactionType" },
+      { label: "Mode", key: "transactionMode" },
+      { label: "Category", key: "type" },
+      { label: 'Sub Category', key: 'subCategory' },
+      { label: 'Reason', key: 'reason' },
+      { label: 'Amount', key: 'amount' },
+    ], "Transaction Details", branchData, undefined, "landscape");
+  };
+
+  const getCategoryTitle = (item) => {
+    let title = ''
+    if (item.type === 'loan') {
+      title = item.title
+    } else if (item.type === 'repayment') {
+      title = item.loanId?.title
+    } else if (item.type === 'other_income') {
+      title = ''
+    } else if (item.type === 'expense') {
+      title = item.category?.name
+    } else if (item.fees.length > 0) {
+      item.fees.forEach((fee) => (
+        title += `${fee.fee?.name}: ${fee.amount}, `
+      ))
+      title = title.slice(0, -2);
+    }
+    return title
+  }
+  const getReason = (item) => {
+    let title = item.reason || ''
+    if (item.type === 'expense') {
+      title = item.category?.name.includes('Other') ? item.reason : item.subCategory?.name
+    }
+    return title
+  }
 
   const getAllTransactions = async () => {
     try {
       let res = await getData(TRANSACTIONS + '/list')
       let dummyList = res.data.data.map((item) => {
-        let titleStr = item.category?.name||''
-        if(item.fees.length>0){ 
+        let titleStr = (item.type === 'loan') ? item.title : item.type === 'repayment' ? item.loanId?.title : ""
+        if (item.fees.length > 0) {
           item.fees.forEach((fee) => (
-            titleStr += `${fee.fee.name}: ${fee.amount}, `
+            titleStr += `${fee.fee?.name}: ${fee.amount}, `
           ))
           titleStr = titleStr.slice(0, -2);
         }
         return ({
           ...item,
-          transactionType: capitalizeWords(item.transactionType),
-          transactionMode: capitalizeWords(item.transactionMode),
+          type: item.studentFee ? 'Student Fees' : item.type?.split('_').join(" "),
+          subCategory: getCategoryTitle(item),
           date: item.date,
-          reason: item.reason||"-",
-          title: titleStr,
+          reason: getReason(item),
           proof: item.proof ? (
             <a href={item.proof.Location} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a>) : '-'
         })

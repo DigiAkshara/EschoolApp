@@ -13,8 +13,7 @@ import CustomSelect from '../../commonComponent/CustomSelect'
 
 function FeeCreation({ onClose, getFees }) {
   const { academicYear } = useSelector((state) => state.appConfig);
-  const [feeDetails, setFeeDetails] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [classList, setClassList] = useState([])
   const [academicYears, setAcademicYears] = useState([])
   const [feeGroups, setFeeGroups] = useState([])
 
@@ -23,7 +22,7 @@ function FeeCreation({ onClose, getFees }) {
       academicYear: '',
       feeGroup: '',
       feeTitle: '',
-      fees: feeDetails.map((item) => ({
+      fees: classList.map((item) => ({
         name: item.name,
         _id: item._id,
         checked: false,
@@ -82,11 +81,11 @@ function FeeCreation({ onClose, getFees }) {
 
   const getFeeDetails = async () => {
     try {
-      const [classRes, feeGroupRes, academicYearRes] = await Promise.all([
+      const [classRes, feeGroupRes] = await Promise.all([
         getData(CLASSES),
         getData(FEE_GROUP),
       ])
-      setFeeDetails(classRes.data.data)
+      setClassList(classRes.data.data)
       let feeGroupData = feeGroupRes.data.data.map((item) => {
         return {
           label: item.name, // Displayed text in the dropdown
@@ -94,16 +93,12 @@ function FeeCreation({ onClose, getFees }) {
         }
       })
       setFeeGroups(feeGroupData)
-      setLoading(false)
     } catch (error) {
-      setLoading(false)
       handleApiResponse(error)
     }
   }
 
-  if (loading || feeDetails.length === 0) {
-    return <p>Loading classes...</p>
-  }
+
 
   const findTransportFee = (value) => {
     let transportFee = false
@@ -207,8 +202,6 @@ function FeeCreation({ onClose, getFees }) {
                                         disabled={findTransportFee(values.feeGroup)}
                                       />
                                     </div>
-
-
                                   </div>
                                   <div className="grid">
                                     <div className='mt-4 sm:col text-sm/6'>
@@ -323,7 +316,7 @@ function FeeCreation({ onClose, getFees }) {
                                     ) : (
                                       <tr>
                                         <td colSpan={3} className="text-center">
-                                          No Fees Found
+                                          No Classes Found, Please create class first.
                                         </td>
                                       </tr>
                                     )}

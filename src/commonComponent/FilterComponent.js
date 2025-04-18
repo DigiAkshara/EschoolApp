@@ -33,7 +33,7 @@ const FilterComponent = ({
 
 
   return (
-    <div className="relative table-tool-bar z-20">
+    <div className="relative table-tool-bar z-30">
       <div className="flex items-center justify-between border-b border-gray-200 bg-white px-3 py-3 sm:px-4">
         <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
@@ -57,26 +57,6 @@ const FilterComponent = ({
             {({ values, setFieldValue }) => (
               <Form>
                 <div className="right-action-btns-blk space-x-4">
-                  {/* Conditional Download Button */}
-                  {/* {isDownloadDialog ? (
-                    <button
-                      disabled={downloadDisabled}
-                      type="button"
-                      onClick={openDialog}
-                      className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                    >
-                      <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
-                    </button>
-                  ) : (
-                    <button
-                      disabled={downloadDisabled}
-                      type="button"
-                      onClick={downloadList}
-                      className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-500 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                    >
-                      <ArrowDownTrayIcon aria-hidden="true" className="size-5" />
-                    </button>
-                  )} */}
                   <Menu as="div" className="relative inline-block text-left">
                     <div>
                       <MenuButton
@@ -94,12 +74,13 @@ const FilterComponent = ({
                           </div>
                         </MenuItem>
                         <div className="mt-4 space-y-3">
+                          {downloadList&&
                           <button onClick={downloadList} disabled={downloadDisabled}
                             className="w-full px-4 py-2 text-white bg-blue-500 rounded-md shadow hover:bg-blue-600 transition"
                           >
                             Download as PDF
-                          </button>
-                          {isDownloadDialog &&
+                          </button>}
+                          {downloadListxlsv &&
                             <button onClick={downloadListxlsv} disabled={downloadDisabled}
                               className="w-full px-4 py-2 text-white bg-green-500 rounded-md shadow hover:bg-green-600 transition"
                             >

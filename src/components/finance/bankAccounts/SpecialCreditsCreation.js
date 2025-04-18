@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, postData } from "../../../app/api";
-import { FEE_CATEGORY, LOANS, STAFF, TRANSACTIONS } from "../../../app/url";
+import { FEE_CATEGORY, FEE_SUBCATEGORY, LOANS, STAFF, TRANSACTIONS } from "../../../app/url";
 import {
   financeType,
   handleApiResponse,
@@ -23,11 +23,13 @@ function SpecialCredits({ onClose, refreshData }) {
   const { bankAccounts } = useSelector((state) => state.fees);
   const [bankAccountsOptions, setBankAccountsOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   const [staffOptions, setStaffOptions] = useState([]);
   const [staffLoans, setStaffLoans] = useState([]);
   const formData = {
     transactionType: "",
     transactionMode: "",
+    type: "",
     category: "",
     subCategory: "",
     staff: '',
@@ -45,17 +47,25 @@ function SpecialCredits({ onClose, refreshData }) {
     return Yup.object({
       transactionType: Yup.string().required("Transaction Type is required"),
       transactionMode: Yup.string().required("Transaction Mode is required"),
-      category: Yup.string().required("Category is required"),
+      type: Yup.string().required("Type is required"),
+      category: Yup.string().test(
+        "category-is-required-when-debit-is-selected-and-type-is-expense",
+        "Category is required",
+        function (value) {
+          const { transactionType, type } = this.parent; // Access sibling field 'paymentMode'
+          if ((transactionType === "debit"&&type === "expense") && !value) {
+            return false; // Fail validation if transactionType is 'debit' and type is 'expense' but value is invalid
+          }
+          return true; // Pass validation otherwise
+        }),
       subCategory: Yup.string()
-        .min(5, "Description must be at least 3 characters")
-        .max(50, "Description must be atmost 50 characters")
         .test(
-          "is-category-is-other",
+          "subcategory-is-required-whentype-is-expenseand-category-is-not-other_expense",
           "Sub Category is required",
           function (value) {
-            const { category } = this.parent; // Access sibling field 'paymentMode'
-            if (categoryOptions.find((item) => item.value === category)?.label.includes("Other") && !value) {
-              return false; // Fail validation if category is not 'other' but value is invalid
+            const { category,type } = this.parent; // Access sibling field 'category'
+            if ((type === "expense" && !categoryOptions.find((item) => item.value === category)?.label.includes("Other Expense")) && !value) {
+              return false; // Fail validation if category is not 'other expense' but value is invalid
             }
             return true; // Pass validation otherwise
           }
@@ -64,30 +74,30 @@ function SpecialCredits({ onClose, refreshData }) {
         "is-debit-and-loan",
         "Title is required",
         function (value) {
-          const { category, transactionType } = this.parent; // Access sibling field
-          if (transactionType === "debit" && categoryOptions.find((item) => item.value === category)?.label.includes("Loan") && !value) {
+          const { type, transactionType } = this.parent; // Access sibling field
+          if ((transactionType === "debit" && type === "loan") && !value) {
             return false;
           }
           return true; // Pass validation otherwise
         }
       ),
       staff: Yup.string().test(
-        "is-category-is-loan",
+        "is-type-is-loan_or_repayment",
         "Staff is required",
         function (value) {
-          const { category } = this.parent; // Access sibling field 'paymentMode'
-          if (categoryOptions.find((item) => item.value === category)?.label.includes("Loan") && !value) {
-            return false; // Fail validation if category is not 'other' but value is invalid
+          const { type } = this.parent; // Access sibling field 'paymentMode'
+          if ((type === 'loan'||type === 'repayment') && !value) {
+            return false; // Fail validation if type is 'loan/repayment' but value is invalid
           }
           return true; // Pass validation otherwise
         }
       ),
       loanId: Yup.string().test(
-        "is-credit-and-loan",
+        "is-type-is-repayment",
         "Loan is required",
         function (value) {
-          const { transactionType, category } = this.parent; // Access sibling field 'paymentMode'
-          if (transactionType === 'credit' && categoryOptions.find((item) => item.value === category)?.label.includes("Loan") && !value) {
+          const { type } = this.parent; // Access sibling field 'paymentMode'
+          if (type === 'repayment' && !value) {
             return false; // Fail validation if transactionMode is not 'cash' but value is invalid
           }
           return true; // Pass validation otherwise
@@ -183,6 +193,22 @@ function SpecialCredits({ onClose, refreshData }) {
     }
   }
 
+  const getSubCategories = async () => {
+    try {
+      let res = await getData(FEE_SUBCATEGORY)
+      let categorySubOptions = res.data.data.map((item) => {
+        return ({
+          value: item._id,
+          label: item.name,
+          category: item.category
+        })
+      })
+      setSubCategoryOptions(categorySubOptions)
+    } catch (e) {
+      handleApiResponse(e)
+    }
+  }
+
   const getStaffData = async () => {
     try {
       let res = await getData(STAFF)
@@ -216,8 +242,10 @@ function SpecialCredits({ onClose, refreshData }) {
       }
     }
   }
+
   useEffect(() => {
     getCategories()
+    getSubCategories()
     getStaffData()
   }, [])
 
@@ -279,6 +307,7 @@ function SpecialCredits({ onClose, refreshData }) {
                                         setFieldValue("category", "");
                                         setFieldValue("staff", "")
                                         setFieldValue("subCategory", "")
+                                        setFieldValue("loanId", '')
                                       }}
                                     />
                                   </div>
@@ -295,38 +324,12 @@ function SpecialCredits({ onClose, refreshData }) {
                                           e.target.value
                                         )
                                         setFieldValue("account", "");
-                                      }}
-                                    />
-                                  </div>
-
-                                  <div className="sm:col-span-1">
-                                    <CustomSelect
-                                      name="category"
-                                      label="Category"
-                                      options={categoryOptions.filter((item) => item.transactionType === values.transactionType)}
-                                      required={true}
-                                      onChange={(e) => {
-                                        setFieldValue(
-                                          "category",
-                                          e.target.value
-                                        )
                                         setFieldValue("staff", "")
-                                        setFieldValue("subCategory", "")
+                                        setFieldValue("transactionId", "");
+                                        setFieldValue("loanId", '')
                                       }}
                                     />
                                   </div>
-
-                                  {values.transactionType === "debit" && categoryOptions.find(item => item.value === values.category)?.label.includes("Loan") && (
-                                    <div className="sm:col-span-1">
-                                      <CustomInput
-                                        name="title"
-                                        label="Loan Title"
-                                        placeholder="Enter Loan Title"
-                                        required={true}
-                                      />
-                                    </div>
-                                  )}
-
                                   {values.transactionMode === "online" && (
                                     <div className="sm:col-span-1">
                                       <CustomSelect
@@ -338,7 +341,62 @@ function SpecialCredits({ onClose, refreshData }) {
                                     </div>
                                   )}
 
-                                  {categoryOptions.find(item => item.value === values.category)?.label.includes("Loan") && (
+                                  <div className="sm:col-span-1">
+                                    <CustomSelect
+                                      name="type"
+                                      label="Type"
+                                      options={values.transactionType === "debit" ? [{ value: "loan", label: "Loan" }, { value: "expense", label: "Expense" }] : [{ value: "repayment", label: "Loan Repayment" }, { value: "other_income", label: "Other Income" }]}
+                                      required={true}
+                                      onChange={(e) => {
+                                        setFieldValue("type", e.target.value)
+                                        setFieldValue("category", "")
+                                        setFieldValue("staff", "")
+                                        setFieldValue("subCategory", "")
+                                        setFieldValue("title", "")
+                                        setFieldValue("loanId", '')
+                                      }}
+                                    />
+                                  </div>
+
+                                  {values.transactionType === "debit" && (
+                                    <>
+                                      {values.type === "expense" ? (
+                                        <div className="sm:col-span-1">
+                                          <CustomSelect
+                                            name="category"
+                                            label="Category"
+                                            options={categoryOptions}
+                                            required={true}
+                                            onChange={(e) => {
+                                              setFieldValue("category", e.target.value)
+                                              setFieldValue("subCategory", "")
+                                            }}
+                                          />
+                                        </div>) : (
+                                        <div className="sm:col-span-1">
+                                          <CustomInput
+                                            name="title"
+                                            label="Loan Title"
+                                            placeholder="Enter Loan Title"
+                                            required={true}
+                                          />
+                                        </div>
+                                      )}
+                                      {values.type === "expense" && !categoryOptions.find(item => item.value === values.category)?.label.includes("Other Expense") && (
+                                        <div className="sm:col-span-1">
+                                          <CustomSelect
+                                            name="subCategory"
+                                            label="Sub Category"
+                                            options={subCategoryOptions.filter(item => item.category === values.category)}
+                                            required={true}
+                                            onChange={(e) => {
+                                              setFieldValue("subCategory", e.target.value)
+                                            }}
+                                          />
+                                        </div>)}
+                                    </>)}
+
+                                  {(values.type ==="loan"|| values.type === "repayment") && (
                                     <div className="sm:col-span-1">
                                       <CustomSelect
                                         name="staff"
@@ -352,7 +410,7 @@ function SpecialCredits({ onClose, refreshData }) {
                                     </div>
                                   )}
 
-                                  {(values.transactionType === "credit" && categoryOptions.find(item => item.value === values.category)?.label.includes("Loan")) && (
+                                  {(values.type === 'repayment') && (
                                     <div className="sm:col-span-1">
                                       <CustomSelect
                                         name="loanId"
@@ -363,24 +421,12 @@ function SpecialCredits({ onClose, refreshData }) {
                                     </div>
                                   )}
 
-                                  {categoryOptions.find(item => item.value === values.category)?.label.includes("Other") && (
-                                    <div className="sm:col-span-1">
-                                      <CustomInput
-                                        name="subCategory"
-                                        label={values.transactionType === "credit" ? "Other Expense Description" : "Other Income Description"}
-                                        placeholder="Enter Description"
-                                        required={true}
-                                        maxLength={20}
-                                      />
-                                    </div>
-                                  )}
-
                                   <div className="sm:col-span-1">
                                     <CustomDate
                                       name="date"
                                       label="Date of Transaction"
                                       required={true}
-                                      max={moment().format("YYYY-MM-DD")}
+                                      maxDate={moment().format("YYYY-MM-DD")}
                                     />
                                   </div>
 

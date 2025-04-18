@@ -1,13 +1,12 @@
+import { PlusIcon } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
-import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import TableComponent from "../../commonComponent/TableComponent";
-import DesignationModal from "./DesignationModal";
-import { deleteData, getData } from "../../app/api";
-import { DESIGNATION } from "../../app/url";
-import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import { useDispatch } from "react-redux";
+import { deleteData, getData } from "../../app/api";
 import { setSelectedDesignation } from "../../app/reducers/designationSlice";
+import { DESIGNATION } from "../../app/url";
+import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
+import TableComponent from "../../commonComponent/TableComponent";
 import CategoryCreation from "./CategoryCreation";
 import SubCategoryCreation from "./SubCategoryCreation";
 

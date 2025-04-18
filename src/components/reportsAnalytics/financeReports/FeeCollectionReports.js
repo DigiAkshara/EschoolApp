@@ -119,7 +119,7 @@ const FeeCollectionReports = () => {
       undefined,
       "portrait"
     );
-    downloadListxlsx();
+    // downloadListxlsx();
   };
 
   const downloadListxlsx = () => {
@@ -280,10 +280,13 @@ const FeeCollectionReports = () => {
         <div className="inline-block min-w-full py-4 align-middle sm:px-6">
           <div className="relative">
             <div className="relative shadow ring-1 ring-black/5 sm:rounded-lg">
-              <FilterComponent
+              {filteredData.length>0 &&<FilterComponent
+                filterForm={{}}
                 onSearch={handleSearch}
                 downloadList={downloadList}
-              />
+                downloadListxlsv={downloadListxlsx}
+                isDownloadDialog={true}
+              />}
               <TableComponent
                 checkColumn={false}
                 columns={columns}

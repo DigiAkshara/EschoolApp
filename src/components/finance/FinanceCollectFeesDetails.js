@@ -27,7 +27,6 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const classId = selectedData?.academic.class._id;
   const selectedFee = selectedData?.fees;
   const studentData = selectedData?.academic;
-
   const getInitialValues = () => {
     return {
       studentId: selectedData?.fees?.student,
@@ -194,7 +193,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     // **Student & Fee Details**
     let detailsStartY = 55;
     doc.setFontSize(12);
-    doc.text(`Receipt No: ${data?.receiptNo || "N/A"}`, 20, detailsStartY);
+    doc.text(`Receipt No: ${data?.receiptNumber || "N/A"}`, 20, detailsStartY);
     doc.text(
       `Date: ${moment(data?.date || new Date()).format("DD-MM-YYYY")}`,
       140,
@@ -310,7 +309,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     });
 
     if (save) {
-      doc.save(`Fee_Receipt_${data?.receiptNo || "N/A"}.pdf`);
+      doc.save(`Fee_Receipt_${data?.receiptNumber || "N/A"}.pdf`);
     } else {
       window.open(URL.createObjectURL(doc.output("blob")), "_blank");
       // return URL.createObjectURL(doc.output("blob"));
@@ -350,11 +349,12 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         fatersName: capitalizeWords(studentData.student.fatherDetails.name),
         mothersName: capitalizeWords(studentData.student.motherDetails.name),
         rollNumber: studentData?.student?.rollNumber,
+        
         pendingAmount: getTotalAmount(values, "pendingAmount", true),
         paidAmount: paidAmount,
         receiptLabel
       };
-      generateReceiptPDF(receiptWithTenant, "./schoolLogo.jpg")
+      generateReceiptPDF(receiptWithTenant, branchData?.logo?.Location)
       onClose();
     } catch (error) {
       handleApiResponse(error);
@@ -602,14 +602,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                   </h2>
 
                   <div className=" grid grid-cols-4 gap-x-4 gap-y-4">
-                    <div className="sm:col-span-1">
-                      <CustomDate
-                        name="transactionDate"
-                        label="Paid Date"
-                        required={true}
-                        maxDate={moment().format("YYYY-MM-DD")}
-                      />
-                    </div>
+                    
 
                     <div className="sm:col-span-1">
                       <CustomSelect
@@ -617,6 +610,15 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                         name="paymentMode"
                         options={paymentType}
                         required
+                      />
+                    </div>
+
+                    <div className="sm:col-span-1">
+                      <CustomDate
+                        name="transactionDate"
+                        label="Paid Date"
+                        required={true}
+                        maxDate={moment().format("YYYY-MM-DD")}
                       />
                     </div>
 

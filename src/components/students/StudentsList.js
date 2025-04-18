@@ -21,16 +21,16 @@ import CommonUpload from "../../commonComponent/CommonUpload";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 import FilterComponent from "../../commonComponent/FilterComponent";
 import TableComponent from "../../commonComponent/TableComponent";
+import BulkFeeModal from "./BulkFeeModal";
 import DeleteModal from "./DeleteModal";
 import StudentProfileModal from "./Profile";
 import PromoteModal from "./PromoteModal";
 import Student from "./Student";
-import BulkFeeModal from "./BulkFeeModal";
 
 export default function StudentsList() {
   const dispatch = useDispatch();
   const location = useLocation();
-   const academicYear = useSelector((state) => state.appConfig.academicYear)
+  const academicYear = useSelector((state) => state.appConfig.academicYear)
   const { openModel } = location.state || { openModel: false }
   const { classes: clsOptions, sections: sectionOptions } = useSelector(
     (state) => state.students
@@ -63,23 +63,14 @@ export default function StudentsList() {
 
   useEffect(() => {
     dispatch(fetchInitialStudentData());
-    getStudents();
     if (openModel) {
       setshowNewStudentModal(true)
     }
   }, []);
 
   useEffect(() => {
-    if (clsOptions.length > 0 && sectionOptions.length > 0) {
-      const classId = clsOptions[0].value;
-      const formObj = {
-        class: classId,
-        section: sectionOptions.filter((sec) => sec.class === classId)[0].value,
-        gender: "",
-      }
-      handleFilter(formObj);
-    }
-  }, [clsOptions, sectionOptions, studentList]);
+    getStudents();
+  }, [academicYear])
 
 
   const columns = [
@@ -144,7 +135,7 @@ export default function StudentsList() {
           previousstudyProof: item.student.previousSchool?.studyProof,
           previousSchoolyearOfStudy: item.student.previousSchool?.yearOfStudy,
           presentAddress: `${item.student.presentAddress?.area}, ${item.student.presentAddress?.city}, ${item.student.presentAddress?.state} - ${item.student.presentAddress?.pincode}`,
-          ...(item.status === 'active'&&academicYear?.status === 'active') && {
+          ...(item.status === 'active' && academicYear?.status === 'active') && {
             actions: [
               { label: "Edit", actionHandler: onHandleEdit, disabled: editPermission },
               { label: "Delete", actionHandler: onDelete, disabled: deletePermission },
@@ -153,7 +144,7 @@ export default function StudentsList() {
         };
       });
       setStudentList([...studentData]);
-      // setFilteredData([...studentData]);
+      setFilteredData([...studentData]);
     } catch (error) {
       handleApiResponse(error);
     } finally {
@@ -261,15 +252,8 @@ export default function StudentsList() {
   }
 
   const handleReset = (updatedValues) => {
-    const classId = clsOptions[0].value;
-    const sectionId = sectionOptions.filter((item) => item.class == classId)[0].value;
-    handleFilter({
-      class: classId,
-      section: sectionId,
-      gender: "",
-    });
-    updatedValues("class", classId);
-    updatedValues("section", sectionId);
+    updatedValues("class", "");
+    updatedValues("section", "");
     updatedValues("gender", "");
     setCurrentPage(1)
   };
@@ -361,6 +345,18 @@ export default function StudentsList() {
     }
   }
 
+
+  const handlePromotBtn = () => {
+    const selectedDetails = filteredData.filter(student => student.isChecked);
+    const uniqueClasses = new Set(selectedDetails.map(s => s.class));
+    const uniqueSections = new Set(selectedDetails.map(s => s.section));
+    if (uniqueClasses.size > 1 || uniqueSections.size > 1) {
+      handleApiResponse({ message: "Please select students from the same class for promotion. Promoting students from multiple classes is not allowed." });
+    } else {
+      setShowPromteModal(true)
+    }
+  };
+
   return (
     <>
       {/* Secondary Tabs */}
@@ -374,7 +370,7 @@ export default function StudentsList() {
             disabled={granuts.create}
             type="button"
             onClick={addNewStudent}
-            className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+            className="disabled:opacity-50 disabled:bg-purple-500 disabled:cursor-not-allowed inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <PlusIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Add Students
@@ -384,7 +380,7 @@ export default function StudentsList() {
             disabled={granuts.create}
             type="button"
             onClick={() => setShowUploadModal(true)}
-            className="inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+            className="disabled:opacity-50 disabled:bg-purple-500 disabled:cursor-not-allowed inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           >
             <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Bulk Upload Students
@@ -400,8 +396,8 @@ export default function StudentsList() {
                 <button
                   disabled={granuts.create}
                   type="button"
-                  onClick={() => { setShowPromteModal(true) }}
-                  className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                  onClick={handlePromotBtn}
+                  className="disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                 >
                   <ArrowLongUpIcon
                     aria-hidden="true"
@@ -414,7 +410,7 @@ export default function StudentsList() {
                   disabled={granuts.create}
                   onClick={() => setShowBulkFeeModal(true)}
                   type="button"
-                  className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                  className="disabled:opacity-50 disabled:cursor-not-allowed  inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                 >
                   <ArrowLongUpIcon
                     aria-hidden="true"
@@ -427,7 +423,7 @@ export default function StudentsList() {
                   disabled={granuts.delete}
                   onClick={() => setShowDeleteModal(true)}
                   type="button"
-                  className="inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
+                  className="disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
                 >
                   <TrashIcon
                     aria-hidden="true"
@@ -446,7 +442,7 @@ export default function StudentsList() {
                 downloadList={downloadList}
                 downloadListxlsv={downloadListxlsx}
                 isDownloadDialog={true}
-                downloadDisabled={granuts.create}
+                downloadDisabled={granuts.create || granuts.edit || granuts.delete}
 
               />
               {/* Table View */}

@@ -6,7 +6,7 @@ import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { getData } from '../../../app/api'
 import { BANK_ACCOUNTS, TRANSACTIONS } from '../../../app/url'
-import { handleApiResponse } from '../../../commonComponent/CommonFunctions'
+import { capitalizeWords, handleApiResponse } from '../../../commonComponent/CommonFunctions'
 import Datepicker from 'react-tailwindcss-datepicker'
 
 function classNames(...classes) {
@@ -33,7 +33,6 @@ const people = [
 
 export default function CashLedger() {
 
-  const [selectedPeople, setSelectedPeople] = useState([])
   const [filteredData, setFilteredData] = useState([]);
 
   const [offileAccounts, setOffileAccounts] = useState([]);
@@ -41,7 +40,6 @@ export default function CashLedger() {
   const [chargeSheet, setChargeSheet] = useState({ openingBalance: 0, closingBalance: 0, totalDebit: 0, totalCredit: 0 });
 
   const [selectedDate, setSelectedData] = useState(moment().format("YYYY-MM-DD"));
-  const [selectedAccount, setSelectedAccount] = useState("");
 
    const getBanks = async () => {
       try {
@@ -56,29 +54,11 @@ export default function CashLedger() {
     try {
       let res = await getData(TRANSACTIONS + "/list?date=" + date + '&transactionMode=offline')
       let dummyList = res.data.data.map((item) => {
-        let categoryStr = item.category?.name || 'Student Fees'
-        let particularStr = ""
-        if (item.fees.length > 0) {
-          item.fees.forEach((fee) => (
-            particularStr += `${fee.fee.name}, `
-          ))
-          particularStr = particularStr.slice(0, -2);
-        } else {
-
-          if (item?.category?.name?.includes('Other')) {
-            particularStr = item.subCategory
-          } else {
-            if (item.transactionType === 'debit') {
-              particularStr = item.title
-            } else {
-              particularStr = item.loanId?.title
-            }
-          }
-        }
+        let categoryStr = item.type?.split("_").join(" ") || 'Student Fees'
         return ({
           ...item,
-          categoryName: categoryStr,
-          particulars: particularStr,
+          categoryName: capitalizeWords(categoryStr),
+          particulars: getParticulars(item),
         })
       })
       setFilteredData(dummyList)
@@ -88,7 +68,11 @@ export default function CashLedger() {
     }
   }
 
-  const getOpeningBalance = (records, banks) => {
+    useEffect(() => {
+      getOpeningBalance(filteredData, offileAccounts)
+    }, [filteredData, offileAccounts])
+
+  const getOpeningBalance = (records, offileAccounts) => {
     if (records.length > 0) {
       const latestMap = new Map();
       let totalCredit = 0;
@@ -99,9 +83,9 @@ export default function CashLedger() {
         } else {
           totalDebit += record.amount * 1;
         }
-        const existing = latestMap.get(record.transactionBank._id);
+        const existing = latestMap.get(record._id);
         if (!existing || new Date(record.updatedAt) < new Date(existing.updatedAt)) {
-          latestMap.set(record.transactionBank._id, record);
+          latestMap.set(record._id, record);
         }
       }
 
@@ -127,6 +111,28 @@ export default function CashLedger() {
     getDayTransactions(selectedDate)
     getBanks()
   }, [])
+
+  const getParticulars = (item) => {
+    let title = ''
+    if (item.type === 'loan') {
+      title = item.title
+    } else if (item.type === 'repayment') {
+      title = item.loanId?.title
+    } else if (item.type === 'other_income') {
+      title = item.reason||""
+    } else if (item.type === 'expense') {
+      title = item.category?.name
+      if(!item.category?.name.includes("Other")){
+        title = title + ", "+ item.subCategory?.name
+      }
+    } else if (item.fees.length > 0) {
+      item.fees.forEach((fee) => (
+        title += `${fee.fee?.name}: ${fee.amount}, `
+      ))
+      title = title.slice(0, -2);
+    }
+    return title
+  }
   return (
     <>
       <div className='f-overview-cards'>
@@ -193,6 +199,7 @@ export default function CashLedger() {
                           displayFormat="DD/MM/YYYY"
                           useRange={false}
                           placeholder="Select Date"
+                          popoverDirection='down'
                         />
                         
                       </div>
@@ -212,51 +219,33 @@ export default function CashLedger() {
                       <th scope="col" className="py-3.5 pl-2 pr-2 text-left text-sm font-semibold text-gray-900 sm:pl-2">
                         <a href="#" className="group inline-flex">
                           Date
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
-                        </a>
-                      </th>
-
-                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
-                        <a href="#" className="group inline-flex">
-                          Particulars
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
                         </a>
                       </th>
                       <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
                           Category
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
                         </a>
                       </th>
-
+                      <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <a href="#" className="group inline-flex">
+                          Particulars
+                        </a>
+                      </th>
                       <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
                           Debit
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
                         </a>
                       </th>
                       <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
                           Credit
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
+                          
                         </a>
                       </th>
                       <th scope="col" className="px-2 py-3.5 text-left text-sm font-semibold text-gray-900">
                         <a href="#" className="group inline-flex">
                           Closing Balance
-                          <span className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200">
-                            <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                          </span>
+                        
                         </a>
                       </th>
 
@@ -268,8 +257,8 @@ export default function CashLedger() {
                       <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> To Opening Cash Balance</th>
                       <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
                       <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> 150000</th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> 150000</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.openingBalance}</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.openingBalance}</th>
                     </tr>
 
                     {filteredData.length > 0 ? filteredData.map((item) => (
@@ -279,7 +268,7 @@ export default function CashLedger() {
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{item.particulars}</td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{item.transactionType === 'debit' ? item.amount : '0'}</td>
                         <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{item.transactionType === 'credit' ? item.amount : '0'}</td>
-                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">155000</td>
+                        <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">{item.balance}</td>
                       </tr>
                     )) : <tr>
                       <td colSpan={6} className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 text-center">No Transactions Found</td>
@@ -289,9 +278,9 @@ export default function CashLedger() {
                       <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
                       <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> Total</th>
                       <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
-                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">175000 </th>
-                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> 5000</th>
-                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> 5000</th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">{chargeSheet.totalDebit} </th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.totalCredit}</th>
+                      <th className="bg-purple-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.totalCredit - chargeSheet.totalDebit}</th>
                     </tr>
 
                     <tr className="border-t border-gray-200">
@@ -299,8 +288,8 @@ export default function CashLedger() {
                       <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> By Closing Balance</th>
                       <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
                       <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> </th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> 170000</th>
-                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> 170000</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.closingBalance}</th>
+                      <th className="bg-teal-100 py-2 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3"> {chargeSheet.closingBalance}</th>
                     </tr>
                   </tbody>
                 </table>
