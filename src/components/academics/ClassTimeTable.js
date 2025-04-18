@@ -192,8 +192,6 @@ export default function ClassTimeTable() {
       { key: 'sectionName', label: 'Section' },
       { key: 'totalStudents', label: 'Total Students' },
       { key: 'classTeacherName', label: 'Class Teacher' },
-
-
     ], "Class Details Report", branchData, undefined, "portrait");
   };
 

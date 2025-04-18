@@ -47,6 +47,7 @@ export default function CustomDate(props) {
                 displayFormat="DD/MM/YYYY"
                 useRange={false}
                 placeholder={placeholder}
+                popoverDirection="down"
               />
             )
           }}

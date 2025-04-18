@@ -119,7 +119,7 @@ const FeeCollectionReports = () => {
       undefined,
       "portrait"
     );
-    downloadListxlsx();
+    // downloadListxlsx();
   };
 
   const downloadListxlsx = () => {
@@ -283,6 +283,8 @@ const FeeCollectionReports = () => {
               <FilterComponent
                 onSearch={handleSearch}
                 downloadList={downloadList}
+                downloadListxlsv={downloadListxlsx}
+                isDownloadDialog={true}
               />
               <TableComponent
                 checkColumn={false}

@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteData, getData } from "../../../app/api";
 import { setBankAccounts } from "../../../app/reducers/feeSlice";
 import { BANK_ACCOUNTS, TRANSACTIONS } from "../../../app/url";
-import { handleApiResponse, handleDownloadPDF } from "../../../commonComponent/CommonFunctions";
+import { capitalizeWords, handleApiResponse, handleDownloadPDF } from "../../../commonComponent/CommonFunctions";
 import ConfirmationModal from "../../../commonComponent/ConfirmationModal";
 import BankCreation from "./BankCreation";
 import CustomDate from "../../../commonComponent/CustomDate";
@@ -88,33 +88,37 @@ export default function BankBookTab() {
     { title: 'Transaction Type', key: 'transactionType' },
   ];
 
+  const getParticulars = (item) => {
+    let title = ''
+    if (item.type === 'loan') {
+      title = item.title
+    } else if (item.type === 'repayment') {
+      title = item.loanId?.title
+    } else if (item.type === 'other_income') {
+      title = item.reason||""
+    } else if (item.type === 'expense') {
+      title = item.category?.name
+      if(!item.category?.name.includes("Other")){
+        title = title + ", "+ item.subCategory?.name
+      }
+    } else if (item.fees.length > 0) {
+      item.fees.forEach((fee) => (
+        title += `${fee.fee?.name}: ${fee.amount}, `
+      ))
+      title = title.slice(0, -2);
+    }
+    return title
+  }
+
   const getDayTransactions = async (date) => {
     try {
       let res = await getData(TRANSACTIONS + "/list?date=" + date + '&transactionMode=online')
       let dummyList = res.data.data.map((item) => {
-        let categoryStr = item.category?.name || 'Student Fees'
-        let particularStr = ""
-        if (item.fees.length > 0) {
-          item.fees.forEach((fee) => (
-            particularStr += `${fee.fee.name}, `
-          ))
-          particularStr = particularStr.slice(0, -2);
-        } else {
-
-          if (item?.category?.name?.includes('Other')) {
-            particularStr = item.subCategory
-          } else {
-            if (item.transactionType === 'debit') {
-              particularStr = item.title
-            } else {
-              particularStr = item.loanId?.title
-            }
-          }
-        }
+        let categoryStr = item.type?.split('_').join(" ") || 'Student Fees'
         return ({
           ...item,
-          categoryName: categoryStr,
-          particulars: particularStr,
+          categoryName: capitalizeWords(categoryStr),
+          particulars: getParticulars(item),
           bank: item.transactionBank?.name
         })
       })
@@ -318,6 +322,7 @@ export default function BankBookTab() {
                           displayFormat="DD/MM/YYYY"
                           useRange={false}
                           placeholder="Select Date"
+                          popoverDirection="down"
                         />
                         <select
                           label="Select Account"

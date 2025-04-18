@@ -104,7 +104,7 @@ function FinanceCollectFeeHistory() {
       receiptLabel,
       paidAmount,
     };
-    generateReceiptPDF(receiptData, "./schoolLogo.jpg")
+    generateReceiptPDF(receiptData, branchData?.logo?.Location)
   };
 
   const handlePageChange = (page) => {
@@ -162,7 +162,7 @@ function FinanceCollectFeeHistory() {
     // **Student & Fee Details**
     let detailsStartY = 55;
     doc.setFontSize(12);
-    doc.text(`Receipt No: ${data?.receiptNo || "N/A"}`, 20, detailsStartY);
+    doc.text(`Receipt No: ${data?.receiptNumber || "N/A"}`, 20, detailsStartY);
     doc.text(
       `Date: ${moment(data?.date || new Date()).format("DD-MM-YYYY")}`,
       140,
@@ -278,7 +278,7 @@ function FinanceCollectFeeHistory() {
     });
 
     if (save) {
-      doc.save(`Fee_Receipt_${data?.receiptNo || "N/A"}.pdf`);
+      doc.save(`Fee_Receipt_${data?.receiptNumber || "N/A"}.pdf`);
     } else {
       window.open(URL.createObjectURL(doc.output("blob")), "_blank");
       // return URL.createObjectURL(doc.output("blob"));

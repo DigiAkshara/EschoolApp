@@ -212,8 +212,6 @@ function ManageExamResults() {
       { key: "examDates", label: "Exam Dates" },
       { key: "markStatus", label: "Marks Status" },
       { key: "passPercentage", label: "Pass Percentage" },
-
-
     ], "Exam Details Report", branchData, undefined, "portrait");
   };
 

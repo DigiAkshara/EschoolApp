@@ -1201,7 +1201,7 @@ const AcademicDeatilsTab = ({ data }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              {exams.map((item, index) => (
+              {exams.length>0?exams.map((item, index) => (
                 <tr key={index}>
                   <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                     {item.examName}
@@ -1219,7 +1219,9 @@ const AcademicDeatilsTab = ({ data }) => {
                     <a href="#" onClick={() => generatePDFPreview(index)}>View</a>
                   </td>
                 </tr>
-              ))}
+              )):<tr>
+                  <td colSpan="5" className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 text-center">No data found</td>
+                </tr>}
             </tbody>
           </table>
         </div>
@@ -1346,7 +1348,7 @@ const FeeDeatailsTab = ({ data }) => {
       receiptLabel,
       paidAmount,
     };
-    generateReceiptPDF(receiptData, "./schoolLogo.jpg")
+    generateReceiptPDF(receiptData, branchData?.logo?.Location)
   };
 
   const handlePageChange = (page) => {
@@ -1401,7 +1403,7 @@ const FeeDeatailsTab = ({ data }) => {
     // **Student & Fee Details**
     let detailsStartY = 55;
     doc.setFontSize(12);
-    doc.text(`Receipt No: ${data?.receiptNo || "N/A"}`, 20, detailsStartY);
+    doc.text(`Receipt No: ${data?.receiptNumber || "N/A"}`, 20, detailsStartY);
     doc.text(
       `Date: ${moment(data?.date || new Date()).format("DD-MM-YYYY")}`,
       140,
@@ -1517,7 +1519,7 @@ const FeeDeatailsTab = ({ data }) => {
     });
 
     if (save) {
-      doc.save(`Fee_Receipt_${data?.receiptNo || "N/A"}.pdf`);
+      doc.save(`Fee_Receipt_${data?.receiptNumber || "N/A"}.pdf`);
     } else {
       window.open(URL.createObjectURL(doc.output("blob")), "_blank");
       // return URL.createObjectURL(doc.output("blob"));

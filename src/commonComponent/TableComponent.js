@@ -53,12 +53,12 @@ const TableComponent = ({ checkAll = false, columns, data, pagination, showModal
                     onClick={() => handleSort(col)}
                   >
                     {col.title}
-                    <span
+                    {/* <span
                       className="ml-2 flex-none rounded text-gray-400 group-hover:bg-gray-200"
                       onClick={() => handleSort(col)}
                     >
                       <ArrowsUpDownIcon aria-hidden="true" className="size-4" />
-                    </span>
+                    </span> */}
                   </a>
                 </th>
               ))}
@@ -129,14 +129,14 @@ const TableComponent = ({ checkAll = false, columns, data, pagination, showModal
 
                             <PopoverPanel anchor="bottom end" alignment="end" className="absolute right-0 flex flex-col mt-2 w-32 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in">
                               {record.actions?.map((action, index) => (
-                                <a
+                                <button
+                                disabled={action.disabled} onClick={() => action.actionHandler(record._id)}><a
                                   key={index}
                                   className="block px-4 py-2 hover:bg-gray-100 font-medium text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 data-[focus]:outline-none"
                                 >
-                                  <button
-                                    disabled={action.disabled}
-                                    onClick={() => action.actionHandler(record._id)}>{action.label}</button>
-                                </a>
+                                  
+                                  {action.label}
+                                </a></button>
                               ))}
                             </PopoverPanel>
                           </Popover>
