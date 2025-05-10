@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import DailyReports from './DailyReports'
 import FeeCollectionReports from './FeeCollectionReports'
+import FeeCollectionSummaryReports from './FeeCollectionSummaryReports'
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(' ')
@@ -20,6 +21,11 @@ export default function FinanceReports() {
 		{
 			name: 'Fee Collection Report',
 			component: <FeeCollectionReports />,
+			current: false,
+		},
+		{
+			name: 'Fee Collection Summary Report',
+			component: <FeeCollectionSummaryReports />,
 			current: false,
 		},
 	]

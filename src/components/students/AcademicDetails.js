@@ -113,7 +113,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Section"
               required={true}
               options={sections.filter(item => item.class == values.academics.class)}
-              disabled={!values.academics.class || (values._id ? true : false)}
+              disabled={!values.academics.class}
             />
           </div>
         </div>

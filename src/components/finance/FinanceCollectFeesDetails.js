@@ -49,7 +49,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
           paymentAmount: 0,
         };
       }) || [],
-      transactionDate: "",
+      transactionDate: moment().format("YYYY-MM-DD"),
       paymentMode: "",
       bank: "",
       transactionId: "",
@@ -151,170 +151,105 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     }
   };
 
-  const generateReceiptPDF = (
-    data,
-    logoUrl,
-    orientation = "portrait",
-    save = false
-  ) => {
-    const defaultLogo = "./schoolLogo.jpg";
-    const doc = new jsPDF(orientation, "mm", "a4");
-    doc.setFont("helvetica", "bold");
-
-    const centerX = orientation === "landscape" ? 148 : 105;
-
-    // **Header Section**
-    doc.addImage(logoUrl || defaultLogo, "PNG", 10, 5, 28, 28);
-    doc.setFontSize(14);
-    doc.text((data?.receiptLabel || "School Name").toUpperCase(), centerX, 15, {
-      align: "center",
-    });
-    doc.setFontSize(10);
-    doc.text(
-      `Phone: ${data.branch?.phoneNumber || "N/A"} | Email: ${data.branch?.email || "N/A"
-      }`,
-      centerX,
-      21,
-      { align: "center" }
-    );
-    doc.text(
-      `Address: ${data.branch?.address?.area || "N/A"}, ${data.branch?.address?.city || "N/A"
-      }, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"}`,
-      centerX,
-      27,
-      { align: "center" }
-    );
-    doc.line(10, 35, orientation === "landscape" ? 290 : 200, 35);
-
-    // **Receipt Title**
-    doc.setFontSize(16);
-    doc.text("FEE RECEIPT", centerX, 45, { align: "center" });
-
-    // **Student & Fee Details**
-    let detailsStartY = 55;
-    doc.setFontSize(12);
-    doc.text(`Receipt No: ${data?.receiptNumber || "N/A"}`, 20, detailsStartY);
-    doc.text(
-      `Date: ${moment(data?.date || new Date()).format("DD-MM-YYYY")}`,
-      140,
-      detailsStartY
-    );
-
-    doc.text(`Student Name: ${data?.name || "N/A"}`, 20, detailsStartY + 10);
-    doc.text(
-      `Class & Section: ${data?.classSection || "N/A"}`,
-      140,
-      detailsStartY + 10
-    );
-    doc.text(
-      `Admission No: ${data?.admissionNo || "N/A"}`,
-      20,
-      detailsStartY + 20
-    );
-    doc.text(`Roll No: ${data?.rollNumber || "N/A"}`, 140, detailsStartY + 20);
-
-    doc.text(
-      `Academic Year: ${data?.academicYear || "N/A"}`,
-      20,
-      detailsStartY + 30
-    );
-    doc.text(`Branch: ${data?.branch?.label || "N/A"}`, 140, detailsStartY + 30);
-
-    doc.text(
-      `Father's Name: ${data?.fatersName || "N/A"}`,
-      20,
-      detailsStartY + 40
-    );
-    doc.text(
-      `Mother's Name: ${data?.mothersName || "N/A"}`,
-      140,
-      detailsStartY + 40
-    );
-
-    // doc.text(`Amount Paid: ₹${data?.amount || "0"}`, 20, detailsStartY + 50);
-    // doc.text(`Total Paid: ₹${data?.amount || "0"}`, 140, detailsStartY + 50);
-    // doc.text(`Balance: ₹${data?.balance || "0"}`, 20, detailsStartY + 60);
-
-    // **Fee Breakdown Table**
-    const tableStartY = detailsStartY + 50;
-    const tableColumns = ["Si.No", "Fee Type", "Amount"];
-    const tableData = (data?.feesDatas || []).map((fee, index) => [
-      index + 1,
-      fee?.feeName || "N/A",
-      `${fee?.amount || 0}`,
-    ]);
-
-    autoTable(doc, {
-      startY: tableStartY,
-      head: [tableColumns],
-      body: tableData.length
-        ? tableData
-        : [[1, "No fee details available", "₹0"]],
-      theme: "grid",
-      headStyles: { fillColor: [206, 175, 240] },
-      styles: { fontSize: 10 },
-    });
-
-    // Function to convert amount to words (basic implementation)
-    const numberToWords = (num) => {
+  const numberToWords = (num) => {
       const words = require("number-to-words");
       return words.toWords(num).toUpperCase();
     };
-
-    const paidAmount = data?.paidAmount || 0; // Ensure a default value of 0
-    const pending = data?.pendingAmount || 0; // Ensure a default value of 0
-
-    // Convert amount to words safely
-    const totalPaidAmountInWords = numberToWords(paidAmount) + " ONLY";
-
-    // Calculate pending amount safely
-    const pendingAmount = pending - paidAmount;
-
-    // Get the final Y position after the table
-    const finalY = doc.lastAutoTable.finalY + 10; // Adding some spacing below table
-
-    // Add Total Paid Amount, Amount in Words, and Pending Balance below the table
-    if (paidAmount > 0) {
-      doc.text(`Total Paid Amount: ${paidAmount || "N/A"}`, 20, finalY);
-      doc.text(
-        `Total Paid Amount In Words: ${totalPaidAmountInWords || "N/A"}`,
-        20,
-        finalY + 10
-      );
-      // doc.text(`Pending Amount: ${pendingAmount || "N/A"}`, 20, finalY + 20);
-    }
-    // **Footer Section**
-    const footerY = doc.previousAutoTable.finalY + 40;
-    doc.line(10, footerY, orientation === "landscape" ? 290 : 200, footerY);
-    doc.setFontSize(10);
-
-    // "Thank you for your payment!"
-    doc.text("Thank you for your payment!", centerX, footerY + 10, {
-      align: "center",
-    });
-
-    // **Accountant, Authorized Signature, Parent Signature in the same row**
-    const signatureY = footerY + 30;
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const sectionWidth = pageWidth / 3; // Divide into 3 equal sections
-
-    doc.text("Accountant Signature", sectionWidth * 0.5, signatureY, {
-      align: "center",
-    });
-    doc.text("Authorized Signature", sectionWidth * 1.5, signatureY, {
-      align: "center",
-    });
-    doc.text("Parent Signature", sectionWidth * 2.5, signatureY, {
-      align: "center",
-    });
-
-    if (save) {
-      doc.save(`Fee_Receipt_${data?.receiptNumber || "N/A"}.pdf`);
-    } else {
-      window.open(URL.createObjectURL(doc.output("blob")), "_blank");
-      // return URL.createObjectURL(doc.output("blob"));
-    }
-  };
+    const generateReceiptPDF = (data, logoUrl, orientation = "portrait", save = false) => {
+      console.log(data);
+      const doc = new jsPDF(orientation, "mm", "a4");
+      const defaultLogo = "./schoolLogo.jpg";
+      const centerX = doc.internal.pageSize.getWidth() / 2;
+      const format = (logoUrl || defaultLogo).toLowerCase().endsWith(".jpg") ? "JPEG" : "PNG";
+    
+      const renderHeader = (y, copyLabel) => {
+        doc.setFontSize(6);
+        doc.text(copyLabel, 180, y, { align: "right" });
+        doc.addImage(logoUrl || defaultLogo, format, 10, y, 28, 28);
+        doc.setFont("times", "normal");
+        doc.setFontSize(12);
+        doc.text((data.receiptLabel || "School Name").toUpperCase(), centerX, y + 10, { align: "center" });
+        doc.setFontSize(10);
+        doc.text(
+          `Address: ${data.branch?.address?.area || "N/A"}, ${data.branch?.address?.city || "N/A"}, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"}`,
+          centerX,
+          y + 22,
+          { align: "center" }
+        );
+        doc.line(10, y + 30, 200, y + 30);
+        doc.setFontSize(12);
+        doc.text("FEE RECEIPT", centerX, y + 40, { align: "center" });
+        return y + 50;
+      };
+    
+      const renderStudentDetails = (startY) => {
+        doc.setFontSize(10);
+        doc.text(`Admission No: ${data?.admissionNo || "N/A"}`, 15, startY);
+        doc.text(`Student Name: ${data?.name || "N/A"}`, 15, startY + 5);
+        doc.text(`Father's Name: ${data?.fatersName || "N/A"}`, 15, startY + 10);
+        doc.text(`Class & Section: ${data?.classSection || "N/A"}`, 15, startY + 15);
+    
+        doc.text(`Date: ${data?.createdDate || "N/A"}`, 120, startY);
+        doc.text(`Receipt No: ${data?.receiptNumber || "N/A"}`, 120, startY + 5);
+        doc.text(`Branch: ${data?.branch?.label || "N/A"}`, 120, startY + 10);
+        doc.text(`Mode of Payment: ${data?.transactionMode === "online" ? "Online" : "Cash"}`, 120, startY + 15);
+    
+        return startY + 20;
+      };
+    
+      const renderFeeTable = (startY) => {
+        const columns = ["Si.No", "Fee Type", "Amount"];
+        const rows = (data?.feesDatas || []).map((fee, index) => [index + 1, fee?.feeName || "N/A", `${fee?.amount || "0"}`]);
+    
+        autoTable(doc, {
+          startY,
+          head: [columns],
+          body: rows.length ? rows : [[1, "No fee details available", "₹0"]],
+          theme: "grid",
+          headStyles: { fillColor: [206, 175, 240] },
+          styles: { fontSize: 10 },
+        });
+    
+        return doc.lastAutoTable.finalY + 5;
+      };
+    
+      const renderAmountSection = (startY, amount, pending) => {
+        const amountInWords = `${numberToWords(amount || 0)} ONLY`;
+        doc.setFontSize(10);
+        doc.text(`Total Paid Amount: ${amount || "N/A"}`, 15, startY);
+        doc.text(`Total Paid Amount In Words: ${amountInWords}`, 15, startY + 5);
+        return startY + 10;
+      };
+    
+      const renderFooter = (startY) => {
+        const sectionWidth = doc.internal.pageSize.getWidth() / 3;
+        doc.text("Accountant Signature", sectionWidth * 0.5, startY, { align: "center" });
+        doc.text("Authorized Signature", sectionWidth * 2.5, startY, { align: "center" });
+        doc.line(10, startY + 5, 200, startY + 5);
+        doc.text("Thank you for your payment!", centerX, startY + 10, { align: "center" });
+      };
+    
+      // Render Admin Copy
+      let y = renderHeader(5, "Admin Copy");
+      y = renderStudentDetails(y);
+      y = renderFeeTable(y);
+      y = renderAmountSection(y, data?.paidAmount, data?.pendingAmount);
+      renderFooter(y + 10);
+    
+      // Render Student Copy
+      y = renderHeader(150, "Student Copy");
+      y = renderStudentDetails(y);
+      y = renderFeeTable(y);
+      y = renderAmountSection(y, data?.paidAmount, data?.pendingAmount);
+      renderFooter(y + 10);
+    
+      // Save or display
+      if (save) {
+        doc.save(`Fee_Receipt_${data?.receiptNumber || "N/A"}.pdf`);
+      } else {
+        window.open(URL.createObjectURL(doc.output("blob")), "_blank");
+      }
+    };
 
   const handleSubmit = async (values) => {
     try {
@@ -352,7 +287,9 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         
         pendingAmount: getTotalAmount(values, "pendingAmount", true),
         paidAmount: paidAmount,
-        receiptLabel
+        receiptLabel,
+        createdDate: moment(res.data.data.createdAt).format("DD-MM-YYYY hh:mm A"),
+        transactionMode: res.data.data.transactionMode
       };
       generateReceiptPDF(receiptWithTenant, branchData?.logo?.Location)
       onClose();
@@ -618,7 +555,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                         name="transactionDate"
                         label="Paid Date"
                         required={true}
-                        maxDate={moment().format("YYYY-MM-DD")}
+                        disabled= {true}
                       />
                     </div>
 
