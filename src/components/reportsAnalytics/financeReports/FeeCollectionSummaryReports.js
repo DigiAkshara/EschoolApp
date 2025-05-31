@@ -24,9 +24,13 @@ const FeeCollectionSummaryReports = () => {
   const rowsPerPage = 10;
   const [academicYear, setAcademicYear] = useState(null);
 
-  useEffect(()=>{
-    setAcademicYear(academicYears[0]._id)
-  },[academicYears])
+  useEffect(() => {
+    academicYears.forEach((year) => {
+      if(year.status === "active"){
+        setAcademicYear(year._id)
+      }
+    })
+  }, [academicYears])
 
   const columns =
     [
@@ -105,7 +109,7 @@ const FeeCollectionSummaryReports = () => {
   const getTransactionsData = async (selYear) => {
     try {
       dispatch(setIsLoader(true));
-      const res = await getData(STUDENT_FEE + '/reports');
+      const res = await getData(STUDENT_FEE + '/reports?academicYear=' + selYear);
       const combinedFees = Object.values(
         res.data.data.feeReport.reduce((acc, curr) => {
           if (!acc[curr.name]) {
@@ -135,9 +139,9 @@ const FeeCollectionSummaryReports = () => {
       combinedFees.forEach(fee => {
         fee.feeName = capitalizeWords(fee.name);
         fee.percentage =
-          fee.totalAmount > 0
-            ? parseFloat(((fee.collectedAmount / fee.totalAmount) * 100).toFixed(2))
-            : 0;
+          fee.dueAmount > 0
+            ? (((fee.collectedAmount / fee.dueAmount) * 100).toFixed(2)+'%')
+            :"0%";
       });
 
       setNetData({ ...res.data.data, feeReport: null })
@@ -151,7 +155,9 @@ const FeeCollectionSummaryReports = () => {
   };
 
   useEffect(() => {
-    getTransactionsData(academicYear);
+    if (academicYear) {
+      getTransactionsData(academicYear);
+    }
   }, [academicYear]);
 
   return (
@@ -166,7 +172,7 @@ const FeeCollectionSummaryReports = () => {
             <select
               name="academicYear"
               className="mt-2 block w-40 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-              onChange={(e)=>{setAcademicYear(e.target.value);}}
+              onChange={(e) => { setAcademicYear(e.target.value); }}
               value={academicYear}
             >
               {academicYears.map((year) => (

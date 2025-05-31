@@ -34,7 +34,7 @@ function CommonUpload({ onClose, user, loadData = () => { } }) {
     if (classes.length > 0 && sections.length > 0) {
       const classId = classes[0].value;
       setClassValue(classId)
-      setSectionValue(sections.filter((sec) => sec.class === classId)[0].value);
+      setSectionValue(sections.filter((sec) => sec.class === classId)[0]?.value);
     }
     if (boards.length > 0) {
       setBoardValue(boards[0].value);

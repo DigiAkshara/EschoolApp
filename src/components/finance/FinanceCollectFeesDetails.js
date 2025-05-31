@@ -152,104 +152,103 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   };
 
   const numberToWords = (num) => {
-      const words = require("number-to-words");
-      return words.toWords(num).toUpperCase();
+    const words = require("number-to-words");
+    return words.toWords(num).toUpperCase();
+  };
+  const generateReceiptPDF = (data, logoUrl, orientation = "portrait", save = false) => {
+    const doc = new jsPDF(orientation, "mm", "a4");
+    const defaultLogo = "./schoolLogo.jpg";
+    const centerX = doc.internal.pageSize.getWidth() / 2;
+    const format = (logoUrl || defaultLogo).toLowerCase().endsWith(".jpg") ? "JPEG" : "PNG";
+
+    const renderHeader = (y, copyLabel) => {
+      doc.setFontSize(6);
+      doc.text(copyLabel, 180, y, { align: "right" });
+      doc.addImage(logoUrl || defaultLogo, format, 10, y, 28, 28);
+      doc.setFont("times", "normal");
+      doc.setFontSize(12);
+      doc.text((data.receiptLabel || "School Name").toUpperCase(), centerX, y + 10, { align: "center" });
+      doc.setFontSize(10);
+      doc.text(
+        `Address: ${data.branch?.address?.area || "N/A"}, ${data.branch?.address?.city || "N/A"}, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"}`,
+        centerX,
+        y + 22,
+        { align: "center" }
+      );
+      doc.line(10, y + 30, 200, y + 30);
+      doc.setFontSize(12);
+      doc.text("FEE RECEIPT", centerX, y + 40, { align: "center" });
+      return y + 50;
     };
-    const generateReceiptPDF = (data, logoUrl, orientation = "portrait", save = false) => {
-      console.log(data);
-      const doc = new jsPDF(orientation, "mm", "a4");
-      const defaultLogo = "./schoolLogo.jpg";
-      const centerX = doc.internal.pageSize.getWidth() / 2;
-      const format = (logoUrl || defaultLogo).toLowerCase().endsWith(".jpg") ? "JPEG" : "PNG";
-    
-      const renderHeader = (y, copyLabel) => {
-        doc.setFontSize(6);
-        doc.text(copyLabel, 180, y, { align: "right" });
-        doc.addImage(logoUrl || defaultLogo, format, 10, y, 28, 28);
-        doc.setFont("times", "normal");
-        doc.setFontSize(12);
-        doc.text((data.receiptLabel || "School Name").toUpperCase(), centerX, y + 10, { align: "center" });
-        doc.setFontSize(10);
-        doc.text(
-          `Address: ${data.branch?.address?.area || "N/A"}, ${data.branch?.address?.city || "N/A"}, ${data.branch?.address?.state || "N/A"}, ${data.branch?.address?.pincode || "N/A"}`,
-          centerX,
-          y + 22,
-          { align: "center" }
-        );
-        doc.line(10, y + 30, 200, y + 30);
-        doc.setFontSize(12);
-        doc.text("FEE RECEIPT", centerX, y + 40, { align: "center" });
-        return y + 50;
-      };
-    
-      const renderStudentDetails = (startY) => {
-        doc.setFontSize(10);
-        doc.text(`Admission No: ${data?.admissionNo || "N/A"}`, 15, startY);
-        doc.text(`Student Name: ${data?.name || "N/A"}`, 15, startY + 5);
-        doc.text(`Father's Name: ${data?.fatersName || "N/A"}`, 15, startY + 10);
-        doc.text(`Class & Section: ${data?.classSection || "N/A"}`, 15, startY + 15);
-    
-        doc.text(`Date: ${data?.createdDate || "N/A"}`, 120, startY);
-        doc.text(`Receipt No: ${data?.receiptNumber || "N/A"}`, 120, startY + 5);
-        doc.text(`Branch: ${data?.branch?.label || "N/A"}`, 120, startY + 10);
-        doc.text(`Mode of Payment: ${data?.transactionMode === "online" ? "Online" : "Cash"}`, 120, startY + 15);
-    
-        return startY + 20;
-      };
-    
-      const renderFeeTable = (startY) => {
-        const columns = ["Si.No", "Fee Type", "Amount"];
-        const rows = (data?.feesDatas || []).map((fee, index) => [index + 1, fee?.feeName || "N/A", `${fee?.amount || "0"}`]);
-    
-        autoTable(doc, {
-          startY,
-          head: [columns],
-          body: rows.length ? rows : [[1, "No fee details available", "₹0"]],
-          theme: "grid",
-          headStyles: { fillColor: [206, 175, 240] },
-          styles: { fontSize: 10 },
-        });
-    
-        return doc.lastAutoTable.finalY + 5;
-      };
-    
-      const renderAmountSection = (startY, amount, pending) => {
-        const amountInWords = `${numberToWords(amount || 0)} ONLY`;
-        doc.setFontSize(10);
-        doc.text(`Total Paid Amount: ${amount || "N/A"}`, 15, startY);
-        doc.text(`Total Paid Amount In Words: ${amountInWords}`, 15, startY + 5);
-        return startY + 10;
-      };
-    
-      const renderFooter = (startY) => {
-        const sectionWidth = doc.internal.pageSize.getWidth() / 3;
-        doc.text("Accountant Signature", sectionWidth * 0.5, startY, { align: "center" });
-        doc.text("Authorized Signature", sectionWidth * 2.5, startY, { align: "center" });
-        doc.line(10, startY + 5, 200, startY + 5);
-        doc.text("Thank you for your payment!", centerX, startY + 10, { align: "center" });
-      };
-    
-      // Render Admin Copy
-      let y = renderHeader(5, "Admin Copy");
-      y = renderStudentDetails(y);
-      y = renderFeeTable(y);
-      y = renderAmountSection(y, data?.paidAmount, data?.pendingAmount);
-      renderFooter(y + 10);
-    
-      // Render Student Copy
-      y = renderHeader(150, "Student Copy");
-      y = renderStudentDetails(y);
-      y = renderFeeTable(y);
-      y = renderAmountSection(y, data?.paidAmount, data?.pendingAmount);
-      renderFooter(y + 10);
-    
-      // Save or display
-      if (save) {
-        doc.save(`Fee_Receipt_${data?.receiptNumber || "N/A"}.pdf`);
-      } else {
-        window.open(URL.createObjectURL(doc.output("blob")), "_blank");
-      }
+
+    const renderStudentDetails = (startY) => {
+      doc.setFontSize(10);
+      doc.text(`Admission No: ${data?.admissionNo || "N/A"}`, 15, startY);
+      doc.text(`Student Name: ${data?.name || "N/A"}`, 15, startY + 5);
+      doc.text(`Father's Name: ${data?.fatersName || "N/A"}`, 15, startY + 10);
+      doc.text(`Class & Section: ${data?.classSection || "N/A"}`, 15, startY + 15);
+
+      doc.text(`Date: ${data?.createdDate || "N/A"}`, 120, startY);
+      doc.text(`Receipt No: ${data?.receiptNumber || "N/A"}`, 120, startY + 5);
+      doc.text(`Branch: ${data?.branch?.label || "N/A"}`, 120, startY + 10);
+      doc.text(`Mode of Payment: ${data?.transactionMode === "online" ? "Online" : "Cash"}`, 120, startY + 15);
+
+      return startY + 20;
     };
+
+    const renderFeeTable = (startY) => {
+      const columns = ["Si.No", "Fee Type", "Amount"];
+      const rows = (data?.feesDatas || []).map((fee, index) => [index + 1, fee?.feeName || "N/A", `${fee?.amount || "0"}`]);
+
+      autoTable(doc, {
+        startY,
+        head: [columns],
+        body: rows.length ? rows : [[1, "No fee details available", "₹0"]],
+        theme: "grid",
+        headStyles: { fillColor: [206, 175, 240] },
+        styles: { fontSize: 10 },
+      });
+
+      return doc.lastAutoTable.finalY + 5;
+    };
+
+    const renderAmountSection = (startY, amount, pending) => {
+      const amountInWords = `${numberToWords(amount || 0)} ONLY`;
+      doc.setFontSize(10);
+      doc.text(`Total Paid Amount: ${amount || "N/A"}`, 15, startY);
+      doc.text(`Total Paid Amount In Words: ${amountInWords}`, 15, startY + 5);
+      return startY + 10;
+    };
+
+    const renderFooter = (startY) => {
+      const sectionWidth = doc.internal.pageSize.getWidth() / 3;
+      doc.text("Accountant Signature", sectionWidth * 0.5, startY, { align: "center" });
+      doc.text("Authorized Signature", sectionWidth * 2.5, startY, { align: "center" });
+      doc.line(10, startY + 5, 200, startY + 5);
+      doc.text("Thank you for your payment!", centerX, startY + 10, { align: "center" });
+    };
+
+    // Render Admin Copy
+    let y = renderHeader(5, "Admin Copy");
+    y = renderStudentDetails(y);
+    y = renderFeeTable(y);
+    y = renderAmountSection(y, data?.paidAmount, data?.pendingAmount);
+    renderFooter(y + 10);
+
+    // Render Student Copy
+    y = renderHeader(150, "Student Copy");
+    y = renderStudentDetails(y);
+    y = renderFeeTable(y);
+    y = renderAmountSection(y, data?.paidAmount, data?.pendingAmount);
+    renderFooter(y + 10);
+
+    // Save or display
+    if (save) {
+      doc.save(`Fee_Receipt_${data?.receiptNumber || "N/A"}.pdf`);
+    } else {
+      window.open(URL.createObjectURL(doc.output("blob")), "_blank");
+    }
+  };
 
   const handleSubmit = async (values) => {
     try {
@@ -284,7 +283,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         fatersName: capitalizeWords(studentData.student.fatherDetails.name),
         mothersName: capitalizeWords(studentData.student.motherDetails.name),
         rollNumber: studentData?.student?.rollNumber,
-        
+
         pendingAmount: getTotalAmount(values, "pendingAmount", true),
         paidAmount: paidAmount,
         receiptLabel,
@@ -539,7 +538,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                   </h2>
 
                   <div className=" grid grid-cols-4 gap-x-4 gap-y-4">
-                    
+
 
                     <div className="sm:col-span-1">
                       <CustomSelect
@@ -555,7 +554,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                         name="transactionDate"
                         label="Paid Date"
                         required={true}
-                        disabled= {true}
+                        disabled={true}
                       />
                     </div>
 
