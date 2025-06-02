@@ -16,21 +16,13 @@ import TableComponent from "../../../commonComponent/TableComponent";
 
 const FeeCollectionSummaryReports = () => {
   const dispatch = useDispatch();
-  const { branchData, academicYears } = useSelector((state) => state.appConfig);
+  const { branchData, academicYears, academicYear } = useSelector((state) => state.appConfig);
   const [feesData, setFeesData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [netData, setNetData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedYear, setSelectedYear] = useState(academicYear?._id);
   const rowsPerPage = 10;
-  const [academicYear, setAcademicYear] = useState(null);
-
-  useEffect(() => {
-    academicYears.forEach((year) => {
-      if(year.status === "active"){
-        setAcademicYear(year._id)
-      }
-    })
-  }, [academicYears])
 
   const columns =
     [
@@ -155,10 +147,10 @@ const FeeCollectionSummaryReports = () => {
   };
 
   useEffect(() => {
-    if (academicYear) {
-      getTransactionsData(academicYear);
+    if (selectedYear) {
+      getTransactionsData(selectedYear);
     }
-  }, [academicYear]);
+  }, [selectedYear]);
 
   return (
     <>
@@ -172,8 +164,8 @@ const FeeCollectionSummaryReports = () => {
             <select
               name="academicYear"
               className="mt-2 block w-40 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
-              onChange={(e) => { setAcademicYear(e.target.value); }}
-              value={academicYear}
+              onChange={(e) => { setSelectedYear(e.target.value) }}
+              value={selectedYear}
             >
               {academicYears.map((year) => (
                 <option key={year._id} value={year._id}>

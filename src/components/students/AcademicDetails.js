@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { postData } from '../../app/api'
 import { UPLOAD } from '../../app/url'
-import { generateYearRanges, handleApiResponse } from '../../commonComponent/CommonFunctions'
+import { generateYearRanges, handleApiResponse, uploadFile } from '../../commonComponent/CommonFunctions'
 import CustomDate from '../../commonComponent/CustomDate'
 import CustomFileUploader from '../../commonComponent/CustomFileUploader'
 import CustomInput from '../../commonComponent/CustomInput'
@@ -28,21 +28,13 @@ function StudentAcademicDetails({ values, setFieldValue }) {
   }, [])
 
   const handleFileChange = async (e) => {
-    try {
-      const formData = new FormData()
-      formData.append('file', e.target.files[0])
-      let response = await postData(UPLOAD, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      if (response.status === 200 || response.status === 201) {
-        setFieldValue(e.target.name, response.data)
-      } else {
-        alert(response.message)
+    if (e.target.files[0]) {
+      try {
+        const fileResponse = await uploadFile(e.target.files[0])
+        setFieldValue(e.target.name, fileResponse)
+      } catch (error) {
+        handleApiResponse(error)
       }
-    } catch (error) {
-      handleApiResponse(error)
     }
   }
 
@@ -60,7 +52,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Academic year"
               options={academicYears}
               required={true}
-              disabled={values._id ? true : false}
+              // disabled={values._id ? true : false}
             />
           </div>
           <div className="sm:col-span-2">
@@ -69,7 +61,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Board"
               options={boards}
               required={true}
-              disabled={values._id ? true : false}
+              // disabled={values._id ? true : false}
             />
           </div>
 
@@ -79,7 +71,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Admission Date"
               required={true}
               maxDate={moment().format('YYYY-MM-DD')}
-              disabled={values._id ? true : false}
+              // disabled={values._id ? true : false}
             />
           </div>
 
@@ -89,7 +81,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
               label="Admission Number"
               placeholder="Enter Admi.No."
               required={true}
-              disabled={values._id ? true : false}
+              // disabled={values._id ? true : false}
             />
           </div>
 
@@ -103,7 +95,7 @@ function StudentAcademicDetails({ values, setFieldValue }) {
                 setFieldValue('academics.class', e.target.value)
                 setFieldValue('academics.section', '')
               }}
-              disabled={values._id ? true : false}
+              // disabled={values._id ? true : false}
             />
           </div>
 

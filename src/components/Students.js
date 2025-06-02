@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import StudentsList from './students/StudentsList'
 import Submenu from './Submenu'
+import StudentTabs from './students/StudentTabs'
 
 export default function Students() {
   const [activeTab, setActiveTab] = useState(null)
@@ -8,7 +8,7 @@ export default function Students() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'student_details':
-        return <StudentsList />
+        return <StudentTabs />
       default:
         return <h2>No Content Available</h2>
     }

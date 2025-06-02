@@ -9,6 +9,7 @@ import CustomDate from "../../commonComponent/CustomDate";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
 import { setSelectedHoliday } from "../../app/reducers/holidaySlice";
+import CustomCheckBox from "../../commonComponent/CustomCheckBox";
 
 const HolidaySidebar = ({ getHolidayData, academicYears }) => {
   const dispatch = useDispatch()
@@ -20,11 +21,12 @@ const HolidaySidebar = ({ getHolidayData, academicYears }) => {
       startDate: null,
       endDate: null,
       name: "",
+      sendSms:true,
       ...(selectedHoliday && { ...selectedHoliday })
     };
   };
 
-  
+
 
   const getValidationSchema = () => {
     return Yup.object({
@@ -36,7 +38,7 @@ const HolidaySidebar = ({ getHolidayData, academicYears }) => {
   };
 
 
-  const handleSubmit = async (values,{ resetForm }) => {
+  const handleSubmit = async (values, { resetForm }) => {
     try {
       const res = values._id ? await updateData(HOLIDAYS + "/" + values._id, values) : await postData(HOLIDAYS, values);
       dispatch(setSelectedHoliday(null))
@@ -101,11 +103,20 @@ const HolidaySidebar = ({ getHolidayData, academicYears }) => {
                   required={true}
                 />
               </div>
+              <div className="mb-4">
+                <div className="flex items-center">
+                  <CustomCheckBox
+                    name="sendSms"
+                    label="Send Holiday SMS"
+                    onChange={(e) => setFieldValue("sendSms", e.target.checked)}
+                  />
+                </div>
+              </div>
               {/* Save Button */}
               <div className="mb-4">
-              <button className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600">
-                {selectedHoliday ? "Update Holiday" : "Add Holiday"}
-              </button>
+                <button className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600">
+                  {selectedHoliday ? "Update Holiday" : "Add Holiday"}
+                </button>
               </div>
             </Form>
           )}

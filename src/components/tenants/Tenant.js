@@ -22,17 +22,18 @@ export default function Tenant({ onClose, loadTenants }) {
   const [selectedTenantData, setSelectedTenantData] = useState(null);
 
   useEffect(() => {
-    if(selectedTenant) {
-     const data = tenants.find((tenant) => tenant._id === selectedTenant);
-     setSelectedTenantData(data)
+    if (selectedTenant) {
+      const data = tenants.find((tenant) => tenant._id === selectedTenant);
+      setSelectedTenantData(data)
     }
-  },[selectedTenant, tenants])
+  }, [selectedTenant, tenants])
   const getInitialValues = () => {
     return {
       name: "",
       contactPerson: "",
       email: "",
       mobileNumber: "",
+      organizationCode: "",
       address: {
         area: "",
         city: "",
@@ -52,6 +53,7 @@ export default function Tenant({ onClose, loadTenants }) {
         contactPerson: selectedTenantData.contactPerson,
         email: selectedTenantData.email,
         mobileNumber: selectedTenantData.mobileNumber,
+        organizationCode: selectedTenantData.organizationCode,
         address: selectedTenantData.address,
         logo: selectedTenantData.logo,
         studentCount: selectedTenantData.studentCount,
@@ -92,6 +94,9 @@ export default function Tenant({ onClose, loadTenants }) {
         .required("Mobile Number is required")
         .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits")
         .max(10),
+      organizationCode: Yup.string()
+      .required("Organization Code is required")
+      .min(3, "Organization Code must be at least 3 characters"),
       address: Yup.object({
         area: Yup.string()
           .matches(
@@ -274,6 +279,14 @@ export default function Tenant({ onClose, loadTenants }) {
                                     placeholder="Enter email"
                                     required={true}
                                     disabled={values._id ? true : false}
+                                  />
+                                </div>
+                                <div className="sm:col-span-2">
+                                  <CustomInput
+                                    name="organizationCode"
+                                    label="Organization Code"
+                                    placeholder="Enter Organization Code"
+                                    required={true}
                                   />
                                 </div>
                               </div>

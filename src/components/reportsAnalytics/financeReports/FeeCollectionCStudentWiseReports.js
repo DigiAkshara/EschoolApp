@@ -19,7 +19,7 @@ import moment from "moment";
 
 const FeeCollectionCStudentWiseReports = () => {
   const dispatch = useDispatch();
-  const { branchData, academicYears } = useSelector((state) => state.appConfig);
+  const { branchData, academicYears, academicYear } = useSelector((state) => state.appConfig);
   const { classes: classOptions, sections: sectionOptions } = useSelector(
     (state) => state.academics
   );
@@ -28,12 +28,11 @@ const FeeCollectionCStudentWiseReports = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [netData, setNetData] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [academicYear, setAcademicYear] = useState(null);
   const [yearOptions, setYearOptions] = useState([]);
   const rowsPerPage = 10;
 
   const initialValues = {
-    academicYear: academicYear,
+    academicYear: academicYear?._id,
     class: "",
     section: "",
     feeType: "",
@@ -73,9 +72,6 @@ const FeeCollectionCStudentWiseReports = () => {
   useEffect(() => {
     const options = []
     academicYears.forEach(year => {
-      if (year.status === "active") {
-        setAcademicYear(year._id)
-      }
       options.push({ label: year.year, value: year._id })
     })
     setYearOptions(options)
@@ -251,7 +247,7 @@ const FeeCollectionCStudentWiseReports = () => {
   }
 
   useEffect(() => {
-    if(academicYear) getTransactionsData(academicYear);
+    if(academicYear) getTransactionsData(academicYear._id);
   }, [academicYear]);
 
   useEffect(() => {
@@ -282,7 +278,7 @@ const FeeCollectionCStudentWiseReports = () => {
                       options={yearOptions}
                       onChange={(e) => {
                         setFieldValue("academicYear", e.target.value);
-                        setAcademicYear(e.target.value);
+                        getTransactionsData(e.target.value)
                       }}
                     />
                   </div>

@@ -14,7 +14,7 @@ import {
 } from "../../commonComponent/CommonFunctions";
 import CustomRadio from "../../commonComponent/CustomRadio";
 import PaginationComponent from "../../commonComponent/PaginationComponent";
-import AttendanceSidebar from "./AttendanceSidebar"; 
+import AttendanceSidebar from "./AttendanceSidebar";
 
 const StaffDailyAttendance = () => {
   const [staffList, setStaffList] = useState([]);
@@ -40,7 +40,7 @@ const StaffDailyAttendance = () => {
       ),
     });
   };
-  
+
 
   const handleSearch = (e, values, setFieldValue) => {
     const query = e.target.value?.toLowerCase();
@@ -50,7 +50,7 @@ const StaffDailyAttendance = () => {
     setFieldValue("attendance", staffData);
   };
 
-  const handleRadioChange = (e, values, setFieldValue) => {
+  const handleSelectChange = (e, values, setFieldValue) => {
     const selectedStatus = e.target.value;
     setFieldValue("allAttendance", selectedStatus);
     const updatedAttendance = values.attendance.map((data) => ({
@@ -60,7 +60,7 @@ const StaffDailyAttendance = () => {
     setFieldValue("attendance", updatedAttendance);
   };
 
-  const updateAttendance = (e, index, values, setFieldValue) => {    
+  const updateAttendance = (e, index, values, setFieldValue) => {
     let updatedAttendance = JSON.parse(JSON.stringify(values.attendance));
     updatedAttendance[index].attendanceStatus = e.target.value;
     setFieldValue("attendance", updatedAttendance);
@@ -73,7 +73,7 @@ const StaffDailyAttendance = () => {
       (staff) => !staff.attendanceStatus
     );
     if (incompleteAttendance) {
-      handleApiResponse({message:"Please mark attendance for all staff members."});
+      handleApiResponse({ message: "Please mark attendance for all staff members." });
       return; // Stop submission if validation fails
     }
     try {
@@ -84,7 +84,7 @@ const StaffDailyAttendance = () => {
       handleApiResponse(error);
     }
   };
- 
+
 
   return (
     <>
@@ -103,7 +103,7 @@ const StaffDailyAttendance = () => {
                 values={values}
                 user="staff"
                 setFieldValue={setFieldValue}
-                handleRadioChange={handleRadioChange}
+                handleSelectChange={handleSelectChange}
                 attendanceMarkedValue={attendanceMarked}
               />
 
@@ -155,9 +155,9 @@ const StaffDailyAttendance = () => {
                                 <input
                                   type="checkbox"
                                   className="absolute left-4 top-1/2 -mt-2 size-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
-                                  // ref={checkbox}
-                                  // checked={checked}
-                                  // onChange={toggleAll}
+                                // ref={checkbox}
+                                // checked={checked}
+                                // onChange={toggleAll}
                                 />
                               </th>
                               <th
@@ -207,7 +207,7 @@ const StaffDailyAttendance = () => {
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white z-1">
                             {values.attendance &&
-                            values.attendance.length > 0 ? (
+                              values.attendance.length > 0 ? (
                               <FieldArray name="attendance">
                                 {() =>
                                   values.attendance.map((staff, index) => (
@@ -259,7 +259,7 @@ const StaffDailyAttendance = () => {
                                           name={`attendance.${index}.attendanceStatus`}
                                           options={[
                                             ...attendanceOptions,
-                                            { value: "leave", label: "Leave" },
+                                            { value: "holiday", label: "Holiday" }, { value: "paid-leave", label: "Paid Leave" }
                                           ]}
                                           value={
                                             values.attendance[index]
