@@ -8,13 +8,15 @@ const createInstance = (URL) => {
       Authorization: `Bearer ${localStorage.getItem('studentManagement') || ''}`,
       'X-Academic-Year': localStorage.getItem('academicYear'),
       'X-Branch': localStorage.getItem('branchId'),
+      'X-Device': "webApp",
     },
   })
 
   instance.interceptors.request.use(
     (config) => {
       config.headers['X-Academic-Year'] = localStorage.getItem('academicYear')
-      config.headers['X-Branch'] =  localStorage.getItem('branchId')
+      config.headers['X-Branch'] = localStorage.getItem('branchId')
+      config.headers['X-Device'] = "webApp"
       config.headers.Authorization = `Bearer ${localStorage.getItem('studentManagement') || ''
         }`
       return config
