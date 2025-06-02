@@ -448,7 +448,7 @@ export const handleApiResponse = (res, type = "error") => {
       if (typeof res.response.data.message === "object") {
         message = res.response.data.message.join(", ");
       } else {
-        if (res.response.data.statusCode === 403) {
+        if (res.response.data.statusCode === 403||res.response.data.statusCode === 401) {
           store.dispatch(logout());
           localStorage.clear();
           window.location.href = "/login";

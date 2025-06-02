@@ -113,9 +113,9 @@ function TransportView() {
           </div>
         </div>
       </div>
-      {isModalOpen && <RouteCreation onClose={handleCloseModal} />}
+      {isModalOpen && <RouteCreation onClose={handleCloseModal} refreshData={getRouteMap} />}
       {isSectionModal && (
-        <RouteMapCreation onClose={handleCloseSectionModal} />
+        <RouteMapCreation onClose={handleCloseSectionModal} refreshData={getRouteMap} />
       )}
     </>
   );

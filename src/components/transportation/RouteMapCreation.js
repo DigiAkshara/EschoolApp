@@ -8,7 +8,7 @@ import { handleApiResponse } from "../../commonComponent/CommonFunctions";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
 
-const RouteMapCreation = ({ onClose, onSubmit }) => {
+const RouteMapCreation = ({ onClose, refreshData }) => {
   const [routeData, setRouteData] = useState([]);
 
   const [formData, setFormData] = useState({
@@ -49,6 +49,7 @@ const RouteMapCreation = ({ onClose, onSubmit }) => {
     try {
       const response = await postData(STOPS, values);
       if (response.status === 200 || response.status === 201) {
+        refreshData();
         onClose();
         handleApiResponse(response.data.message, "success");
       }
