@@ -27,11 +27,13 @@ function BasicInfo({ values, setFieldValue }) {
   }
 
   const handleFileChange = async (e) => {
-    try {
-      const fileResponse = await uploadFile(e.target.files[0])
-      setFieldValue(e.target.name, fileResponse)
-    } catch (error) {
-      handleApiResponse(error)
+    if (e.target.files[0]) {
+      try {
+        const fileResponse = await uploadFile(e.target.files[0])
+        setFieldValue(e.target.name, fileResponse)
+      } catch (error) {
+        handleApiResponse(error)
+      }
     }
   }
   return (
@@ -61,7 +63,7 @@ function BasicInfo({ values, setFieldValue }) {
               label="Student First Name"
               placeholder="Enter First Name"
               required={true}
-              disabled={values._id ? true : false}
+              // disabled={values._id ? true : false}
             />
           </div>
 
@@ -70,15 +72,16 @@ function BasicInfo({ values, setFieldValue }) {
               name="lastName"
               label="Student last Name"
               placeholder="Enter Last Name"
-              disabled={values._id ? true : false}
+              // disabled={values._id ? true : false}
               required={true}
             />
           </div>
           <div className="sm:col-span-2">
-            <CustomDate name="DOB" label="Date of Birth" required={true} maxDate={minAgeDate} disabled={values._id ? true : false} />
+            <CustomDate name="DOB" label="Date of Birth" required={true} maxDate={minAgeDate} />
+           
           </div>
 
-          
+
           <div className="sm:col-span-2">
             <CustomRadio
               name="gender"
@@ -137,7 +140,7 @@ function BasicInfo({ values, setFieldValue }) {
               label="Aadhar number"
               placeholder="Enter aadhar"
               required={true}
-              disabled={values._id ? true : false}
+              // disabled={values._id ? true : false}
             />
           </div>
 

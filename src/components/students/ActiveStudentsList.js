@@ -6,8 +6,7 @@ import { useLocation } from "react-router-dom";
 import { deleteData, getData } from "../../app/api";
 import { setIsLoader } from "../../app/reducers/appConfigSlice";
 import {
-  fetchInitialStudentData,
-  selectStudent,
+  selectStudent
 } from "../../app/reducers/studentSlice";
 import { ACADEMICS, STUDENT } from "../../app/url";
 import {
@@ -27,7 +26,7 @@ import StudentProfileModal from "./Profile";
 import PromoteModal from "./PromoteModal";
 import Student from "./Student";
 
-export default function StudentsList() {
+export default function ActiveStudentsList() {
   const dispatch = useDispatch();
   const location = useLocation();
   const academicYear = useSelector((state) => state.appConfig.academicYear)
@@ -62,7 +61,6 @@ export default function StudentsList() {
   ];
 
   useEffect(() => {
-    dispatch(fetchInitialStudentData());
     if (openModel) {
       setshowNewStudentModal(true)
     }
@@ -115,7 +113,7 @@ export default function StudentsList() {
           fatherMobile: item.student.fatherDetails?.mobileNumber,
           fatherOccupation: item.student.fatherDetails?.occupation || "N/A",
           religion: item.student.religion,
-          cast: item.student.cast,
+          caste: item.student.cast,
           subCast: item.student.subCast,
           nationality: item.student.nationality,
           bloodGroup: item.student.bloodGroup,
@@ -138,7 +136,6 @@ export default function StudentsList() {
           ...(item.status === 'active' && academicYear?.status === 'active') && {
             actions: [
               { label: "Edit", actionHandler: onHandleEdit, disabled: editPermission },
-              { label: "Delete", actionHandler: onDelete, disabled: deletePermission },
             ]
           },
         };
@@ -255,6 +252,7 @@ export default function StudentsList() {
     updatedValues("class", "");
     updatedValues("section", "");
     updatedValues("gender", "");
+    setFilteredData(studentList);
     setCurrentPage(1)
   };
 
@@ -296,6 +294,7 @@ export default function StudentsList() {
           { label: "Section", key: "sectionName" },
           { label: "Aadhar.No.", key: "aadharNumber" },
           { label: "DOB", key: "dateOfBirth" },
+           { label: "Caste", key: "caste" },
           { label: "Fathers Name", key: "fatherName" },
           { label: "Phone No.", key: "fatherMobile" },
           { label: "Mothers Name", key: "motherName" },
@@ -319,6 +318,7 @@ export default function StudentsList() {
           { label: "Section", key: "sectionName" },
           { label: "Aadhar.No.", key: "aadharNumber" },
           { label: "DOB", key: "dateOfBirth" },
+           { label: "Caste", key: "caste" },
           { label: "Fathers Name", key: "fatherName" },
           { label: "Phone No.", key: "fatherMobile" },
           { label: "Mothers Name", key: "motherName" },

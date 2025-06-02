@@ -301,7 +301,7 @@ function CommonUpload({ onClose, user, loadData = () => { } }) {
       try {
         const res = await postData(
           user === "student" ? STUDENT + "/bulk" : STAFF + "/bulk",
-          bulkUploadList
+         { bulkUploadList,duplicateHandlingOption}
         );
         handleApiResponse(res.data.message, "success");
         loadData()

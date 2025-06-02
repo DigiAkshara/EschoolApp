@@ -96,8 +96,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     if (e.target.name.includes('feeType')) {
       dumpLIst[index].feeType = e.target.value
     } else {
-      let limit = values.fees[index].totalFee * 1 / 4
-      if (e.target.value * 1 <= limit) {
+      if (e.target.value * 1 <= values.fees[index].totalFee * 1) {
         dumpLIst[index].discount = e.target.value
         dumpLIst[index].installmentAmount =
           values.fees[index].totalFee - e.target.value

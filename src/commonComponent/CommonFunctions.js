@@ -42,7 +42,7 @@ export const feeduration = [
 export const roles = [
   { value: "staff", label: "Staff" },
   { value: "student", label: "student" },
-  { value: "other", label: "other" },
+  { value: "admin", label: "Admin" },
 ];
 
 export const gender = [
@@ -167,7 +167,7 @@ export const monthsName = [
 
 export const capitalizeWords = (str) => {
   if (!str) return;
-  if(typeof str !== "string") return str
+  if (typeof str !== "string") return str
   return str
     .split(" ") // Split the string into words
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter
@@ -230,7 +230,7 @@ export const designations = [
 export const attendanceOptions = [
   { value: "present", label: "Present" },
   { value: "absent", label: "Absent" },
-  { value: "half-day", label: "Half Day" },
+  { value: "half-day", label: "Half Day" }
 ];
 
 export const uploadFile = async (file) => {
@@ -243,12 +243,8 @@ export const uploadFile = async (file) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    if (response.status === 200 || response.status === 201) {
-      response.data.name = fileName;
-      return response.data;
-    } else {
-      alert(response.message);
-    }
+    response.data.name = fileName;
+    return response.data;
   } catch (error) {
     handleApiResponse(error);
   }
@@ -371,9 +367,8 @@ export const handleDownloadPDF = (
 
   // School Header Information
   const schoolName = (branch?.label || "Unknown School").toUpperCase();
-  const schoolAddress = `${branch?.address?.area || ""}, ${
-    branch?.address?.city || ""
-  }, ${branch?.address?.state || ""}, ${branch?.address?.pincode || ""}`.trim();
+  const schoolAddress = `${branch?.address?.area || ""}, ${branch?.address?.city || ""
+    }, ${branch?.address?.state || ""}, ${branch?.address?.pincode || ""}`.trim();
   const phoneNumber = branch?.mobileNumber || "N/A";
   const email = branch?.email || "N/A";
 
@@ -448,7 +443,7 @@ export const handleApiResponse = (res, type = "error") => {
       if (typeof res.response.data.message === "object") {
         message = res.response.data.message.join(", ");
       } else {
-        if (res.response.data.statusCode === 403||res.response.data.statusCode === 401) {
+        if (res.response.data.statusCode === 403 || res.response.data.statusCode === 401) {
           store.dispatch(logout());
           localStorage.clear();
           window.location.href = "/login";
@@ -485,9 +480,9 @@ export const checkAcademicYear = () => {
 
 export function hasPermission(menuName, permissionType, options = {}) {
   const state = store.getState();
-  const { academicYear,navConfig:permissions} = state.appConfig
+  const { academicYear, navConfig: permissions } = state.appConfig
   const currentYear = moment().year();
-  if(academicYear?.year.split("-")[0] !== currentYear.toString()&&academicYear?.status!=='active') return true
+  if (academicYear?.year.split("-")[0] !== currentYear.toString() && academicYear?.status !== 'active') return true
   const { isSubmenu = false } = options;
 
   const menu = permissions.find(p => p.name === (isSubmenu ? options.parentMenu : menuName));
@@ -498,7 +493,7 @@ export function hasPermission(menuName, permissionType, options = {}) {
   }
 
   const subItem = menu.submenu?.find(sub => sub.name === menuName);
-  return subItem?.[permissionType]?false:true;
+  return subItem?.[permissionType] ? false : true;
 }
 
 

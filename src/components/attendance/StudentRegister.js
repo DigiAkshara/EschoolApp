@@ -483,9 +483,9 @@ function ManageStudentRegister() {
                                   <div className="font-medium text-gray-900 text-purple-600">
                                     {student.name}
                                   </div>
-                                  <div className="mt-1 text-gray-500">
+                                  {/* <div className="mt-1 text-gray-500">
                                     {student.rollNumber}
-                                  </div>
+                                  </div> */}
                                 </div>
                               </div>
                             </a>

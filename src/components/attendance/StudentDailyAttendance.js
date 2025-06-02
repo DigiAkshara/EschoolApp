@@ -33,6 +33,7 @@ const StudentDailyAttendance = () => {
       )[0]?.value,
       allAttendance: "",
       attendance: [],
+      sendSms:true
     };
   };
 
@@ -50,7 +51,7 @@ const StudentDailyAttendance = () => {
     });
   };
 
-  const handleRadioChange = (e, values, setFieldValue) => {
+  const handleSelectChange = (e, values, setFieldValue) => {
     const selectedStatus = e.target.value;
     setFieldValue("allAttendance", selectedStatus);
     let updatedAttendance = values.attendance.map((data) => ({
@@ -122,7 +123,7 @@ const StudentDailyAttendance = () => {
                 values={values}
                 classes={classes}
                 sections={sections}
-                handleRadioChange={handleRadioChange}
+                handleSelectChange={handleSelectChange}
                 setFieldValue={setFieldValue}
                 handleClassChange={handleClassChange}
                 handleSectionChange={handleSectionChange}
