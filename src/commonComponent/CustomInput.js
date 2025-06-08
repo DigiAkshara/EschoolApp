@@ -1,4 +1,4 @@
-import {ErrorMessage, Field} from 'formik'
+import { ErrorMessage, Field } from 'formik'
 
 export default function CustomInput(props) {
   const {
@@ -11,9 +11,12 @@ export default function CustomInput(props) {
     required = false,
     disabled = false,
   } = props
-  const cls = `appearance-none block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
-    Icon ? 'pl-10' : ''
-  }`
+  const cls = `appearance-none block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm/6 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${Icon ? 'pl-10' : ''
+    }`
+
+  const preventScroll = (e) => {
+    e.preventDefault();
+  };
   return (
     <div>
       <label
@@ -30,6 +33,9 @@ export default function CustomInput(props) {
           </div>
         )}
         <Field
+          onFocus={(e) => e.target.addEventListener('wheel', preventScroll, { passive: false })}
+          onBlur={(e) => e.target.removeEventListener('wheel', preventScroll)}
+          min="0"
           {...props}
           name={name}
           type={type ? type : 'text'}

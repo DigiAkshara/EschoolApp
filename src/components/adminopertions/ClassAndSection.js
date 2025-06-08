@@ -1,12 +1,13 @@
 import { PlusIcon } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
-import { deleteData, getData } from "../../app/api";
+import { deleteData, getData, updateData } from "../../app/api";
 import { SECTIONS } from "../../app/url";
 import { capitalizeWords, handleApiResponse } from "../../commonComponent/CommonFunctions";
 import ConfirmationModal from "../../commonComponent/ConfirmationModal";
 import TableComponent from "../../commonComponent/TableComponent";
 import ClassModal from "./ClassModal";
 import SectionModal from "./SectionModal";
+import EditModal from "./EditModal";
 
 function ClassAndSection() {
   const [filteredData, setFilteredData] = useState([]);
@@ -14,6 +15,11 @@ function ClassAndSection() {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [isClassOpen, setIsClassOpen] = useState(false);
   const [isSectionModal, setIsSectionModal] = useState(false);
+  const [rawData, setRawData] = useState([]);
+  const [selectedObject, setSelectedObject] = useState(null);
+  const [selectedType, setSelectedType] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -30,14 +36,21 @@ function ClassAndSection() {
   const fecthInitialData = async () => {
     try {
       const res = await getData(SECTIONS)
-      const data = res.data.data.map((item) => ({
-        _id: item._id,
-        class: capitalizeWords(item.class?.name),
-        section: capitalizeWords(item.section),
-        actions: [
-          { label: "Delete", actionHandler: onDelete },
-        ],
-      }))
+      setRawData(res.data.data)
+      let data = []
+      res.data.data.forEach((item) => {
+        data.push({
+          _id: item._id,
+          classId: item.class?._id,
+          class: capitalizeWords(item.class?.name),
+          section: capitalizeWords(item.section),
+          actions: [
+            { label: "Class Edit", actionHandler: ()=>{onClassEdit(item)} },
+            { label: "Section Edit", actionHandler: ()=>{onSectionEdit(item)} },
+            { label: "Delete", actionHandler: onDelete },
+          ],
+        })
+      })
       setFilteredData(data);
     } catch (error) {
       handleApiResponse(error);
@@ -48,6 +61,19 @@ function ClassAndSection() {
     setDeleteId(Id);
     setDeleteConfirm(true);
   };
+  const onClassEdit = (section) => {
+    if (section) {
+      setSelectedObject({ _id: section.class?._id, class: section.class?.name, name: "class", url: "/class" });
+      setShowEditModal(true)
+    }
+  };
+  const onSectionEdit = (section) => {
+    if (section) {
+      setSelectedObject({ _id: section._id, section: section.section, name: "section", url: "/sections" });
+      setShowEditModal(true)
+    }
+  };
+
 
   const deleteRecord = async () => {
     try {
@@ -68,6 +94,8 @@ function ClassAndSection() {
   };
   const handleOpenSection = () => setIsSectionModal(true);
   const handleCloseSectionModal = () => setIsSectionModal(false);
+
+  const handleEditClose = () => setShowEditModal(false);
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -134,6 +162,12 @@ function ClassAndSection() {
           updateData={fecthInitialData}
         />
       )}
+
+      {showEditModal && (
+        <EditModal
+          onClose={handleEditClose}
+          refreshData={fecthInitialData}
+          data={selectedObject} />)}
 
       <ConfirmationModal
         showModal={deleteConfirm}

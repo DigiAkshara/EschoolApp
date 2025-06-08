@@ -30,14 +30,14 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const getInitialValues = () => {
     return {
       studentId: selectedData?.fees?.student,
-      fees: selectedFee?.feeList.map((item) => {
+      fees: selectedFee?.feeList.map((item) => {console.log(item)
         const pendingAmount =
           (item.paybalAmount * 1 || 0) - (item.paidAmount * 1 || 0);
         return {
           _id: item.fee._id,
           feeName: item.fee.name,
           duration: item.duration,
-          totalAmount: item.fee.amount * 1,
+          totalAmount: item?.fee.isGlobal ? item.paybalAmount * 1 + item.discount * 1 : item.fee?.amount * 1,
           discount: item.discount * 1 || 0,
           paybalAmount: item.paybalAmount,
           paidAmount: item.paidAmount * 1 || 0,
@@ -68,7 +68,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
               "Discount cannot be greater than total amount",
               function (value) {
                 const { totalAmount } = this.parent; // Access sibling field 'total amount'
-                if (value && value * 1 > (totalAmount * 1) / 4) {
+                if (value && value * 1 > (totalAmount * 1)) {
                   return false; // Fail validation if discount is greater than total amount
                 }
                 return true; // Pass validation otherwise
@@ -347,7 +347,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({ values, setFieldValue, errors }) => (
+        {({ values, setFieldValue, errors }) => (console.log(errors),
           <Form>
             <div className="py-4 text-sm/6">
               <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
@@ -455,10 +455,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                           </td>
 
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                            {<>
-                              {fee.feeName === 'Bus Fee' ? fee.paybalAmount * 1 + fee.discount * 1 :
-                                fee.totalAmount}
-                            </>}
+                            {fee.totalAmount}
                           </td>
 
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
