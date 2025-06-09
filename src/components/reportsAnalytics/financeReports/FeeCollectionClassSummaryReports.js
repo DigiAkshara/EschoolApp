@@ -67,7 +67,7 @@ const FeeCollectionClassSummaryReports = () => {
   };
 
   useEffect(() => {
-    setAcademicYear(academicYears[0]._id)
+    setAcademicYear(academicYears[0]?._id)
   }, [academicYears])
 
   const columns =
@@ -158,7 +158,7 @@ const FeeCollectionClassSummaryReports = () => {
         entry.feeList.forEach(feeItem => {
           const feeName = feeItem.fee.name;
           const feeId = feeItem.fee._id;
-          const expected = feeItem.fee.isGlobal?feeItem.paybalAmount*1+feeItem.discount*1: feeItem.fee.amount || 0;
+          const expected = feeItem.fee.isGlobal ? feeItem.paybalAmount * 1 + feeItem.discount * 1 : feeItem.fee.amount || 0;
           const discount = feeItem.discount * 1 || 0;
           const netDue = expected - discount;
           const collected = feeItem.paidAmount || 0;
@@ -225,7 +225,8 @@ const FeeCollectionClassSummaryReports = () => {
     let options = res.data.data.map((fee) => ({
       label: fee.name,
       value: fee._id,
-      class: fee.class?._id
+      class: fee.class?._id,
+      isGlobal: fee.isGlobal
     }))
     setAllFees(options)
   }
@@ -279,7 +280,7 @@ const FeeCollectionClassSummaryReports = () => {
                       label="Fee Head"
                       name="feeType"
                       options={values.class ? allFees.filter(
-                        (fee) => fee.class === values.class
+                        (fee) => fee.class === values.class|| fee.isGlobal
                       ) : allFees}
                       disabled={!values.class}
                     />
