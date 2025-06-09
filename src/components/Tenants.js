@@ -18,10 +18,10 @@ export default function Tenants() {
 
   useEffect(() => {
     if (tenants.length > 0) {
-      let data = tenants.filter((tenant) => tenant.isDefault).map((item) => {
+      let data = tenants.filter((tenant) => tenant.isDefault).map((item) => {console.log(item)
         return {
           _id: item._id,
-          tenantId: item.tenant._id,
+          tenantId: item.tenant?._id,
           name: item.name,
           email: item.tenant.email,
           adminName: item.contactPerson || 'N/A',

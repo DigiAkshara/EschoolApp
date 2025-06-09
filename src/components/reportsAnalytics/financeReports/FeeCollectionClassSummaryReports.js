@@ -158,7 +158,7 @@ const FeeCollectionClassSummaryReports = () => {
         entry.feeList.forEach(feeItem => {
           const feeName = feeItem.fee.name;
           const feeId = feeItem.fee._id;
-          const expected = feeItem.fee.isGlobal?feeItem.paybalAmount: feeItem.fee.amount || 0;
+          const expected = feeItem.fee.isGlobal?feeItem.paybalAmount*1+feeItem.discount*1: feeItem.fee.amount || 0;
           const discount = feeItem.discount * 1 || 0;
           const netDue = expected - discount;
           const collected = feeItem.paidAmount || 0;

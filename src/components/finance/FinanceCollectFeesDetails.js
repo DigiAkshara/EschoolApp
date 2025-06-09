@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf"; // For PDF generation
 import autoTable from "jspdf-autotable";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 import { getData, postData } from "../../app/api";
 import { FEES, STUDENT_FEE } from "../../app/url";
@@ -17,9 +17,11 @@ import CustomDate from "../../commonComponent/CustomDate";
 import CustomFileUploader from "../../commonComponent/CustomFileUploader";
 import CustomInput from "../../commonComponent/CustomInput";
 import CustomSelect from "../../commonComponent/CustomSelect";
+import { setIsLoader } from "../../app/reducers/appConfigSlice";
 
 function FinancCollectFeesDetails({ onClose, fetchData }) {
-  const { branchData } = useSelector((state) => state.appConfig)
+  const dispatch = useDispatch();
+  const { branchData, isLoading } = useSelector((state) => state.appConfig)
   const { selectedFee: selectedData, bankAccounts, receiptNames } = useSelector((state) => state.fees);
   const [allFees, setAllFees] = useState([]);
   const [accountOptions, setAccountOptions] = useState([]);
@@ -30,7 +32,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   const getInitialValues = () => {
     return {
       studentId: selectedData?.fees?.student,
-      fees: selectedFee?.feeList.map((item) => {console.log(item)
+      fees: selectedFee?.feeList.map((item) => {
         const pendingAmount =
           (item.paybalAmount * 1 || 0) - (item.paidAmount * 1 || 0);
         return {
@@ -155,6 +157,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
     const words = require("number-to-words");
     return words.toWords(num).toUpperCase();
   };
+  
   const generateReceiptPDF = (data, logoUrl, orientation = "portrait", save = false) => {
     const doc = new jsPDF(orientation, "mm", "a4");
     const defaultLogo = "./schoolLogo.jpg";
@@ -251,6 +254,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
   };
 
   const handleSubmit = async (values) => {
+    dispatch(setIsLoader(true))
     try {
       const res = await postData(STUDENT_FEE, values);
       handleApiResponse(res.data.message, "success");
@@ -294,6 +298,8 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
       onClose();
     } catch (error) {
       handleApiResponse(error);
+    }finally{
+      dispatch(setIsLoader(false))
     }
   };
 
@@ -347,7 +353,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
         validationSchema={getValidationSchema()}
         onSubmit={handleSubmit}
       >
-        {({ values, setFieldValue, errors }) => (console.log(errors),
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <div className="py-4 text-sm/6">
               <table className="min-w-full table-fixed divide-y divide-gray-300 border border-gray-300 rounded-md">
@@ -535,8 +541,6 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                   </h2>
 
                   <div className=" grid grid-cols-4 gap-x-4 gap-y-4">
-
-
                     <div className="sm:col-span-1">
                       <CustomSelect
                         label="Payment Mode"
@@ -609,6 +613,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
               </button>
               {selectedData?.academic?.status === "active" &&
                 <button
+                  disabled={isLoading}
                   type="submit"
                   className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
                 >
