@@ -309,9 +309,7 @@ function Student({ onClose, loadStudents }) {
         .of(
           Yup.object().shape({
             isChecked: Yup.boolean(),
-            discount: Yup.number()
-              .min(0, "Discount must be at least 0")
-              .max(9999, "Discount must be a numeric value up to 4 digits"),
+            discount: Yup.number(),
             feeName: Yup.string(),
             installmentAmount: Yup.number(),
             totalFee: Yup.number(),

@@ -70,6 +70,10 @@ const BulkFeeModal = ({ data, students, onClose }) => {
           discount: discount,
           installmentAmount: item.amount - discount, //installment fee
           totalFee: item.amount * 1, //total fee
+          pendingAmount: item.amount * 1 - discount,
+          paymentStatus: 'pending',
+          paidAmount: 0,
+          description:''
         })
       }
     })
@@ -332,6 +336,14 @@ const BulkFeeModal = ({ data, students, onClose }) => {
                                         Duration
                                       </a>
                                     </th>
+                                     <th
+                                      scope="col"
+                                      className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
+                                    >
+                                      <a href="#" className="group inline-flex">
+                                        Description
+                                      </a>
+                                    </th>
                                     <th
                                       scope="col"
                                       className="px-2 py-2 text-left text-sm font-semibold text-gray-900 w-48"
@@ -393,6 +405,13 @@ const BulkFeeModal = ({ data, students, onClose }) => {
                                               isLabelRequired={false}
                                             />
                                           </td>
+                                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
+                                            <CustomInput
+                                              name={`fees.${index}.desciption`}
+                                              value={item.desciption}
+                                              disabled={!item.isChecked}
+                                            />
+                                          </td>
                                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
                                             <CustomInput
                                               name={`fees.${index}.discount`}
@@ -433,7 +452,7 @@ const BulkFeeModal = ({ data, students, onClose }) => {
                                   </FieldArray>
                                   <tr className="bg-purple-100">
                                     <td className="relative px-7 sm:w-12 sm:px-6"></td>
-
+                                    <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
                                     <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500"></td>
