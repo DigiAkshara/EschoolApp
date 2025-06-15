@@ -65,8 +65,7 @@ const FeeCollectionCStudentWiseReports = () => {
       return isValid;
     });
     setCurrentPage(1);
-    calculateNetData(filtered)
-    setFilteredData(filtered);
+    formatData(filtered)
   };
 
   useEffect(() => {
@@ -106,8 +105,7 @@ const FeeCollectionCStudentWiseReports = () => {
         String(item[col.key]).toLowerCase().includes(term.toLowerCase())
       )
     );
-    calculateNetData(filtered)
-    setFilteredData(filtered);
+    formatData(filtered)
   };
 
   const downloadList = () => {
@@ -164,19 +162,19 @@ const FeeCollectionCStudentWiseReports = () => {
   const getTransactionsData = async (selectedYear) => {
     try {
       dispatch(setIsLoader(true));
-      const res = await getData(STUDENT_FEE+'?academicYear='+selectedYear);
+      const res = await getData(STUDENT_FEE + '?academicYear=' + selectedYear);
       const formattedData = [];
-
       res.data.data.forEach(studentData => {
+        const studentId = studentData.student._id;
         const studentName = `${studentData.student.firstName} ${studentData.student.lastName}`;
         const rollNumber = studentData.student.rollNumber;
         const className = studentData.academics.class.name;
         const classId = studentData.academics.class._id;
         const sectionId = studentData.academics.section;
 
-        studentData.feeList.forEach((fee, index) => {
+        studentData.feeList.forEach((fee) => {
           const feeName = fee.fee?.name || fee.feeName || "N/A";
-          const expected = fee.fee?.isGlobal ? fee.paybalAmount : fee.fee?.amount * 1 || 0;
+          const expected = fee.fee?.isGlobal ? fee.paybalAmount*1+fee.discount*1 : fee.fee?.amount * 1 || 0;
           const discount = +fee.discount || 0;
           const netDue = expected - discount;
           const paid = +fee.paidAmount || 0;
@@ -188,13 +186,13 @@ const FeeCollectionCStudentWiseReports = () => {
           const collectionPercent = netDue > 0
             ? (((paid / netDue) * 100).toFixed(2) + "%")
             : "0%";
-
-          formattedData.push({
+          let obj = {
+            studentId,
             classId,
             sectionId,
-            studentName: index === 0 ? studentName : "", // Only first row
-            rollNumber: index === 0 ? rollNumber : "",
-            class: index === 0 ? className : "",
+            studentName: studentName, // Only first row
+            rollNumber: rollNumber,
+            class: className,
             feeId: fee.fee._id,
             feeName,
             lastPaymentDate,
@@ -204,19 +202,41 @@ const FeeCollectionCStudentWiseReports = () => {
             collectedAmount: paid,
             pendingAmount: pending,
             collectedPercentage: collectionPercent,
-
-          });
+          }
+          formattedData.push(obj); // deep copyobj});
         });
       });
-
-      calculateNetData(formattedData)
       setFeesData(formattedData)
-      setFilteredData(formattedData);
+      formatData(formattedData);
     } catch (error) {
       handleApiResponse(error);
     } finally {
       dispatch(setIsLoader(false));
     }
+  };
+
+
+  const formatData = (data) => {
+    const grouped = {};
+    data.forEach((row) => {
+      const key = row.studentId;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(row);
+    });
+
+    const formatted = [];
+    Object.values(grouped).forEach((group) => {
+      group.forEach((row, index) => {
+        formatted.push({
+          ...row,
+          studentName: index === 0 ? row.studentName : "",
+          class: index === 0 ? row.class : "",
+          rollNumber: index === 0 ? row.rollNumber : "",
+        });
+      });
+    });
+    calculateNetData(formatted)
+    setFilteredData(formatted);
   };
 
   const calculateNetData = (data) => {
@@ -247,7 +267,7 @@ const FeeCollectionCStudentWiseReports = () => {
   }
 
   useEffect(() => {
-    if(academicYear) getTransactionsData(academicYear._id);
+    if (academicYear) getTransactionsData(academicYear._id);
   }, [academicYear]);
 
   useEffect(() => {
@@ -326,8 +346,7 @@ const FeeCollectionCStudentWiseReports = () => {
                       <button
                         onClick={() => {
                           resetForm();
-                          calculateNetData(feesData)
-                          setFilteredData(feesData);
+                          formatData(feesData)
                           setCurrentPage(1);
                         }}
                         className="ml-4 inline-flex justify-center rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-500"
