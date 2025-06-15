@@ -115,7 +115,7 @@ function Header({ updateSideBar }) {
               <>
                 <select
                   name="branch"
-                  disabled={user?.role.name !== "admin"}
+                  disabled={user?.role.name === "admin"}
                   className="mt-2 block w-40 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
                   onChange={handleBranchChange}
                   value={selectedBranch}
@@ -128,7 +128,7 @@ function Header({ updateSideBar }) {
                 </select>
                 <select
                   name="academicYear"
-                  disabled={user?.role.name !== "admin"}
+                  disabled={user?.role.name === "student"}
                   className="mt-2 block w-40 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-purple-600 sm:text-sm/6"
                   onChange={handleAcademicChange}
                   value={academic}

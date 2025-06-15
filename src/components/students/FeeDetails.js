@@ -66,6 +66,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
           discount: discount,
           installmentAmount: item.amount - discount, //installment fee
           totalFee: item.amount * 1, //total fee
+          actualFee: item.amount * 1,
           isGlobal: item.isGlobal,
           pendingAmount: item.amount * 1 - discount,
           paymentStatus: 'pending',
@@ -73,6 +74,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
         })
       }
     })
+
     if (selectedStudent) {
       selectedStudent.fees?.feeList.forEach(item => {
         let index = dumpLIst.findIndex(obj => obj.id === item.fee._id);
@@ -83,11 +85,21 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
           dumpLIst[index].dueDate = item.dueDate
           dumpLIst[index].discount = discount * 1
           dumpLIst[index].totalFee = item?.fee.isGlobal ? item.paybalAmount * 1 + discount * 1 : item?.fee.amount * 1//installment fee
+          dumpLIst[index].actualFee = item?.fee.isGlobal ? item.paybalAmount * 1 + discount * 1 : item?.fee.amount * 1//installment fee
           dumpLIst[index].installmentAmount = item.paybalAmount * 1 //installment fee
-          dumpLIst[index].pendingAmount = item.pendingAmount * 1 + discount * 1
+          dumpLIst[index].pendingAmount = item.pendingAmount * 1 
           dumpLIst[index].paymentStatus = item.paymentStatus || item.status
           dumpLIst[index].paidAmount = item.paidAmount
           dumpLIst[index].description = item.description || ''
+        }
+        if (item.isCarryForward) {
+          dumpLIst.push({ ...item, 
+            isChecked: true, 
+            feeName: item.fee?.name, 
+            feeType: item.duration, 
+            actualFee: item.paybalAmount * 1 +item.discount * 1,
+            installmentAmount:item.paybalAmount * 1 -item.discount * 1,
+          })
         }
       })
     }
@@ -101,10 +113,12 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     if (e.target.name.includes('feeType')) {
       dumpLIst[index].feeType = e.target.value
     } else {
-      if (e.target.value * 1 <= values.fees[index].pendingAmount * 1) {
+      if (e.target.value * 1 <= values.fees[index].pendingAmount * 1+ values.fees[index].discount * 1) {
+        const paybalAmount = values.fees[index].actualFee - e.target.value
         dumpLIst[index].discount = e.target.value
-        dumpLIst[index].installmentAmount =
-          values.fees[index].totalFee - e.target.value
+        dumpLIst[index].installmentAmount =paybalAmount
+        dumpLIst[index].paybalAmount = paybalAmount
+        dumpLIst[index].pendingAmount = paybalAmount
       }
     }
     setFieldValue('fees', dumpLIst)
@@ -136,7 +150,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     dumpList[index].dueDate = null
     if (dumpList[index].feeName === 'Bus Fee') {
       dumpList[index].installmentAmount = 0
-      dumpList[index].totalFee = 0
+      dumpList[index].actualFee = 0
     }
 
     let isAllChecked = dumpList.every((item) => item.isChecked)
@@ -191,6 +205,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     if (selectedRoute) {
       dumpList[index].discount = 0
       dumpList[index].totalFee = selectedRoute?.amount || 0
+      dumpList[index].actualFee = selectedRoute?.amount || 0
       dumpList[index].installmentAmount = selectedRoute.amount * 1 || 0
       setFieldValue('fees', dumpList)
     }
@@ -201,6 +216,7 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
     let dumpList = values.fees
     dumpList[index].discount = 0
     dumpList[index].totalFee = value * 1 || 0
+    dumpList[index].actualFee = value * 1 || 0
     dumpList[index].installmentAmount = value * 1 || 0
     dumpList[index].pendingAmount = value * 1 || 0
     setFieldValue('fees', dumpList)
@@ -359,10 +375,10 @@ function StudentFeeDetails({ values, setFieldValue, errors }) {
                       </td>
                       <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500 max-w-10">
                         <CustomInput
-                          name={`fees.${index}.totalFee`}
+                          name={`fees.${index}.actualFee`}
                           placeholder="Enter Total Fee"
                           type="number"
-                          value={item.totalFee}
+                          value={item.actualFee}
                           disabled={!item.isChecked || item.feeName === 'Bus Fee' || !item.isGlobal || item.paymentStatus === 'paid'}
                           onChange={(e) => handleGlobalFeeChange(e.target.value, index)}
                         />

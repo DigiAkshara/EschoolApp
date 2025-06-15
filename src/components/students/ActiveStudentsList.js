@@ -385,6 +385,15 @@ export default function ActiveStudentsList() {
             <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
             Bulk Upload Students
           </button>
+          <button
+            disabled={granuts.create}
+            type="button"
+            onClick={() => setShowBulkFeeModal(true)}
+            className="disabled:opacity-50 disabled:bg-purple-500 disabled:cursor-not-allowed inline-flex items-center gap-x-1.5 rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+          >
+            <ArrowUpTrayIcon aria-hidden="true" className="-ml-0.5 size-5" />
+            Apply Bulk Fees
+          </button>
         </div>
       </div>
 
@@ -404,19 +413,6 @@ export default function ActiveStudentsList() {
                     className="size-5"
                   />
                   Promote
-                </button>
-
-                <button
-                  disabled={granuts.create}
-                  onClick={() => setShowBulkFeeModal(true)}
-                  type="button"
-                  className="disabled:opacity-50 disabled:cursor-not-allowed  inline-flex items-center rounded gap-x-1.5 bg-white px-2 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                >
-                  <ArrowLongUpIcon
-                    aria-hidden="true"
-                    className="size-5"
-                  />
-                  Add Bulk Fees
                 </button>
 
                 <button
@@ -496,7 +492,7 @@ export default function ActiveStudentsList() {
 
       <Dialog open={showBulkFeeModal} onClose={handleBulkClose} className="relative z-50">
         <div className="fixed inset-0" />
-        <BulkFeeModal data={filterForm} students={filteredData.filter((item) => item.isChecked).map((item) => item._id)} onClose={handleBulkClose} />
+        <BulkFeeModal students={filteredData} onClose={handleBulkClose} />
       </Dialog>
 
       <Dialog open={showDeleteModal} onClose={handleBulkClose} className="relative z-50">

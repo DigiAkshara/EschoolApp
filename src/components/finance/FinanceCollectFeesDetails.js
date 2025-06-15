@@ -45,6 +45,8 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
           paidAmount: item.paidAmount * 1 || 0,
           pendingAmount: pendingAmount,
           dueDate: item.dueDate || null,
+          isCarryForward:item.isCarryForward||false,
+          description:item.description,
           status: item.paymentStatus
             ? capitalizeWords(item.paymentStatus)
             : "Pending",
@@ -454,6 +456,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                         <tr key={fee._id}>
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
                             {capitalizeWords(fee.feeName)}
+                            {fee.description&&<p className="items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">{fee.description}</p>}
                           </td>
 
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
@@ -461,7 +464,7 @@ function FinancCollectFeesDetails({ onClose, fetchData }) {
                           </td>
 
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
-                            {fee.totalAmount}
+                            {fee.isCarryForward?fee.paybalAmount: fee.totalAmount}
                           </td>
 
                           <td className="whitespace-nowrap px-2 py-2 text-sm text-gray-500">
